@@ -25,13 +25,15 @@ type Engine struct {
 }
 
 func NewEngine() *Engine {
-	return &Engine{
+	eng := &Engine{
 		actionQueue:    make(chan Action, 1),
 		eventQueue:     make(chan Event, 1),
 		actionHandlers: make([]ActionHandler, 0),
 		eventHandlers:  make([]EventHandler, 0),
 		servers:        make([]Server, 0),
 	}
+	newScriptSystem(eng)
+	return eng
 }
 
 func (e *Engine) RegisterActionHandler(h ActionHandler) {

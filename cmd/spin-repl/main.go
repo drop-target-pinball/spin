@@ -11,7 +11,6 @@ import (
 func main() {
 	eng := spin.NewEngine()
 	sdl.NewAudioSystem(eng)
-	spin.NewScriptSystem(eng)
 	console.NewLoggingSystem(eng)
 	eng.Start()
 

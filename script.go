@@ -20,15 +20,15 @@ func (e *Env) Post(evt Event) {
 
 type Script func(context.Context, *Env)
 
-type ScriptSystem struct {
+type scriptSystem struct {
 	eng     *Engine
 	scripts map[string]Script
 	running map[string]context.CancelFunc
 	env     map[string]*Env
 }
 
-func NewScriptSystem(eng *Engine) *ScriptSystem {
-	sys := &ScriptSystem{
+func newScriptSystem(eng *Engine) *scriptSystem {
+	sys := &scriptSystem{
 		eng:     eng,
 		scripts: make(map[string]Script),
 		running: make(map[string]context.CancelFunc),
@@ -39,7 +39,7 @@ func NewScriptSystem(eng *Engine) *ScriptSystem {
 	return sys
 }
 
-func (s *ScriptSystem) HandleAction(a Action) {
+func (s *scriptSystem) HandleAction(a Action) {
 	switch action := a.(type) {
 	case RegisterScript:
 		s.registerScript(action)
@@ -50,7 +50,7 @@ func (s *ScriptSystem) HandleAction(a Action) {
 	}
 }
 
-func (s *ScriptSystem) HandleEvent(evt Event) {
+func (s *scriptSystem) HandleEvent(evt Event) {
 	for _, env := range s.env {
 		if env != nil {
 			env.Events <- evt
@@ -58,14 +58,14 @@ func (s *ScriptSystem) HandleEvent(evt Event) {
 	}
 }
 
-func (s *ScriptSystem) Service() {}
+func (s *scriptSystem) Service() {}
 
-func (s *ScriptSystem) registerScript(a RegisterScript) {
+func (s *scriptSystem) registerScript(a RegisterScript) {
 	s.scripts[a.ID] = a.Script
 	s.running[a.ID] = nil
 }
 
-func (s *ScriptSystem) playScript(a PlayScript) {
+func (s *scriptSystem) playScript(a PlayScript) {
 	scr, ok := s.scripts[a.ID]
 	if !ok {
 		Warn("%v: no such script", a.ID)
@@ -87,7 +87,7 @@ func (s *ScriptSystem) playScript(a PlayScript) {
 	}()
 }
 
-func (s *ScriptSystem) stopScript(id string) {
+func (s *scriptSystem) stopScript(id string) {
 	cancel, ok := s.running[id]
 	if !ok {
 		Warn("%v: no such script", id)
@@ -102,7 +102,7 @@ func (s *ScriptSystem) stopScript(id string) {
 	s.env[id] = nil
 }
 
-func (s *ScriptSystem) stopScripts(a StopScript) {
+func (s *scriptSystem) stopScripts(a StopScript) {
 	if a.ID == "*" {
 		for id := range s.running {
 			s.stopScript(id)
