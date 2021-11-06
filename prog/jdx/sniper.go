@@ -84,8 +84,7 @@ func sniperFall(ctx context.Context, e *spin.Env) {
 
 func sniperMode(ctx context.Context, e *spin.Env) {
 	defer func() {
-		e.Do(spin.StopMusic{})
-		e.Do(spin.StopSpeech{})
+		e.Do(spin.StopAudio{})
 		e.Do(spin.StopScript{ID: SniperCaught})
 		e.Do(spin.StopScript{ID: SniperFall})
 		e.Do(spin.StopScript{ID: SniperHunt})

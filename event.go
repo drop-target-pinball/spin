@@ -12,7 +12,5 @@ type SwitchEvent struct {
 	ID string
 }
 
-type TickEvent struct{}
-
 func (Message) event()     {}
 func (SwitchEvent) event() {}

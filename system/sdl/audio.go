@@ -57,6 +57,8 @@ func (s *AudioSystem) HandleAction(a spin.Action) {
 		s.playSpeech(action)
 	case spin.PlaySound:
 		s.playSound(action)
+	case spin.StopAudio:
+		s.stopAudio(action)
 	case spin.StopMusic:
 		s.stopMusic(action)
 	case spin.StopSpeech:
@@ -118,8 +120,13 @@ func (s *AudioSystem) playSpeech(a spin.PlaySpeech) {
 	sp.Play(0, 0)
 }
 
+func (s *AudioSystem) stopAudio(a spin.StopAudio) {
+	mix.HaltMusic()
+	mix.HaltChannel(-1)
+}
+
 func (s *AudioSystem) stopMusic(a spin.StopMusic) {
-	mix.PauseMusic()
+	mix.HaltMusic()
 }
 
 func (s *AudioSystem) stopSpeech(a spin.StopSpeech) {

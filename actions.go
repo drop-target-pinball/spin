@@ -72,6 +72,12 @@ func (a RegisterSpeech) String() string {
 	return "register-speech: " + a.ID
 }
 
+type StopAudio struct{}
+
+func (a StopAudio) String() string {
+	return "stop-audio"
+}
+
 type StopMusic struct{}
 
 func (a StopMusic) String() string {
@@ -100,6 +106,7 @@ func (RegisterMusic) action()  {}
 func (RegisterScript) action() {}
 func (RegisterSound) action()  {}
 func (RegisterSpeech) action() {}
+func (StopAudio) action()      {}
 func (StopMusic) action()      {}
 func (StopScript) action()     {}
 func (StopSpeech) action()     {}
