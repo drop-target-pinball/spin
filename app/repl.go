@@ -10,6 +10,7 @@ import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/prog/jdx"
 	"github.com/drop-target-pinball/spin/terminal"
+	"github.com/drop-target-pinball/spin/terminal/ansi"
 )
 
 const (
@@ -25,9 +26,9 @@ type REPL struct {
 func NewREPL(eng *spin.Engine) *REPL {
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt: fmt.Sprintf("%v%v%v> ",
-			terminal.AnsiLightGreen,
+			ansi.LightGreen,
 			progName,
-			terminal.AnsiReset),
+			ansi.Reset),
 	})
 	if err != nil {
 		log.Fatalf("unable to initialize readline: %v", err)
@@ -47,12 +48,12 @@ func NewREPL(eng *spin.Engine) *REPL {
 func (r *REPL) Run() error {
 	for {
 		line, err := r.rl.Readline()
-		fmt.Printf("%v%v%v%v> %v\n",
-			terminal.AnsiPreviousLine,
-			terminal.AnsiCyan,
+		fmt.Printf("%v%v%v> %v%v\n",
+			ansi.PreviousLine,
+			ansi.BrightBlack,
 			progName,
-			terminal.AnsiReset,
 			line,
+			ansi.Reset,
 		)
 		if err == io.EOF {
 			return nil

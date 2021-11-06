@@ -7,6 +7,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/drop-target-pinball/spin/terminal/ansi"
 )
 
 type Writer struct {
@@ -78,7 +80,7 @@ func (c *Writer) emit() {
 			}
 		}
 	}
-	io.WriteString(c.w, AnsiClearLine)
+	io.WriteString(c.w, ansi.ClearLine)
 	if omission {
 		text := fmt.Sprintf("... omitted %v lines\n", lines-c.maxUpdate)
 		io.WriteString(c.w, text)
