@@ -1,6 +1,8 @@
 package spin
 
 import (
+	"reflect"
+	"strings"
 	"time"
 )
 
@@ -78,4 +80,15 @@ func (e *Engine) loop() {
 
 func (e *Engine) Start() {
 	go e.loop()
+}
+
+func String(a interface{}) string {
+	t := reflect.TypeOf(a)
+	v := reflect.ValueOf(a)
+	fields := make([]string, 0)
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		fields = append(fields, f.Name+"="+v.Field(i).String())
+	}
+	return t.Name() + ": " + strings.Join(fields, ", ")
 }

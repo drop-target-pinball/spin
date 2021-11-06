@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/app"
 	"github.com/drop-target-pinball/spin/prog/jdx"
@@ -9,6 +11,7 @@ import (
 )
 
 func main() {
+	log.SetFlags(0)
 	eng := spin.NewEngine()
 	sdl.NewAudioSystem(eng)
 	console.NewLoggingSystem(eng)

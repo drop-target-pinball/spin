@@ -1,7 +1,7 @@
 package console
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/drop-target-pinball/spin"
 )
@@ -17,9 +17,9 @@ func NewLoggingSystem(eng *spin.Engine) *LoggingSystem {
 }
 
 func (s *LoggingSystem) HandleAction(act spin.Action) {
-	fmt.Println(act)
+	log.Println(spin.String(act))
 }
 
 func (s *LoggingSystem) HandleEvent(evt spin.Event) {
-	fmt.Println(evt)
+	log.Println(spin.String(evt))
 }

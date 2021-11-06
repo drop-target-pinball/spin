@@ -4,34 +4,56 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 
 	"github.com/chzyer/readline"
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/prog/jdx"
+	"github.com/drop-target-pinball/spin/terminal"
+)
+
+const (
+	progName = "spin"
 )
 
 type REPL struct {
 	eng *spin.Engine
 	rl  *readline.Instance
+	out *terminal.Writer
 }
 
 func NewREPL(eng *spin.Engine) *REPL {
 	rl, err := readline.NewEx(&readline.Config{
-		Prompt: "spin> ",
+		Prompt: fmt.Sprintf("%v%v%v> ",
+			terminal.AnsiLightGreen,
+			progName,
+			terminal.AnsiReset),
 	})
 	if err != nil {
 		log.Fatalf("unable to initialize readline: %v", err)
 	}
 
+	out := terminal.NewWriter(os.Stdout)
+	out.RefreshFunc = func() { rl.Refresh() }
+	log.SetOutput(out)
+
 	return &REPL{
 		eng: eng,
 		rl:  rl,
+		out: out,
 	}
 }
 
 func (r *REPL) Run() error {
 	for {
 		line, err := r.rl.Readline()
+		fmt.Printf("%v%v%v%v> %v\n",
+			terminal.AnsiPreviousLine,
+			terminal.AnsiCyan,
+			progName,
+			terminal.AnsiReset,
+			line,
+		)
 		if err == io.EOF {
 			return nil
 		}
