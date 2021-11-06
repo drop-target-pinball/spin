@@ -14,3 +14,8 @@ type SwitchEvent struct {
 
 func (Message) event()     {}
 func (SwitchEvent) event() {}
+
+func registerEvents(e *Engine) {
+	e.RegisterEvent(Message{})
+	e.RegisterEvent(SwitchEvent{})
+}

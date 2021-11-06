@@ -2,8 +2,13 @@ package spin
 
 import "log"
 
+func Error(format string, a ...interface{}) {
+	format = "(*) " + format
+	log.Printf(format, a...)
+}
+
 func Warn(format string, a ...interface{}) {
-	log.Print("(!) ")
+	format = "(!) " + format
 	log.Printf(format, a...)
 }
 

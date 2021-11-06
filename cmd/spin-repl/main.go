@@ -13,8 +13,8 @@ import (
 func main() {
 	log.SetFlags(0)
 	eng := spin.NewEngine()
-	sdl.NewAudioSystem(eng)
 	console.NewLoggingSystem(eng)
+	sdl.NewAudioSystem(eng)
 	eng.Start()
 
 	jdx.Load(eng)

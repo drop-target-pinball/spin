@@ -19,6 +19,8 @@ type Server interface {
 }
 
 type Engine struct {
+	Actions        map[string]Action
+	Events         map[string]Event
 	actionQueue    chan Action
 	eventQueue     chan Event
 	actionHandlers []ActionHandler
@@ -28,6 +30,8 @@ type Engine struct {
 
 func NewEngine() *Engine {
 	eng := &Engine{
+		Actions:        make(map[string]Action),
+		Events:         make(map[string]Event),
 		actionQueue:    make(chan Action, 1),
 		eventQueue:     make(chan Event, 1),
 		actionHandlers: make([]ActionHandler, 0),
@@ -35,6 +39,8 @@ func NewEngine() *Engine {
 		servers:        make([]Server, 0),
 	}
 	newScriptSystem(eng)
+	registerActions(eng)
+	registerEvents(eng)
 	return eng
 }
 
@@ -48,6 +54,30 @@ func (e *Engine) RegisterEventHandler(h EventHandler) {
 
 func (e *Engine) RegisterServer(s Server) {
 	e.servers = append(e.servers, s)
+}
+
+func (e *Engine) RegisterAction(act Action) {
+	t := reflect.TypeOf(act)
+	name := t.Name()
+	if _, exists := e.Actions[name]; exists {
+		Warn("duplicate action: %v", name)
+		return
+	}
+	e.Actions[name] = act
+}
+
+func (e *Engine) RegisterEvent(evt Event) {
+	t := reflect.TypeOf(evt)
+	name := t.Name()
+	if _, exists := e.Actions[name]; exists {
+		Warn("duplicate event: %v", name)
+		return
+	}
+	e.Events[name] = evt
+}
+
+func (e *Engine) Start() {
+	go e.loop()
 }
 
 func (e *Engine) Do(act Action) {
@@ -76,10 +106,6 @@ func (e *Engine) loop() {
 			}
 		}
 	}
-}
-
-func (e *Engine) Start() {
-	go e.loop()
 }
 
 func String(a interface{}) string {
