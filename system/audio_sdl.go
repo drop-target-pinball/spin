@@ -106,16 +106,6 @@ func (s *AudioSDL) playMusic(a spin.PlayMusic) {
 	}
 }
 
-func playChunk(chunk *mix.Chunk, ch int, loops int, vol int) {
-	chunk.Play(ch, loops)
-	vol = clampVolume(vol)
-	if vol == 0 {
-		mix.Volume(ch, mix.MAX_VOLUME)
-	} else {
-		mix.Volume(ch, vol)
-	}
-}
-
 func (s *AudioSDL) playSound(a spin.PlaySound) {
 	sp, ok := s.sound[a.ID]
 	if !ok {
@@ -167,14 +157,4 @@ func (s *AudioSDL) volumeMusic(a spin.VolumeMusic) {
 
 	}
 	mix.VolumeMusic(vol)
-}
-
-func clampVolume(v int) int {
-	if v < 0 {
-		return 0
-	}
-	if v > mix.MAX_VOLUME {
-		return mix.MAX_VOLUME
-	}
-	return v
 }
