@@ -1,6 +1,7 @@
 package spin
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"time"
@@ -38,7 +39,6 @@ func NewEngine() *Engine {
 		eventHandlers:  make([]EventHandler, 0),
 		servers:        make([]Server, 0),
 	}
-	newScriptSystem(eng)
 	registerActions(eng)
 	registerEvents(eng)
 	return eng
@@ -114,7 +114,7 @@ func String(a interface{}) string {
 	fields := make([]string, 0)
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
-		fields = append(fields, f.Name+"="+v.Field(i).String())
+		fields = append(fields, fmt.Sprintf("%v=%v", f.Name, v.Field(i)))
 	}
 	return t.Name() + ": " + strings.Join(fields, ", ")
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/chzyer/readline"
@@ -25,11 +26,20 @@ type REPL struct {
 }
 
 func NewREPL(eng *spin.Engine) *REPL {
+	historyFile := ""
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		spin.Warn("unable to determine home directory: %v", err)
+	} else {
+		historyFile = homedir + "/.spin-history"
+	}
+
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt: fmt.Sprintf("%v%v%v> ",
 			ansi.LightGreen,
 			progName,
 			ansi.Reset),
+		HistoryFile: historyFile,
 	})
 	if err != nil {
 		log.Fatalf("unable to initialize readline: %v", err)
@@ -98,9 +108,22 @@ func (r *REPL) Eval(line string) error {
 		if !ok {
 			return fmt.Errorf("unknown property: %v", key)
 		}
-		if f.Type.Kind() == reflect.String {
+		switch f.Type.Kind() {
+		case reflect.String:
 			v.FieldByName(key).SetString(val)
-		} else {
+		case reflect.Int:
+			iVal, err := strconv.Atoi(val)
+			if err != nil {
+				return fmt.Errorf("not an integer: %v", val)
+			}
+			v.FieldByName(key).SetInt(int64(iVal))
+		case reflect.Float64:
+			fVal, err := strconv.ParseFloat(val, 64)
+			if err != nil {
+				return fmt.Errorf("not a float: %v", val)
+			}
+			v.FieldByName(key).SetFloat(fVal)
+		default:
 			return fmt.Errorf("cannot handle type %v: %v", f.Type.Kind(), val)
 		}
 	}

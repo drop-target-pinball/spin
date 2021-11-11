@@ -4,10 +4,10 @@ import "github.com/drop-target-pinball/spin"
 
 const (
 	Ahhhhh                                    = "Ahhhhh"
-	ICanSeeMyHouseFromHere                    = "i-can-see-my-house-from-here"
-	ItsALongWayDown                           = "its-a-long-way-down"
-	SniperIsShootingIntoCrowdFromJohnsonTower = "sniper-is-shooting-into-crowd-from-johnson-tower"
-	ShootSniperTower                          = "shoot-sniper-tower"
+	ICanSeeMyHouseFromHere                    = "ICanSeeMyHouseFromHere"
+	ItsALongWayDown                           = "ItsALongWayDown"
+	SniperIsShootingIntoCrowdFromJohnsonTower = "SniperIsShootingIntoCrowdFromJohnsonTower"
+	ShootSniperTower                          = "ShootSniperTower"
 )
 
 func RegisterSpeech(eng *spin.Engine) {

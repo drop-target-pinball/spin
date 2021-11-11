@@ -3,9 +3,9 @@ package jdx
 import "github.com/drop-target-pinball/spin"
 
 const (
-	MainTheme      = "main-theme"
-	MultiballTheme = "multiball-theme"
-	ModeTheme1     = "mode-theme-1"
+	MainTheme      = "MainTheme"
+	MultiballTheme = "MultiballTheme"
+	ModeTheme1     = "ModeTheme1"
 )
 
 func RegisterMusic(eng *spin.Engine) {

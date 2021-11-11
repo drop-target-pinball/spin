@@ -5,7 +5,8 @@ type Action interface {
 }
 
 type PlayMusic struct {
-	ID string
+	ID  string
+	Vol int
 }
 
 type PlayScript struct {
@@ -17,7 +18,8 @@ type PlaySound struct {
 }
 
 type PlaySpeech struct {
-	ID string
+	ID  string
+	Vol int
 }
 
 type RegisterAction struct {
@@ -58,6 +60,12 @@ type StopScript struct {
 
 type StopSpeech struct{}
 
+type VolumeMusic struct {
+	Set int
+	Add int
+	Mul float64
+}
+
 func (PlayMusic) action()      {}
 func (PlayScript) action()     {}
 func (PlaySound) action()      {}
@@ -72,6 +80,7 @@ func (StopAudio) action()      {}
 func (StopMusic) action()      {}
 func (StopScript) action()     {}
 func (StopSpeech) action()     {}
+func (VolumeMusic) action()    {}
 
 func registerActions(e *Engine) {
 	e.RegisterAction(PlayMusic{})
@@ -85,4 +94,5 @@ func registerActions(e *Engine) {
 	e.RegisterAction(StopMusic{})
 	e.RegisterAction(StopScript{})
 	e.RegisterAction(StopSpeech{})
+	e.RegisterAction(VolumeMusic{})
 }

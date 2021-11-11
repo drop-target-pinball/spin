@@ -8,20 +8,20 @@ import (
 )
 
 const (
-	SniperCaught     = "sniper-caught"
-	SniperCaughtDone = "sniper-caught-done"
-	SniperFall       = "sniper-fall"
-	SniperFallDone   = "sniper-fall-done"
-	SniperHunt       = "sniper-hunt"
-	SniperMode       = "sniper-mode"
+	SniperCaught     = "SniperCaught"
+	SniperCaughtDone = "SniperCaughtDone"
+	SniperFall       = "SniperFall"
+	SniperFallDone   = "SniperFallDone"
+	SniperHunt       = "SniperHunt"
+	SniperMode       = "SniperMode"
 )
 
-func sniperHunt(ctx context.Context, e *spin.Env) {
+func sniperHunt(ctx context.Context, e spin.Env) {
 	defer func() {
 		e.Do(spin.StopSpeech{})
 	}()
 
-	e.Do(spin.PlayMusic{ID: ModeTheme1})
+	e.Do(spin.PlayMusic{ID: ModeTheme1, Vol: 100})
 	e.Do(spin.PlaySpeech{ID: SniperIsShootingIntoCrowdFromJohnsonTower})
 
 	if done := spin.Wait(ctx, 4*time.Second); done {
@@ -46,15 +46,17 @@ func sniperHunt(ctx context.Context, e *spin.Env) {
 	}
 }
 
-func sniperCaught(ctx context.Context, e *spin.Env) {
+func sniperCaught(ctx context.Context, e spin.Env) {
+	e.Do(spin.VolumeMusic{Mul: 0.5})
 	e.Do(spin.PlaySound{ID: Success})
 	if done := spin.Wait(ctx, 1500*time.Millisecond); done {
 		return
 	}
+	e.Do(spin.VolumeMusic{Mul: 2})
 	e.Post(spin.Message{ID: SniperCaughtDone})
 }
 
-func sniperFall(ctx context.Context, e *spin.Env) {
+func sniperFall(ctx context.Context, e spin.Env) {
 	e.Do(spin.PlaySpeech{ID: ShootSniperTower})
 	if done := spin.Wait(ctx, 1750*time.Millisecond); done {
 		return
@@ -82,7 +84,7 @@ func sniperFall(ctx context.Context, e *spin.Env) {
 	e.Do(spin.StopSpeech{})
 }
 
-func sniperMode(ctx context.Context, e *spin.Env) {
+func sniperMode(ctx context.Context, e spin.Env) {
 	defer func() {
 		e.Do(spin.StopAudio{})
 		e.Do(spin.StopScript{ID: SniperCaught})

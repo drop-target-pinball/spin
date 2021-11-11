@@ -3,9 +3,9 @@ package jdx
 import "github.com/drop-target-pinball/spin"
 
 const (
-	Success       = "success"
-	GunLoadSniper = "gun-load-sniper"
-	GunFire       = "gun-fire"
+	Success       = "Success"
+	GunLoadSniper = "GunLoadSniper"
+	GunFire       = "GunFire"
 )
 
 func RegisterSounds(eng *spin.Engine) {
