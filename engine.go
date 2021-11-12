@@ -27,6 +27,7 @@ type Engine struct {
 	actionHandlers []ActionHandler
 	eventHandlers  []EventHandler
 	servers        []Server
+	running        bool
 }
 
 func NewEngine() *Engine {
@@ -76,12 +77,19 @@ func (e *Engine) RegisterEvent(evt Event) {
 	e.Events[name] = evt
 }
 
-func (e *Engine) Start() {
-	go e.loop()
+func (e *Engine) Run() {
+	e.running = true
+	e.loop()
 }
 
 func (e *Engine) Do(act Action) {
-	e.actionQueue <- act
+	if e.running {
+		e.actionQueue <- act
+	} else {
+		for _, h := range e.actionHandlers {
+			h.HandleAction(act)
+		}
+	}
 }
 
 func (e *Engine) Post(evt Event) {

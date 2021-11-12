@@ -9,10 +9,12 @@ import (
 
 func main() {
 	log.SetFlags(0)
-	eng := app.NewEngine(app.DefaultOptions())
-	eng.Start()
-
+	opts := app.DefaultOptions()
+	eng := app.NewEngine(opts)
 	jdx.Load(eng)
+
 	repl := app.NewREPL(eng)
-	repl.Run()
+	go repl.Run()
+
+	eng.Run()
 }

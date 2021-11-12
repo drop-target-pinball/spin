@@ -6,14 +6,16 @@ import (
 )
 
 type Options struct {
-	WithLogging bool
-	WithAudio   bool
+	WithLogging    bool
+	WithAudio      bool
+	WithVirtualDMD bool
 }
 
 func DefaultOptions() Options {
 	return Options{
-		WithLogging: true,
-		WithAudio:   true,
+		WithLogging:    true,
+		WithAudio:      true,
+		WithVirtualDMD: true,
 	}
 }
 
@@ -25,6 +27,9 @@ func NewEngine(opt Options) *spin.Engine {
 	}
 	if opt.WithAudio {
 		system.NewAudioSDL(eng)
+	}
+	if opt.WithVirtualDMD {
+		system.NewDotMatrixSDL(eng, system.DefaultOptionsDotMatrixSDL())
 	}
 	return eng
 }
