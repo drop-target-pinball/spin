@@ -9,11 +9,10 @@ import (
 type LoggingConsole struct {
 }
 
-func NewLoggingConsole(eng *spin.Engine) *LoggingConsole {
+func RegisterLoggingConsole(eng *spin.Engine) {
 	sys := &LoggingConsole{}
 	eng.RegisterActionHandler(sys)
 	eng.RegisterEventHandler(sys)
-	return sys
 }
 
 func (s *LoggingConsole) HandleAction(act spin.Action) {

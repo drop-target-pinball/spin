@@ -44,7 +44,7 @@ type DotMatrixSDL struct {
 	borders [4]sdl.Rect
 }
 
-func NewDotMatrixSDL(eng *spin.Engine, opts OptionsDotMatrixSDL) {
+func RegisterDotMatrixSDL(eng *spin.Engine, opts OptionsDotMatrixSDL) {
 	if err := sdl.Init(sdl.INIT_VIDEO); err != nil {
 		log.Fatalf("unable to initialize SDL: %v", err)
 	}

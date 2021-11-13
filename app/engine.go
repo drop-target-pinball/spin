@@ -21,16 +21,17 @@ func DefaultOptions() Options {
 
 func NewEngine(opt Options) *spin.Engine {
 	eng := spin.NewEngine()
-	system.NewScriptRunner(eng)
+	system.RegisterScriptRunner(eng)
 	if opt.WithLogging {
-		system.NewLoggingConsole(eng)
+		system.RegisterLoggingConsole(eng)
 	}
 	if opt.WithAudio {
-		system.NewAudioSDL(eng)
+		system.RegisterAudioSDL(eng)
 	}
 	if opt.WithVirtualDMD {
-		system.NewDotMatrixSDL(eng, system.DefaultOptionsDotMatrixSDL())
+		system.RegisterDotMatrixSDL(eng, system.DefaultOptionsDotMatrixSDL())
 	}
-	system.NewDisplaySDL(eng, spin.DisplayOptions{Width: 128, Height: 32})
+	system.RegisterDisplaySDL(eng, spin.DisplayOptions{Width: 128, Height: 32})
+	system.RegisterInputSDL(eng)
 	return eng
 }

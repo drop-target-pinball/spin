@@ -16,7 +16,7 @@ type AudioSDL struct {
 	sound  map[string]*mix.Chunk
 }
 
-func NewAudioSDL(eng *spin.Engine) *AudioSDL {
+func RegisterAudioSDL(eng *spin.Engine) {
 	if err := sdl.Init(sdl.INIT_AUDIO); err != nil {
 		log.Fatalf("unable to initialize audio: %v", err)
 	}
@@ -37,7 +37,6 @@ func NewAudioSDL(eng *spin.Engine) *AudioSDL {
 		sound:  make(map[string]*mix.Chunk),
 	}
 	eng.RegisterActionHandler(sys)
-	return sys
 }
 
 func (s *AudioSDL) HandleAction(action spin.Action) {

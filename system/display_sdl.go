@@ -38,7 +38,7 @@ func (d *displaySDL) Renderer() spin.Renderer {
 	}
 }
 
-func NewDisplaySDL(eng *spin.Engine, opts spin.DisplayOptions) {
+func RegisterDisplaySDL(eng *spin.Engine, opts spin.DisplayOptions) {
 	if err := ttf.Init(); err != nil {
 		log.Fatalf("unable to initialize ttf: %v", err)
 	}

@@ -41,7 +41,7 @@ type ScriptRunner struct {
 	env      map[string]spin.Env
 }
 
-func NewScriptRunner(eng *spin.Engine) *ScriptRunner {
+func RegisterScriptRunner(eng *spin.Engine) {
 	sys := &ScriptRunner{
 		eng:      eng,
 		scripts:  make(map[string]spin.Script),
@@ -51,7 +51,6 @@ func NewScriptRunner(eng *spin.Engine) *ScriptRunner {
 	}
 	eng.RegisterActionHandler(sys)
 	eng.RegisterEventHandler(sys)
-	return sys
 }
 
 func (s *ScriptRunner) HandleAction(action spin.Action) {
