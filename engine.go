@@ -124,5 +124,5 @@ func String(a interface{}) string {
 		f := t.Field(i)
 		fields = append(fields, fmt.Sprintf("%v=%v", f.Name, v.Field(i)))
 	}
-	return t.Name() + ": " + strings.Join(fields, ", ")
+	return t.Name() + " " + strings.Join(fields, ", ")
 }

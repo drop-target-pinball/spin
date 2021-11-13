@@ -41,6 +41,12 @@ type RegisterFont struct {
 	Size int
 }
 
+type RegisterKeySDL struct {
+	Key       sdl.Keycode
+	Mod       uint16
+	EventDown Event
+}
+
 type RegisterMusic struct {
 	ID   string
 	Path string
@@ -83,6 +89,7 @@ func (PlaySound) action()          {}
 func (PlaySpeech) action()         {}
 func (RegisterDisplaySDL) action() {}
 func (RegisterFont) action()       {}
+func (RegisterKeySDL) action()     {}
 func (RegisterMusic) action()      {}
 func (RegisterScript) action()     {}
 func (RegisterSound) action()      {}

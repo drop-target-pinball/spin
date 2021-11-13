@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/drop-target-pinball/spin/app"
+	"github.com/drop-target-pinball/spin/mach/jd"
 	"github.com/drop-target-pinball/spin/prog/boot"
 	"github.com/drop-target-pinball/spin/prog/jdx"
 )
@@ -13,6 +14,7 @@ func main() {
 	opts := app.DefaultOptions()
 	eng := app.NewEngine(opts)
 
+	jd.Load(eng)
 	boot.Load(eng)
 	jdx.Load(eng)
 
