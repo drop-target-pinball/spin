@@ -77,6 +77,15 @@ type rendererSDL struct {
 	fonts map[string]font
 }
 
+func (r *rendererSDL) Clear() {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	rect := sdl.Rect{X: 0, Y: 0, W: r.surf.W, H: r.surf.H}
+	if err := r.surf.FillRect(&rect, 0); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func (r *rendererSDL) Width() int32 {
 	return r.surf.W
 }

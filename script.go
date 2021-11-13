@@ -67,3 +67,21 @@ func WaitForSwitchUntil(ctx context.Context, e Env, id string, d time.Duration) 
 		}
 	}
 }
+
+func WaitForEventsUntil(ctx context.Context, e Env, d time.Duration, watching []Event) (bool, Event) {
+	timer := time.After(d)
+	for {
+		select {
+		case event := <-e.EventQueue():
+			for _, w := range watching {
+				if event == w {
+					return false, event
+				}
+			}
+		case <-timer:
+			return false, nil
+		case <-ctx.Done():
+			return true, nil
+		}
+	}
+}

@@ -11,6 +11,7 @@ type Graphics struct {
 }
 
 type Renderer interface {
+	Clear()
 	FillRect(*Graphics)
 	Height() int32
 	Print(*Graphics, string, ...interface{})
