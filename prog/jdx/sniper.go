@@ -8,13 +8,48 @@ import (
 )
 
 const (
-	SniperCaught     = "SniperCaught"
-	SniperCaughtDone = "SniperCaughtDone"
-	SniperFall       = "SniperFall"
-	SniperFallDone   = "SniperFallDone"
-	SniperHunt       = "SniperHunt"
-	SniperMode       = "SniperMode"
+	SniperCaught        = "SniperCaught"
+	SniperCaughtDone    = "SniperCaughtDone"
+	SniperModeIntroShow = "SniperDisplayModeShow"
+	SniperFall          = "SniperFall"
+	SniperFallDone      = "SniperFallDone"
+	SniperHunt          = "SniperHunt"
+	SniperMode          = "SniperMode"
 )
+
+func sniperModeIntroShow(ctx context.Context, e spin.Env) {
+	r := e.Display("").Renderer()
+
+	g := &spin.Graphics{
+		Color: 0xffffffff,
+		W:     r.Width(),
+	}
+
+	r.Clear()
+	for i := 0; i < 8; i++ {
+		g.Y = 2
+		g.Font = PfArmaFive8
+		r.Print(g, "SNIPER")
+		g.Y = 12
+		g.Font = PfRondaSevenBold8
+		r.Print(g, "SHOOT")
+		g.Y = 22
+		r.Print(g, "SNIPER TOWER")
+
+		if done := spin.Wait(ctx, 250*time.Millisecond); done {
+			return
+		}
+
+		r.Clear()
+		g.Y = 2
+		g.Font = PfArmaFive8
+		r.Print(g, "SNIPER")
+
+		if done := spin.Wait(ctx, 100*time.Millisecond); done {
+			return
+		}
+	}
+}
 
 func sniperHunt(ctx context.Context, e spin.Env) {
 	defer func() {
@@ -23,6 +58,7 @@ func sniperHunt(ctx context.Context, e spin.Env) {
 
 	e.Do(spin.PlayMusic{ID: ModeTheme1, Vol: 100})
 	e.Do(spin.PlaySpeech{ID: SniperIsShootingIntoCrowdFromJohnsonTower})
+	e.Do(spin.PlayScript{ID: SniperModeIntroShow})
 
 	if done := spin.Wait(ctx, 4*time.Second); done {
 		return

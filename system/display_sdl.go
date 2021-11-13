@@ -1,13 +1,17 @@
 package system
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"image/color"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/drop-target-pinball/spin"
@@ -189,13 +193,20 @@ func (f *fontTTF) size(text string) (int32, int32) {
 var regexpExt = regexp.MustCompile(`\.[^\.]+$`)
 
 func (s *displaySDL) registerFont(act spin.RegisterFont) {
-	s.registerFontTTF(act)
-}
-
-func (s *displaySDL) registerFontTTF(act spin.RegisterFont) {
 	if _, exists := s.fonts[act.ID]; exists {
 		return
 	}
+	switch {
+	case strings.HasSuffix(act.Path, ".ttf"):
+		s.registerFontTTF(act)
+	case strings.HasSuffix(act.Path, ".dmd"):
+		s.registerFontBitmap(act)
+	default:
+		spin.Warn("unknown font format: %v", act.Path)
+	}
+}
+
+func (s *displaySDL) registerFontTTF(act spin.RegisterFont) {
 	fontPath := path.Join(spin.AssetDir, act.Path)
 	font, err := ttf.OpenFont(fontPath, act.Size)
 	if err != nil {
@@ -222,4 +233,138 @@ func (s *displaySDL) registerFontTTF(act spin.RegisterFont) {
 		}
 	}
 	s.fonts[act.ID] = &fontTTF{font, info}
+}
+
+func (s *displaySDL) registerFontBitmap(act spin.RegisterFont) {
+	fontPath := path.Join(spin.AssetDir, act.Path)
+	dots, err := ioutil.ReadFile(fontPath)
+	if err != nil {
+		spin.Warn("unable to read file: %v", err)
+		return
+	}
+	surf, err := DecodeDMD1(dots)
+	if err != nil {
+		spin.Warn("unable to decode bitmap file: %v", err)
+		return
+	}
+	tmFile := regexpExt.ReplaceAllString(fontPath, ".json")
+	tileMap, err := loadTileMap(tmFile)
+	if err != nil {
+		spin.Warn("unable to read tile map: %v", err)
+		return
+	}
+	s.fonts[act.ID] = &fontBitmap{surf: surf, tileMap: tileMap, tracking: 1}
+}
+
+type tile struct {
+	X int32
+	Y int32
+	W int32
+	H int32
+}
+
+type tileMap map[string]tile
+
+func loadTileMap(name string) (tileMap, error) {
+	tmText, err := ioutil.ReadFile(name)
+	if err != nil {
+		return nil, fmt.Errorf("unable to load tile map: %v", err)
+	}
+	tilemap := make(tileMap)
+	if err := json.Unmarshal(tmText, &tilemap); err != nil {
+		return nil, fmt.Errorf("unable to parse tile map: %v", err)
+	}
+	return tilemap, nil
+}
+
+type fontBitmap struct {
+	surf     *sdl.Surface
+	tileMap  tileMap
+	tracking int32
+}
+
+func (f *fontBitmap) render(target *sdl.Surface, x int32, y int32, text string) {
+	for _, ch := range text {
+		t, ok := f.tileMap[string(ch)]
+		if !ok {
+			continue
+		}
+		srcRect := sdl.Rect{X: t.X, Y: t.Y, W: t.W, H: t.H}
+		tgtRect := sdl.Rect{X: x, Y: y, W: t.W, H: t.H}
+		if err := f.surf.Blit(&srcRect, target, &tgtRect); err != nil {
+			log.Fatal(err)
+		}
+		x += t.W + f.tracking
+	}
+}
+
+func (f *fontBitmap) size(text string) (int32, int32) {
+	var w, h int32
+	for _, ch := range text {
+		tile, ok := f.tileMap[string(ch)]
+		if !ok {
+			continue
+		}
+		w += tile.W + f.tracking
+		if tile.H > h {
+			h = tile.H
+		}
+	}
+	w -= f.tracking
+	return w, h
+}
+
+// ----------------------------------------------------------------------------
+
+func DecodeDMD(data []byte) ([]*sdl.Surface, error) {
+	in := bytes.NewReader(data)
+	var header, nFrames, width, height uint32
+	if err := binary.Read(in, binary.LittleEndian, &header); err != nil {
+		return nil, err
+	}
+	if err := binary.Read(in, binary.LittleEndian, &nFrames); err != nil {
+		return nil, err
+	}
+	if err := binary.Read(in, binary.LittleEndian, &width); err != nil {
+		return nil, err
+	}
+	if err := binary.Read(in, binary.LittleEndian, &height); err != nil {
+		return nil, err
+	}
+
+	frames := make([]*sdl.Surface, nFrames)
+	dots := make([]byte, width*height)
+	for i := uint32(0); i < nFrames; i++ {
+		surf, err := sdl.CreateRGBSurfaceWithFormat(0, int32(width), int32(height),
+			32, sdl.PIXELFORMAT_RGB888)
+		if err != nil {
+			log.Fatalf("unable to create RGB surface: %v", err)
+		}
+
+		if err := binary.Read(in, binary.LittleEndian, &dots); err != nil {
+			return nil, err
+		}
+		x, y := 0, 0
+		for _, dot := range dots {
+			// Values in file are going to be between 0x0 and 0xf. Copy the
+			// lower nibble to the higher nibble.
+			dot = dot<<4 + dot
+			surf.Set(x, y, color.RGBA{R: dot, G: dot, B: dot, A: 0xff})
+			x++
+			if x >= int(width) {
+				x = 0
+				y++
+			}
+		}
+		frames[i] = surf
+	}
+	return frames, nil
+}
+
+func DecodeDMD1(data []byte) (*sdl.Surface, error) {
+	frames, err := DecodeDMD(data)
+	if err != nil {
+		return nil, err
+	}
+	return frames[0], nil
 }

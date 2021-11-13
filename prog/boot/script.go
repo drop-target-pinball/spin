@@ -19,7 +19,7 @@ func splashScreen(ctx context.Context, e spin.Env) {
 		r.Clear()
 	}()
 	g := &spin.Graphics{
-		Color:    0xffffffff,
+		Color:    0x8,
 		Font:     PfTempestaFiveCompressedBold8,
 		W:        r.Width(),
 		Y:        4,
