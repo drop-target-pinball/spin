@@ -20,27 +20,25 @@ type Server interface {
 }
 
 type Engine struct {
-	Actions         map[string]Action
-	Events          map[string]Event
-	RenderTargetSDL map[string]*RenderTargetSDL
-	actionQueue     chan Action
-	eventQueue      chan Event
-	actionHandlers  []ActionHandler
-	eventHandlers   []EventHandler
-	servers         []Server
-	running         bool
+	Actions        map[string]Action
+	Events         map[string]Event
+	actionQueue    chan Action
+	eventQueue     chan Event
+	actionHandlers []ActionHandler
+	eventHandlers  []EventHandler
+	servers        []Server
+	running        bool
 }
 
 func NewEngine() *Engine {
 	eng := &Engine{
-		Actions:         make(map[string]Action),
-		Events:          make(map[string]Event),
-		RenderTargetSDL: make(map[string]*RenderTargetSDL),
-		actionQueue:     make(chan Action, 1),
-		eventQueue:      make(chan Event, 1),
-		actionHandlers:  make([]ActionHandler, 0),
-		eventHandlers:   make([]EventHandler, 0),
-		servers:         make([]Server, 0),
+		Actions:        make(map[string]Action),
+		Events:         make(map[string]Event),
+		actionQueue:    make(chan Action, 1),
+		eventQueue:     make(chan Event, 1),
+		actionHandlers: make([]ActionHandler, 0),
+		eventHandlers:  make([]EventHandler, 0),
+		servers:        make([]Server, 0),
 	}
 	registerActions(eng)
 	registerEvents(eng)
@@ -77,10 +75,6 @@ func (e *Engine) RegisterEvent(evt Event) {
 		return
 	}
 	e.Events[name] = evt
-}
-
-func (e *Engine) RegisterRenderTargetSDL(name string, width int, height int) {
-	e.RenderTargetSDL[name] = newRendererSDL(width, height)
 }
 
 func (e *Engine) Run() {

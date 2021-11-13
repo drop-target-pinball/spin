@@ -10,9 +10,7 @@ import (
 )
 
 type OptionsDotMatrixSDL struct {
-	Name        string
-	Width       int
-	Height      int
+	ID          string
 	Scale       int
 	Padding     int
 	BackColor   color.RGBA
@@ -24,8 +22,6 @@ type OptionsDotMatrixSDL struct {
 
 func DefaultOptionsDotMatrixSDL() OptionsDotMatrixSDL {
 	return OptionsDotMatrixSDL{
-		Width:       128,
-		Height:      32,
 		Scale:       4,
 		Padding:     1,
 		BackColor:   color.RGBA{0x40, 0x40, 0x40, 0xff},
@@ -37,36 +33,48 @@ func DefaultOptionsDotMatrixSDL() OptionsDotMatrixSDL {
 }
 
 type DotMatrixSDL struct {
-	width    int
-	height   int
-	renderer *sdl.Renderer
-	surf     *sdl.Surface
-	mutex    *sync.Mutex
-	opts     OptionsDotMatrixSDL
-	win      *sdl.Window
-	borders  [4]sdl.Rect
+	eng     *spin.Engine
+	opts    OptionsDotMatrixSDL
+	winW    int
+	winH    int
+	source  *sdl.Surface
+	target  *sdl.Renderer
+	mutex   *sync.Mutex
+	win     *sdl.Window
+	borders [4]sdl.Rect
 }
 
-func NewDotMatrixSDL(eng *spin.Engine, o OptionsDotMatrixSDL) *DotMatrixSDL {
+func NewDotMatrixSDL(eng *spin.Engine, opts OptionsDotMatrixSDL) {
 	if err := sdl.Init(sdl.INIT_VIDEO); err != nil {
 		log.Fatalf("unable to initialize SDL: %v", err)
 	}
+	s := &DotMatrixSDL{eng: eng, opts: opts}
+	eng.RegisterActionHandler(s)
+}
 
-	rt, ok := eng.RenderTargetSDL[o.Name]
-	if !ok {
-		log.Fatalf("no such SDL renderer: %v", o.Name)
+func (s *DotMatrixSDL) HandleAction(action spin.Action) {
+	switch act := action.(type) {
+	case spin.RegisterDisplaySDL:
+		s.registerDisplaySDL(act)
 	}
+}
 
-	d := &DotMatrixSDL{surf: rt.Surface, mutex: &rt.Mutex, opts: o}
-	surfW, surfH := int(rt.Surface.W), int(rt.Surface.H)
-	d.width = ((surfW * o.Scale) + (o.Padding * surfW) + o.Padding +
-		(o.BorderSize * 2))
-	d.height = ((surfH * o.Scale) + (o.Padding * surfH) + o.Padding +
-		(o.BorderSize * 2))
+func (s *DotMatrixSDL) registerDisplaySDL(act spin.RegisterDisplaySDL) {
+	if act.ID != s.opts.ID {
+		return
+	}
+	s.source = act.Surface
+	s.mutex = act.Mutex
 
-	win, err := sdl.CreateWindow(o.Title,
+	sourceW, sourceH := int(s.source.W), int(s.source.H)
+	s.winW = ((sourceW * s.opts.Scale) + (s.opts.Padding * sourceW) +
+		s.opts.Padding + (s.opts.BorderSize * 2))
+	s.winH = ((sourceH * s.opts.Scale) + (s.opts.Padding * sourceH) +
+		s.opts.Padding + (s.opts.BorderSize * 2))
+
+	win, err := sdl.CreateWindow(s.opts.Title,
 		sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		int32(d.width), int32(d.height),
+		int32(s.winW), int32(s.winH),
 		sdl.WINDOW_HIDDEN)
 	if err != nil {
 		log.Fatalf("unable to create window: %v", err)
@@ -98,48 +106,50 @@ func NewDotMatrixSDL(eng *spin.Engine, o OptionsDotMatrixSDL) *DotMatrixSDL {
 	}
 
 	// top
-	d.borders[0] = sdl.Rect{
+	s.borders[0] = sdl.Rect{
 		X: 0,
 		Y: 0,
-		W: int32(d.width),
-		H: int32(o.BorderSize),
+		W: int32(s.winW),
+		H: int32(s.opts.BorderSize),
 	}
 	// bottom
-	d.borders[1] = sdl.Rect{
+	s.borders[1] = sdl.Rect{
 		X: 0,
-		Y: int32(d.height - o.BorderSize),
-		W: int32(d.width),
-		H: int32(o.BorderSize),
+		Y: int32(s.winH - s.opts.BorderSize),
+		W: int32(s.winW),
+		H: int32(s.opts.BorderSize),
 	}
 	// left
-	d.borders[2] = sdl.Rect{
+	s.borders[2] = sdl.Rect{
 		X: 0,
 		Y: 0,
-		W: int32(o.BorderSize),
-		H: int32(d.height),
+		W: int32(s.opts.BorderSize),
+		H: int32(s.winH),
 	}
 	// right
-	d.borders[3] = sdl.Rect{
-		X: int32(d.width - o.BorderSize),
+	s.borders[3] = sdl.Rect{
+		X: int32(s.winW - s.opts.BorderSize),
 		Y: 0,
-		W: int32(o.BorderSize),
-		H: int32(d.height),
+		W: int32(s.opts.BorderSize),
+		H: int32(s.winH),
 	}
 
-	d.win = win
-	d.renderer = r
+	s.win = win
+	s.target = r
 
-	eng.RegisterServer(d)
+	s.eng.RegisterServer(s)
 	sdl.PumpEvents()
-	return d
 }
 
 func (s *DotMatrixSDL) Service() {
+	if s.target == nil {
+		return
+	}
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
 	o := s.opts
-	r := s.renderer
+	r := s.target
 
 	// Background
 	bg := o.BackColor
@@ -154,11 +164,11 @@ func (s *DotMatrixSDL) Service() {
 	}
 
 	// Dots
-	for x := 0; x < int(s.surf.W); x++ {
-		for y := 0; y < int(s.surf.H); y++ {
+	for x := 0; x < int(s.source.W); x++ {
+		for y := 0; y < int(s.source.H); y++ {
 			dx := o.BorderSize + (x * o.Padding) + o.Padding + (x * o.Scale)
 			dy := o.BorderSize + (y * o.Padding) + o.Padding + (y * o.Scale)
-			y := rgbToGray(s.surf.At(x, y))
+			y := rgbToGray(s.source.At(x, y))
 			y = y >> 4
 			c := o.Palette[y]
 			r.SetDrawColor(c.R, c.G, c.B, 0xff)

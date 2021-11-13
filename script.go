@@ -9,7 +9,7 @@ type Env interface {
 	Do(Action)
 	Post(Event)
 	EventQueue() chan Event
-	RenderTargetSDL(string) *RenderTargetSDL
+	Display(string) Display
 }
 
 type Script func(context.Context, Env)

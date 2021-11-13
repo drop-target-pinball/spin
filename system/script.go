@@ -9,6 +9,7 @@ import (
 
 type env struct {
 	eng        *spin.Engine
+	displays   map[string]spin.Display
 	eventQueue chan spin.Event
 }
 
@@ -24,41 +25,45 @@ func (e *env) EventQueue() chan spin.Event {
 	return e.eventQueue
 }
 
-func (e *env) RenderTargetSDL(name string) *spin.RenderTargetSDL {
-	r, ok := e.eng.RenderTargetSDL[name]
+func (e *env) Display(id string) spin.Display {
+	r, ok := e.displays[id]
 	if !ok {
-		log.Panicf("no such SDL renderer: %v", name)
+		log.Panicf("no such display: %v", id)
 	}
 	return r
 }
 
 type ScriptRunner struct {
-	eng     *spin.Engine
-	scripts map[string]spin.Script
-	running map[string]context.CancelFunc
-	env     map[string]spin.Env
+	eng      *spin.Engine
+	scripts  map[string]spin.Script
+	running  map[string]context.CancelFunc
+	displays map[string]spin.Display
+	env      map[string]spin.Env
 }
 
 func NewScriptRunner(eng *spin.Engine) *ScriptRunner {
 	sys := &ScriptRunner{
-		eng:     eng,
-		scripts: make(map[string]spin.Script),
-		running: make(map[string]context.CancelFunc),
-		env:     make(map[string]spin.Env),
+		eng:      eng,
+		scripts:  make(map[string]spin.Script),
+		running:  make(map[string]context.CancelFunc),
+		displays: make(map[string]spin.Display),
+		env:      make(map[string]spin.Env),
 	}
 	eng.RegisterActionHandler(sys)
 	eng.RegisterEventHandler(sys)
 	return sys
 }
 
-func (s *ScriptRunner) HandleAction(a spin.Action) {
-	switch action := a.(type) {
+func (s *ScriptRunner) HandleAction(action spin.Action) {
+	switch act := action.(type) {
+	case spin.RegisterDisplaySDL:
+		s.registerDisplaySDL(act)
 	case spin.RegisterScript:
-		s.registerScript(action)
+		s.registerScript(act)
 	case spin.PlayScript:
-		s.playScript(action)
+		s.playScript(act)
 	case spin.StopScript:
-		s.stopScripts(action)
+		s.stopScripts(act)
 	}
 }
 
@@ -68,6 +73,10 @@ func (s *ScriptRunner) HandleEvent(evt spin.Event) {
 			env.EventQueue() <- evt
 		}
 	}
+}
+
+func (s *ScriptRunner) registerDisplaySDL(act spin.RegisterDisplaySDL) {
+	s.displays[act.ID] = act.Display
 }
 
 func (s *ScriptRunner) registerScript(a spin.RegisterScript) {
@@ -85,7 +94,11 @@ func (s *ScriptRunner) playScript(a spin.PlayScript) {
 		cancel()
 	}
 
-	env := &env{eng: s.eng, eventQueue: make(chan spin.Event, 1)}
+	env := &env{
+		eng:        s.eng,
+		eventQueue: make(chan spin.Event, 1),
+		displays:   s.displays,
+	}
 	s.env[a.ID] = env
 
 	ctx, cancel := context.WithCancel(context.Background())

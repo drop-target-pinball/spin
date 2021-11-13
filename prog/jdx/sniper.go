@@ -109,11 +109,11 @@ func sniperMode(ctx context.Context, e spin.Env) {
 }
 
 func sniperDMD(ctx context.Context, e spin.Env) {
-	g := e.RenderTargetSDL("").Graphics()
+	g := e.Display("").Graphics()
 	g.FillRect(10, 10)
 	if done := spin.Wait(ctx, 1*time.Second); done {
 		return
 	}
-	g.X, g.Y = 10, 10
+	g.Move(10, 10)
 	g.FillRect(10, 10)
 }

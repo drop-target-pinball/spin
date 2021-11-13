@@ -22,7 +22,6 @@ func DefaultOptions() Options {
 func NewEngine(opt Options) *spin.Engine {
 	eng := spin.NewEngine()
 	system.NewScriptRunner(eng)
-	eng.RegisterRenderTargetSDL("", 128, 32)
 	if opt.WithLogging {
 		system.NewLoggingConsole(eng)
 	}
@@ -32,5 +31,6 @@ func NewEngine(opt Options) *spin.Engine {
 	if opt.WithVirtualDMD {
 		system.NewDotMatrixSDL(eng, system.DefaultOptionsDotMatrixSDL())
 	}
+	system.NewDisplaySDL(eng, spin.DisplayOptions{Width: 128, Height: 32})
 	return eng
 }
