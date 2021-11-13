@@ -28,10 +28,6 @@ type PlaySpeech struct {
 	Vol int
 }
 
-type RegisterAction struct {
-	Action Action
-}
-
 type RegisterDisplaySDL struct {
 	ID      string
 	Display Display
@@ -39,8 +35,10 @@ type RegisterDisplaySDL struct {
 	Mutex   *sync.Mutex
 }
 
-type RegisterEvent struct {
-	Event Event
+type RegisterFont struct {
+	ID   string
+	Path string
+	Size int
 }
 
 type RegisterMusic struct {
@@ -83,9 +81,8 @@ func (PlayMusic) action()          {}
 func (PlayScript) action()         {}
 func (PlaySound) action()          {}
 func (PlaySpeech) action()         {}
-func (RegisterAction) action()     {}
 func (RegisterDisplaySDL) action() {}
-func (RegisterEvent) action()      {}
+func (RegisterFont) action()       {}
 func (RegisterMusic) action()      {}
 func (RegisterScript) action()     {}
 func (RegisterSound) action()      {}

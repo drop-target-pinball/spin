@@ -73,7 +73,8 @@ func (s *DotMatrixSDL) registerDisplaySDL(act spin.RegisterDisplaySDL) {
 		s.opts.Padding + (s.opts.BorderSize * 2))
 
 	win, err := sdl.CreateWindow(s.opts.Title,
-		sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
+		//sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
+		0, 0,
 		int32(s.winW), int32(s.winH),
 		sdl.WINDOW_HIDDEN)
 	if err != nil {

@@ -57,6 +57,8 @@ func NewREPL(eng *spin.Engine) *REPL {
 }
 
 func (r *REPL) Run() error {
+	defer os.Exit(0)
+
 	for {
 		line, err := r.rl.Readline()
 		fmt.Printf("%v%v%v> %v%v\n",
