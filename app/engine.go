@@ -22,6 +22,7 @@ func DefaultOptions() Options {
 func NewEngine(opt Options) *spin.Engine {
 	eng := spin.NewEngine()
 	system.NewScriptRunner(eng)
+	eng.RegisterRenderTargetSDL("", 128, 32)
 	if opt.WithLogging {
 		system.NewLoggingConsole(eng)
 	}

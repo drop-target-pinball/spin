@@ -3,12 +3,14 @@ package system
 import (
 	"image/color"
 	"log"
+	"sync"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 type OptionsDotMatrixSDL struct {
+	Name        string
 	Width       int
 	Height      int
 	Scale       int
@@ -39,6 +41,7 @@ type DotMatrixSDL struct {
 	height   int
 	renderer *sdl.Renderer
 	surf     *sdl.Surface
+	mutex    *sync.Mutex
 	opts     OptionsDotMatrixSDL
 	win      *sdl.Window
 	borders  [4]sdl.Rect
@@ -49,14 +52,13 @@ func NewDotMatrixSDL(eng *spin.Engine, o OptionsDotMatrixSDL) *DotMatrixSDL {
 		log.Fatalf("unable to initialize SDL: %v", err)
 	}
 
-	surf, err := sdl.CreateRGBSurfaceWithFormat(0, int32(o.Width), int32(o.Height),
-		32, sdl.PIXELFORMAT_RGB888)
-	if err != nil {
-		log.Fatalf("unable to create SDL surface: %v", err)
+	rt, ok := eng.RenderTargetSDL[o.Name]
+	if !ok {
+		log.Fatalf("no such SDL renderer: %v", o.Name)
 	}
 
-	d := &DotMatrixSDL{surf: surf, opts: o}
-	surfW, surfH := int(surf.W), int(surf.H)
+	d := &DotMatrixSDL{surf: rt.Surface, mutex: &rt.Mutex, opts: o}
+	surfW, surfH := int(rt.Surface.W), int(rt.Surface.H)
 	d.width = ((surfW * o.Scale) + (o.Padding * surfW) + o.Padding +
 		(o.BorderSize * 2))
 	d.height = ((surfH * o.Scale) + (o.Padding * surfH) + o.Padding +
@@ -133,6 +135,9 @@ func NewDotMatrixSDL(eng *spin.Engine, o OptionsDotMatrixSDL) *DotMatrixSDL {
 }
 
 func (s *DotMatrixSDL) Service() {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	o := s.opts
 	r := s.renderer
 

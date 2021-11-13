@@ -2,6 +2,7 @@ package system
 
 import (
 	"context"
+	"log"
 
 	"github.com/drop-target-pinball/spin"
 )
@@ -21,6 +22,14 @@ func (e *env) Post(evt spin.Event) {
 
 func (e *env) EventQueue() chan spin.Event {
 	return e.eventQueue
+}
+
+func (e *env) RenderTargetSDL(name string) *spin.RenderTargetSDL {
+	r, ok := e.eng.RenderTargetSDL[name]
+	if !ok {
+		log.Panicf("no such SDL renderer: %v", name)
+	}
+	return r
 }
 
 type ScriptRunner struct {
