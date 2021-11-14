@@ -34,12 +34,13 @@ func (d *displaySDL) Height() int {
 	return int(d.surf.H)
 }
 
-func (d *displaySDL) Renderer() spin.Renderer {
+func (d *displaySDL) Renderer() (spin.Renderer, *spin.Graphics) {
+	d.mutex.Lock()
 	return &rendererSDL{
 		surf:  d.surf,
 		mutex: &d.mutex,
 		fonts: d.fonts,
-	}
+	}, &spin.Graphics{}
 }
 
 func RegisterDisplaySDL(eng *spin.Engine, opts spin.DisplayOptions) {
@@ -81,9 +82,15 @@ type rendererSDL struct {
 	fonts map[string]font
 }
 
-func (r *rendererSDL) Clear() {
+func (r *rendererSDL) Lock() {
 	r.mutex.Lock()
-	defer r.mutex.Unlock()
+}
+
+func (r *rendererSDL) Unlock() {
+	r.mutex.Unlock()
+}
+
+func (r *rendererSDL) Clear() {
 	rect := sdl.Rect{X: 0, Y: 0, W: r.surf.W, H: r.surf.H}
 	if err := r.surf.FillRect(&rect, 0); err != nil {
 		log.Fatal(err)
@@ -99,8 +106,6 @@ func (r *rendererSDL) Height() int32 {
 }
 
 func (r *rendererSDL) FillRect(g *spin.Graphics) {
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
 	rect := sdl.Rect{X: g.X, Y: g.Y, W: g.W, H: g.H}
 	if err := r.surf.FillRect(&rect, g.Color); err != nil {
 		log.Fatal(err)
@@ -112,8 +117,6 @@ func (r *rendererSDL) Print(g *spin.Graphics, format string, a ...interface{}) {
 	if font == nil {
 		return
 	}
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
 
 	text := fmt.Sprintf(format, a...)
 	if g.W == 0 {

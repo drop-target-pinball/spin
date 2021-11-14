@@ -2,10 +2,13 @@ package spin
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 	"time"
 )
+
+var AssetDir = os.Getenv("SPIN_ASSET_DIR")
 
 type ActionHandler interface {
 	HandleAction(Action)
@@ -97,7 +100,7 @@ func (e *Engine) Post(evt Event) {
 }
 
 func (e *Engine) loop() {
-	ticker := time.NewTicker(100 * time.Millisecond)
+	ticker := time.NewTicker(16670 * time.Microsecond)
 	for {
 		select {
 		case act := <-e.actionQueue:

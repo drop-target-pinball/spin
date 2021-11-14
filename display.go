@@ -14,13 +14,15 @@ type Renderer interface {
 	Clear()
 	FillRect(*Graphics)
 	Height() int32
+	Lock()
 	Print(*Graphics, string, ...interface{})
 	Println(*Graphics, string, ...interface{})
+	Unlock()
 	Width() int32
 }
 
 type Display interface {
-	Renderer() Renderer
+	Renderer() (Renderer, *Graphics)
 	Width() int
 	Height() int
 }

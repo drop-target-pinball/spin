@@ -12,22 +12,22 @@ const (
 	SplashScreen = "SplashScreen"
 )
 
-func splashScreen(ctx context.Context, e spin.Env) {
-	r := e.Display("").Renderer()
-	defer func() {
-		e.Do(spin.StopAudio{})
-		r.Clear()
-	}()
-	g := &spin.Graphics{
-		Color:    0x8,
-		Font:     PfTempestaFiveCompressedBold8,
-		W:        r.Width(),
-		Y:        4,
-		PaddingV: 2,
-	}
+func splashScreenFrame(e spin.Env) {
+	r, g := e.Display("").Renderer()
+	defer r.Unlock()
+
+	g.Font = PfTempestaFiveCompressedBold8
+	g.W = r.Width()
+	g.PaddingV = 2
+	g.Y = 4
 	r.Println(g, "SUPER PINBALL SYSTEM")
 	r.Println(g, spin.Version)
 	r.Println(g, spin.Date)
+}
+
+func splashScreen(ctx context.Context, e spin.Env) {
+	e.Do(spin.StopAudio{})
+	splashScreenFrame(e)
 	e.Do(spin.PlayMusic{ID: BootTheme})
 
 	spin.WaitForEventsUntil(ctx, e, 8*time.Second, []spin.Event{
