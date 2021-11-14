@@ -3,6 +3,7 @@ package jdx
 import "github.com/drop-target-pinball/spin"
 
 const (
+	Bm8                           = "Bm8"
 	Bmsf                          = "Bmsf"
 	PfArmaFive8                   = "PfArmaFive8"
 	PfRondaSevenBold8             = "PfRondaSevenBold8"
@@ -24,6 +25,10 @@ func RegisterFonts(eng *spin.Engine) {
 		ID:   PfTempestaFiveCompressedBold8,
 		Size: 8,
 		Path: "pf-fonts/pf_tempesta_five_compressed_bold.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   Bm8,
+		Path: "proc-shared/bm8.dmd",
 	})
 	eng.Do(spin.RegisterFont{
 		ID:   Bmsf,

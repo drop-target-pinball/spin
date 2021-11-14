@@ -93,7 +93,7 @@ func (r *rendererSDL) Unlock() {
 func (r *rendererSDL) Clear() {
 	rect := sdl.Rect{X: 0, Y: 0, W: r.surf.W, H: r.surf.H}
 	if err := r.surf.FillRect(&rect, 0); err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 }
 
@@ -108,7 +108,7 @@ func (r *rendererSDL) Height() int32 {
 func (r *rendererSDL) FillRect(g *spin.Graphics) {
 	rect := sdl.Rect{X: g.X, Y: g.Y, W: g.W, H: g.H}
 	if err := r.surf.FillRect(&rect, g.Color); err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 }
 
@@ -295,7 +295,7 @@ func (f *fontBitmap) render(target *sdl.Surface, x int32, y int32, text string) 
 		srcRect := sdl.Rect{X: t.X, Y: t.Y, W: t.W, H: t.H}
 		tgtRect := sdl.Rect{X: x, Y: y, W: t.W, H: t.H}
 		if err := f.surf.Blit(&srcRect, target, &tgtRect); err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 		x += t.W + f.tracking
 	}
@@ -341,7 +341,7 @@ func DecodeDMD(data []byte) ([]*sdl.Surface, error) {
 		surf, err := sdl.CreateRGBSurfaceWithFormat(0, int32(width), int32(height),
 			32, sdl.PIXELFORMAT_RGB888)
 		if err != nil {
-			log.Fatalf("unable to create RGB surface: %v", err)
+			return nil, fmt.Errorf("unable to create RGB surface: %v", err)
 		}
 
 		if err := binary.Read(in, binary.LittleEndian, &dots); err != nil {

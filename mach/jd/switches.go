@@ -6,4 +6,5 @@ const (
 	LeftFireButton     = "LeftFireButton"
 	RightFireButton    = "RightFireButton"
 	StartButton        = "StartButton"
+	PopperRightSwitch  = "PopperRightSwitch"
 )

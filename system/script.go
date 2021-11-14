@@ -33,6 +33,18 @@ func (e *env) Display(id string) spin.Display {
 	return r
 }
 
+func (e *env) Int(ns string, id string) int {
+	return e.eng.Namespaces.Get(ns).Int(id)
+}
+
+func (e *env) SetInt(ns string, id string, val int) {
+	e.eng.Namespaces.Get(ns).SetInt(id, val)
+}
+
+func (e *env) AddInt(ns string, id string, val int) {
+	e.eng.Namespaces.Get(ns).AddInt(id, val)
+}
+
 type ScriptRunner struct {
 	eng      *spin.Engine
 	scripts  map[string]spin.Script

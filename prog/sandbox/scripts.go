@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/prog/jdx"
 )
 
 const (
@@ -11,13 +12,11 @@ const (
 )
 
 func sandboxFont(ctx context.Context, e spin.Env) {
-	// r := e.Display("").Renderer()
-	// g := &spin.Graphics{
-	// 	Color: 0xffffffff,
-	// 	Font:  jdx.Bmsf,
-	// 	W:     r.Width(),
-	// }
-	// r.Print(g, "HELLO WORLD")
+	r, g := e.Display("").Renderer()
+	defer r.Unlock()
+	g.Font = jdx.Bm8
+	r.Println(g, "0123456789")
+	r.Println(g, "123,456,789")
 }
 
 func RegisterScripts(eng *spin.Engine) {

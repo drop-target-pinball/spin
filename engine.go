@@ -25,6 +25,7 @@ type Server interface {
 type Engine struct {
 	Actions        map[string]Action
 	Events         map[string]Event
+	Namespaces     *Namespaces
 	actionQueue    chan Action
 	eventQueue     chan Event
 	actionHandlers []ActionHandler
@@ -37,6 +38,7 @@ func NewEngine() *Engine {
 	eng := &Engine{
 		Actions:        make(map[string]Action),
 		Events:         make(map[string]Event),
+		Namespaces:     NewNamespaces(),
 		actionQueue:    make(chan Action, 1),
 		eventQueue:     make(chan Event, 1),
 		actionHandlers: make([]ActionHandler, 0),
