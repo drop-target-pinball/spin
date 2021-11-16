@@ -9,6 +9,7 @@ const (
 	SniperScoreCountdown      = "SniperScoreCountdown"
 	SniperScoreCountdownAudio = "SniperScoreCountdownAudio"
 	SniperScoreCountdownVideo = "SniperScoreCountdownVideo"
+	SniperSplatTimeout        = "SniperSplatTimeout"
 	SniperCaught              = "SniperCaught"
 	SniperCaughtAudio         = "SniperCaughtAudio"
 	SniperCaughtVideo         = "SniperCaughtVideo"
@@ -41,6 +42,10 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     SniperScoreCountdownVideo,
 		Script: sniperScoreCountdownVideo,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     SniperSplatTimeout,
+		Script: sniperSplatTimeout,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     SniperFallCountdown,

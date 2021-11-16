@@ -65,10 +65,11 @@ func sniperScoreCountdownVideo(ctx context.Context, e spin.Env) {
 }
 
 func sniperScoreCountdownAudio(ctx context.Context, e spin.Env) {
-	e.Do(spin.PlayMusic{ID: ModeTheme1})
 	e.Do(spin.VolumeMusic{Mul: 0.5})
 	e.Do(spin.PlaySpeech{ID: SniperIsShootingIntoCrowdFromJohnsonTower})
 	if done := spin.Wait(ctx, 3*time.Second); done {
+		e.Do(spin.StopSpeech{ID: SniperIsShootingIntoCrowdFromJohnsonTower})
+		e.Do(spin.VolumeMusic{Mul: 2})
 		return
 	}
 
@@ -79,6 +80,7 @@ func sniperScoreCountdownAudio(ctx context.Context, e spin.Env) {
 
 	e.Do(spin.PlaySpeech{ID: ShootSniperTower})
 	if done := spin.Wait(ctx, 1*time.Second); done {
+		e.Do(spin.StopSpeech{ID: ShootSniperTower})
 		return
 	}
 
@@ -161,16 +163,16 @@ func sniperFallCountdownVideo(ctx context.Context, e spin.Env) {
 	seconds := 10
 
 	sniperFallFrame(e, seconds)
-	if done := spin.Wait(ctx, 1800*time.Millisecond); done {
+	if done := spin.Wait(ctx, 200*time.Millisecond); done {
 		return
 	}
 
 	for seconds > 0 {
-		seconds -= 1
-		sniperFallFrame(e, seconds)
 		if done := spin.Wait(ctx, 1500*time.Millisecond); done {
 			return
 		}
+		seconds -= 1
+		sniperFallFrame(e, seconds)
 	}
 	e.Post(spin.Message{ID: SniperTimeout})
 }
@@ -178,29 +180,35 @@ func sniperFallCountdownVideo(ctx context.Context, e spin.Env) {
 func sniperFallCountdownAudio(ctx context.Context, e spin.Env) {
 	e.Do(spin.PlaySpeech{ID: ShootSniperTower})
 	if done := spin.Wait(ctx, 1750*time.Millisecond); done {
+		e.Do(spin.StopSpeech{ID: ShootSniperTower})
 		return
 	}
 	e.Do(spin.PlaySpeech{ID: Ahhhhh})
 	if done := spin.Wait(ctx, 3*time.Second); done {
+		e.Do(spin.StopSpeech{ID: Ahhhhh})
 		return
 	}
 	e.Do(spin.PlaySpeech{ID: ItsALongWayDown})
 	if done := spin.Wait(ctx, 2500*time.Millisecond); done {
+		e.Do(spin.StopSpeech{ID: ItsALongWayDown})
 		return
 	}
 	e.Do(spin.PlaySpeech{ID: Ahhhhh})
 	if done := spin.Wait(ctx, 3*time.Second); done {
+		e.Do(spin.StopSpeech{ID: Ahhhhh})
 		return
 	}
 	e.Do(spin.PlaySpeech{ID: ICanSeeMyHouseFromHere})
 	if done := spin.Wait(ctx, 2*time.Second); done {
+		e.Do(spin.StopSpeech{ID: ICanSeeMyHouseFromHere})
 		return
 	}
 	e.Do(spin.PlaySpeech{ID: Ahhhhh})
 	if done := spin.Wait(ctx, 3*time.Second); done {
+		e.Do(spin.StopSpeech{ID: Ahhhhh})
 		return
 	}
-	e.Do(spin.StopSpeech{})
+	e.Do(spin.StopSpeech{ID: Ahhhhh})
 }
 
 func sniperFallCountdown(ctx context.Context, e spin.Env) {
@@ -219,13 +227,29 @@ func sniperFallCountdown(ctx context.Context, e spin.Env) {
 	e.Post(spin.Message{ID: SniperAdvance})
 }
 
+func sniperSplatTimeout(ctx context.Context, e spin.Env) {
+	e.Do(spin.StopMusic{ID: ModeTheme1})
+	e.Do(spin.PlayMusic{ID: MainTheme})
+	e.Do(spin.PlaySound{ID: SniperSplat})
+	if done := spin.Wait(ctx, 1000*time.Millisecond); done {
+		return
+	}
+
+	e.Do(spin.PlaySpeech{ID: SniperEliminated})
+	if done := spin.Wait(ctx, 2000*time.Millisecond); done {
+		e.Do(spin.StopSpeech{ID: SniperEliminated})
+		return
+	}
+	e.Post(spin.Message{ID: SniperAdvance})
+}
+
 func sniperMode(ctx context.Context, e spin.Env) {
 	defer func() {
-		// e.Do(spin.StopScript{ID: SniperCaught})
-		// e.Do(spin.StopScript{ID: SniperFall})
+		e.Do(spin.StopMusic{ID: ModeTheme1})
 	}()
 
 	e.Do(spin.StopAudio{})
+	e.Do(spin.PlayMusic{ID: ModeTheme1})
 	e.Do(spin.PlayScript{ID: SniperScoreCountdown})
 	evt, done := spin.WaitForEvents(ctx, e, []spin.Event{
 		spin.Message{ID: SniperTimeout},
@@ -245,7 +269,18 @@ func sniperMode(ctx context.Context, e spin.Env) {
 		spin.Message{ID: SniperTimeout},
 		spin.Message{ID: SniperAdvance},
 	})
-	if done || evt == (spin.Message{ID: SniperTimeout}) {
+	if done {
 		return
 	}
+	success := evt == spin.Message{ID: SniperAdvance}
+	e.Do(spin.PlayScript{ID: SniperSplatTimeout})
+	if _, done := spin.WaitForEvent(ctx, e, spin.Message{ID: SniperAdvance}); done {
+		return
+	}
+	if done || !success {
+		return
+	}
+
+	e.Do(spin.PlayScript{ID: SniperCaught})
+	spin.WaitForEvent(ctx, e, spin.Message{ID: SniperAdvance})
 }

@@ -6,8 +6,9 @@ const (
 	Ahhhhh                                    = "Ahhhhh"
 	ICanSeeMyHouseFromHere                    = "ICanSeeMyHouseFromHere"
 	ItsALongWayDown                           = "ItsALongWayDown"
-	SniperIsShootingIntoCrowdFromJohnsonTower = "SniperIsShootingIntoCrowdFromJohnsonTower"
 	ShootSniperTower                          = "ShootSniperTower"
+	SniperEliminated                          = "SniperEliminated"
+	SniperIsShootingIntoCrowdFromJohnsonTower = "SniperIsShootingIntoCrowdFromJohnsonTower"
 )
 
 func RegisterSpeech(eng *spin.Engine) {
@@ -26,6 +27,10 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   ShootSniperTower,
 		Path: "jd/pinsound/voice/000356-shoot_sniper_tower/shoot_sn__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SniperEliminated,
+		Path: "jd/pinsound/voice/000253-sniper_eliminated/sniper_e__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SniperIsShootingIntoCrowdFromJohnsonTower,

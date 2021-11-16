@@ -124,6 +124,7 @@ func (s *AudioSDL) playSpeech(a spin.PlaySpeech) {
 		spin.Warn("%v not found", a.ID)
 		return
 	}
+	s.speechPlaying = a.ID
 	sp.Play(0, 0)
 }
 

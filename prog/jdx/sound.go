@@ -3,9 +3,10 @@ package jdx
 import "github.com/drop-target-pinball/spin"
 
 const (
-	Success       = "Success"
 	GunLoadSniper = "GunLoadSniper"
 	GunFire       = "GunFire"
+	SniperSplat   = "SniperSplat"
+	Success       = "Success"
 )
 
 func RegisterSounds(eng *spin.Engine) {
@@ -16,6 +17,10 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   GunFire,
 		Path: "jd/pinsound/sfx/000133-gun_fire/gun_fire__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SniperSplat,
+		Path: "jd/pinsound/sfx/000076-hurt_3/hurt_3____LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   Success,
