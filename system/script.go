@@ -3,6 +3,7 @@ package system
 import (
 	"context"
 	"log"
+	"sync"
 
 	"github.com/drop-target-pinball/spin"
 )
@@ -51,6 +52,7 @@ type ScriptRunner struct {
 	running  map[string]context.CancelFunc
 	displays map[string]spin.Display
 	env      map[string]spin.Env
+	mutex    sync.Mutex
 }
 
 func RegisterScriptRunner(eng *spin.Engine) {
@@ -96,6 +98,9 @@ func (s *ScriptRunner) registerScript(a spin.RegisterScript) {
 }
 
 func (s *ScriptRunner) playScript(a spin.PlayScript) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	scr, ok := s.scripts[a.ID]
 	if !ok {
 		spin.Warn("%v: no such script", a.ID)
@@ -107,7 +112,7 @@ func (s *ScriptRunner) playScript(a spin.PlayScript) {
 
 	env := &env{
 		eng:        s.eng,
-		eventQueue: make(chan spin.Event, 1),
+		eventQueue: make(chan spin.Event, 10),
 		displays:   s.displays,
 	}
 	s.env[a.ID] = env
@@ -122,6 +127,9 @@ func (s *ScriptRunner) playScript(a spin.PlayScript) {
 }
 
 func (s *ScriptRunner) stopScript(id string) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	cancel, ok := s.running[id]
 	if !ok {
 		spin.Warn("%v: no such script", id)

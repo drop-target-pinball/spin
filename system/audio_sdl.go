@@ -14,6 +14,9 @@ type AudioSDL struct {
 	music  map[string]*mix.Music
 	speech map[string]*mix.Chunk
 	sound  map[string]*mix.Chunk
+
+	musicPlaying  string
+	speechPlaying string
 }
 
 func RegisterAudioSDL(eng *spin.Engine) {
@@ -98,6 +101,7 @@ func (s *AudioSDL) playMusic(a spin.PlayMusic) {
 		return
 	}
 	m.Play(1)
+	s.musicPlaying = a.ID
 	if a.Vol == 0 {
 		mix.VolumeMusic(mix.MAX_VOLUME)
 	} else {
@@ -126,14 +130,22 @@ func (s *AudioSDL) playSpeech(a spin.PlaySpeech) {
 func (s *AudioSDL) stopAudio(a spin.StopAudio) {
 	mix.HaltMusic()
 	mix.HaltChannel(-1)
+	s.musicPlaying = ""
+	s.speechPlaying = ""
 }
 
 func (s *AudioSDL) stopMusic(a spin.StopMusic) {
-	mix.HaltMusic()
+	if a.Any || a.ID == s.musicPlaying {
+		mix.HaltMusic()
+		s.musicPlaying = ""
+	}
 }
 
 func (s *AudioSDL) stopSpeech(a spin.StopSpeech) {
-	mix.HaltChannel(0)
+	if a.Any || a.ID == s.speechPlaying {
+		mix.HaltChannel(0)
+		s.speechPlaying = ""
+	}
 }
 
 func (s *AudioSDL) volumeMusic(a spin.VolumeMusic) {

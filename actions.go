@@ -69,13 +69,19 @@ type RegisterSpeech struct {
 
 type StopAudio struct{}
 
-type StopMusic struct{}
+type StopMusic struct {
+	ID  string
+	Any bool
+}
 
 type StopScript struct {
 	ID string
 }
 
-type StopSpeech struct{}
+type StopSpeech struct {
+	ID  string
+	Any bool
+}
 
 type VolumeMusic struct {
 	Set int

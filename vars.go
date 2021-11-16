@@ -21,7 +21,8 @@ func NewVars() *Vars {
 func (v *Vars) getInt(id string) int {
 	val, ok := v.vars[id]
 	if !ok {
-		log.Panicf("no such variable: %v", id)
+		Warn("no such variable: %v", id)
+		return 0
 	}
 	iVal, ok := val.(int)
 	if !ok {

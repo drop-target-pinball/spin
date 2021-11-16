@@ -5,14 +5,16 @@ import (
 )
 
 const (
-	SniperCaught              = "SniperCaught"
-	SniperCaughtAudio         = "SniperCaughtAudio"
-	SniperCaughtVideo         = "SniperCaughtVideo"
+	SniperMode                = "SniperMode"
 	SniperScoreCountdown      = "SniperScoreCountdown"
 	SniperScoreCountdownAudio = "SniperScoreCountdownAudio"
 	SniperScoreCountdownVideo = "SniperScoreCountdownVideo"
-	SniperFall                = "SniperFall"
-	SniperMode                = "SniperMode"
+	SniperCaught              = "SniperCaught"
+	SniperCaughtAudio         = "SniperCaughtAudio"
+	SniperCaughtVideo         = "SniperCaughtVideo"
+	SniperFallCountdown       = "SniperFallCountdown"
+	SniperFallCountdownAudio  = "SniperFallCountdownAudio"
+	SniperFallCountdownVideo  = "SniperFallCountdownVideo"
 )
 
 func RegisterScripts(eng *spin.Engine) {
@@ -41,8 +43,16 @@ func RegisterScripts(eng *spin.Engine) {
 		Script: sniperScoreCountdownVideo,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperFall,
-		Script: sniperFall,
+		ID:     SniperFallCountdown,
+		Script: sniperFallCountdown,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     SniperFallCountdownAudio,
+		Script: sniperFallCountdownAudio,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     SniperFallCountdownVideo,
+		Script: sniperFallCountdownVideo,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     SniperMode,
