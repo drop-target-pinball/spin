@@ -27,51 +27,6 @@ func Wait(ctx context.Context, d time.Duration) bool {
 	}
 }
 
-func WaitForSwitch(ctx context.Context, e Env, id string) (bool, SwitchEvent) {
-	for {
-		select {
-		case event := <-e.EventQueue():
-			sw, ok := event.(SwitchEvent)
-			if ok && sw.ID == id {
-				return false, sw
-			}
-		case <-ctx.Done():
-			return true, SwitchEvent{}
-		}
-	}
-}
-
-func WaitForMessage(ctx context.Context, e Env, id string) (bool, Message) {
-	for {
-		select {
-		case event := <-e.EventQueue():
-			msg, ok := event.(Message)
-			if ok && msg.ID == id {
-				return false, msg
-			}
-		case <-ctx.Done():
-			return true, Message{}
-		}
-	}
-}
-
-func WaitForSwitchUntil(ctx context.Context, e Env, id string, d time.Duration) (bool, SwitchEvent) {
-	timer := time.After(d)
-	for {
-		select {
-		case event := <-e.EventQueue():
-			sw, ok := event.(SwitchEvent)
-			if ok && sw.ID == id {
-				return false, sw
-			}
-		case <-timer:
-			return false, SwitchEvent{}
-		case <-ctx.Done():
-			return true, SwitchEvent{}
-		}
-	}
-}
-
 func WaitForEventsUntil(ctx context.Context, e Env, d time.Duration, watching []Event) (Event, bool) {
 	timer := time.After(d)
 	for {
@@ -96,4 +51,8 @@ func WaitForEventUntil(ctx context.Context, e Env, d time.Duration, watching Eve
 
 func WaitForEvents(ctx context.Context, e Env, watching []Event) (Event, bool) {
 	return WaitForEventsUntil(ctx, e, math.MaxInt64, watching)
+}
+
+func WaitForEvent(ctx context.Context, e Env, watching Event) (Event, bool) {
+	return WaitForEventsUntil(ctx, e, math.MaxInt64, []Event{watching})
 }

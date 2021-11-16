@@ -6,6 +6,9 @@ import (
 
 const (
 	SniperCaught              = "SniperCaught"
+	SniperCaughtAudio         = "SniperCaughtAudio"
+	SniperCaughtVideo         = "SniperCaughtVideo"
+	SniperScoreCountdown      = "SniperScoreCountdown"
 	SniperScoreCountdownAudio = "SniperScoreCountdownAudio"
 	SniperScoreCountdownVideo = "SniperScoreCountdownVideo"
 	SniperFall                = "SniperFall"
@@ -16,6 +19,18 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     SniperCaught,
 		Script: sniperCaught,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     SniperCaughtAudio,
+		Script: sniperCaughtAudio,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     SniperCaughtVideo,
+		Script: sniperCaughtVideo,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     SniperScoreCountdown,
+		Script: sniperScoreCountdown,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     SniperScoreCountdownAudio,
