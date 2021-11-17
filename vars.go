@@ -1,12 +1,14 @@
 package spin
 
 import (
+	"fmt"
 	"log"
 	"sync"
 )
 
 const (
 	Player = "player"
+	System = "system"
 )
 
 type Vars struct {
@@ -34,19 +36,41 @@ func (v *Vars) getInt(id string) int {
 func (v *Vars) Int(id string) int {
 	v.mutex.RLock()
 	defer v.mutex.RUnlock()
+
 	return v.getInt(id)
 }
 
 func (v *Vars) SetInt(id string, val int) {
 	v.mutex.Lock()
 	defer v.mutex.Unlock()
+
 	v.vars[id] = val
 }
 
 func (v *Vars) AddInt(id string, val int) {
 	v.mutex.Lock()
 	defer v.mutex.Unlock()
+
 	v.vars[id] = val + v.getInt(id)
+}
+
+func (v *Vars) String(id string) string {
+	v.mutex.RLock()
+	defer v.mutex.RUnlock()
+
+	val, ok := v.vars[id]
+	if !ok {
+		Warn("no such variable: %v", id)
+		return ""
+	}
+	return fmt.Sprintf("%v", val)
+}
+
+func (v *Vars) SetString(id string, str string) {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
+
+	v.vars[id] = str
 }
 
 type Namespaces struct {

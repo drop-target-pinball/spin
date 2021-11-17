@@ -46,6 +46,14 @@ func (e *env) AddInt(ns string, id string, val int) {
 	e.eng.Namespaces.Get(ns).AddInt(id, val)
 }
 
+func (e *env) String(ns string, id string) string {
+	return e.eng.Namespaces.Get(ns).String(id)
+}
+
+func (e *env) SetString(ns string, id string, val string) {
+	e.eng.Namespaces.Get(ns).SetString(id, val)
+}
+
 type ScriptRunner struct {
 	eng      *spin.Engine
 	scripts  map[string]spin.Script

@@ -14,6 +14,8 @@ type Env interface {
 	Int(string, string) int
 	SetInt(string, string, int)
 	AddInt(string, string, int)
+	String(string, string) string
+	SetString(string, string, string)
 }
 
 type Script func(context.Context, Env)
