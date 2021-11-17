@@ -29,7 +29,8 @@ func NewEngine(opt Options) *spin.Engine {
 		system.RegisterAudioSDL(eng)
 	}
 	if opt.WithVirtualDMD {
-		system.RegisterDotMatrixSDL(eng, system.DefaultOptionsDotMatrixSDL())
+		sdlOpts := system.DefaultOptionsDotMatrixSDL()
+		system.RegisterDotMatrixSDL(eng, sdlOpts)
 	}
 	system.RegisterDisplaySDL(eng, spin.DisplayOptions{Width: 128, Height: 32})
 	system.RegisterInputSDL(eng)

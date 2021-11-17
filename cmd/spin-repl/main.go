@@ -7,6 +7,7 @@ import (
 	"github.com/drop-target-pinball/spin/mach/jd"
 	"github.com/drop-target-pinball/spin/prog/boot"
 	"github.com/drop-target-pinball/spin/prog/jdx"
+	"github.com/drop-target-pinball/spin/prog/menu"
 	"github.com/drop-target-pinball/spin/prog/sandbox"
 )
 
@@ -17,6 +18,7 @@ func main() {
 
 	jd.Load(eng)
 	boot.Load(eng)
+	menu.Load(eng)
 	jdx.Load(eng)
 	sandbox.Load(eng)
 
