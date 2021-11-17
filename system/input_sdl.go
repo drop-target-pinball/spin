@@ -32,13 +32,26 @@ func RegisterInputSDL(eng *spin.Engine) {
 
 func (s *InputSDL) HandleAction(action spin.Action) {
 	switch act := action.(type) {
-	case spin.RegisterKeySDL:
+	case spin.RegisterKey:
 		s.registerKey(act)
 	}
 }
 
-func (s *InputSDL) registerKey(act spin.RegisterKeySDL) {
-	k := key{key: act.Key, mod: act.Mod}
+func (s *InputSDL) registerKey(act spin.RegisterKey) {
+	keycode := sdl.GetKeyFromName(act.Key)
+	modcode, ok := uint16(0), false
+	if keycode == 0 {
+		spin.Warn("unrecognized key: %v", act.Key)
+		return
+	}
+	if act.Mod != "" {
+		modcode, ok = sdlModFromName[act.Mod]
+		if !ok {
+			spin.Warn("unrecognized key modifier: %v", act.Mod)
+			return
+		}
+	}
+	k := key{key: keycode, mod: modcode}
 	v := keyHandler{eventDown: act.EventDown}
 	s.keys[k] = v
 }
@@ -58,7 +71,7 @@ func (s *InputSDL) handleKey(kbe *sdl.KeyboardEvent) {
 	if kbe.Repeat != 0 {
 		return
 	}
-	key := key{key: kbe.Keysym.Sym, mod: kbe.Keysym.Mod}
+	key := key{key: kbe.Keysym.Sym, mod: getSingleMod(kbe.Keysym.Mod)}
 	handlers, ok := s.keys[key]
 	if !ok {
 		return
@@ -66,4 +79,22 @@ func (s *InputSDL) handleKey(kbe *sdl.KeyboardEvent) {
 	if kbe.Type == sdl.KEYDOWN && handlers.eventDown != nil {
 		s.eng.Post(handlers.eventDown)
 	}
+}
+
+var sdlModFromName = map[string]uint16{
+	"control": sdl.KMOD_CTRL,
+	"shift":   sdl.KMOD_SHIFT,
+	"alt":     sdl.KMOD_ALT,
+}
+
+func getSingleMod(mod uint16) uint16 {
+	switch {
+	case mod&sdl.KMOD_SHIFT != 0:
+		return sdl.KMOD_SHIFT
+	case mod&sdl.KMOD_CTRL != 0:
+		return sdl.KMOD_CTRL
+	case mod&sdl.KMOD_ALT != 0:
+		return sdl.KMOD_ALT
+	}
+	return 0
 }

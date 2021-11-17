@@ -2,30 +2,29 @@ package jd
 
 import (
 	"github.com/drop-target-pinball/spin"
-	"github.com/veandco/go-sdl2/sdl"
 )
 
 func RegisterKeys(eng *spin.Engine) {
-	eng.Do(spin.RegisterKeySDL{
-		Key:       sdl.K_LEFT,
+	eng.Do(spin.RegisterKey{
+		Key:       "left",
 		EventDown: spin.SwitchEvent{ID: LeftFlipperButton},
 	})
-	eng.Do(spin.RegisterKeySDL{
-		Key:       sdl.K_LEFT,
-		Mod:       sdl.KMOD_SHIFT,
+	eng.Do(spin.RegisterKey{
+		Key:       "left",
+		Mod:       "shift",
 		EventDown: spin.SwitchEvent{ID: LeftFireButton},
 	})
-	eng.Do(spin.RegisterKeySDL{
-		Key:       sdl.K_RIGHT,
+	eng.Do(spin.RegisterKey{
+		Key:       "right",
 		EventDown: spin.SwitchEvent{ID: RightFlipperButton},
 	})
-	eng.Do(spin.RegisterKeySDL{
-		Key:       sdl.K_RIGHT,
-		Mod:       sdl.KMOD_SHIFT,
+	eng.Do(spin.RegisterKey{
+		Key:       "right",
+		Mod:       "shift",
 		EventDown: spin.SwitchEvent{ID: RightFireButton},
 	})
-	eng.Do(spin.RegisterKeySDL{
-		Key:       sdl.K_RETURN,
+	eng.Do(spin.RegisterKey{
+		Key:       "return",
 		EventDown: spin.SwitchEvent{ID: StartButton},
 	})
 }
