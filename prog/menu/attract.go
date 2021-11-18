@@ -8,8 +8,10 @@ import (
 	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
+// Messages
 const (
 	MenuAttractAdvance = "MenuAttractAdvance"
+	MenuAttractEnd     = "MenuAttractEnd"
 )
 
 var attractScripts = []string{
@@ -119,8 +121,10 @@ func menuAttractMode(ctx context.Context, e spin.Env) {
 			spin.SwitchEvent{ID: jd.RightFlipperButton},
 			spin.SwitchEvent{ID: jd.LeftFireButton},
 			spin.SwitchEvent{ID: jd.RightFireButton},
+			spin.SwitchEvent{ID: jd.StartButton},
 		})
 		if done {
+			e.Do(spin.StopScript{ID: attractScripts[script]})
 			return
 		}
 		switch evt {
@@ -138,6 +142,10 @@ func menuAttractMode(ctx context.Context, e spin.Env) {
 		case spin.SwitchEvent{ID: jd.RightFireButton}:
 			e.Do(spin.StopScript{ID: attractScripts[script]})
 			next()
+		case spin.SwitchEvent{ID: jd.StartButton}:
+			e.Do(spin.StopScript{ID: attractScripts[script]})
+			e.Post(spin.Message{ID: MenuAttractEnd})
+			return
 		}
 	}
 }

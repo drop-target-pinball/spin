@@ -8,8 +8,14 @@ import (
 	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
+// Scripts
 const (
 	SplashScreen = "SplashScreen"
+)
+
+// Messages
+const (
+	BootEnd = "BootEnd"
 )
 
 func splashScreenFrame(e spin.Env) {
@@ -26,14 +32,17 @@ func splashScreenFrame(e spin.Env) {
 }
 
 func splashScreen(ctx context.Context, e spin.Env) {
+
 	e.Do(spin.StopAudio{})
 	splashScreenFrame(e)
 	e.Do(spin.PlayMusic{ID: BootTheme})
-
-	spin.WaitForEventsUntil(ctx, e, 8*time.Second, []spin.Event{
+	if _, done := spin.WaitForEventsUntil(ctx, e, 8*time.Second, []spin.Event{
 		spin.SwitchEvent{ID: jd.LeftFlipperButton},
 		spin.SwitchEvent{ID: jd.RightFlipperButton},
-	})
+	}); done {
+		return
+	}
+	e.Post(spin.Message{ID: BootEnd})
 }
 
 func RegisterScripts(eng *spin.Engine) {

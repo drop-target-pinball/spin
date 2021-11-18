@@ -11,6 +11,7 @@ import (
 // Messages
 const (
 	GameUpdated = "GameUpdated"
+	MenuEnd     = "MenuEnd"
 )
 
 // Variables
@@ -93,9 +94,13 @@ func menuSelect(ctx context.Context, e spin.Env) {
 			spin.SwitchEvent{ID: jd.RightFlipperButton},
 			spin.SwitchEvent{ID: jd.LeftFireButton},
 			spin.SwitchEvent{ID: jd.RightFireButton},
+			spin.SwitchEvent{ID: jd.StartButton},
 		})
 		if done {
 			return
+		}
+		if evt == (spin.SwitchEvent{ID: jd.StartButton}) {
+			break
 		}
 		switch evt {
 		case spin.Message{ID: MenuAttractAdvance}:
@@ -117,4 +122,5 @@ func menuSelect(ctx context.Context, e spin.Env) {
 		e.Post(spin.Message{ID: GameUpdated})
 	}
 
+	e.Post(spin.Message{ID: MenuEnd})
 }
