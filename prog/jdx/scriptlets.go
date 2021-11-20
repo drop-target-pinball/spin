@@ -14,11 +14,11 @@ func modeIntroFrame(e spin.Env, blinkOn bool, text [3]string) {
 	r.Clear()
 	g.Y = 2
 	g.W = r.Width()
-	g.Font = PfArmaFive8
+	g.Font = FontPfArmaFive8
 	r.Print(g, text[0])
 	if blinkOn {
 		g.Y = 12
-		g.Font = PfRondaSevenBold8
+		g.Font = FontPfRondaSevenBold8
 		r.Print(g, text[1])
 		g.Y = 22
 		r.Print(g, text[2])

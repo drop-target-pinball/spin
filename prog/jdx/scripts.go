@@ -5,62 +5,62 @@ import (
 )
 
 const (
-	SniperMode                = "SniperMode"
-	SniperScoreCountdown      = "SniperScoreCountdown"
-	SniperScoreCountdownAudio = "SniperScoreCountdownAudio"
-	SniperScoreCountdownVideo = "SniperScoreCountdownVideo"
-	SniperSplatTimeout        = "SniperSplatTimeout"
-	SniperCaught              = "SniperCaught"
-	SniperCaughtAudio         = "SniperCaughtAudio"
-	SniperCaughtVideo         = "SniperCaughtVideo"
-	SniperFallCountdown       = "SniperFallCountdown"
-	SniperFallCountdownAudio  = "SniperFallCountdownAudio"
-	SniperFallCountdownVideo  = "SniperFallCountdownVideo"
+	ScriptSniperMode                = "jdx.ScriptSniperMode"
+	ScriptSniperScoreCountdown      = "jdx.ScriptSniperScoreCountdown"
+	ScriptSniperScoreCountdownAudio = "jdx.ScriptSniperScoreCountdownAudio"
+	ScriptSniperScoreCountdownVideo = "jdx.ScriptSniperScoreCountdownVideo"
+	ScriptSniperSplatTimeout        = "jdx.ScriptSniperSplatTimeout"
+	ScriptSniperTakedown            = "jdx.ScriptSniperTakedown"
+	ScriptSniperTakedownAudio       = "jdx.ScriptSniperTakedownAudio"
+	ScriptSniperTakedownVideo       = "jdx.ScriptSniperTakedownVideo"
+	ScriptSniperFallCountdown       = "jdx.ScriptSniperFallCountdown"
+	ScriptSniperFallCountdownAudio  = "jdx.ScriptSniperFallCountdownAudio"
+	ScriptSniperFallCountdownVideo  = "jdx.ScriptSniperFallCountdownVideo"
 )
 
 func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
-		ID:     SniperCaught,
-		Script: sniperCaught,
+		ID:     ScriptSniperTakedown,
+		Script: sniperTakedownScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperCaughtAudio,
-		Script: sniperCaughtAudio,
+		ID:     ScriptSniperTakedownAudio,
+		Script: sniperTakedownAudioScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperCaughtVideo,
-		Script: sniperCaughtVideo,
+		ID:     ScriptSniperTakedownVideo,
+		Script: sniperTakedownVideoScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperScoreCountdown,
-		Script: sniperScoreCountdown,
+		ID:     ScriptSniperScoreCountdown,
+		Script: sniperScoreCountdownScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperScoreCountdownAudio,
-		Script: sniperScoreCountdownAudio,
+		ID:     ScriptSniperScoreCountdownAudio,
+		Script: sniperScoreCountdownAudioScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperScoreCountdownVideo,
-		Script: sniperScoreCountdownVideo,
+		ID:     ScriptSniperScoreCountdownVideo,
+		Script: sniperScoreCountdownVideoScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperSplatTimeout,
-		Script: sniperSplatTimeout,
+		ID:     ScriptSniperSplatTimeout,
+		Script: sniperSplatTimeoutScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperFallCountdown,
-		Script: sniperFallCountdown,
+		ID:     ScriptSniperFallCountdown,
+		Script: sniperFallCountdownScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperFallCountdownAudio,
-		Script: sniperFallCountdownAudio,
+		ID:     ScriptSniperFallCountdownAudio,
+		Script: sniperFallCountdownAudioScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperFallCountdownVideo,
-		Script: sniperFallCountdownVideo,
+		ID:     ScriptSniperFallCountdownVideo,
+		Script: sniperFallCountdownVideoScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     SniperMode,
-		Script: sniperMode,
+		ID:     ScriptSniperMode,
+		Script: sniperModeScript,
 	})
 }

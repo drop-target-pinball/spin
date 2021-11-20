@@ -3,12 +3,12 @@ package boot
 import "github.com/drop-target-pinball/spin"
 
 const (
-	BootTheme = "BootTheme"
+	MusicSplashScreen = "boot.MusicSplashScreen"
 )
 
 func RegisterMusic(eng *spin.Engine) {
 	eng.Do(spin.RegisterMusic{
-		ID:   BootTheme,
+		ID:   MusicSplashScreen,
 		Path: "boot/boot.ogg",
 	})
 }

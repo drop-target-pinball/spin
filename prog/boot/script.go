@@ -10,19 +10,19 @@ import (
 
 // Scripts
 const (
-	SplashScreen = "SplashScreen"
+	ScriptSplashScreen = "boot.ScriptSplashScreen"
 )
 
 // Messages
 const (
-	BootEnd = "BootEnd"
+	MessageDone = "boot.MessageDone"
 )
 
 func splashScreenFrame(e spin.Env) {
 	r, g := e.Display("").Renderer()
 	defer r.Unlock()
 
-	g.Font = PfTempestaFiveCompressedBold8
+	g.Font = FontPfTempestaFiveCompressedBold8
 	g.W = r.Width()
 	g.PaddingV = 2
 	g.Y = 4
@@ -31,20 +31,20 @@ func splashScreenFrame(e spin.Env) {
 	r.Println(g, spin.Date)
 }
 
-func splashScreen(ctx context.Context, e spin.Env) {
+func splashScreenScript(ctx context.Context, e spin.Env) {
 
 	e.Do(spin.StopAudio{})
 	splashScreenFrame(e)
-	e.Do(spin.PlayMusic{ID: BootTheme})
+	e.Do(spin.PlayMusic{ID: MusicSplashScreen})
 	if _, done := spin.WaitForEventsUntil(ctx, e, 8*time.Second, []spin.Event{
-		spin.SwitchEvent{ID: jd.LeftFlipperButton},
-		spin.SwitchEvent{ID: jd.RightFlipperButton},
+		spin.SwitchEvent{ID: jd.SwitchLeftFlipperButton},
+		spin.SwitchEvent{ID: jd.SwitchRightFlipperButton},
 	}); done {
 		return
 	}
-	e.Post(spin.Message{ID: BootEnd})
+	e.Post(spin.Message{ID: MessageDone})
 }
 
 func RegisterScripts(eng *spin.Engine) {
-	eng.Do(spin.RegisterScript{ID: SplashScreen, Script: splashScreen})
+	eng.Do(spin.RegisterScript{ID: ScriptSplashScreen, Script: splashScreenScript})
 }

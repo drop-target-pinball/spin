@@ -1,10 +1,10 @@
 package jd
 
 const (
-	LeftFlipperButton  = "LeftFlipperButton"
-	RightFlipperButton = "RightFlipperButton"
-	LeftFireButton     = "LeftFireButton"
-	RightFireButton    = "RightFireButton"
-	StartButton        = "StartButton"
-	RightPopperSwitch  = "RightPopperSwitch"
+	SwitchLeftFlipperButton  = "jd.SwitchLeftFlipperButton"
+	SwitchRightFlipperButton = "jd.SwitchRightFlipperButton"
+	SwitchLeftFireButton     = "jd.SwitchLeftFireButton"
+	SwitchRightFireButton    = "jd.SwitchRightFireButton"
+	SwitchStartButton        = "jd.SwitchStartButton"
+	SwitchRightPopper        = "jd.SwitchRightPopper"
 )

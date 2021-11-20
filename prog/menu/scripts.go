@@ -3,37 +3,37 @@ package menu
 import "github.com/drop-target-pinball/spin"
 
 const (
-	MenuAttractDropTargetPinball = "MenuAttractDropTargetPinball"
-	MenuAttractFreePlay          = "MenuAttractFreePlay"
-	MenuAttractGameOver          = "MenuAttractGameOver"
-	MenuAttractMode              = "MenuAttractMode"
-	MenuSelect                   = "MenuSelect"
-	MenuSelectGame               = "MenuSelectGame"
+	ScriptAttractMode       = "menu.ScriptAttractMode"
+	ScriptDropTargetPinball = "menu.ScriptDropTargetPinball"
+	ScriptFreePlay          = "menu.ScriptFreePlay"
+	ScriptGameOver          = "menu.ScriptGameOver"
+	ScriptGameSelect        = "menu.ScriptGameSelect"
+	ScriptSelectMode        = "menu.ScriptSelectMode"
 )
 
 func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
-		ID:     MenuAttractDropTargetPinball,
-		Script: menuAttractDropTargetPinball,
+		ID:     ScriptAttractMode,
+		Script: attractModeScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     MenuAttractFreePlay,
-		Script: menuAttractFreePlay,
+		ID:     ScriptDropTargetPinball,
+		Script: dropTargetPinballScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     MenuAttractGameOver,
-		Script: menuAttractGameOver,
+		ID:     ScriptFreePlay,
+		Script: freePlayScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     MenuAttractMode,
-		Script: menuAttractMode,
+		ID:     ScriptGameOver,
+		Script: gameOverScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     MenuSelect,
-		Script: menuSelect,
+		ID:     ScriptGameSelect,
+		Script: gameSelectScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     MenuSelectGame,
-		Script: menuSelectGame,
+		ID:     ScriptSelectMode,
+		Script: selectModeScript,
 	})
 }

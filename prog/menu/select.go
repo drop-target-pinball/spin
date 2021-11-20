@@ -8,15 +8,13 @@ import (
 	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
-// Messages
 const (
-	GameUpdated = "GameUpdated"
-	MenuEnd     = "MenuEnd"
+	MessageGameUpdated = "menu.MessageGameUpdated"
+	MessageSelectDone  = "menu.MessageSelectDone"
 )
 
-// Variables
 const (
-	Game = "Game"
+	VariableGame = "menu.VariableGame"
 )
 
 var games = []string{
@@ -34,11 +32,11 @@ func gameSelectFrame(e spin.Env, blinkOn bool) {
 	r.Clear()
 	g.W = r.Width()
 	g.Y = 7
-	g.Font = PfTempestaFiveExtendedBold8
+	g.Font = FontPfTempestaFiveExtendedBold8
 	r.Print(g, "GAME SELECT")
 	g.Y = 18
-	g.Font = PfTempestaFiveCompressedBold8
-	game := games[e.Int(spin.System, Game)]
+	g.Font = FontPfTempestaFiveCompressedBold8
+	game := games[e.Int(spin.System, VariableGame)]
 	r.Print(g, game)
 
 	if blinkOn {
@@ -51,76 +49,72 @@ func gameSelectFrame(e spin.Env, blinkOn bool) {
 	}
 }
 
-func menuSelectGame(ctx context.Context, e spin.Env) {
-	e.SetInt(spin.System, Game, 0)
+func gameSelectScript(ctx context.Context, e spin.Env) {
+	e.SetInt(spin.System, VariableGame, 0)
 	for {
 		gameSelectFrame(e, true)
-		if _, done := spin.WaitForEventUntil(ctx, e, 256*time.Millisecond, spin.Message{ID: GameUpdated}); done {
+		if _, done := spin.WaitForEventUntil(ctx, e, 256*time.Millisecond, spin.Message{ID: MessageGameUpdated}); done {
 			return
 		}
 
 		gameSelectFrame(e, false)
-		if _, done := spin.WaitForEventUntil(ctx, e, 100*time.Millisecond, spin.Message{ID: GameUpdated}); done {
+		if _, done := spin.WaitForEventUntil(ctx, e, 100*time.Millisecond, spin.Message{ID: MessageGameUpdated}); done {
 			return
 		}
 	}
 }
 
-func menuSelect(ctx context.Context, e spin.Env) {
+func selectModeScript(ctx context.Context, e spin.Env) {
 	next := func() {
-		game := e.Int(spin.System, Game)
+		game := e.Int(spin.System, VariableGame)
 		game += 1
 		if game >= len(games) {
 			game = 0
 		}
-		e.SetInt(spin.System, Game, game)
+		e.SetInt(spin.System, VariableGame, game)
 	}
 
 	prev := func() {
-		game := e.Int(spin.System, Game)
+		game := e.Int(spin.System, VariableGame)
 		game -= 1
 		if game < 0 {
 			game = len(games) - 1
 		}
-		e.SetInt(spin.System, Game, game)
+		e.SetInt(spin.System, VariableGame, game)
 	}
 
-	e.Do(spin.PlayScript{ID: MenuSelectGame})
-	e.Do(spin.PlayMusic{ID: SMB2CharSelect})
+	e.Do(spin.PlayScript{ID: ScriptGameSelect})
+	e.Do(spin.PlayMusic{ID: MusicSelectMode})
 	for {
 		evt, done := spin.WaitForEvents(ctx, e, []spin.Event{
-			spin.Message{ID: MenuAttractAdvance},
-			spin.SwitchEvent{ID: jd.LeftFlipperButton},
-			spin.SwitchEvent{ID: jd.RightFlipperButton},
-			spin.SwitchEvent{ID: jd.LeftFireButton},
-			spin.SwitchEvent{ID: jd.RightFireButton},
-			spin.SwitchEvent{ID: jd.StartButton},
+			spin.SwitchEvent{ID: jd.SwitchLeftFlipperButton},
+			spin.SwitchEvent{ID: jd.SwitchRightFlipperButton},
+			spin.SwitchEvent{ID: jd.SwitchLeftFireButton},
+			spin.SwitchEvent{ID: jd.SwitchRightFireButton},
+			spin.SwitchEvent{ID: jd.SwitchStartButton},
 		})
 		if done {
 			return
 		}
-		if evt == (spin.SwitchEvent{ID: jd.StartButton}) {
+		if evt == (spin.SwitchEvent{ID: jd.SwitchStartButton}) {
 			break
 		}
 		switch evt {
-		case spin.Message{ID: MenuAttractAdvance}:
-			next()
-			e.Do(spin.PlaySound{ID: SMB2Scroll})
-		case spin.SwitchEvent{ID: jd.LeftFlipperButton}:
+		case spin.SwitchEvent{ID: jd.SwitchLeftFlipperButton}:
 			prev()
-			e.Do(spin.PlaySound{ID: SMB2Scroll})
-		case spin.SwitchEvent{ID: jd.RightFlipperButton}:
+			e.Do(spin.PlaySound{ID: SoundSelectScroll})
+		case spin.SwitchEvent{ID: jd.SwitchRightFlipperButton}:
 			next()
-			e.Do(spin.PlaySound{ID: SMB2Scroll})
-		case spin.SwitchEvent{ID: jd.LeftFireButton}:
+			e.Do(spin.PlaySound{ID: SoundSelectScroll})
+		case spin.SwitchEvent{ID: jd.SwitchLeftFireButton}:
 			prev()
-			e.Do(spin.PlaySound{ID: SMB2Scroll})
-		case spin.SwitchEvent{ID: jd.RightFireButton}:
+			e.Do(spin.PlaySound{ID: SoundSelectScroll})
+		case spin.SwitchEvent{ID: jd.SwitchRightFireButton}:
 			next()
-			e.Do(spin.PlaySound{ID: SMB2Scroll})
+			e.Do(spin.PlaySound{ID: SoundSelectScroll})
 		}
-		e.Post(spin.Message{ID: GameUpdated})
+		e.Post(spin.Message{ID: MessageGameUpdated})
 	}
 
-	e.Post(spin.Message{ID: MenuEnd})
+	e.Post(spin.Message{ID: MessageSelectDone})
 }
