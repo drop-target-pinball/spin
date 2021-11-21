@@ -18,6 +18,11 @@ type Env interface {
 	SetString(string, string, string)
 }
 
+type waitContext struct {
+	events []Event
+	timer  chan<- time.Time
+}
+
 type Script func(context.Context, Env)
 
 func Wait(ctx context.Context, d time.Duration) bool {

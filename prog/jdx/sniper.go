@@ -99,13 +99,13 @@ func sniperScoreCountdownAudioScript(ctx context.Context, e spin.Env) {
 func sniperScoreCountdownScript(ctx context.Context, e spin.Env) {
 	e.Do(spin.PlayScript{ID: ScriptSniperScoreCountdownVideo})
 	e.Do(spin.PlayScript{ID: ScriptSniperScoreCountdownAudio})
-	defer e.Do(spin.StopScript{ID: ScriptSniperScoreCountdownVideo})
-	defer e.Do(spin.StopScript{ID: ScriptSniperScoreCountdownAudio})
 
 	evt, done := spin.WaitForEvents(ctx, e, []spin.Event{
 		spin.Message{ID: MessageSniperTimeout},
 		spin.SwitchEvent{ID: jd.SwitchRightPopper},
 	})
+	e.Do(spin.StopScript{ID: ScriptSniperScoreCountdownVideo})
+	e.Do(spin.StopScript{ID: ScriptSniperScoreCountdownAudio})
 	if done || evt == (spin.Message{ID: MessageSniperTimeout}) {
 		return
 	}
@@ -138,10 +138,11 @@ func sniperTakedownAudioScript(ctx context.Context, e spin.Env) {
 func sniperTakedownScript(ctx context.Context, e spin.Env) {
 	e.Do(spin.PlayScript{ID: ScriptSniperTakedownVideo})
 	e.Do(spin.PlayScript{ID: ScriptSniperTakedownAudio})
-	defer e.Do(spin.StopScript{ID: ScriptSniperTakedownVideo})
-	defer e.Do(spin.StopScript{ID: ScriptSniperTakedownAudio})
-
 	spin.WaitForEvent(ctx, e, spin.Message{ID: MessageSniperAdvance})
+
+	e.Do(spin.StopScript{ID: ScriptSniperTakedownVideo})
+	e.Do(spin.StopScript{ID: ScriptSniperTakedownAudio})
+
 }
 
 func sniperFallFrame(e spin.Env, seconds int) {
@@ -214,16 +215,16 @@ func sniperFallCountdownAudioScript(ctx context.Context, e spin.Env) {
 func sniperFallCountdownScript(ctx context.Context, e spin.Env) {
 	e.Do(spin.PlayScript{ID: ScriptSniperFallCountdownVideo})
 	e.Do(spin.PlayScript{ID: ScriptSniperFallCountdownAudio})
-	defer e.Do(spin.StopScript{ID: ScriptSniperFallCountdownVideo})
-	defer e.Do(spin.StopScript{ID: ScriptSniperFallCountdownAudio})
-
 	evt, done := spin.WaitForEvents(ctx, e, []spin.Event{
 		spin.Message{ID: MessageSniperTimeout},
 		spin.SwitchEvent{ID: jd.SwitchRightPopper},
 	})
+	e.Do(spin.StopScript{ID: ScriptSniperFallCountdownVideo})
+	e.Do(spin.StopScript{ID: ScriptSniperFallCountdownAudio})
 	if done || evt == (spin.Message{ID: MessageSniperTimeout}) {
 		return
 	}
+
 	e.Post(spin.Message{ID: MessageSniperAdvance})
 }
 
@@ -244,10 +245,6 @@ func sniperSplatTimeoutScript(ctx context.Context, e spin.Env) {
 }
 
 func sniperModeScript(ctx context.Context, e spin.Env) {
-	defer func() {
-		e.Do(spin.StopMusic{ID: MusicMode1})
-	}()
-
 	e.Do(spin.StopAudio{})
 	e.Do(spin.PlayMusic{ID: MusicMode1})
 	e.Do(spin.PlayScript{ID: ScriptSniperScoreCountdown})
@@ -256,11 +253,13 @@ func sniperModeScript(ctx context.Context, e spin.Env) {
 		spin.Message{ID: MessageSniperAdvance},
 	})
 	if done || evt == (spin.Message{ID: MessageSniperTimeout}) {
+		e.Do(spin.StopMusic{ID: MusicMode1})
 		return
 	}
 
 	e.Do(spin.PlayScript{ID: ScriptSniperTakedown})
 	if _, done := spin.WaitForEvent(ctx, e, spin.Message{ID: MessageSniperAdvance}); done {
+		e.Do(spin.StopMusic{ID: MusicMode1})
 		return
 	}
 
@@ -270,6 +269,7 @@ func sniperModeScript(ctx context.Context, e spin.Env) {
 		spin.Message{ID: MessageSniperAdvance},
 	})
 	if done {
+		e.Do(spin.StopMusic{ID: MusicMode1})
 		return
 	}
 	success := evt == spin.Message{ID: MessageSniperAdvance}

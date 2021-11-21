@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	Player = "player"
-	System = "system"
+	Player = "Player"
+	System = "System"
 )
 
 type Vars struct {

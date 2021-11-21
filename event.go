@@ -1,19 +1,31 @@
 package spin
 
 type Event interface {
-	event()
+	Key() interface{}
 }
 
 type Message struct {
 	ID string
 }
 
-type SwitchEvent struct {
-	ID string
+func (e Message) Key() interface{} {
+	return e.ID
 }
 
-func (Message) event()     {}
-func (SwitchEvent) event() {}
+type SwitchEvent struct {
+	ID       string
+	Released bool
+}
+
+func (e SwitchEvent) Key() interface{} {
+	return struct {
+		ID       string
+		Released bool
+	}{
+		e.ID,
+		e.Released,
+	}
+}
 
 func registerEvents(e *Engine) {
 	e.RegisterEvent(Message{})
