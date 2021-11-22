@@ -21,11 +21,6 @@ func (s cancel) Key() interface{} {
 	return s
 }
 
-// var (
-// 	Cancel  = cancel{}
-// 	Timeout = timeout{}
-// )
-
 type waitCond struct {
 	timer     <-chan time.Time
 	selectors []Selector
@@ -56,10 +51,6 @@ func (c *Context) Sleep(d time.Duration) bool {
 		return true
 	}
 }
-
-// func (c *Context) WaitUntil(s ...Selector) Selector {
-// 	return c.WaitForUntil(math.MaxInt64, s...)
-// }
 
 type Runner struct {
 	active []*coroutine
@@ -108,7 +99,7 @@ func (e *Runner) Create(parent context.Context, fn func(*Context)) {
 
 func (e *Runner) Service() {
 	for i, entry := range e.active {
-		if entry == nil {
+		if entry == nil || entry.waitCond.timer == nil {
 			continue
 		}
 		select {

@@ -13,7 +13,6 @@ type env struct {
 	eng      *spin.Engine
 	displays map[string]spin.Display
 	ctx      *coroutine.Context
-	//eventQueue chan spin.Event
 }
 
 func (e *env) Do(act spin.Action) {
@@ -31,10 +30,6 @@ func (e *env) Sleep(d time.Duration) bool {
 func (e *env) WaitFor(s ...coroutine.Selector) (coroutine.Selector, bool) {
 	return e.ctx.WaitFor(s...)
 }
-
-// func (e *env) EventQueue() chan spin.Event {
-// 	return e.eventQueue
-// }
 
 func (e *env) Display(id string) spin.Display {
 	r, ok := e.displays[id]
@@ -69,10 +64,7 @@ type ScriptRunner struct {
 	scripts  map[string]spin.Script
 	running  map[string]context.CancelFunc
 	displays map[string]spin.Display
-	env      map[string]spin.Env
 	runner   *coroutine.Runner
-
-	//mutex    sync.Mutex
 }
 
 func RegisterScriptRunner(eng *spin.Engine) {
@@ -81,7 +73,6 @@ func RegisterScriptRunner(eng *spin.Engine) {
 		scripts:  make(map[string]spin.Script),
 		running:  make(map[string]context.CancelFunc),
 		displays: make(map[string]spin.Display),
-		env:      make(map[string]spin.Env),
 		runner:   coroutine.NewRunner(),
 	}
 	eng.RegisterActionHandler(sys)
@@ -120,9 +111,6 @@ func (s *ScriptRunner) registerScript(a spin.RegisterScript) {
 }
 
 func (s *ScriptRunner) playScript(a spin.PlayScript) {
-	// s.mutex.Lock()
-	// defer s.mutex.Unlock()
-
 	scr, ok := s.scripts[a.ID]
 	if !ok {
 		spin.Warn("%v: no such script", a.ID)
@@ -132,36 +120,20 @@ func (s *ScriptRunner) playScript(a spin.PlayScript) {
 		cancel()
 	}
 
-	// env := &env{
-	// 	eng: s.eng,
-	// 	// eventQueue: make(chan spin.Event, 10),
-	// 	displays: s.displays,
-	// }
-	//s.env[a.ID] = env
-
 	ctx, cancel := context.WithCancel(context.Background())
 	s.running[a.ID] = cancel
 
 	s.runner.Create(ctx, func(ctx *coroutine.Context) {
 		e := &env{
-			eng: s.eng,
-			// eventQueue: make(chan spin.Event, 10),
+			eng:      s.eng,
 			displays: s.displays,
 			ctx:      ctx,
 		}
 		scr(e)
 	})
-
-	// go func() {
-	// 	scr(ctx, env)
-	// 	s.stopScript(a.ID)
-	// }()
 }
 
 func (s *ScriptRunner) stopScript(id string) {
-	// s.mutex.Lock()
-	// defer s.mutex.Unlock()
-
 	cancel, ok := s.running[id]
 	if !ok {
 		spin.Warn("%v: no such script", id)
@@ -172,7 +144,6 @@ func (s *ScriptRunner) stopScript(id string) {
 	}
 	cancel()
 	s.running[id] = nil
-	s.env[id] = nil
 }
 
 func (s *ScriptRunner) stopScripts(a spin.StopScript) {
