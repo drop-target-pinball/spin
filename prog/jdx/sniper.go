@@ -12,15 +12,10 @@ const (
 	MessageSniperTimeout = "jdx.MessageSniperTimeout"
 )
 
-const (
-	VariableSniperScore = "jdx.VariableSniperScore"
-)
-
 var sniperScore int
 
 func sniperScoreFrame(e spin.Env, blinkOn bool) {
 	r, g := e.Display("").Renderer()
-	//defer r.Unlock()
 
 	r.Clear()
 	g.Y = 2
@@ -31,14 +26,12 @@ func sniperScoreFrame(e spin.Env, blinkOn bool) {
 
 	if blinkOn {
 		g.Font = FontBm8
-		// score := spin.Sprintf("%10d", e.Int(spin.Player, VariableSniperScore))
 		score := spin.Sprintf("%10d", sniperScore)
 		r.Print(g, score)
 	}
 }
 
 func sniperScoreCountdownVideoScript(e spin.Env) {
-	//e.SetInt(spin.Player, VariableSniperScore, 20_000_000)
 	sniperScore = 20_000_000
 	modeText := [3]string{"SNIPER", "SHOOT", "SNIPER TOWER"}
 	if done := modeIntroVideo(e, modeText); done {
@@ -52,7 +45,6 @@ func sniperScoreCountdownVideoScript(e spin.Env) {
 
 	expires := time.Now().Add(30 * time.Second)
 	for time.Now().Before(expires) {
-		//e.AddInt(spin.Player, VariableSniperScore, -78_330)
 		sniperScore -= 78_330
 		sniperScoreFrame(e, true)
 		if done := e.Sleep(160 * time.Millisecond); done {
@@ -60,7 +52,6 @@ func sniperScoreCountdownVideoScript(e spin.Env) {
 		}
 	}
 
-	//e.SetInt(spin.Player, VariableSniperScore, 5_000_000)
 	sniperScore = 5_000_000
 	sniperScoreFrame(e, true)
 	if done := e.Sleep(2000 * time.Millisecond); done {
@@ -151,7 +142,6 @@ func sniperTakedownScript(e spin.Env) {
 
 func sniperFallFrame(e spin.Env, seconds int) {
 	r, g := e.Display("").Renderer()
-	//defer r.Unlock()
 
 	r.Clear()
 	g.Y = 2
