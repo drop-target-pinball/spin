@@ -1,7 +1,9 @@
 package spin
 
+import "github.com/drop-target-pinball/spin/coroutine"
+
 type Event interface {
-	Key() interface{}
+	coroutine.Selector
 }
 
 type Message struct {

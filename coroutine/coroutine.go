@@ -10,17 +10,22 @@ type Selector interface {
 	Key() interface{}
 }
 
-type Timeout struct{}
+type timeout struct{}
 
-func (s Timeout) Key() interface{} {
+func (s timeout) Key() interface{} {
 	return s
 }
 
-type Cancel struct{}
+type cancel struct{}
 
-func (s Cancel) Key() interface{} {
+func (s cancel) Key() interface{} {
 	return s
 }
+
+var (
+	Cancel  = cancel{}
+	Timeout = timeout{}
+)
 
 type waitCond struct {
 	timer     <-chan time.Time
@@ -39,7 +44,7 @@ func (c *Context) WaitForUntil(d time.Duration, s ...Selector) Selector {
 	case s := <-c.resume:
 		return s
 	case <-c.ctx.Done():
-		return Cancel{}
+		return Cancel
 	}
 }
 
@@ -57,7 +62,7 @@ func (c *Context) WaitUntil(s ...Selector) Selector {
 	return c.WaitForUntil(math.MaxInt64, s...)
 }
 
-type Env struct {
+type Runner struct {
 	active []*coroutine
 }
 
@@ -69,11 +74,11 @@ type coroutine struct {
 	resume   chan Selector
 }
 
-func NewEnv() *Env {
-	return &Env{}
+func NewRunner() *Runner {
+	return &Runner{}
 }
 
-func (e *Env) Create(parent context.Context, fn func(*Context)) {
+func (e *Runner) Create(parent context.Context, fn func(*Context)) {
 	cr := &coroutine{}
 
 	cr.ctx, cr.cancel = context.WithCancel(parent)
@@ -102,14 +107,14 @@ func (e *Env) Create(parent context.Context, fn func(*Context)) {
 	e.active = append(e.active, cr)
 }
 
-func (e *Env) Service() {
+func (e *Runner) Service() {
 	for i, entry := range e.active {
 		if entry == nil {
 			continue
 		}
 		select {
 		case <-entry.waitCond.timer:
-			entry.resume <- Timeout{}
+			entry.resume <- Timeout
 			entry.waitCond = <-entry.yield
 		case <-entry.ctx.Done():
 			e.active[i] = nil
@@ -118,7 +123,7 @@ func (e *Env) Service() {
 	}
 }
 
-func (e *Env) Post(s Selector) {
+func (e *Runner) Post(s Selector) {
 	for i, entry := range e.active {
 		if entry == nil {
 			continue

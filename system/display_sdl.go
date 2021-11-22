@@ -12,7 +12,6 @@ import (
 	"path"
 	"regexp"
 	"strings"
-	"sync"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/veandco/go-sdl2/sdl"
@@ -20,9 +19,9 @@ import (
 )
 
 type displaySDL struct {
-	id    string
-	surf  *sdl.Surface
-	mutex sync.Mutex
+	id   string
+	surf *sdl.Surface
+	//mutex sync.Mutex
 	fonts map[string]font
 }
 
@@ -35,10 +34,10 @@ func (d *displaySDL) Height() int {
 }
 
 func (d *displaySDL) Renderer() (spin.Renderer, *spin.Graphics) {
-	d.mutex.Lock()
+	//d.mutex.Lock()
 	return &rendererSDL{
-		surf:  d.surf,
-		mutex: &d.mutex,
+		surf: d.surf,
+		//mutex: &d.mutex,
 		fonts: d.fonts,
 	}, &spin.Graphics{}
 }
@@ -62,7 +61,7 @@ func RegisterDisplaySDL(eng *spin.Engine, opts spin.DisplayOptions) {
 		ID:      s.id,
 		Display: s,
 		Surface: s.surf,
-		Mutex:   &s.mutex,
+		//Mutex:   &s.mutex,
 	})
 	eng.RegisterActionHandler(s)
 }
@@ -77,18 +76,18 @@ func (s *displaySDL) HandleAction(action spin.Action) {
 // ----------------------------------------------------------------------------
 
 type rendererSDL struct {
-	surf  *sdl.Surface
-	mutex *sync.Mutex
+	surf *sdl.Surface
+	//mutex *sync.Mutex
 	fonts map[string]font
 }
 
-func (r *rendererSDL) Lock() {
-	r.mutex.Lock()
-}
+// func (r *rendererSDL) Lock() {
+// 	r.mutex.Lock()
+// }
 
-func (r *rendererSDL) Unlock() {
-	r.mutex.Unlock()
-}
+// func (r *rendererSDL) Unlock() {
+// 	r.mutex.Unlock()
+// }
 
 func (r *rendererSDL) Clear() {
 	rect := sdl.Rect{X: 0, Y: 0, W: r.surf.W, H: r.surf.H}

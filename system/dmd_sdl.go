@@ -3,7 +3,6 @@ package system
 import (
 	"image/color"
 	"log"
-	"sync"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/veandco/go-sdl2/sdl"
@@ -33,13 +32,13 @@ func DefaultOptionsDotMatrixSDL() OptionsDotMatrixSDL {
 }
 
 type DotMatrixSDL struct {
-	eng     *spin.Engine
-	opts    OptionsDotMatrixSDL
-	winW    int
-	winH    int
-	source  *sdl.Surface
-	target  *sdl.Renderer
-	mutex   *sync.Mutex
+	eng    *spin.Engine
+	opts   OptionsDotMatrixSDL
+	winW   int
+	winH   int
+	source *sdl.Surface
+	target *sdl.Renderer
+	//mutex   *sync.Mutex
 	win     *sdl.Window
 	borders [4]sdl.Rect
 }
@@ -64,7 +63,7 @@ func (s *DotMatrixSDL) registerDisplaySDL(act spin.RegisterDisplaySDL) {
 		return
 	}
 	s.source = act.Surface
-	s.mutex = act.Mutex
+	//s.mutex = act.Mutex
 
 	sourceW, sourceH := int(s.source.W), int(s.source.H)
 	s.winW = ((sourceW * s.opts.Scale) + (s.opts.Padding * sourceW) +
@@ -146,8 +145,8 @@ func (s *DotMatrixSDL) Service() {
 	if s.target == nil {
 		return
 	}
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	//s.mutex.Lock()
+	//defer s.mutex.Unlock()
 
 	o := s.opts
 	r := s.target

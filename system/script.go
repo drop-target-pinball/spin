@@ -3,15 +3,17 @@ package system
 import (
 	"context"
 	"log"
-	"sync"
+	"time"
 
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/coroutine"
 )
 
 type env struct {
-	eng        *spin.Engine
-	displays   map[string]spin.Display
-	eventQueue chan spin.Event
+	eng      *spin.Engine
+	displays map[string]spin.Display
+	ctx      *coroutine.Context
+	//eventQueue chan spin.Event
 }
 
 func (e *env) Do(act spin.Action) {
@@ -22,9 +24,21 @@ func (e *env) Post(evt spin.Event) {
 	e.eng.Post(evt)
 }
 
-func (e *env) EventQueue() chan spin.Event {
-	return e.eventQueue
+func (e *env) WaitForUntil(d time.Duration, s ...coroutine.Selector) coroutine.Selector {
+	return e.ctx.WaitForUntil(d, s...)
 }
+
+func (e *env) WaitFor(d time.Duration) bool {
+	return e.ctx.WaitFor(d)
+}
+
+func (e *env) WaitUntil(s ...coroutine.Selector) coroutine.Selector {
+	return e.ctx.WaitUntil(s...)
+}
+
+// func (e *env) EventQueue() chan spin.Event {
+// 	return e.eventQueue
+// }
 
 func (e *env) Display(id string) spin.Display {
 	r, ok := e.displays[id]
@@ -60,7 +74,9 @@ type ScriptRunner struct {
 	running  map[string]context.CancelFunc
 	displays map[string]spin.Display
 	env      map[string]spin.Env
-	mutex    sync.Mutex
+	runner   *coroutine.Runner
+
+	//mutex    sync.Mutex
 }
 
 func RegisterScriptRunner(eng *spin.Engine) {
@@ -70,9 +86,11 @@ func RegisterScriptRunner(eng *spin.Engine) {
 		running:  make(map[string]context.CancelFunc),
 		displays: make(map[string]spin.Display),
 		env:      make(map[string]spin.Env),
+		runner:   coroutine.NewRunner(),
 	}
 	eng.RegisterActionHandler(sys)
 	eng.RegisterEventHandler(sys)
+	eng.RegisterServer(sys)
 }
 
 func (s *ScriptRunner) HandleAction(action spin.Action) {
@@ -89,11 +107,11 @@ func (s *ScriptRunner) HandleAction(action spin.Action) {
 }
 
 func (s *ScriptRunner) HandleEvent(evt spin.Event) {
-	for _, env := range s.env {
-		if env != nil {
-			env.EventQueue() <- evt
-		}
-	}
+	s.runner.Post(evt)
+}
+
+func (s *ScriptRunner) Service() {
+	s.runner.Service()
 }
 
 func (s *ScriptRunner) registerDisplaySDL(act spin.RegisterDisplaySDL) {
@@ -106,8 +124,8 @@ func (s *ScriptRunner) registerScript(a spin.RegisterScript) {
 }
 
 func (s *ScriptRunner) playScript(a spin.PlayScript) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	// s.mutex.Lock()
+	// defer s.mutex.Unlock()
 
 	scr, ok := s.scripts[a.ID]
 	if !ok {
@@ -118,25 +136,35 @@ func (s *ScriptRunner) playScript(a spin.PlayScript) {
 		cancel()
 	}
 
-	env := &env{
-		eng:        s.eng,
-		eventQueue: make(chan spin.Event, 10),
-		displays:   s.displays,
-	}
-	s.env[a.ID] = env
+	// env := &env{
+	// 	eng: s.eng,
+	// 	// eventQueue: make(chan spin.Event, 10),
+	// 	displays: s.displays,
+	// }
+	//s.env[a.ID] = env
 
 	ctx, cancel := context.WithCancel(context.Background())
 	s.running[a.ID] = cancel
 
-	go func() {
-		scr(ctx, env)
-		s.stopScript(a.ID)
-	}()
+	s.runner.Create(ctx, func(ctx *coroutine.Context) {
+		e := &env{
+			eng: s.eng,
+			// eventQueue: make(chan spin.Event, 10),
+			displays: s.displays,
+			ctx:      ctx,
+		}
+		scr(e)
+	})
+
+	// go func() {
+	// 	scr(ctx, env)
+	// 	s.stopScript(a.ID)
+	// }()
 }
 
 func (s *ScriptRunner) stopScript(id string) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	// s.mutex.Lock()
+	// defer s.mutex.Unlock()
 
 	cancel, ok := s.running[id]
 	if !ok {
@@ -147,7 +175,6 @@ func (s *ScriptRunner) stopScript(id string) {
 		return
 	}
 	cancel()
-	close(s.env[id].EventQueue())
 	s.running[id] = nil
 	s.env[id] = nil
 }

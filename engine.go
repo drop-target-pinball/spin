@@ -26,8 +26,8 @@ type Engine struct {
 	Actions        map[string]Action
 	Events         map[string]Event
 	Namespaces     *Namespaces
-	actionQueue    chan Action
-	eventQueue     chan Event
+	actionQueue    []Action
+	eventQueue     []Event
 	actionHandlers []ActionHandler
 	eventHandlers  []EventHandler
 	servers        []Server
@@ -39,8 +39,8 @@ func NewEngine() *Engine {
 		Actions:        make(map[string]Action),
 		Events:         make(map[string]Event),
 		Namespaces:     NewNamespaces(),
-		actionQueue:    make(chan Action, 1),
-		eventQueue:     make(chan Event, 1),
+		actionQueue:    make([]Action, 0),
+		eventQueue:     make([]Event, 0),
 		actionHandlers: make([]ActionHandler, 0),
 		eventHandlers:  make([]EventHandler, 0),
 		servers:        make([]Server, 0),
@@ -88,35 +88,41 @@ func (e *Engine) Run() {
 }
 
 func (e *Engine) Do(act Action) {
-	if e.running {
-		e.actionQueue <- act
-	} else {
-		for _, h := range e.actionHandlers {
-			h.HandleAction(act)
-		}
-	}
+	e.actionQueue = append(e.actionQueue, act)
+	// if e.running {
+	// 	e.actionQueue <- act
+	// } else {
+	// 	for _, h := range e.actionHandlers {
+	// 		h.HandleAction(act)
+	// 	}
+	// }
 }
 
 func (e *Engine) Post(evt Event) {
-	e.eventQueue <- evt
+	// e.eventQueue <- evt
+	e.eventQueue = append(e.eventQueue, evt)
 }
 
 func (e *Engine) loop() {
 	ticker := time.NewTicker(16670 * time.Microsecond)
 	for {
-		select {
-		case act := <-e.actionQueue:
+		<-ticker.C
+		for len(e.actionQueue) > 0 {
+			var act Action
+			act, e.actionQueue = e.actionQueue[0], e.actionQueue[1:]
 			for _, h := range e.actionHandlers {
 				h.HandleAction(act)
 			}
-		case evt := <-e.eventQueue:
+		}
+		for len(e.eventQueue) > 0 {
+			var evt Event
+			evt, e.eventQueue = e.eventQueue[0], e.eventQueue[1:]
 			for _, h := range e.eventHandlers {
 				h.HandleEvent(evt)
 			}
-		case <-ticker.C:
-			for _, s := range e.servers {
-				s.Service()
-			}
+		}
+		for _, s := range e.servers {
+			s.Service()
 		}
 	}
 }

@@ -14,10 +14,10 @@ type Renderer interface {
 	Clear()
 	FillRect(*Graphics)
 	Height() int32
-	Lock()
+	//Lock()
 	Print(*Graphics, string, ...interface{})
 	Println(*Graphics, string, ...interface{})
-	Unlock()
+	//Unlock()
 	Width() int32
 }
 
