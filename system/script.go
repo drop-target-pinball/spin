@@ -24,16 +24,12 @@ func (e *env) Post(evt spin.Event) {
 	e.eng.Post(evt)
 }
 
-func (e *env) WaitForUntil(d time.Duration, s ...coroutine.Selector) coroutine.Selector {
-	return e.ctx.WaitForUntil(d, s...)
+func (e *env) Sleep(d time.Duration) bool {
+	return e.ctx.Sleep(d)
 }
 
-func (e *env) WaitFor(d time.Duration) bool {
-	return e.ctx.WaitFor(d)
-}
-
-func (e *env) WaitUntil(s ...coroutine.Selector) coroutine.Selector {
-	return e.ctx.WaitUntil(s...)
+func (e *env) WaitFor(s ...coroutine.Selector) (coroutine.Selector, bool) {
+	return e.ctx.WaitFor(s...)
 }
 
 // func (e *env) EventQueue() chan spin.Event {

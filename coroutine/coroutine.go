@@ -2,7 +2,6 @@ package coroutine
 
 import (
 	"context"
-	"math"
 	"time"
 )
 
@@ -22,10 +21,10 @@ func (s cancel) Key() interface{} {
 	return s
 }
 
-var (
-	Cancel  = cancel{}
-	Timeout = timeout{}
-)
+// var (
+// 	Cancel  = cancel{}
+// 	Timeout = timeout{}
+// )
 
 type waitCond struct {
 	timer     <-chan time.Time
@@ -38,17 +37,17 @@ type Context struct {
 	resume chan Selector
 }
 
-func (c *Context) WaitForUntil(d time.Duration, s ...Selector) Selector {
-	c.yield <- waitCond{timer: time.After(d), selectors: s}
+func (c *Context) WaitFor(s ...Selector) (Selector, bool) {
+	c.yield <- waitCond{selectors: s}
 	select {
 	case s := <-c.resume:
-		return s
+		return s, false
 	case <-c.ctx.Done():
-		return Cancel
+		return cancel{}, true
 	}
 }
 
-func (c *Context) WaitFor(d time.Duration) bool {
+func (c *Context) Sleep(d time.Duration) bool {
 	c.yield <- waitCond{timer: time.After(d)}
 	select {
 	case <-c.resume:
@@ -58,9 +57,9 @@ func (c *Context) WaitFor(d time.Duration) bool {
 	}
 }
 
-func (c *Context) WaitUntil(s ...Selector) Selector {
-	return c.WaitForUntil(math.MaxInt64, s...)
-}
+// func (c *Context) WaitUntil(s ...Selector) Selector {
+// 	return c.WaitForUntil(math.MaxInt64, s...)
+// }
 
 type Runner struct {
 	active []*coroutine
@@ -114,7 +113,7 @@ func (e *Runner) Service() {
 		}
 		select {
 		case <-entry.waitCond.timer:
-			entry.resume <- Timeout
+			entry.resume <- timeout{}
 			entry.waitCond = <-entry.yield
 		case <-entry.ctx.Done():
 			e.active[i] = nil

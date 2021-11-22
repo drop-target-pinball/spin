@@ -27,11 +27,11 @@ func modeIntroFrame(e spin.Env, blinkOn bool, text [3]string) {
 func modeIntroVideo(e spin.Env, text [3]string) bool {
 	for i := 0; i < 8; i++ {
 		modeIntroFrame(e, true, text)
-		if done := e.WaitFor(250 * time.Millisecond); done {
+		if done := e.Sleep(250 * time.Millisecond); done {
 			return done
 		}
 		modeIntroFrame(e, false, text)
-		if done := e.WaitFor(100 * time.Millisecond); done {
+		if done := e.Sleep(100 * time.Millisecond); done {
 			return done
 		}
 	}

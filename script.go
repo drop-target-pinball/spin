@@ -10,9 +10,9 @@ type Env interface {
 	Do(Action)
 	Post(Event)
 	// EventQueue() chan Event
-	WaitForUntil(time.Duration, ...coroutine.Selector) coroutine.Selector
-	WaitFor(time.Duration) bool
-	WaitUntil(...coroutine.Selector) coroutine.Selector
+	// WaitForUntil(time.Duration, ...coroutine.Selector) coroutine.Selector
+	Sleep(time.Duration) bool
+	WaitFor(...coroutine.Selector) (coroutine.Selector, bool)
 
 	Display(string) Display
 	// Int(string, string) int
