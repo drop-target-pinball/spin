@@ -52,9 +52,7 @@ func (c *Context) Sleep(d time.Duration) bool {
 	}
 }
 
-type Runner struct {
-	active []*coroutine
-}
+var active []*coroutine
 
 type coroutine struct {
 	ctx      context.Context
@@ -64,11 +62,7 @@ type coroutine struct {
 	resume   chan Selector
 }
 
-func NewRunner() *Runner {
-	return &Runner{}
-}
-
-func (e *Runner) Create(parent context.Context, fn func(*Context)) {
+func Create(parent context.Context, fn func(*Context)) {
 	cr := &coroutine{}
 
 	cr.ctx, cr.cancel = context.WithCancel(parent)
@@ -88,17 +82,21 @@ func (e *Runner) Create(parent context.Context, fn func(*Context)) {
 
 	cr.waitCond = <-cr.yield
 
-	for i, entry := range e.active {
+	for i, entry := range active {
 		if entry == nil {
-			e.active[i] = cr
+			active[i] = cr
 			return
 		}
 	}
-	e.active = append(e.active, cr)
+
+	if active == nil {
+		active = make([]*coroutine, 0)
+	}
+	active = append(active, cr)
 }
 
-func (e *Runner) Service() {
-	for i, entry := range e.active {
+func Service() {
+	for i, entry := range active {
 		if entry == nil || entry.waitCond.timer == nil {
 			continue
 		}
@@ -107,20 +105,20 @@ func (e *Runner) Service() {
 			entry.resume <- timeout{}
 			entry.waitCond = <-entry.yield
 		case <-entry.ctx.Done():
-			e.active[i] = nil
+			active[i] = nil
 		default:
 		}
 	}
 }
 
-func (e *Runner) Post(s Selector) {
-	for i, entry := range e.active {
+func Post(s Selector) {
+	for i, entry := range active {
 		if entry == nil {
 			continue
 		}
 		select {
 		case <-entry.ctx.Done():
-			e.active[i] = nil
+			active[i] = nil
 			continue
 		default:
 			for _, wait := range entry.waitCond.selectors {

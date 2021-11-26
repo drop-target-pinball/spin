@@ -39,32 +39,11 @@ func (e *env) Display(id string) spin.Display {
 	return r
 }
 
-func (e *env) Int(ns string, id string) int {
-	return e.eng.Namespaces.Get(ns).Int(id)
-}
-
-func (e *env) SetInt(ns string, id string, val int) {
-	e.eng.Namespaces.Get(ns).SetInt(id, val)
-}
-
-func (e *env) AddInt(ns string, id string, val int) {
-	e.eng.Namespaces.Get(ns).AddInt(id, val)
-}
-
-func (e *env) String(ns string, id string) string {
-	return e.eng.Namespaces.Get(ns).String(id)
-}
-
-func (e *env) SetString(ns string, id string, val string) {
-	e.eng.Namespaces.Get(ns).SetString(id, val)
-}
-
 type ScriptRunner struct {
 	eng      *spin.Engine
 	scripts  map[string]spin.Script
 	running  map[string]context.CancelFunc
 	displays map[string]spin.Display
-	runner   *coroutine.Runner
 }
 
 func RegisterScriptRunner(eng *spin.Engine) {
@@ -73,7 +52,6 @@ func RegisterScriptRunner(eng *spin.Engine) {
 		scripts:  make(map[string]spin.Script),
 		running:  make(map[string]context.CancelFunc),
 		displays: make(map[string]spin.Display),
-		runner:   coroutine.NewRunner(),
 	}
 	eng.RegisterActionHandler(sys)
 	eng.RegisterEventHandler(sys)
@@ -94,11 +72,11 @@ func (s *ScriptRunner) HandleAction(action spin.Action) {
 }
 
 func (s *ScriptRunner) HandleEvent(evt spin.Event) {
-	s.runner.Post(evt)
+	coroutine.Post(evt)
 }
 
 func (s *ScriptRunner) Service() {
-	s.runner.Service()
+	coroutine.Service()
 }
 
 func (s *ScriptRunner) registerDisplaySDL(act spin.RegisterDisplaySDL) {
@@ -123,7 +101,7 @@ func (s *ScriptRunner) playScript(a spin.PlayScript) {
 	ctx, cancel := context.WithCancel(context.Background())
 	s.running[a.ID] = cancel
 
-	s.runner.Create(ctx, func(ctx *coroutine.Context) {
+	coroutine.Create(ctx, func(ctx *coroutine.Context) {
 		e := &env{
 			eng:      s.eng,
 			displays: s.displays,
