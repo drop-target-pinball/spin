@@ -44,7 +44,7 @@ func (e *env) Derive() (context.Context, context.CancelFunc) {
 }
 
 func (e *env) NewCoroutine(ctx context.Context, scr spin.Script) {
-	coroutine.Create(ctx, func(ctx *coroutine.Context) {
+	coroutine.New(ctx, func(ctx *coroutine.Context) {
 		e := &env{
 			eng:      e.eng,
 			displays: e.displays,
@@ -117,7 +117,7 @@ func (s *ScriptRunner) playScript(a spin.PlayScript) {
 	ctx, cancel := context.WithCancel(context.Background())
 	s.running[a.ID] = cancel
 
-	coroutine.Create(ctx, func(ctx *coroutine.Context) {
+	coroutine.New(ctx, func(ctx *coroutine.Context) {
 		e := &env{
 			eng:      s.eng,
 			displays: s.displays,

@@ -66,7 +66,7 @@ type coroutine struct {
 	resume   chan Selector
 }
 
-func Create(parent context.Context, fn func(*Context)) {
+func New(parent context.Context, fn func(*Context)) {
 	cr := &coroutine{}
 
 	cr.ctx, cr.cancel = context.WithCancel(parent)
