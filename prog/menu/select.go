@@ -25,8 +25,9 @@ var games = []string{
 }
 
 var game int
+var selectBlinkOn bool
 
-func gameSelectFrame(e spin.Env, blinkOn bool) {
+func gameSelectFrame(e spin.Env) {
 	r, g := e.Display("").Renderer()
 
 	r.Clear()
@@ -38,7 +39,7 @@ func gameSelectFrame(e spin.Env, blinkOn bool) {
 	g.Font = FontPfTempestaFiveCompressedBold8
 	r.Print(g, games[game])
 
-	if blinkOn {
+	if selectBlinkOn {
 		g.W = 0
 		g.X = 20
 		g.Y = 18
@@ -48,16 +49,29 @@ func gameSelectFrame(e spin.Env, blinkOn bool) {
 	}
 }
 
-func gameSelectScript(e spin.Env) {
+func gameSelectGameScript(e spin.Env) {
 	game = 0
 	for {
-		gameSelectFrame(e, true)
-		if _, done := e.WaitForUntil(256*time.Millisecond, spin.Message{ID: MessageGameUpdated}); done {
+		gameSelectFrame(e)
+		_, done := e.WaitFor(spin.Message{ID: MessageGameUpdated})
+		if done {
+			return
+		}
+	}
+}
+
+func gameSelectBlinkScript(e spin.Env) {
+	game = 0
+	for {
+		selectBlinkOn = true
+		gameSelectFrame(e)
+		if done := e.Sleep(256 * time.Millisecond); done {
 			return
 		}
 
-		gameSelectFrame(e, false)
-		if _, done := e.WaitForUntil(100*time.Millisecond, spin.Message{ID: MessageGameUpdated}); done {
+		selectBlinkOn = false
+		gameSelectFrame(e)
+		if done := e.Sleep(100 * time.Millisecond); done {
 			return
 		}
 	}
@@ -79,7 +93,8 @@ func selectModeScript(e spin.Env) {
 	}
 
 	ctx, cancel := e.Derive()
-	e.NewCoroutine(ctx, gameSelectScript)
+	e.NewCoroutine(ctx, gameSelectGameScript)
+	e.NewCoroutine(ctx, gameSelectBlinkScript)
 	e.Do(spin.PlayMusic{ID: MusicSelectMode})
 
 	for {
