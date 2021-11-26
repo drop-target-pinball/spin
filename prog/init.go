@@ -1,8 +1,6 @@
 package prog
 
 import (
-	"context"
-
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
 	"github.com/drop-target-pinball/spin/prog/boot"
@@ -22,22 +20,23 @@ func Load(eng *spin.Engine) {
 	jdx.Load(eng)
 	sandbox.Load(eng)
 
-	//eng.Do(spin.RegisterScript{ID: ScriptInit, Script: scriptInit})
+	eng.Do(spin.RegisterScript{ID: ScriptInit, Script: scriptInit})
 }
 
-func scriptInit(ctx context.Context, e spin.Env) {
-	// e.Do(spin.PlayScript{ID: boot.ScriptSplashScreen})
-	// if _, done := spin.WaitForEvent(ctx, e, spin.Message{ID: boot.MessageDone}); done {
-	// 	return
-	// }
+func scriptInit(e spin.Env) {
+	e.Do(spin.PlayScript{ID: boot.ScriptSplashScreen})
+	if _, done := e.WaitFor(spin.Message{ID: boot.MessageDone}); done {
+		return
+	}
 
-	// e.Do(spin.PlayScript{ID: menu.ScriptAttractMode})
-	// if _, done := spin.WaitForEvent(ctx, e, spin.Message{ID: menu.MessageAttractDone}); done {
-	// 	return
-	// }
+	e.Do(spin.PlayScript{ID: menu.ScriptAttractMode})
+	if _, done := e.WaitFor(spin.Message{ID: menu.MessageAttractDone}); done {
+		return
+	}
 
-	// e.Do(spin.PlayScript{ID: menu.ScriptSelectMode})
-	// if _, done := spin.WaitForEvent(ctx, e, spin.Message{ID: menu.MessageSelectDone}); done {
+	e.Do(spin.PlayScript{ID: menu.ScriptSelectMode})
+	// if _, done := e.WaitFor(spin.Message{ID: menu.MessageSelectDone}); done {
 	// 	return
 	// }
+	e.WaitFor(spin.Message{ID: menu.MessageSelectDone})
 }

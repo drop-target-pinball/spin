@@ -35,6 +35,9 @@ func splashScreenScript(e spin.Env) {
 	evt, done := e.WaitForUntil(8*time.Second,
 		spin.SwitchEvent{ID: jd.SwitchLeftFlipperButton},
 		spin.SwitchEvent{ID: jd.SwitchRightFlipperButton},
+		spin.SwitchEvent{ID: jd.SwitchLeftFireButton},
+		spin.SwitchEvent{ID: jd.SwitchRightFireButton},
+		spin.SwitchEvent{ID: jd.SwitchStartButton},
 	)
 	if done {
 		return
