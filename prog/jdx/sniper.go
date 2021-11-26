@@ -93,15 +93,15 @@ func sniperScoreCountdownAudioScript(e spin.Env) {
 }
 
 func sniperScoreCountdownScript(e spin.Env) {
-	e.Do(spin.PlayScript{ID: ScriptSniperScoreCountdownVideo})
-	e.Do(spin.PlayScript{ID: ScriptSniperScoreCountdownAudio})
+	c, cancel := e.Derive()
+	e.NewCoroutine(c, sniperScoreCountdownAudioScript)
+	e.NewCoroutine(c, sniperScoreCountdownVideoScript)
 
 	evt, done := e.WaitFor(
 		spin.Message{ID: MessageSniperTimeout},
 		spin.SwitchEvent{ID: jd.SwitchRightPopper},
 	)
-	e.Do(spin.StopScript{ID: ScriptSniperScoreCountdownVideo})
-	e.Do(spin.StopScript{ID: ScriptSniperScoreCountdownAudio})
+	cancel()
 	if done || evt == (spin.Message{ID: MessageSniperTimeout}) {
 		return
 	}
@@ -132,12 +132,12 @@ func sniperTakedownAudioScript(e spin.Env) {
 }
 
 func sniperTakedownScript(e spin.Env) {
-	e.Do(spin.PlayScript{ID: ScriptSniperTakedownVideo})
-	e.Do(spin.PlayScript{ID: ScriptSniperTakedownAudio})
-	e.WaitFor(spin.Message{ID: MessageSniperAdvance})
+	c, cancel := e.Derive()
+	e.NewCoroutine(c, sniperTakedownAudioScript)
+	e.NewCoroutine(c, sniperTakedownVideoScript)
 
-	e.Do(spin.StopScript{ID: ScriptSniperTakedownVideo})
-	e.Do(spin.StopScript{ID: ScriptSniperTakedownAudio})
+	e.WaitFor(spin.Message{ID: MessageSniperAdvance})
+	cancel()
 }
 
 func sniperFallFrame(e spin.Env, seconds int) {
@@ -207,14 +207,15 @@ func sniperFallCountdownAudioScript(e spin.Env) {
 }
 
 func sniperFallCountdownScript(e spin.Env) {
-	e.Do(spin.PlayScript{ID: ScriptSniperFallCountdownVideo})
-	e.Do(spin.PlayScript{ID: ScriptSniperFallCountdownAudio})
+	c, cancel := e.Derive()
+	e.NewCoroutine(c, sniperFallCountdownAudioScript)
+	e.NewCoroutine(c, sniperFallCountdownVideoScript)
+
 	evt, done := e.WaitFor(
 		spin.Message{ID: MessageSniperTimeout},
 		spin.SwitchEvent{ID: jd.SwitchRightPopper},
 	)
-	e.Do(spin.StopScript{ID: ScriptSniperFallCountdownVideo})
-	e.Do(spin.StopScript{ID: ScriptSniperFallCountdownAudio})
+	cancel()
 	if done || evt == (spin.Message{ID: MessageSniperTimeout}) {
 		return
 	}

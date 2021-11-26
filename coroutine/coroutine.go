@@ -52,6 +52,10 @@ func (c *Context) Sleep(d time.Duration) bool {
 	}
 }
 
+func (c *Context) Derive() (context.Context, context.CancelFunc) {
+	return context.WithCancel(c.ctx)
+}
+
 var active []*coroutine
 
 type coroutine struct {

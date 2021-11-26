@@ -39,6 +39,22 @@ func (e *env) Display(id string) spin.Display {
 	return r
 }
 
+func (e *env) Derive() (context.Context, context.CancelFunc) {
+	return e.ctx.Derive()
+}
+
+func (e *env) NewCoroutine(ctx context.Context, scr spin.Script) {
+	coroutine.Create(ctx, func(ctx *coroutine.Context) {
+		e := &env{
+			eng:      e.eng,
+			displays: e.displays,
+			ctx:      ctx,
+		}
+		scr(e)
+	})
+
+}
+
 type ScriptRunner struct {
 	eng      *spin.Engine
 	scripts  map[string]spin.Script
