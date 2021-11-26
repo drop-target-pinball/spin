@@ -21,6 +21,7 @@ func DefaultOptions() Options {
 
 func NewEngine(opt Options) *spin.Engine {
 	eng := spin.NewEngine()
+	system.RegisterGame(eng)
 	system.RegisterScriptRunner(eng)
 	if opt.WithLogging {
 		system.RegisterLoggingConsole(eng)

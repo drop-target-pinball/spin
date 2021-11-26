@@ -2,6 +2,7 @@ package prog
 
 import (
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/game"
 	"github.com/drop-target-pinball/spin/mach/jd"
 	"github.com/drop-target-pinball/spin/prog/boot"
 	"github.com/drop-target-pinball/spin/prog/jdx"
@@ -14,6 +15,7 @@ const (
 )
 
 func Load(eng *spin.Engine) {
+	game.Load(eng)
 	jd.Load(eng)
 	boot.Load(eng)
 	menu.Load(eng)

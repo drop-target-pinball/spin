@@ -67,6 +67,10 @@ type RegisterSpeech struct {
 	Path string
 }
 
+type Score struct {
+	Add int
+}
+
 type StopAudio struct{}
 
 type StopMusic struct {
@@ -100,6 +104,7 @@ func (RegisterMusic) action()      {}
 func (RegisterScript) action()     {}
 func (RegisterSound) action()      {}
 func (RegisterSpeech) action()     {}
+func (Score) action()              {}
 func (StopAudio) action()          {}
 func (StopMusic) action()          {}
 func (StopScript) action()         {}
@@ -111,9 +116,11 @@ func registerActions(e *Engine) {
 	e.RegisterAction(PlayScript{})
 	e.RegisterAction(PlaySound{})
 	e.RegisterAction(PlaySpeech{})
+	e.RegisterAction(Score{})
 	e.RegisterAction(RegisterMusic{})
 	e.RegisterAction(RegisterSound{})
 	e.RegisterAction(RegisterSpeech{})
+	e.RegisterAction(Score{})
 	e.RegisterAction(StopAudio{})
 	e.RegisterAction(StopMusic{})
 	e.RegisterAction(StopScript{})

@@ -68,7 +68,7 @@ func main() {
 
 		w := widths[1].(float64)
 		t.X = (i % 10 * size) + left
-		t.Y = (i / 10 * size) + top
+		t.Y = (i / 10 * size) + top + 1
 		t.W = int(w)
 		t.H = size
 		tiles[ch] = t

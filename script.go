@@ -7,6 +7,10 @@ import (
 	"github.com/drop-target-pinball/spin/coroutine"
 )
 
+const (
+	FrameDuration = 16670 * time.Microsecond
+)
+
 type Env interface {
 	Do(Action)
 	Post(Event)
