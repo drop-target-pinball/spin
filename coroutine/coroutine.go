@@ -42,6 +42,19 @@ func (c *Context) WaitFor(s ...Selector) (Selector, bool) {
 	}
 }
 
+func (c *Context) WaitForUntil(d time.Duration, s ...Selector) (Selector, bool) {
+	c.yield <- waitCond{timer: time.After(d), selectors: s}
+	select {
+	case s := <-c.resume:
+		if s == (timeout{}) {
+			return nil, false
+		}
+		return s, false
+	case <-c.ctx.Done():
+		return cancel{}, true
+	}
+}
+
 func (c *Context) Sleep(d time.Duration) bool {
 	c.yield <- waitCond{timer: time.After(d)}
 	select {

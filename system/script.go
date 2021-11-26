@@ -31,6 +31,10 @@ func (e *env) WaitFor(s ...coroutine.Selector) (coroutine.Selector, bool) {
 	return e.ctx.WaitFor(s...)
 }
 
+func (e *env) WaitForUntil(d time.Duration, s ...coroutine.Selector) (coroutine.Selector, bool) {
+	return e.ctx.WaitForUntil(d, s...)
+}
+
 func (e *env) Display(id string) spin.Display {
 	r, ok := e.displays[id]
 	if !ok {

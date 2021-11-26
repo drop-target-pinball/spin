@@ -12,6 +12,7 @@ type Env interface {
 	Post(Event)
 	Sleep(time.Duration) bool
 	WaitFor(...coroutine.Selector) (coroutine.Selector, bool)
+	WaitForUntil(time.Duration, ...coroutine.Selector) (coroutine.Selector, bool)
 	Display(string) Display
 	Derive() (context.Context, context.CancelFunc)
 	NewCoroutine(ctx context.Context, scr Script)
