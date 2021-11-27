@@ -26,7 +26,7 @@ func sniperScoreFrame(e spin.Env, blinkOn bool) {
 
 	if blinkOn {
 		g.Font = FontBm8
-		score := spin.Sprintf("%10d", sniperScore)
+		score := spin.FormatScore("%10d", sniperScore)
 		r.Print(g, score)
 	}
 }

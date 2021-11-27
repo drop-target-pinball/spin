@@ -2,14 +2,17 @@ package game
 
 import "github.com/drop-target-pinball/spin"
 
+// Sizing from
+// https://github.com/preble/pyprocgame/blob/master/procgame/modes/scoredisplay.py#L104
+
 func scoreFrame(e spin.Env) {
 	r, g := e.Display("").Renderer()
 
 	r.Clear()
-	g.Font = FontBm10w
+	g.Font = FontBm10
 
 	g.W = r.Width()
-	r.Print(g, formatScore())
+	r.Print(g, spin.FormatScore("%d", VarPlayer.Score))
 
 	g.Font = FontBm3
 	g.W = 0
@@ -26,12 +29,4 @@ func scoreScript(e spin.Env) {
 			return
 		}
 	}
-}
-
-func formatScore() string {
-	score := spin.Sprintf("%d", VarPlayer.Score)
-	if score == "0" {
-		return "00"
-	}
-	return score
 }
