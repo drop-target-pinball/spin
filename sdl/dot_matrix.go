@@ -1,4 +1,4 @@
-package system
+package sdl
 
 import (
 	"image/color"
@@ -8,7 +8,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-type OptionsDotMatrixSDL struct {
+type OptionsDotMatrix struct {
 	ID          string
 	Scale       int
 	Padding     int
@@ -19,8 +19,8 @@ type OptionsDotMatrixSDL struct {
 	Palette     []color.RGBA
 }
 
-func DefaultOptionsDotMatrixSDL() OptionsDotMatrixSDL {
-	return OptionsDotMatrixSDL{
+func DefaultOptionsDotMatrix() OptionsDotMatrix {
+	return OptionsDotMatrix{
 		Scale:       4,
 		Padding:     1,
 		BackColor:   color.RGBA{0x40, 0x40, 0x40, 0xff},
@@ -31,9 +31,9 @@ func DefaultOptionsDotMatrixSDL() OptionsDotMatrixSDL {
 	}
 }
 
-type DotMatrixSDL struct {
+type dotMatrixSystem struct {
 	eng     *spin.Engine
-	opts    OptionsDotMatrixSDL
+	opts    OptionsDotMatrix
 	winW    int
 	winH    int
 	source  *sdl.Surface
@@ -42,22 +42,22 @@ type DotMatrixSDL struct {
 	borders [4]sdl.Rect
 }
 
-func RegisterDotMatrixSDL(eng *spin.Engine, opts OptionsDotMatrixSDL) {
+func RegisterDotMatrixSystem(eng *spin.Engine, opts OptionsDotMatrix) {
 	if err := sdl.Init(sdl.INIT_VIDEO); err != nil {
 		log.Fatalf("unable to initialize SDL: %v", err)
 	}
-	s := &DotMatrixSDL{eng: eng, opts: opts}
+	s := &dotMatrixSystem{eng: eng, opts: opts}
 	eng.RegisterActionHandler(s)
 }
 
-func (s *DotMatrixSDL) HandleAction(action spin.Action) {
+func (s *dotMatrixSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
 	case spin.RegisterDisplaySDL:
 		s.registerDisplaySDL(act)
 	}
 }
 
-func (s *DotMatrixSDL) registerDisplaySDL(act spin.RegisterDisplaySDL) {
+func (s *dotMatrixSystem) registerDisplaySDL(act spin.RegisterDisplaySDL) {
 	if act.ID != s.opts.ID {
 		return
 	}
@@ -139,7 +139,7 @@ func (s *DotMatrixSDL) registerDisplaySDL(act spin.RegisterDisplaySDL) {
 	sdl.PumpEvents()
 }
 
-func (s *DotMatrixSDL) Service() {
+func (s *dotMatrixSystem) Service() {
 	if s.target == nil {
 		return
 	}

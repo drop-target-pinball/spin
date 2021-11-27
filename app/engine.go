@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/prog/builtin"
-	"github.com/drop-target-pinball/spin/system"
+	"github.com/drop-target-pinball/spin/sdl"
 )
 
 type Options struct {
@@ -26,14 +26,14 @@ func NewEngine(opt Options) *spin.Engine {
 		spin.RegisterLoggingSystem(eng)
 	}
 	if opt.WithAudio {
-		system.RegisterAudioSDL(eng)
+		sdl.RegisterAudioSystem(eng)
 	}
 	if opt.WithVirtualDMD {
-		sdlOpts := system.DefaultOptionsDotMatrixSDL()
-		system.RegisterDotMatrixSDL(eng, sdlOpts)
+		sdlOpts := sdl.DefaultOptionsDotMatrix()
+		sdl.RegisterDotMatrixSystem(eng, sdlOpts)
 	}
-	system.RegisterDisplaySDL(eng, spin.DisplayOptions{Width: 128, Height: 32})
-	system.RegisterInputSDL(eng)
+	sdl.RegisterDisplaySystem(eng, spin.DisplayOptions{Width: 128, Height: 32})
+	sdl.RegisterInputSystem(eng)
 	builtin.Load(eng)
 
 	return eng

@@ -1,4 +1,4 @@
-package system
+package sdl
 
 import (
 	"os"
@@ -16,13 +16,13 @@ type keyHandler struct {
 	eventDown spin.Event
 }
 
-type InputSDL struct {
+type inputSystem struct {
 	eng  *spin.Engine
 	keys map[key]keyHandler
 }
 
-func RegisterInputSDL(eng *spin.Engine) {
-	s := &InputSDL{
+func RegisterInputSystem(eng *spin.Engine) {
+	s := &inputSystem{
 		eng:  eng,
 		keys: make(map[key]keyHandler),
 	}
@@ -30,14 +30,14 @@ func RegisterInputSDL(eng *spin.Engine) {
 	eng.RegisterActionHandler(s)
 }
 
-func (s *InputSDL) HandleAction(action spin.Action) {
+func (s *inputSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
 	case spin.RegisterKey:
 		s.registerKey(act)
 	}
 }
 
-func (s *InputSDL) registerKey(act spin.RegisterKey) {
+func (s *inputSystem) registerKey(act spin.RegisterKey) {
 	keycode := sdl.GetKeyFromName(act.Key)
 	modcode, ok := uint16(0), false
 	if keycode == 0 {
@@ -56,7 +56,7 @@ func (s *InputSDL) registerKey(act spin.RegisterKey) {
 	s.keys[k] = v
 }
 
-func (s *InputSDL) Service() {
+func (s *inputSystem) Service() {
 	for e := sdl.PollEvent(); e != nil; e = sdl.PollEvent() {
 		switch event := e.(type) {
 		case *sdl.KeyboardEvent:
@@ -67,7 +67,7 @@ func (s *InputSDL) Service() {
 	}
 }
 
-func (s *InputSDL) handleKey(kbe *sdl.KeyboardEvent) {
+func (s *inputSystem) handleKey(kbe *sdl.KeyboardEvent) {
 	if kbe.Repeat != 0 {
 		return
 	}

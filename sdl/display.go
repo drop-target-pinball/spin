@@ -1,4 +1,4 @@
-package system
+package sdl
 
 import (
 	"bytes"
@@ -18,31 +18,28 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-type displaySDL struct {
-	id   string
-	surf *sdl.Surface
-	//mutex sync.Mutex
+type displaySystem struct {
+	id    string
+	surf  *sdl.Surface
 	fonts map[string]font
 }
 
-func (d *displaySDL) Width() int {
+func (d *displaySystem) Width() int {
 	return int(d.surf.W)
 }
 
-func (d *displaySDL) Height() int {
+func (d *displaySystem) Height() int {
 	return int(d.surf.H)
 }
 
-func (d *displaySDL) Renderer() (spin.Renderer, *spin.Graphics) {
-	//d.mutex.Lock()
+func (d *displaySystem) Renderer() (spin.Renderer, *spin.Graphics) {
 	return &rendererSDL{
-		surf: d.surf,
-		//mutex: &d.mutex,
+		surf:  d.surf,
 		fonts: d.fonts,
 	}, &spin.Graphics{}
 }
 
-func RegisterDisplaySDL(eng *spin.Engine, opts spin.DisplayOptions) {
+func RegisterDisplaySystem(eng *spin.Engine, opts spin.DisplayOptions) {
 	if err := ttf.Init(); err != nil {
 		log.Fatalf("unable to initialize ttf: %v", err)
 	}
@@ -52,7 +49,7 @@ func RegisterDisplaySDL(eng *spin.Engine, opts spin.DisplayOptions) {
 		log.Fatalf("unable to create SDL surface: %v", err)
 	}
 
-	s := &displaySDL{
+	s := &displaySystem{
 		id:    opts.ID,
 		surf:  surf,
 		fonts: make(map[string]font),
@@ -66,7 +63,7 @@ func RegisterDisplaySDL(eng *spin.Engine, opts spin.DisplayOptions) {
 	eng.RegisterActionHandler(s)
 }
 
-func (s *displaySDL) HandleAction(action spin.Action) {
+func (s *displaySystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
 	case spin.RegisterFont:
 		s.registerFont(act)
@@ -76,18 +73,9 @@ func (s *displaySDL) HandleAction(action spin.Action) {
 // ----------------------------------------------------------------------------
 
 type rendererSDL struct {
-	surf *sdl.Surface
-	//mutex *sync.Mutex
+	surf  *sdl.Surface
 	fonts map[string]font
 }
-
-// func (r *rendererSDL) Lock() {
-// 	r.mutex.Lock()
-// }
-
-// func (r *rendererSDL) Unlock() {
-// 	r.mutex.Unlock()
-// }
 
 func (r *rendererSDL) Clear() {
 	rect := sdl.Rect{X: 0, Y: 0, W: r.surf.W, H: r.surf.H}
@@ -194,7 +182,7 @@ func (f *fontTTF) size(text string) (int32, int32) {
 
 var regexpExt = regexp.MustCompile(`\.[^\.]+$`)
 
-func (s *displaySDL) registerFont(act spin.RegisterFont) {
+func (s *displaySystem) registerFont(act spin.RegisterFont) {
 	if _, exists := s.fonts[act.ID]; exists {
 		return
 	}
@@ -208,7 +196,7 @@ func (s *displaySDL) registerFont(act spin.RegisterFont) {
 	}
 }
 
-func (s *displaySDL) registerFontTTF(act spin.RegisterFont) {
+func (s *displaySystem) registerFontTTF(act spin.RegisterFont) {
 	fontPath := path.Join(spin.AssetDir, act.Path)
 	font, err := ttf.OpenFont(fontPath, act.Size)
 	if err != nil {
@@ -237,7 +225,7 @@ func (s *displaySDL) registerFontTTF(act spin.RegisterFont) {
 	s.fonts[act.ID] = &fontTTF{font, info}
 }
 
-func (s *displaySDL) registerFontBitmap(act spin.RegisterFont) {
+func (s *displaySystem) registerFontBitmap(act spin.RegisterFont) {
 	fontPath := path.Join(spin.AssetDir, act.Path)
 	dots, err := ioutil.ReadFile(fontPath)
 	if err != nil {

@@ -1,4 +1,4 @@
-package system
+package sdl
 
 import (
 	"log"
@@ -9,7 +9,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-type AudioSDL struct {
+type audioSystem struct {
 	eng    *spin.Engine
 	music  map[string]*mix.Music
 	speech map[string]*mix.Chunk
@@ -19,7 +19,7 @@ type AudioSDL struct {
 	speechPlaying string
 }
 
-func RegisterAudioSDL(eng *spin.Engine) {
+func RegisterAudioSystem(eng *spin.Engine) {
 	if err := sdl.Init(sdl.INIT_AUDIO); err != nil {
 		log.Fatalf("unable to initialize audio: %v", err)
 	}
@@ -33,7 +33,7 @@ func RegisterAudioSDL(eng *spin.Engine) {
 		mix.DEFAULT_CHUNKSIZE,
 	)
 	mix.ReserveChannels(1)
-	sys := &AudioSDL{
+	sys := &audioSystem{
 		eng:    eng,
 		music:  make(map[string]*mix.Music),
 		speech: make(map[string]*mix.Chunk),
@@ -42,7 +42,7 @@ func RegisterAudioSDL(eng *spin.Engine) {
 	eng.RegisterActionHandler(sys)
 }
 
-func (s *AudioSDL) HandleAction(action spin.Action) {
+func (s *audioSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
 	case spin.RegisterMusic:
 		s.registerMusic(act)
@@ -67,7 +67,7 @@ func (s *AudioSDL) HandleAction(action spin.Action) {
 	}
 }
 
-func (s *AudioSDL) registerMusic(a spin.RegisterMusic) {
+func (s *audioSystem) registerMusic(a spin.RegisterMusic) {
 	m, err := mix.LoadMUS(path.Join(spin.AssetDir, a.Path))
 	if err != nil {
 		spin.Warn("%v: %v", a.ID, err)
@@ -76,7 +76,7 @@ func (s *AudioSDL) registerMusic(a spin.RegisterMusic) {
 	s.music[a.ID] = m
 }
 
-func (s *AudioSDL) registerSound(a spin.RegisterSound) {
+func (s *audioSystem) registerSound(a spin.RegisterSound) {
 	snd, err := mix.LoadWAV(path.Join(spin.AssetDir, a.Path))
 	if err != nil {
 		spin.Warn("%v: %v", a.ID, err)
@@ -85,7 +85,7 @@ func (s *AudioSDL) registerSound(a spin.RegisterSound) {
 	s.sound[a.ID] = snd
 }
 
-func (s *AudioSDL) registerSpeech(a spin.RegisterSpeech) {
+func (s *audioSystem) registerSpeech(a spin.RegisterSpeech) {
 	sp, err := mix.LoadWAV(path.Join(spin.AssetDir, a.Path))
 	if err != nil {
 		spin.Warn("%v: %v", a.ID, err)
@@ -94,7 +94,7 @@ func (s *AudioSDL) registerSpeech(a spin.RegisterSpeech) {
 	s.speech[a.ID] = sp
 }
 
-func (s *AudioSDL) playMusic(a spin.PlayMusic) {
+func (s *audioSystem) playMusic(a spin.PlayMusic) {
 	m, ok := s.music[a.ID]
 	if !ok {
 		spin.Warn("%v not found", a.ID)
@@ -109,7 +109,7 @@ func (s *AudioSDL) playMusic(a spin.PlayMusic) {
 	}
 }
 
-func (s *AudioSDL) playSound(a spin.PlaySound) {
+func (s *audioSystem) playSound(a spin.PlaySound) {
 	sp, ok := s.sound[a.ID]
 	if !ok {
 		spin.Warn("%v not found", a.ID)
@@ -118,7 +118,7 @@ func (s *AudioSDL) playSound(a spin.PlaySound) {
 	sp.Play(-1, 0)
 }
 
-func (s *AudioSDL) playSpeech(a spin.PlaySpeech) {
+func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
 	sp, ok := s.speech[a.ID]
 	if !ok {
 		spin.Warn("%v not found", a.ID)
@@ -128,28 +128,28 @@ func (s *AudioSDL) playSpeech(a spin.PlaySpeech) {
 	sp.Play(0, 0)
 }
 
-func (s *AudioSDL) stopAudio(a spin.StopAudio) {
+func (s *audioSystem) stopAudio(a spin.StopAudio) {
 	mix.HaltMusic()
 	mix.HaltChannel(-1)
 	s.musicPlaying = ""
 	s.speechPlaying = ""
 }
 
-func (s *AudioSDL) stopMusic(a spin.StopMusic) {
+func (s *audioSystem) stopMusic(a spin.StopMusic) {
 	if a.Any || a.ID == s.musicPlaying {
 		mix.HaltMusic()
 		s.musicPlaying = ""
 	}
 }
 
-func (s *AudioSDL) stopSpeech(a spin.StopSpeech) {
+func (s *audioSystem) stopSpeech(a spin.StopSpeech) {
 	if a.Any || a.ID == s.speechPlaying {
 		mix.HaltChannel(0)
 		s.speechPlaying = ""
 	}
 }
 
-func (s *AudioSDL) volumeMusic(a spin.VolumeMusic) {
+func (s *audioSystem) volumeMusic(a spin.VolumeMusic) {
 	prev := mix.VolumeMusic(-1)
 	vol := prev
 	if a.Set == 0 && a.Add == 0 && a.Mul == 0 {
