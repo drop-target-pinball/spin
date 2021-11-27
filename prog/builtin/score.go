@@ -1,4 +1,4 @@
-package game
+package builtin
 
 import "github.com/drop-target-pinball/spin"
 
@@ -12,12 +12,12 @@ func scoreFrame(e spin.Env) {
 	g.Font = FontBm10
 
 	g.W = r.Width()
-	r.Print(g, spin.FormatScore("%d", VarPlayer.Score))
+	r.Print(g, spin.FormatScore("%d", spin.VarPlayer.Score))
 
 	g.Font = FontBm3
 	g.W = 0
 	g.X, g.Y = 25, r.Height()-5
-	r.Print(g, "BALL %v", VarCurrentBall)
+	r.Print(g, "BALL %v", spin.VarCurrentBall)
 	g.X = 75
 	r.Print(g, "FREE PLAY")
 }

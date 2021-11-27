@@ -1,4 +1,4 @@
-package game
+package builtin
 
 import "github.com/drop-target-pinball/spin"
 

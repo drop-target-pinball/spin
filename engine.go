@@ -45,6 +45,8 @@ func NewEngine() *Engine {
 	}
 	registerActions(eng)
 	registerEvents(eng)
+	RegisterGameSystem(eng)
+	registerScriptSystem(eng)
 	return eng
 }
 
@@ -87,17 +89,9 @@ func (e *Engine) Run() {
 
 func (e *Engine) Do(act Action) {
 	e.actionQueue = append(e.actionQueue, act)
-	// if e.running {
-	// 	e.actionQueue <- act
-	// } else {
-	// 	for _, h := range e.actionHandlers {
-	// 		h.HandleAction(act)
-	// 	}
-	// }
 }
 
 func (e *Engine) Post(evt Event) {
-	// e.eventQueue <- evt
 	e.eventQueue = append(e.eventQueue, evt)
 }
 

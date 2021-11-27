@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/prog/builtin"
 	"github.com/drop-target-pinball/spin/system"
 )
 
@@ -21,10 +22,8 @@ func DefaultOptions() Options {
 
 func NewEngine(opt Options) *spin.Engine {
 	eng := spin.NewEngine()
-	system.RegisterGame(eng)
-	system.RegisterScriptRunner(eng)
 	if opt.WithLogging {
-		system.RegisterLoggingConsole(eng)
+		spin.RegisterLoggingSystem(eng)
 	}
 	if opt.WithAudio {
 		system.RegisterAudioSDL(eng)
@@ -35,5 +34,7 @@ func NewEngine(opt Options) *spin.Engine {
 	}
 	system.RegisterDisplaySDL(eng, spin.DisplayOptions{Width: 128, Height: 32})
 	system.RegisterInputSDL(eng)
+	builtin.Load(eng)
+
 	return eng
 }
