@@ -45,7 +45,7 @@ func NewEngine() *Engine {
 	}
 	registerActions(eng)
 	registerEvents(eng)
-	RegisterGameSystem(eng)
+	registerGameSystem(eng)
 	registerScriptSystem(eng)
 	return eng
 }

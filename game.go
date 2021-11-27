@@ -21,7 +21,7 @@ func init() {
 
 type gameSystem struct{}
 
-func RegisterGameSystem(eng *Engine) {
+func registerGameSystem(eng *Engine) {
 	s := &gameSystem{}
 	eng.RegisterActionHandler(s)
 }
