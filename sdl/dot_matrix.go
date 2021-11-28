@@ -36,7 +36,7 @@ type dotMatrixSystem struct {
 	opts    OptionsDotMatrix
 	winW    int
 	winH    int
-	source  *sdl.Surface
+	source  spin.Display
 	target  *sdl.Renderer
 	win     *sdl.Window
 	borders [4]sdl.Rect
@@ -52,18 +52,18 @@ func RegisterDotMatrixSystem(eng *spin.Engine, opts OptionsDotMatrix) {
 
 func (s *dotMatrixSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
-	case spin.RegisterDisplaySDL:
-		s.registerDisplaySDL(act)
+	case spin.RegisterDisplay:
+		s.registerDisplay(act)
 	}
 }
 
-func (s *dotMatrixSystem) registerDisplaySDL(act spin.RegisterDisplaySDL) {
+func (s *dotMatrixSystem) registerDisplay(act spin.RegisterDisplay) {
 	if act.ID != s.opts.ID {
 		return
 	}
-	s.source = act.Surface
+	s.source = act.Display
 
-	sourceW, sourceH := int(s.source.W), int(s.source.H)
+	sourceW, sourceH := s.source.Width(), s.source.Height()
 	s.winW = ((sourceW * s.opts.Scale) + (s.opts.Padding * sourceW) +
 		s.opts.Padding + (s.opts.BorderSize * 2))
 	s.winH = ((sourceH * s.opts.Scale) + (s.opts.Padding * sourceH) +
@@ -160,8 +160,8 @@ func (s *dotMatrixSystem) Service() {
 	}
 
 	// Dots
-	for x := 0; x < int(s.source.W); x++ {
-		for y := 0; y < int(s.source.H); y++ {
+	for x := 0; x < s.source.Width(); x++ {
+		for y := 0; y < int(s.source.Height()); y++ {
 			dx := o.BorderSize + (x * o.Padding) + o.Padding + (x * o.Scale)
 			dy := o.BorderSize + (y * o.Padding) + o.Padding + (y * o.Scale)
 			y := rgbToGray(s.source.At(x, y))

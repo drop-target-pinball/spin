@@ -1,11 +1,5 @@
 package spin
 
-import (
-	"sync"
-
-	"github.com/veandco/go-sdl2/sdl"
-)
-
 type Action interface {
 	action()
 }
@@ -28,11 +22,9 @@ type PlaySpeech struct {
 	Vol int
 }
 
-type RegisterDisplaySDL struct {
+type RegisterDisplay struct {
 	ID      string
 	Display Display
-	Surface *sdl.Surface
-	Mutex   *sync.Mutex
 }
 
 type RegisterFont struct {
@@ -93,23 +85,23 @@ type VolumeMusic struct {
 	Mul float64
 }
 
-func (PlayMusic) action()          {}
-func (PlayScript) action()         {}
-func (PlaySound) action()          {}
-func (PlaySpeech) action()         {}
-func (RegisterDisplaySDL) action() {}
-func (RegisterFont) action()       {}
-func (RegisterKey) action()        {}
-func (RegisterMusic) action()      {}
-func (RegisterScript) action()     {}
-func (RegisterSound) action()      {}
-func (RegisterSpeech) action()     {}
-func (Score) action()              {}
-func (StopAudio) action()          {}
-func (StopMusic) action()          {}
-func (StopScript) action()         {}
-func (StopSpeech) action()         {}
-func (VolumeMusic) action()        {}
+func (PlayMusic) action()       {}
+func (PlayScript) action()      {}
+func (PlaySound) action()       {}
+func (PlaySpeech) action()      {}
+func (RegisterDisplay) action() {}
+func (RegisterFont) action()    {}
+func (RegisterKey) action()     {}
+func (RegisterMusic) action()   {}
+func (RegisterScript) action()  {}
+func (RegisterSound) action()   {}
+func (RegisterSpeech) action()  {}
+func (Score) action()           {}
+func (StopAudio) action()       {}
+func (StopMusic) action()       {}
+func (StopScript) action()      {}
+func (StopSpeech) action()      {}
+func (VolumeMusic) action()     {}
 
 func registerActions(e *Engine) {
 	e.RegisterAction(PlayMusic{})

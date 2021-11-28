@@ -85,8 +85,8 @@ func registerScriptSystem(eng *Engine) {
 
 func (s *scriptSystem) HandleAction(action Action) {
 	switch act := action.(type) {
-	case RegisterDisplaySDL:
-		s.registerDisplaySDL(act)
+	case RegisterDisplay:
+		s.registerDisplay(act)
 	case RegisterScript:
 		s.registerScript(act)
 	case PlayScript:
@@ -104,7 +104,7 @@ func (s *scriptSystem) Service() {
 	coroutine.Service()
 }
 
-func (s *scriptSystem) registerDisplaySDL(act RegisterDisplaySDL) {
+func (s *scriptSystem) registerDisplay(act RegisterDisplay) {
 	s.displays[act.ID] = act.Display
 }
 

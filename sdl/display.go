@@ -32,6 +32,10 @@ func (d *displaySystem) Height() int {
 	return int(d.surf.H)
 }
 
+func (d *displaySystem) At(x, y int) color.Color {
+	return d.surf.At(x, y)
+}
+
 func (d *displaySystem) Renderer() (spin.Renderer, *spin.Graphics) {
 	return &rendererSDL{
 		surf:  d.surf,
@@ -54,11 +58,9 @@ func RegisterDisplaySystem(eng *spin.Engine, opts spin.DisplayOptions) {
 		surf:  surf,
 		fonts: make(map[string]font),
 	}
-	eng.Do(spin.RegisterDisplaySDL{
+	eng.Do(spin.RegisterDisplay{
 		ID:      s.id,
 		Display: s,
-		Surface: s.surf,
-		//Mutex:   &s.mutex,
 	})
 	eng.RegisterActionHandler(s)
 }
