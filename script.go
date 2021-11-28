@@ -61,7 +61,14 @@ func (e Env) NewCoroutine(ctx context.Context, scr Script) {
 		}
 		scr(e)
 	})
+}
 
+func (e Env) Vars(name string) (interface{}, bool) {
+	return e.eng.Vars(name)
+}
+
+func (e Env) RegisterVars(name string, vars interface{}) {
+	e.eng.RegisterVars(name, vars)
 }
 
 type scriptSystem struct {

@@ -4,6 +4,10 @@ type Action interface {
 	action()
 }
 
+type AwardScore struct {
+	Add int
+}
+
 type PlayMusic struct {
 	ID  string
 	Vol int
@@ -59,10 +63,6 @@ type RegisterSpeech struct {
 	Path string
 }
 
-type Score struct {
-	Add int
-}
-
 type StopAudio struct{}
 
 type StopMusic struct {
@@ -85,6 +85,7 @@ type VolumeMusic struct {
 	Mul float64
 }
 
+func (AwardScore) action()      {}
 func (PlayMusic) action()       {}
 func (PlayScript) action()      {}
 func (PlaySound) action()       {}
@@ -96,7 +97,6 @@ func (RegisterMusic) action()   {}
 func (RegisterScript) action()  {}
 func (RegisterSound) action()   {}
 func (RegisterSpeech) action()  {}
-func (Score) action()           {}
 func (StopAudio) action()       {}
 func (StopMusic) action()       {}
 func (StopScript) action()      {}
@@ -104,15 +104,14 @@ func (StopSpeech) action()      {}
 func (VolumeMusic) action()     {}
 
 func registerActions(e *Engine) {
+	e.RegisterAction(AwardScore{})
 	e.RegisterAction(PlayMusic{})
 	e.RegisterAction(PlayScript{})
 	e.RegisterAction(PlaySound{})
 	e.RegisterAction(PlaySpeech{})
-	e.RegisterAction(Score{})
 	e.RegisterAction(RegisterMusic{})
 	e.RegisterAction(RegisterSound{})
 	e.RegisterAction(RegisterSpeech{})
-	e.RegisterAction(Score{})
 	e.RegisterAction(StopAudio{})
 	e.RegisterAction(StopMusic{})
 	e.RegisterAction(StopScript{})

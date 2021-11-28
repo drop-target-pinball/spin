@@ -22,6 +22,11 @@ type Server interface {
 	Service()
 }
 
+type Store interface {
+	RegisterVars(string, interface{})
+	Vars(string) (interface{}, bool)
+}
+
 type Engine struct {
 	Actions        map[string]Action
 	Events         map[string]Event
@@ -31,6 +36,7 @@ type Engine struct {
 	eventHandlers  []EventHandler
 	servers        []Server
 	running        bool
+	vars           map[string]interface{}
 }
 
 func NewEngine() *Engine {
@@ -42,6 +48,7 @@ func NewEngine() *Engine {
 		actionHandlers: make([]ActionHandler, 0),
 		eventHandlers:  make([]EventHandler, 0),
 		servers:        make([]Server, 0),
+		vars:           make(map[string]interface{}),
 	}
 	registerActions(eng)
 	registerEvents(eng)
@@ -82,6 +89,10 @@ func (e *Engine) RegisterEvent(evt Event) {
 	e.Events[name] = evt
 }
 
+func (e *Engine) RegisterVars(name string, vars interface{}) {
+	e.vars[name] = vars
+}
+
 func (e *Engine) Run() {
 	e.running = true
 	e.loop()
@@ -93,6 +104,11 @@ func (e *Engine) Do(act Action) {
 
 func (e *Engine) Post(evt Event) {
 	e.eventQueue = append(e.eventQueue, evt)
+}
+
+func (e *Engine) Vars(name string) (interface{}, bool) {
+	vars, ok := e.vars[name]
+	return vars, ok
 }
 
 func (e *Engine) loop() {
