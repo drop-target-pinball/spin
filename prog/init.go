@@ -6,7 +6,7 @@ import (
 	"github.com/drop-target-pinball/spin/prog/boot"
 	"github.com/drop-target-pinball/spin/prog/jdx"
 	"github.com/drop-target-pinball/spin/prog/menu"
-	"github.com/drop-target-pinball/spin/prog/sandbox"
+	"github.com/drop-target-pinball/spin/prog/service"
 )
 
 const (
@@ -18,7 +18,7 @@ func Load(eng *spin.Engine) {
 	boot.Load(eng)
 	menu.Load(eng)
 	jdx.Load(eng)
-	sandbox.Load(eng)
+	service.Load(eng)
 
 	eng.Do(spin.RegisterScript{ID: ScriptInit, Script: scriptInit})
 }

@@ -50,6 +50,7 @@ func NewEngine() *Engine {
 		servers:        make([]Server, 0),
 		vars:           make(map[string]interface{}),
 	}
+	registerResourceSystem(eng)
 	registerActions(eng)
 	registerEvents(eng)
 	registerGameSystem(eng)

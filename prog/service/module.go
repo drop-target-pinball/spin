@@ -2,6 +2,6 @@ package service
 
 import "github.com/drop-target-pinball/spin"
 
-func RegisterServiceSystem(eng *spin.Engine) {
-	
+func Load(eng *spin.Engine) {
+	RegisterScripts(eng)
 }
