@@ -10,7 +10,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"regexp"
 	"strings"
 
 	"github.com/drop-target-pinball/spin"
@@ -182,7 +181,7 @@ func (f *fontTTF) size(text string) (int32, int32) {
 	return int32(w), int32(h) + f.info.OffsetY
 }
 
-var regexpExt = regexp.MustCompile(`\.[^\.]+$`)
+//var regexpExt = regexp.MustCompile(`\.[^\.]+$`)
 
 func (s *displaySystem) registerFont(act spin.RegisterFont) {
 	if _, exists := s.fonts[act.ID]; exists {
@@ -207,7 +206,8 @@ func (s *displaySystem) registerFontTTF(act spin.RegisterFont) {
 	}
 
 	var info infoTTF
-	infoFile := regexpExt.ReplaceAllString(fontPath, ".json")
+	//infoFile := regexpExt.ReplaceAllString(fontPath, ".json")
+	infoFile := fontPath + ".json"
 	_, err = os.Stat(infoFile)
 	if err != nil && !os.IsNotExist(err) {
 		spin.Warn("unable to load font descriptor: %v", err)
@@ -239,13 +239,15 @@ func (s *displaySystem) registerFontBitmap(act spin.RegisterFont) {
 		spin.Warn("unable to decode bitmap file: %v", err)
 		return
 	}
-	tmFile := regexpExt.ReplaceAllString(fontPath, ".json")
+	//tmFile := regexpExt.ReplaceAllString(fontPath, ".json")
+	tmFile := fontPath + ".json"
 	tileMap, err := loadTileMap(tmFile)
 	if err != nil {
 		spin.Warn("unable to read tile map: %v", err)
 		return
 	}
-	s.fonts[act.ID] = &fontBitmap{surf: surf, tileMap: tileMap, tracking: 1}
+	//s.fonts[act.ID] = &fontBitmap{surf: surf, tileMap: tileMap, tracking: 1}
+	s.fonts[act.ID] = &fontBitmap{surf: surf, tileMap: tileMap, tracking: 0}
 }
 
 type tile struct {

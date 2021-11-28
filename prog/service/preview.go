@@ -17,10 +17,10 @@ func fontPreviewFrame(e spin.Env, fm *fontMode) {
 
 	r.Clear()
 	g.Font = fm.fonts[fm.selected]
-	r.Print(g, "0123456790")
+	r.Print(g, "01234567,890")
 
-	g.Font = builtin.FontBmsf
-	g.Y = 27
+	g.Font = builtin.Font04B_03_7px
+	g.Y = 26
 	r.Print(g, fm.fonts[fm.selected])
 }
 
@@ -53,7 +53,7 @@ func fontPreviewScript(e spin.Env) {
 
 	prev := func() {
 		fm.selected -= 1
-		if fm.selected <= 0 {
+		if fm.selected < 0 {
 			fm.selected = len(fm.fonts) - 1
 		}
 	}

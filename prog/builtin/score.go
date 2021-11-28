@@ -12,12 +12,12 @@ func scoreFrame(e spin.Env) {
 	vars := spin.GameVars(e)
 
 	r.Clear()
-	g.Font = FontBm10
+	//g.Font = FontBm10
 
 	g.W = r.Width()
 	r.Print(g, spin.FormatScore("%d", vars.Score()))
 
-	g.Font = FontBm3
+	//g.Font = FontBm3
 	g.W = 0
 	g.X, g.Y = 25, r.Height()-5
 	r.Print(g, "BALL %v", vars.CurrentBall)
