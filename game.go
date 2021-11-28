@@ -24,12 +24,6 @@ func (s *gameSystem) awardScore(act AwardScore) {
 	s.game.AddScore(act.Add)
 }
 
-type GameKeeper interface {
-	CurrentBall() int
-	ScoreFor(int) int
-	Score() int
-}
-
 type Game struct {
 	BallsPerGame  int
 	CurrentBall   int
