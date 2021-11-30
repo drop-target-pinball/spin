@@ -5,6 +5,8 @@ import (
 )
 
 const (
+	ScriptDirector             = "jdx.ScriptDirector"
+	ScriptPlunge               = "jdx.ScriptPlunge"
 	ScriptSniperMode           = "jdx.ScriptSniperMode"
 	ScriptSniperScoreCountdown = "jdx.ScriptSniperScoreCountdown"
 	ScriptSniperSplatTimeout   = "jdx.ScriptSniperSplatTimeout"
@@ -13,6 +15,14 @@ const (
 )
 
 func RegisterScripts(eng *spin.Engine) {
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptDirector,
+		Script: directorScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptPlunge,
+		Script: plungeScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperTakedown,
 		Script: sniperTakedownScript,

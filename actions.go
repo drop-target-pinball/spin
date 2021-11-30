@@ -4,8 +4,16 @@ type Action interface {
 	action()
 }
 
+type AddPlayer struct{}
+
+type AdvanceGame struct{}
+
+type FadeOutMusic struct {
+	Time int // milliseconds
+}
+
 type AwardScore struct {
-	Add int
+	Val int
 }
 
 type PlayMusic struct {
@@ -63,6 +71,10 @@ type RegisterSpeech struct {
 	Path string
 }
 
+type SetScore struct {
+	Val int
+}
+
 type StopAudio struct{}
 
 type StopMusic struct {
@@ -85,7 +97,10 @@ type VolumeMusic struct {
 	Mul float64
 }
 
+func (AddPlayer) action()       {}
+func (AdvanceGame) action()     {}
 func (AwardScore) action()      {}
+func (FadeOutMusic) action()    {}
 func (PlayMusic) action()       {}
 func (PlayScript) action()      {}
 func (PlaySound) action()       {}
@@ -97,6 +112,7 @@ func (RegisterMusic) action()   {}
 func (RegisterScript) action()  {}
 func (RegisterSound) action()   {}
 func (RegisterSpeech) action()  {}
+func (SetScore) action()        {}
 func (StopAudio) action()       {}
 func (StopMusic) action()       {}
 func (StopScript) action()      {}
@@ -104,7 +120,10 @@ func (StopSpeech) action()      {}
 func (VolumeMusic) action()     {}
 
 func registerActions(e *Engine) {
+	e.RegisterAction(AddPlayer{})
+	e.RegisterAction(AdvanceGame{})
 	e.RegisterAction(AwardScore{})
+	e.RegisterAction(FadeOutMusic{})
 	e.RegisterAction(PlayMusic{})
 	e.RegisterAction(PlayScript{})
 	e.RegisterAction(PlaySound{})
@@ -112,6 +131,7 @@ func registerActions(e *Engine) {
 	e.RegisterAction(RegisterMusic{})
 	e.RegisterAction(RegisterSound{})
 	e.RegisterAction(RegisterSpeech{})
+	e.RegisterAction(SetScore{})
 	e.RegisterAction(StopAudio{})
 	e.RegisterAction(StopMusic{})
 	e.RegisterAction(StopScript{})

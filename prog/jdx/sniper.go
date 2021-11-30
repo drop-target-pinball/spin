@@ -5,6 +5,7 @@ import (
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 const (
@@ -25,7 +26,7 @@ func sniperScoreFrame(e spin.Env, blinkOn bool) {
 	g.Y = 12
 
 	if blinkOn {
-		// g.Font = FontBm8
+		g.Font = builtin.Font14x10
 		score := spin.FormatScore("%10d", sniperScore)
 		r.Print(g, score)
 	}
@@ -150,7 +151,7 @@ func sniperFallFrame(e spin.Env, seconds int) {
 	r.Print(g, "SNIPER")
 	g.Y = 12
 
-	// g.Font = FontBm8
+	g.Font = builtin.Font14x10
 	r.Print(g, "%v", seconds)
 }
 
@@ -240,6 +241,10 @@ func sniperSplatTimeoutScript(e spin.Env) {
 }
 
 func sniperModeScript(e spin.Env) {
+	game := spin.GameVars(e)
+	game.HideScore = true
+	defer func() { game.HideScore = false }()
+
 	e.Do(spin.StopAudio{})
 	e.Do(spin.PlayMusic{ID: MusicMode1})
 	e.Do(spin.PlayScript{ID: ScriptSniperScoreCountdown})

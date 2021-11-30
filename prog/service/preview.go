@@ -8,6 +8,7 @@ import (
 )
 
 type fontMode struct {
+	offset   int32
 	fonts    []string
 	selected int
 }
@@ -17,10 +18,12 @@ func fontPreviewFrame(e spin.Env, fm *fontMode) {
 
 	r.Clear()
 	g.Font = fm.fonts[fm.selected]
-	r.Print(g, "01234567,890")
+	g.X = fm.offset
+	r.Print(g, "0123456,789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
 
 	g.Font = builtin.Font04B_03_7px
 	g.Y = 26
+	g.X = 0
 	r.Print(g, fm.fonts[fm.selected])
 }
 
@@ -66,6 +69,8 @@ func fontPreviewScript(e spin.Env) {
 			spin.SwitchEvent{ID: spin.SwitchExitServiceButton},
 			spin.SwitchEvent{ID: spin.SwitchNextServiceButton},
 			spin.SwitchEvent{ID: spin.SwitchPreviousServiceButton},
+			spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton},
+			spin.SwitchEvent{ID: spin.SwitchRightFlipperButton},
 		)
 		if done {
 			cancel()
@@ -79,6 +84,10 @@ func fontPreviewScript(e spin.Env) {
 			next()
 		case spin.SwitchEvent{ID: spin.SwitchPreviousServiceButton}:
 			prev()
+		case spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton}:
+			fm.offset -= 1
+		case spin.SwitchEvent{ID: spin.SwitchRightFlipperButton}:
+			fm.offset += 1
 		}
 	}
 }

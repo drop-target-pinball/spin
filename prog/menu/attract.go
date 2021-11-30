@@ -116,8 +116,8 @@ func attractModeScript(e spin.Env) {
 		e.NewCoroutine(ctx, attractScripts[script])
 		evt, done := e.WaitFor(
 			spin.Message{ID: MessageAttractAdvance},
-			spin.SwitchEvent{ID: jd.SwitchLeftFlipperButton},
-			spin.SwitchEvent{ID: jd.SwitchRightFlipperButton},
+			spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton},
+			spin.SwitchEvent{ID: spin.SwitchRightFlipperButton},
 			spin.SwitchEvent{ID: jd.SwitchLeftFireButton},
 			spin.SwitchEvent{ID: jd.SwitchRightFireButton},
 			spin.SwitchEvent{ID: jd.SwitchStartButton},
@@ -129,10 +129,10 @@ func attractModeScript(e spin.Env) {
 		switch evt {
 		case spin.Message{ID: MessageAttractAdvance}:
 			next()
-		case spin.SwitchEvent{ID: jd.SwitchLeftFlipperButton}:
+		case spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton}:
 			cancel()
 			prev()
-		case spin.SwitchEvent{ID: jd.SwitchRightFlipperButton}:
+		case spin.SwitchEvent{ID: spin.SwitchRightFlipperButton}:
 			cancel()
 			next()
 		case spin.SwitchEvent{ID: jd.SwitchLeftFireButton}:

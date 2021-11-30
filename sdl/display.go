@@ -107,10 +107,6 @@ func (r *rendererSDL) Print(g *spin.Graphics, format string, a ...interface{}) {
 	}
 
 	text := fmt.Sprintf(format, a...)
-	if g.W == 0 {
-		font.render(r.surf, g.X, g.Y, text)
-		return
-	}
 	w, h := font.size(text)
 	x, y := g.X, g.Y
 	if g.W > 0 {
@@ -118,6 +114,12 @@ func (r *rendererSDL) Print(g *spin.Graphics, format string, a ...interface{}) {
 	}
 	if g.H > 0 {
 		y += (r.surf.H - h) / 2
+	}
+	if g.AnchorX == spin.AnchorRight {
+		x -= w
+	}
+	if g.AnchorY == spin.AnchorBottom {
+		y -= h
 	}
 	font.render(r.surf, x, y, text)
 }
@@ -251,10 +253,11 @@ func (s *displaySystem) registerFontBitmap(act spin.RegisterFont) {
 }
 
 type tile struct {
-	X int32
-	Y int32
-	W int32
-	H int32
+	X       int32
+	Y       int32
+	W       int32
+	H       int32
+	OffsetX int32
 }
 
 type tileMap map[string]tile
@@ -284,7 +287,7 @@ func (f *fontBitmap) render(target *sdl.Surface, x int32, y int32, text string) 
 			continue
 		}
 		srcRect := sdl.Rect{X: t.X, Y: t.Y, W: t.W, H: t.H}
-		tgtRect := sdl.Rect{X: x, Y: y, W: t.W, H: t.H}
+		tgtRect := sdl.Rect{X: x + t.OffsetX, Y: y, W: t.W, H: t.H}
 		if err := f.surf.Blit(&srcRect, target, &tgtRect); err != nil {
 			log.Panic(err)
 		}

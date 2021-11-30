@@ -34,9 +34,10 @@ func scriptInit(e spin.Env) {
 		return
 	}
 
-	e.Do(spin.PlayScript{ID: menu.ScriptSelectMode})
-	// if _, done := e.WaitFor(spin.Message{ID: menu.MessageSelectDone}); done {
-	// 	return
-	// }
-	e.WaitFor(spin.Message{ID: menu.MessageSelectDone})
+	e.Do(spin.PlayScript{ID: menu.ScriptSelectGame})
+	if _, done := e.WaitFor(spin.Message{ID: menu.MessageSelectDone}); done {
+		return
+	}
+
+	e.Do(spin.PlayScript{ID: jdx.ScriptDirector})
 }

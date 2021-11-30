@@ -4,7 +4,7 @@ import "github.com/drop-target-pinball/spin"
 
 const (
 	ScriptAttractMode = "menu.ScriptAttractMode"
-	ScriptSelectMode  = "menu.ScriptSelectMode"
+	ScriptSelectGame  = "menu.ScriptSelectGame"
 )
 
 func RegisterScripts(eng *spin.Engine) {
@@ -13,7 +13,7 @@ func RegisterScripts(eng *spin.Engine) {
 		Script: attractModeScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptSelectMode,
-		Script: selectModeScript,
+		ID:     ScriptSelectGame,
+		Script: selectGameScript,
 	})
 }

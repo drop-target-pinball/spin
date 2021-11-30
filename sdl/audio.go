@@ -44,6 +44,8 @@ func RegisterAudioSystem(eng *spin.Engine) {
 
 func (s *audioSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
+	case spin.FadeOutMusic:
+		s.fadeOutMusic(act)
 	case spin.RegisterMusic:
 		s.registerMusic(act)
 	case spin.RegisterSound:
@@ -65,6 +67,10 @@ func (s *audioSystem) HandleAction(action spin.Action) {
 	case spin.VolumeMusic:
 		s.volumeMusic(act)
 	}
+}
+
+func (s *audioSystem) fadeOutMusic(act spin.FadeOutMusic) {
+	mix.FadeOutMusic(act.Time)
 }
 
 func (s *audioSystem) registerMusic(a spin.RegisterMusic) {

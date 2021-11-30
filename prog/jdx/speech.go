@@ -9,6 +9,7 @@ const (
 	SpeechShootSniperTower                          = "jdx.SpeechShootSniperTower"
 	SpeechSniperEliminated                          = "jdx.SpeechSniperEliminated"
 	SpeechSniperIsShootingIntoCrowdFromJohnsonTower = "jdx.SpeechSniperIsShootingIntoCrowdFromJohnsonTower"
+	SpeechUseFireButtonToLaunchBall                 = "jdx.SpeechUseFireButtonToLaunchBall"
 )
 
 func RegisterSpeech(eng *spin.Engine) {
@@ -35,5 +36,9 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechSniperIsShootingIntoCrowdFromJohnsonTower,
 		Path: "jd/pinsound/voice/000346-sniper_is_shooting_into_crowd_from_johnson_tower/sniper_i__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechUseFireButtonToLaunchBall,
+		Path: "jd/pinsound/voice/000326-use_fire_button_to_launch_ball/use_fire__LEGACY_AUD.wav",
 	})
 }

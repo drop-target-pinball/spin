@@ -27,7 +27,7 @@ var games = []string{
 var game int
 var selectBlinkOn bool
 
-func gameSelectFrame(e spin.Env) {
+func selectGameMenuFrame(e spin.Env) {
 	r, g := e.Display("").Renderer()
 
 	r.Clear()
@@ -49,10 +49,15 @@ func gameSelectFrame(e spin.Env) {
 	}
 }
 
-func gameSelectGameScript(e spin.Env) {
+func clearFrame(e spin.Env) {
+	r, _ := e.Display("").Renderer()
+	r.Clear()
+}
+
+func selectGameMenuScript(e spin.Env) {
 	game = 0
 	for {
-		gameSelectFrame(e)
+		selectGameMenuFrame(e)
 		_, done := e.WaitFor(spin.Message{ID: MessageGameUpdated})
 		if done {
 			return
@@ -60,24 +65,24 @@ func gameSelectGameScript(e spin.Env) {
 	}
 }
 
-func gameSelectBlinkScript(e spin.Env) {
+func selectGameMenuBlinkScript(e spin.Env) {
 	game = 0
 	for {
 		selectBlinkOn = true
-		gameSelectFrame(e)
+		selectGameMenuFrame(e)
 		if done := e.Sleep(256 * time.Millisecond); done {
 			return
 		}
 
 		selectBlinkOn = false
-		gameSelectFrame(e)
+		selectGameMenuFrame(e)
 		if done := e.Sleep(100 * time.Millisecond); done {
 			return
 		}
 	}
 }
 
-func selectModeScript(e spin.Env) {
+func selectGameScript(e spin.Env) {
 	next := func() {
 		game += 1
 		if game >= len(games) {
@@ -93,19 +98,20 @@ func selectModeScript(e spin.Env) {
 	}
 
 	ctx, cancel := e.Derive()
-	e.NewCoroutine(ctx, gameSelectGameScript)
-	e.NewCoroutine(ctx, gameSelectBlinkScript)
+	e.NewCoroutine(ctx, selectGameMenuScript)
+	e.NewCoroutine(ctx, selectGameMenuBlinkScript)
 	e.Do(spin.PlayMusic{ID: MusicSelectMode})
 
 	for {
 		evt, done := e.WaitFor(
-			spin.SwitchEvent{ID: jd.SwitchLeftFlipperButton},
-			spin.SwitchEvent{ID: jd.SwitchRightFlipperButton},
+			spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton},
+			spin.SwitchEvent{ID: spin.SwitchRightFlipperButton},
 			spin.SwitchEvent{ID: jd.SwitchLeftFireButton},
 			spin.SwitchEvent{ID: jd.SwitchRightFireButton},
 			spin.SwitchEvent{ID: jd.SwitchStartButton},
 		)
 		if done {
+			e.Do(spin.StopMusic{ID: MusicSelectMode})
 			cancel()
 			return
 		}
@@ -113,21 +119,36 @@ func selectModeScript(e spin.Env) {
 			break
 		}
 		switch evt {
-		case spin.SwitchEvent{ID: jd.SwitchLeftFlipperButton}:
+		case spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton}:
 			prev()
-			e.Do(spin.PlaySound{ID: SoundSelectScroll})
-		case spin.SwitchEvent{ID: jd.SwitchRightFlipperButton}:
+			e.Do(spin.PlaySound{ID: SoundScroll})
+		case spin.SwitchEvent{ID: spin.SwitchRightFlipperButton}:
 			next()
-			e.Do(spin.PlaySound{ID: SoundSelectScroll})
+			e.Do(spin.PlaySound{ID: SoundScroll})
 		case spin.SwitchEvent{ID: jd.SwitchLeftFireButton}:
 			prev()
-			e.Do(spin.PlaySound{ID: SoundSelectScroll})
+			e.Do(spin.PlaySound{ID: SoundScroll})
 		case spin.SwitchEvent{ID: jd.SwitchRightFireButton}:
 			next()
-			e.Do(spin.PlaySound{ID: SoundSelectScroll})
+			e.Do(spin.PlaySound{ID: SoundScroll})
 		}
 		e.Post(spin.Message{ID: MessageGameUpdated})
 	}
 	cancel()
+
+	selectBlinkOn = false
+	selectGameMenuFrame(e)
+	e.Do(spin.PlaySound{ID: SoundSelect})
+	e.Do(spin.FadeOutMusic{Time: 1500})
+	if done := e.Sleep(1500 * time.Millisecond); done {
+		e.Do(spin.StopMusic{ID: MusicSelectMode})
+		return
+	}
+
+	clearFrame(e)
+	if done := e.Sleep(1000 * time.Millisecond); done {
+		return
+	}
+
 	e.Post(spin.Message{ID: MessageSelectDone})
 }

@@ -7,7 +7,7 @@ import (
 func RegisterKeys(eng *spin.Engine) {
 	eng.Do(spin.RegisterKey{
 		Key:       "left",
-		EventDown: spin.SwitchEvent{ID: SwitchLeftFlipperButton},
+		EventDown: spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton},
 	})
 	eng.Do(spin.RegisterKey{
 		Key:       "left",
@@ -16,7 +16,7 @@ func RegisterKeys(eng *spin.Engine) {
 	})
 	eng.Do(spin.RegisterKey{
 		Key:       "right",
-		EventDown: spin.SwitchEvent{ID: SwitchRightFlipperButton},
+		EventDown: spin.SwitchEvent{ID: spin.SwitchRightFlipperButton},
 	})
 	eng.Do(spin.RegisterKey{
 		Key:       "right",

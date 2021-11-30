@@ -2,6 +2,22 @@ package spin
 
 import "image/color"
 
+type AnchorX int
+
+const (
+	AnchorLeft AnchorX = iota
+	AnchorCenter
+	AnchorRight
+)
+
+type AnchorY int
+
+const (
+	AnchorTop AnchorY = iota
+	AnchorMiddle
+	AnchorBottom
+)
+
 type Graphics struct {
 	X        int32
 	Y        int32
@@ -10,6 +26,8 @@ type Graphics struct {
 	Color    uint32
 	Font     string
 	PaddingV int32
+	AnchorX  AnchorX
+	AnchorY  AnchorY
 }
 
 type Renderer interface {
