@@ -1,10 +1,8 @@
 package spin
 
 import (
-	"fmt"
 	"os"
 	"reflect"
-	"strings"
 	"time"
 )
 
@@ -28,6 +26,7 @@ type Store interface {
 }
 
 type Engine struct {
+	Config         Config
 	Actions        map[string]Action
 	Events         map[string]Event
 	actionQueue    []Action
@@ -39,8 +38,9 @@ type Engine struct {
 	vars           map[string]interface{}
 }
 
-func NewEngine() *Engine {
+func NewEngine(config Config) *Engine {
 	eng := &Engine{
+		Config:         config,
 		Actions:        make(map[string]Action),
 		Events:         make(map[string]Event),
 		actionQueue:    make([]Action, 0),
@@ -134,15 +134,4 @@ func (e *Engine) loop() {
 			s.Service()
 		}
 	}
-}
-
-func String(a interface{}) string {
-	t := reflect.TypeOf(a)
-	v := reflect.ValueOf(a)
-	fields := make([]string, 0)
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		fields = append(fields, fmt.Sprintf("%v=%v", f.Name, v.Field(i)))
-	}
-	return t.Name() + " " + strings.Join(fields, ", ")
 }

@@ -1,0 +1,225 @@
+package proc
+
+import (
+	"log"
+
+	"github.com/drop-target-pinball/go-pinproc"
+	"github.com/drop-target-pinball/go-pinproc/wpc"
+	"github.com/drop-target-pinball/spin"
+)
+
+type Options struct {
+	MachType                pinproc.MachType
+	DMDConfig               pinproc.DMDConfig
+	SwitchConfig            pinproc.SwitchConfig
+	DefaultCoilPulseTime    int
+	DefaultFlasherPulseTime int
+}
+
+type procSystem struct {
+	eng      *spin.Engine
+	proc     *pinproc.PROC
+	drivers  map[string]spin.Driver
+	switches map[uint8]spin.Switch
+	events   []pinproc.Event
+	options  Options
+}
+
+func RegisterSystem(eng *spin.Engine, opts Options) {
+	pc, err := pinproc.New(wpc.MachType)
+	if err != nil {
+		log.Fatalf("unable to connect to P-ROC: %v", err)
+	}
+
+	s := &procSystem{
+		eng:      eng,
+		proc:     pc,
+		drivers:  make(map[string]spin.Driver),
+		switches: make(map[uint8]spin.Switch),
+		events:   make([]pinproc.Event, pinproc.MaxEvents),
+		options:  opts,
+	}
+	eng.RegisterServer(s)
+
+	s.proc.Reset(pinproc.ResetFlagUpdateDevice)
+	if err := s.proc.SwitchUpdateConfig(opts.SwitchConfig); err != nil {
+		log.Fatal(err)
+	}
+
+}
+
+func (s *procSystem) HandleAction(action spin.Action) {
+	switch act := action.(type) {
+	case spin.DriverOff:
+		s.driverOff(act)
+	case spin.DriverOn:
+		s.driverOn(act)
+	case spin.DriverPulse:
+		s.driverPulse(act)
+	case spin.DriverPWM:
+		s.driverPWM(act)
+	case spin.RegisterCoil:
+		s.registerCoil(act)
+	case spin.RegisterFlasher:
+		s.registerFlasher(act)
+	case spin.RegisterLamp:
+		s.registerLamp(act)
+	case spin.RegisterMagnet:
+		s.registerMagnet(act)
+	case spin.RegisterMotor:
+		s.registerMotor(act)
+	case spin.RegisterSwitch:
+		s.registerSwitch(act)
+	}
+}
+
+func (s *procSystem) Service() {
+	n, err := s.proc.GetEvents(s.events)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for i := 0; i < n; i++ {
+		e := s.events[i]
+
+		if e.EventType != pinproc.EventTypeSwitchClosedDebounced && e.EventType != pinproc.EventTypeSwitchOpenDebounced {
+			continue
+		}
+
+		sw, ok := s.switches[uint8(e.Value)]
+		if !ok {
+			spin.Warn("unknown switch: %v", e.Value)
+			continue
+		}
+		released := e.EventType == pinproc.EventTypeSwitchOpenDebounced && sw.NC
+		s.eng.Post(spin.SwitchEvent{ID: sw.ID, Released: released})
+	}
+	if err := s.proc.DriverWatchdogTickle(); err != nil {
+		log.Fatalf("unable to tickle watchdog: %v", err)
+	}
+	if err := s.proc.FlushWriteData(); err != nil {
+		log.Fatalf("unable to flush data: %v", err)
+	}
+}
+
+func (s *procSystem) driverOn(act spin.DriverOn) {
+	driver, ok := s.drivers[act.ID]
+	if !ok {
+		spin.Warn("no such driver: %v", act.ID)
+		return
+	}
+	if driver.Type == spin.Coil || driver.Type == spin.Flasher {
+		spin.Warn("cannot enable: %v", act.ID)
+		return
+	}
+	s.proc.DriverEnable(driver.Address.(uint8))
+}
+
+func (s *procSystem) driverOff(act spin.DriverOff) {
+	driver, ok := s.drivers[act.ID]
+	if !ok {
+		spin.Warn("no such driver: %v", act.ID)
+		return
+	}
+	s.proc.DriverDisable(driver.Address.(uint8))
+}
+
+func (s *procSystem) driverPulse(act spin.DriverPulse) {
+	driver, ok := s.drivers[act.ID]
+	if !ok {
+		spin.Warn("no such driver: %v", act.ID)
+		return
+	}
+	time := uint8(act.Time)
+	if time == 0 && driver.Type == spin.Coil {
+		time = uint8(s.options.DefaultCoilPulseTime)
+	}
+	if time == 0 && driver.Type == spin.Flasher {
+		time = uint8(s.options.DefaultFlasherPulseTime)
+	}
+	if time <= 0 {
+		spin.Warn("invalid pulse time: %v", time)
+		return
+	}
+	s.proc.DriverPulse(driver.Address.(uint8), time)
+}
+
+func (s *procSystem) driverPWM(act spin.DriverPWM) {
+	driver, ok := s.drivers[act.ID]
+	if !ok {
+		spin.Warn("no such driver: %v", act.ID)
+		return
+	}
+	timeOn := uint8(act.TimeOn)
+	timeOff := uint8(act.TimeOff)
+	if timeOff == 0 {
+		spin.Warn("PWM off time cannot be zero")
+		return
+	}
+	s.proc.DriverPatter(driver.Address.(uint8), timeOn, timeOff, 0, false)
+}
+
+func (s *procSystem) registerCoil(act spin.RegisterCoil) {
+	driver := spin.Driver{
+		ID:      act.ID,
+		Type:    spin.Coil,
+		Address: act.Address,
+	}
+	s.drivers[act.ID] = driver
+}
+
+func (s *procSystem) registerFlasher(act spin.RegisterFlasher) {
+	driver := spin.Driver{
+		ID:      act.ID,
+		Type:    spin.Flasher,
+		Address: act.Address,
+	}
+	s.drivers[act.ID] = driver
+}
+
+func (s *procSystem) registerLamp(act spin.RegisterLamp) {
+	driver := spin.Driver{
+		ID:      act.ID,
+		Type:    spin.Lamp,
+		Address: act.Address,
+	}
+	s.drivers[act.ID] = driver
+}
+
+func (s *procSystem) registerMagnet(act spin.RegisterMagnet) {
+	driver := spin.Driver{
+		ID:      act.ID,
+		Type:    spin.Magnet,
+		Address: act.Address,
+	}
+	s.drivers[act.ID] = driver
+}
+
+func (s *procSystem) registerMotor(act spin.RegisterMotor) {
+	driver := spin.Driver{
+		ID:      act.ID,
+		Type:    spin.Motor,
+		Address: act.Address,
+	}
+	s.drivers[act.ID] = driver
+}
+
+func (s *procSystem) registerSwitch(act spin.RegisterSwitch) {
+	sw := spin.Switch{
+		ID: act.ID,
+		NC: act.NC,
+	}
+	s.switches[act.Address.(uint8)] = sw
+
+	rule := pinproc.SwitchRule{NotifyHost: true}
+	for id, device := range wpc.Devices {
+		if !pinproc.IsSwitch(id) {
+			continue
+		}
+		if err := s.proc.SwitchUpdateRule(device, pinproc.EventTypeSwitchClosedDebounced, rule, nil, false); err != nil {
+			log.Fatal(err)
+		}
+		if err := s.proc.SwitchUpdateRule(device, pinproc.EventTypeSwitchOpenDebounced, rule, nil, false); err != nil {
+			log.Fatal(err)
+		}
+	}
+}

@@ -15,6 +15,7 @@ const (
 type Script func(Env)
 
 type Env struct {
+	Config   Config
 	eng      *Engine
 	displays map[string]Display
 	ctx      *coroutine.Context
@@ -55,6 +56,7 @@ func (e Env) Derive() (context.Context, context.CancelFunc) {
 func (e Env) NewCoroutine(ctx context.Context, scr Script) {
 	coroutine.New(ctx, func(ctx *coroutine.Context) {
 		e := Env{
+			Config:   e.eng.Config,
 			eng:      e.eng,
 			displays: e.displays,
 			ctx:      ctx,
@@ -135,6 +137,7 @@ func (s *scriptSystem) playScript(a PlayScript) {
 
 	coroutine.New(ctx, func(ctx *coroutine.Context) {
 		e := Env{
+			Config:   s.eng.Config,
 			eng:      s.eng,
 			displays: s.displays,
 			ctx:      ctx,

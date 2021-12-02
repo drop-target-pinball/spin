@@ -2,21 +2,21 @@ package spin
 
 import "log"
 
-type LoggingSystem struct {
+type loggingSystem struct {
 }
 
 func RegisterLoggingSystem(eng *Engine) {
-	sys := &LoggingSystem{}
+	sys := &loggingSystem{}
 	eng.RegisterActionHandler(sys)
 	eng.RegisterEventHandler(sys)
 }
 
-func (s *LoggingSystem) HandleAction(act Action) {
-	log.Println(String(act))
+func (s *loggingSystem) HandleAction(act Action) {
+	log.Println(FormatAction(act))
 }
 
-func (s *LoggingSystem) HandleEvent(evt Event) {
-	log.Println(String(evt))
+func (s *loggingSystem) HandleEvent(evt Event) {
+	log.Println(FormatEvent(evt))
 }
 
 func Error(format string, a ...interface{}) {

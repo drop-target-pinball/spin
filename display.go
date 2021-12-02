@@ -19,15 +19,14 @@ const (
 )
 
 type Graphics struct {
-	X        int32
-	Y        int32
-	W        int32
-	H        int32
-	Color    uint32
-	Font     string
-	PaddingV int32
-	AnchorX  AnchorX
-	AnchorY  AnchorY
+	X       int32
+	Y       int32
+	W       int32
+	H       int32
+	Color   uint32
+	Font    string
+	AnchorX AnchorX
+	AnchorY AnchorY
 }
 
 type Renderer interface {
@@ -35,7 +34,6 @@ type Renderer interface {
 	FillRect(*Graphics)
 	Height() int32
 	Print(*Graphics, string, ...interface{})
-	Println(*Graphics, string, ...interface{})
 	Width() int32
 }
 

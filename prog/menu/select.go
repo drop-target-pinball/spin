@@ -104,11 +104,9 @@ func selectGameScript(e spin.Env) {
 
 	for {
 		evt, done := e.WaitFor(
-			spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton},
-			spin.SwitchEvent{ID: spin.SwitchRightFlipperButton},
-			spin.SwitchEvent{ID: jd.SwitchLeftFireButton},
-			spin.SwitchEvent{ID: jd.SwitchRightFireButton},
-			spin.SwitchEvent{ID: jd.SwitchStartButton},
+			spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},
+			spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton},
+			spin.SwitchEvent{ID: e.Config.SwitchStartButton},
 		)
 		if done {
 			e.Do(spin.StopMusic{ID: MusicSelectMode})
@@ -119,16 +117,10 @@ func selectGameScript(e spin.Env) {
 			break
 		}
 		switch evt {
-		case spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton}:
+		case spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton}:
 			prev()
 			e.Do(spin.PlaySound{ID: SoundScroll})
-		case spin.SwitchEvent{ID: spin.SwitchRightFlipperButton}:
-			next()
-			e.Do(spin.PlaySound{ID: SoundScroll})
-		case spin.SwitchEvent{ID: jd.SwitchLeftFireButton}:
-			prev()
-			e.Do(spin.PlaySound{ID: SoundScroll})
-		case spin.SwitchEvent{ID: jd.SwitchRightFireButton}:
+		case spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton}:
 			next()
 			e.Do(spin.PlaySound{ID: SoundScroll})
 		}

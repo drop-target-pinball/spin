@@ -1,5 +1,7 @@
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e h1:fY5BOSpyZCqRo5OhCuC+XN+r/bBCmeuuJtjz+bCNIf8=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
+github.com/drop-target-pinball/go-pinproc v0.0.0-20210603122951-1f9eb38550eb h1:gIs9ui+OB+m8XPOeqhYGOhXwh1jr8sbKyiWLk2rlXf4=
+github.com/drop-target-pinball/go-pinproc v0.0.0-20210603122951-1f9eb38550eb/go.mod h1:aErWCTOP0BSL094A7gEAjmNiV5d3/raYoVIs9g17fS8=
 github.com/veandco/go-sdl2 v0.4.10 h1:8QoD2bhWl7SbQDflIAUYWfl9Vq+mT8/boJFAUzAScgY=
 github.com/veandco/go-sdl2 v0.4.10/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
 golang.org/x/sys v0.0.0-20211102192858-4dd72447c267 h1:7zYaz3tjChtpayGDzu6H0hDAUM5zIGA2XW7kRNgQ0jc=

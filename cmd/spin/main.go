@@ -1,17 +1,24 @@
 package main
 
 import (
+	"flag"
 	"log"
 
 	"github.com/drop-target-pinball/spin/app"
 	"github.com/drop-target-pinball/spin/prog"
 )
 
+var (
+	options = app.DefaultOptions()
+)
+
 func main() {
 	log.SetFlags(0)
-	opts := app.DefaultOptions()
-	eng := app.NewEngine(opts)
 
+	flag.BoolVar(&options.WithPROC, "proc", false, "use P-ROC")
+	flag.Parse()
+
+	eng := app.NewEngine(options)
 	prog.Load(eng)
 
 	repl := app.NewREPL(eng)

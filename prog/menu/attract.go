@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/drop-target-pinball/spin"
-	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
 const (
@@ -116,11 +115,9 @@ func attractModeScript(e spin.Env) {
 		e.NewCoroutine(ctx, attractScripts[script])
 		evt, done := e.WaitFor(
 			spin.Message{ID: MessageAttractAdvance},
-			spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton},
-			spin.SwitchEvent{ID: spin.SwitchRightFlipperButton},
-			spin.SwitchEvent{ID: jd.SwitchLeftFireButton},
-			spin.SwitchEvent{ID: jd.SwitchRightFireButton},
-			spin.SwitchEvent{ID: jd.SwitchStartButton},
+			spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},
+			spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton},
+			spin.SwitchEvent{ID: e.Config.SwitchStartButton},
 		)
 		if done {
 			cancel()
@@ -129,19 +126,13 @@ func attractModeScript(e spin.Env) {
 		switch evt {
 		case spin.Message{ID: MessageAttractAdvance}:
 			next()
-		case spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton}:
+		case spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton}:
 			cancel()
 			prev()
-		case spin.SwitchEvent{ID: spin.SwitchRightFlipperButton}:
+		case spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton}:
 			cancel()
 			next()
-		case spin.SwitchEvent{ID: jd.SwitchLeftFireButton}:
-			cancel()
-			prev()
-		case spin.SwitchEvent{ID: jd.SwitchRightFireButton}:
-			cancel()
-			next()
-		case spin.SwitchEvent{ID: jd.SwitchStartButton}:
+		case spin.SwitchEvent{ID: e.Config.SwitchStartButton}:
 			cancel()
 			e.Post(spin.Message{ID: MessageAttractDone})
 			return

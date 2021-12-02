@@ -124,17 +124,6 @@ func (r *rendererSDL) Print(g *spin.Graphics, format string, a ...interface{}) {
 	font.render(r.surf, x, y, text)
 }
 
-func (r *rendererSDL) Println(g *spin.Graphics, text string, a ...interface{}) {
-	font := r.getFont(g)
-	if font == nil {
-		return
-	}
-	r.Print(g, text, a...)
-	_, h := font.size(text)
-	g.X = 0
-	g.Y = g.Y + h + g.PaddingV
-}
-
 func (r *rendererSDL) getFont(g *spin.Graphics) font {
 	if g.Font == "" {
 		spin.Warn("no font selected")

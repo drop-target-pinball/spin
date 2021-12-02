@@ -66,27 +66,27 @@ func fontPreviewScript(e spin.Env) {
 
 	for {
 		evt, done := e.WaitFor(
-			spin.SwitchEvent{ID: spin.SwitchExitServiceButton},
-			spin.SwitchEvent{ID: spin.SwitchNextServiceButton},
-			spin.SwitchEvent{ID: spin.SwitchPreviousServiceButton},
-			spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton},
-			spin.SwitchEvent{ID: spin.SwitchRightFlipperButton},
+			spin.SwitchEvent{ID: e.Config.SwitchExitServiceButton},
+			spin.SwitchEvent{ID: e.Config.SwitchNextServiceButton},
+			spin.SwitchEvent{ID: e.Config.SwitchPreviousServiceButton},
+			spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},
+			spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton},
 		)
 		if done {
 			cancel()
 			return
 		}
 		switch evt {
-		case spin.SwitchEvent{ID: spin.SwitchExitServiceButton}:
+		case spin.SwitchEvent{ID: e.Config.SwitchExitServiceButton}:
 			cancel()
 			return
-		case spin.SwitchEvent{ID: spin.SwitchNextServiceButton}:
+		case spin.SwitchEvent{ID: e.Config.SwitchNextServiceButton}:
 			next()
-		case spin.SwitchEvent{ID: spin.SwitchPreviousServiceButton}:
+		case spin.SwitchEvent{ID: e.Config.SwitchPreviousServiceButton}:
 			prev()
-		case spin.SwitchEvent{ID: spin.SwitchLeftFlipperButton}:
+		case spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton}:
 			fm.offset -= 1
-		case spin.SwitchEvent{ID: spin.SwitchRightFlipperButton}:
+		case spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton}:
 			fm.offset += 1
 		}
 	}
