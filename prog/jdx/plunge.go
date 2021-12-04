@@ -58,6 +58,7 @@ func useFireButtonScript(e spin.Env) {
 	ctx, cancel := e.Derive()
 	defer cancel()
 
+	e.Do(spin.PlaySpeech{ID: SpeechLawMasterComputerOnlineWelcomeAboard})
 	if done := e.Sleep(7 * time.Second); done {
 		return
 	}
