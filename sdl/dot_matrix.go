@@ -164,7 +164,7 @@ func (s *dotMatrixSystem) Service() {
 		for y := 0; y < int(s.source.Height()); y++ {
 			dx := o.BorderSize + (x * o.Padding) + o.Padding + (x * o.Scale)
 			dy := o.BorderSize + (y * o.Padding) + o.Padding + (y * o.Scale)
-			y := rgbToGray(s.source.At(x, y))
+			y := spin.RGBToGray(s.source.At(x, y))
 			y = y >> 4
 			c := o.Palette[y]
 			r.SetDrawColor(c.R, c.G, c.B, 0xff)
@@ -179,13 +179,6 @@ func (s *dotMatrixSystem) Service() {
 	}
 
 	r.Present()
-}
-
-// https://stackoverflow.com/questions/42516203/converting-rgba-image-to-grayscale-golang
-func rgbToGray(rgb color.Color) uint8 {
-	r, g, b, _ := rgb.RGBA()
-	lum := 0.299*float64(r) + 0.587*float64(g) + 0.114*float64(b)
-	return uint8(lum / 256)
 }
 
 var PaletteOrange = []color.RGBA{

@@ -20,11 +20,12 @@ func splashScreenFrame(e spin.Env) {
 	r, g := e.Display("").Renderer()
 	g.Font = FontPfTempestaFiveCompressedBold8
 	g.W = r.Width()
-	g.PaddingV = 2
 	g.Y = 4
-	r.Println(g, "SUPER PINBALL SYSTEM")
-	r.Println(g, spin.Version)
-	r.Println(g, spin.Date)
+	r.Print(g, "SUPER PINBALL SYSTEM")
+	g.Y = 14
+	r.Print(g, spin.Version)
+	g.Y = 24
+	r.Print(g, spin.Date)
 }
 
 func splashScreenScript(e spin.Env) {

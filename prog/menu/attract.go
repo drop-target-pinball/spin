@@ -44,10 +44,10 @@ func dropTargetPinballFrame(e spin.Env) {
 	g.W = r.Width()
 	g.Y = 7
 	g.Font = FontPfArmaFive8
-	r.Println(g, "DROP TARGET PINBALL")
+	r.Print(g, "DROP TARGET PINBALL")
 	g.Y = 18
 	g.Font = FontPfRondaSevenBold8
-	r.Println(g, "PRESENTS")
+	r.Print(g, "PRESENTS")
 }
 
 func dropTargetPinballScript(e spin.Env) {

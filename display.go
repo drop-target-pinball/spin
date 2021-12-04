@@ -49,3 +49,10 @@ type DisplayOptions struct {
 	Width  int
 	Height int
 }
+
+// https://stackoverflow.com/questions/42516203/converting-rgba-image-to-grayscale-golang
+func RGBToGray(rgb color.Color) uint8 {
+	r, g, b, _ := rgb.RGBA()
+	lum := 0.299*float64(r) + 0.587*float64(g) + 0.114*float64(b)
+	return uint8(lum / 256)
+}

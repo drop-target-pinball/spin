@@ -9,6 +9,7 @@ import (
 )
 
 type Options struct {
+	ID                      string
 	MachType                pinproc.MachType
 	DMDConfig               pinproc.DMDConfig
 	SwitchConfig            pinproc.SwitchConfig
@@ -17,12 +18,16 @@ type Options struct {
 }
 
 type procSystem struct {
-	eng      *spin.Engine
-	proc     *pinproc.PROC
-	drivers  map[string]spin.Driver
-	switches map[uint8]spin.Switch
-	events   []pinproc.Event
-	options  Options
+	eng          *spin.Engine
+	proc         *pinproc.PROC
+	drivers      map[string]spin.Driver
+	switches     map[uint8]spin.Switch
+	events       []pinproc.Event
+	source       spin.Display
+	dots         []uint8
+	frameSize    int
+	subFrameSize int
+	opts         Options
 }
 
 func RegisterSystem(eng *spin.Engine, opts Options) {
@@ -37,15 +42,21 @@ func RegisterSystem(eng *spin.Engine, opts Options) {
 		drivers:  make(map[string]spin.Driver),
 		switches: make(map[uint8]spin.Switch),
 		events:   make([]pinproc.Event, pinproc.MaxEvents),
-		options:  opts,
+		opts:     opts,
 	}
+	eng.RegisterActionHandler(s)
 	eng.RegisterServer(s)
 
 	s.proc.Reset(pinproc.ResetFlagUpdateDevice)
 	if err := s.proc.SwitchUpdateConfig(opts.SwitchConfig); err != nil {
 		log.Fatal(err)
 	}
-
+	if err := s.proc.DMDUpdateConfig(opts.DMDConfig); err != nil {
+		log.Fatal(err)
+	}
+	s.subFrameSize = int(opts.DMDConfig.NumColumns) * int(opts.DMDConfig.NumRows) / 8
+	s.frameSize = s.subFrameSize * int(opts.DMDConfig.NumSubFrames)
+	s.dots = make([]uint8, s.frameSize)
 }
 
 func (s *procSystem) HandleAction(action spin.Action) {
@@ -60,6 +71,8 @@ func (s *procSystem) HandleAction(action spin.Action) {
 		s.driverPWM(act)
 	case spin.RegisterCoil:
 		s.registerCoil(act)
+	case spin.RegisterDisplay:
+		s.registerDisplay(act)
 	case spin.RegisterFlasher:
 		s.registerFlasher(act)
 	case spin.RegisterLamp:
@@ -80,18 +93,42 @@ func (s *procSystem) Service() {
 	}
 	for i := 0; i < n; i++ {
 		e := s.events[i]
-
 		if e.EventType != pinproc.EventTypeSwitchClosedDebounced && e.EventType != pinproc.EventTypeSwitchOpenDebounced {
 			continue
 		}
-
 		sw, ok := s.switches[uint8(e.Value)]
 		if !ok {
 			spin.Warn("unknown switch: %v", e.Value)
 			continue
 		}
-		released := e.EventType == pinproc.EventTypeSwitchOpenDebounced && sw.NC
+		released := e.EventType == pinproc.EventTypeSwitchOpenDebounced
+		if sw.NC {
+			released = !released
+		}
 		s.eng.Post(spin.SwitchEvent{ID: sw.ID, Released: released})
+	}
+	if s.source != nil {
+		for i := 0; i < len(s.dots); i++ {
+			s.dots[i] = 0
+		}
+		for y := 0; y < s.source.Height(); y++ {
+			for x := 0; x < s.source.Width(); x++ {
+				color := s.source.At(x, y)
+				gray := spin.RGBToGray(color)
+				i := (y*s.source.Width() + x) / 8
+				b := uint8(1 << ((y*s.source.Width() + x) % 8))
+				on := gray > 0
+				if on {
+					s.dots[(0*s.subFrameSize)+i] |= b
+					s.dots[(1*s.subFrameSize)+i] |= b
+					s.dots[(2*s.subFrameSize)+i] |= b
+					s.dots[(3*s.subFrameSize)+i] |= b
+				}
+			}
+		}
+		if err := s.proc.DMDDraw(s.dots); err != nil {
+			log.Fatal(err)
+		}
 	}
 	if err := s.proc.DriverWatchdogTickle(); err != nil {
 		log.Fatalf("unable to tickle watchdog: %v", err)
@@ -111,7 +148,8 @@ func (s *procSystem) driverOn(act spin.DriverOn) {
 		spin.Warn("cannot enable: %v", act.ID)
 		return
 	}
-	s.proc.DriverEnable(driver.Address.(uint8))
+	addr := uint8(driver.Address.(int))
+	s.proc.DriverEnable(addr)
 }
 
 func (s *procSystem) driverOff(act spin.DriverOff) {
@@ -120,7 +158,8 @@ func (s *procSystem) driverOff(act spin.DriverOff) {
 		spin.Warn("no such driver: %v", act.ID)
 		return
 	}
-	s.proc.DriverDisable(driver.Address.(uint8))
+	addr := uint8(driver.Address.(int))
+	s.proc.DriverDisable(addr)
 }
 
 func (s *procSystem) driverPulse(act spin.DriverPulse) {
@@ -131,16 +170,17 @@ func (s *procSystem) driverPulse(act spin.DriverPulse) {
 	}
 	time := uint8(act.Time)
 	if time == 0 && driver.Type == spin.Coil {
-		time = uint8(s.options.DefaultCoilPulseTime)
+		time = uint8(s.opts.DefaultCoilPulseTime)
 	}
 	if time == 0 && driver.Type == spin.Flasher {
-		time = uint8(s.options.DefaultFlasherPulseTime)
+		time = uint8(s.opts.DefaultFlasherPulseTime)
 	}
 	if time <= 0 {
 		spin.Warn("invalid pulse time: %v", time)
 		return
 	}
-	s.proc.DriverPulse(driver.Address.(uint8), time)
+	addr := uint8(driver.Address.(int))
+	s.proc.DriverPulse(addr, time)
 }
 
 func (s *procSystem) driverPWM(act spin.DriverPWM) {
@@ -155,7 +195,8 @@ func (s *procSystem) driverPWM(act spin.DriverPWM) {
 		spin.Warn("PWM off time cannot be zero")
 		return
 	}
-	s.proc.DriverPatter(driver.Address.(uint8), timeOn, timeOff, 0, false)
+	addr := uint8(driver.Address.(int))
+	s.proc.DriverPatter(addr, timeOn, timeOff, 0, false)
 }
 
 func (s *procSystem) registerCoil(act spin.RegisterCoil) {
@@ -165,6 +206,13 @@ func (s *procSystem) registerCoil(act spin.RegisterCoil) {
 		Address: act.Address,
 	}
 	s.drivers[act.ID] = driver
+}
+
+func (s *procSystem) registerDisplay(act spin.RegisterDisplay) {
+	if act.ID != s.opts.ID {
+		return
+	}
+	s.source = act.Display
 }
 
 func (s *procSystem) registerFlasher(act spin.RegisterFlasher) {
@@ -208,18 +256,15 @@ func (s *procSystem) registerSwitch(act spin.RegisterSwitch) {
 		ID: act.ID,
 		NC: act.NC,
 	}
-	s.switches[act.Address.(uint8)] = sw
+	addr := uint8(act.Address.(int))
+	s.switches[addr] = sw
 
 	rule := pinproc.SwitchRule{NotifyHost: true}
-	for id, device := range wpc.Devices {
-		if !pinproc.IsSwitch(id) {
-			continue
-		}
-		if err := s.proc.SwitchUpdateRule(device, pinproc.EventTypeSwitchClosedDebounced, rule, nil, false); err != nil {
-			log.Fatal(err)
-		}
-		if err := s.proc.SwitchUpdateRule(device, pinproc.EventTypeSwitchOpenDebounced, rule, nil, false); err != nil {
-			log.Fatal(err)
-		}
+	spin.Log("*** REGISTER: %v %v", addr, act.ID)
+	if err := s.proc.SwitchUpdateRule(addr, pinproc.EventTypeSwitchClosedDebounced, rule, nil, false); err != nil {
+		log.Fatal(err)
+	}
+	if err := s.proc.SwitchUpdateRule(addr, pinproc.EventTypeSwitchOpenDebounced, rule, nil, false); err != nil {
+		log.Fatal(err)
 	}
 }
