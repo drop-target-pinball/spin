@@ -58,7 +58,6 @@ func useFireButtonScript(e spin.Env) {
 	ctx, cancel := e.Derive()
 	defer cancel()
 
-	e.Do(spin.PlaySpeech{ID: SpeechLawMasterComputerOnlineWelcomeAboard})
 	if done := e.Sleep(7 * time.Second); done {
 		return
 	}
@@ -77,11 +76,17 @@ func plungeScript(e spin.Env) {
 	ctx, cancel := e.Derive()
 	e.NewCoroutine(ctx, useFireButtonScript)
 
-	e.WaitFor(
+	e.Do(spin.PlaySpeech{ID: SpeechLawMasterComputerOnlineWelcomeAboard})
+	e.Do(spin.DriverPulse{ID: jd.CoilTrough})
+	_, done := e.WaitFor(
 		spin.SwitchEvent{ID: jd.SwitchLeftFireButton},
 		spin.SwitchEvent{ID: jd.SwitchRightFireButton},
 	)
 	cancel()
+	if done {
+		return
+	}
 
+	e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
 	e.Do(spin.PlayMusic{ID: MusicMain})
 }

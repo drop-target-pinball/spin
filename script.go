@@ -2,6 +2,7 @@ package spin
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -53,7 +54,11 @@ func (e Env) Derive() (context.Context, context.CancelFunc) {
 	return e.ctx.Derive()
 }
 
+var anonCounter = 1
+
 func (e Env) NewCoroutine(ctx context.Context, scr Script) {
+	id := anonCounter
+	anonCounter++
 	coroutine.New(ctx, func(ctx *coroutine.Context) {
 		e := Env{
 			Config:   e.eng.Config,
@@ -61,7 +66,10 @@ func (e Env) NewCoroutine(ctx context.Context, scr Script) {
 			displays: e.displays,
 			ctx:      ctx,
 		}
+		name := fmt.Sprintf("anon%v", id)
+		e.Post(ScriptStartedEvent{ID: name})
 		scr(e)
+		e.Post(ScriptStoppedEvent{ID: name})
 	})
 }
 
@@ -142,7 +150,9 @@ func (s *scriptSystem) playScript(a PlayScript) {
 			displays: s.displays,
 			ctx:      ctx,
 		}
+		s.eng.Post(ScriptStartedEvent(a))
 		scr(e)
+		s.eng.Post(ScriptStoppedEvent(a))
 	})
 }
 

@@ -7,6 +7,9 @@ const (
 	SpeechICanSeeMyHouseFromHere                    = "jdx.SpeechICanSeeMyHouseFromHere"
 	SpeechItsALongWayDown                           = "jdx.SpeechItsALongWayDown"
 	SpeechLawMasterComputerOnlineWelcomeAboard      = "jdx.SpeechLawMasterComputerOnlineWelcomeAboard"
+	SpeechPlayer2                                   = "jdx.SpeechPlayer2"
+	SpeechPlayer3                                   = "jdx.SpeechPlayer3"
+	SpeechPlayer4                                   = "jdx.SpeechPlayer4"
 	SpeechShootSniperTower                          = "jdx.SpeechShootSniperTower"
 	SpeechSniperEliminated                          = "jdx.SpeechSniperEliminated"
 	SpeechSniperIsShootingIntoCrowdFromJohnsonTower = "jdx.SpeechSniperIsShootingIntoCrowdFromJohnsonTower"
@@ -29,6 +32,18 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechLawMasterComputerOnlineWelcomeAboard,
 		Path: "jd/pinsound/voice/000322-law_master_computer_online_welcome_aboard/law_mast__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechPlayer2,
+		Path: "jd/pinsound/voice/000210-player_two/player_t__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechPlayer3,
+		Path: "jd/pinsound/voice/000211-player_three/player_three__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechPlayer4,
+		Path: "jd/pinsound/voice/000214-player_four/player_f__LEGACY.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechShootSniperTower,

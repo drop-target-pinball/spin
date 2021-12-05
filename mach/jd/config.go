@@ -10,4 +10,6 @@ var Config = spin.Config{
 	SwitchPreviousServiceButton: SwitchPreviousServiceButton,
 	SwitchRightFlipperButton:    SwitchRightFlipperButton,
 	SwitchStartButton:           SwitchStartButton,
+
+	LampStartButton: LampStartButton,
 }

@@ -139,7 +139,7 @@ func Post(s Selector) {
 			continue
 		default:
 			for _, wait := range entry.waitCond.selectors {
-				if wait == s {
+				if wait.Key() == s.Key() {
 					entry.resume <- s
 					entry.waitCond = <-entry.yield
 					continue

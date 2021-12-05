@@ -73,6 +73,7 @@ func (s *gameSystem) addPlayer(act AddPlayer) {
 		return
 	}
 	s.game.NumPlayers += 1
+	s.eng.Post(PlayerAddedEvent{Player: s.game.NumPlayers})
 }
 
 func (s *gameSystem) advanceGame(act AdvanceGame) {

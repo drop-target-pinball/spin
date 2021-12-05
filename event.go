@@ -15,10 +15,15 @@ func (e EndOfBallEvent) Key() interface{} {
 	return e
 }
 
-type EndOfGameEvent struct {
-}
+type EndOfGameEvent struct{}
 
 func (e EndOfGameEvent) Key() interface{} {
+	return e
+}
+
+type GameOverEvent struct{}
+
+func (e GameOverEvent) Key() interface{} {
 	return e
 }
 
@@ -28,6 +33,30 @@ type Message struct {
 
 func (e Message) Key() interface{} {
 	return e.ID
+}
+
+type PlayerAddedEvent struct {
+	Player int
+}
+
+func (e PlayerAddedEvent) Key() interface{} {
+	return "PlayerAddedEvent"
+}
+
+type ScriptStartedEvent struct {
+	ID string
+}
+
+func (e ScriptStartedEvent) Key() interface{} {
+	return e
+}
+
+type ScriptStoppedEvent struct {
+	ID string
+}
+
+func (e ScriptStoppedEvent) Key() interface{} {
+	return e
 }
 
 type StartOfBallEvent struct {
