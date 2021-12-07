@@ -130,6 +130,7 @@ func selectGameScript(e spin.Env) {
 
 	selectBlinkOn = false
 	selectGameMenuFrame(e)
+	e.Do(spin.DriverOn{ID: e.Config.LampStartButton})
 	e.Do(spin.PlaySound{ID: SoundSelect})
 	e.Do(spin.FadeOutMusic{Time: 1500})
 	if done := e.Sleep(1500 * time.Millisecond); done {

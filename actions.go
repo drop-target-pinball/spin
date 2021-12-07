@@ -10,6 +10,10 @@ type AddPlayer struct {
 type AdvanceGame struct {
 }
 
+type Debug struct {
+	ID string
+}
+
 type DriverOn struct {
 	ID string
 }
@@ -153,6 +157,7 @@ type VolumeMusic struct {
 func (AddPlayer) action()       {}
 func (AdvanceGame) action()     {}
 func (AwardScore) action()      {}
+func (Debug) action()           {}
 func (DriverOn) action()        {}
 func (DriverOff) action()       {}
 func (DriverPulse) action()     {}
@@ -186,6 +191,7 @@ func registerActions(e *Engine) {
 	e.RegisterAction(AddPlayer{})
 	e.RegisterAction(AdvanceGame{})
 	e.RegisterAction(AwardScore{})
+	e.RegisterAction(Debug{})
 	e.RegisterAction(DriverOn{})
 	e.RegisterAction(DriverOff{})
 	e.RegisterAction(DriverPulse{})

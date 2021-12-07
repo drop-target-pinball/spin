@@ -260,7 +260,6 @@ func (s *procSystem) registerSwitch(act spin.RegisterSwitch) {
 	s.switches[addr] = sw
 
 	rule := pinproc.SwitchRule{NotifyHost: true}
-	spin.Log("*** REGISTER: %v %v", addr, act.ID)
 	if err := s.proc.SwitchUpdateRule(addr, pinproc.EventTypeSwitchClosedDebounced, rule, nil, false); err != nil {
 		log.Fatal(err)
 	}

@@ -10,4 +10,6 @@ type Config struct {
 	SwitchStartButton           string
 
 	LampStartButton string
+
+	GI []string
 }

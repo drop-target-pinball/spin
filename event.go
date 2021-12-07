@@ -43,22 +43,6 @@ func (e PlayerAddedEvent) Key() interface{} {
 	return "PlayerAddedEvent"
 }
 
-type ScriptStartedEvent struct {
-	ID string
-}
-
-func (e ScriptStartedEvent) Key() interface{} {
-	return e
-}
-
-type ScriptStoppedEvent struct {
-	ID string
-}
-
-func (e ScriptStoppedEvent) Key() interface{} {
-	return e
-}
-
 type StartOfBallEvent struct {
 	Player     int
 	Ball       int

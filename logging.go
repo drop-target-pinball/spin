@@ -3,7 +3,13 @@ package spin
 import (
 	"fmt"
 	"log"
+	"os"
+	"runtime/pprof"
 	"time"
+)
+
+const (
+	DebugPrintStackTrace = "PrintStackTrace"
 )
 
 type loggingSystem struct {
@@ -18,12 +24,30 @@ func RegisterLoggingSystem(eng *Engine) {
 	eng.RegisterEventHandler(sys)
 }
 
-func (s *loggingSystem) HandleAction(act Action) {
-	log.Printf("[%v] %v", s.elapsedTime(), FormatAction(act))
+func (s *loggingSystem) HandleAction(action Action) {
+	log.Printf("[%v] %v", s.elapsedTime(), FormatAction(action))
+	switch act := action.(type) {
+	case Debug:
+		s.debug(act)
+	}
 }
 
 func (s *loggingSystem) HandleEvent(evt Event) {
 	log.Printf("[%v] %v", s.elapsedTime(), FormatEvent(evt))
+}
+
+func (s *loggingSystem) debug(act Debug) {
+	switch act.ID {
+	case DebugPrintStackTrace:
+		s.printStackTrace()
+	default:
+		Warn("unknown debug action: %v", act.ID)
+	}
+}
+
+func (s *loggingSystem) printStackTrace() {
+	profile := pprof.Lookup("goroutine")
+	profile.WriteTo(os.Stdout, 1)
 }
 
 func (s *loggingSystem) elapsedTime() string {

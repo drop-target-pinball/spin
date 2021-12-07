@@ -1,6 +1,7 @@
 package spin
 
 import (
+	"log"
 	"os"
 	"reflect"
 	"time"
@@ -34,8 +35,8 @@ type Engine struct {
 	actionHandlers []ActionHandler
 	eventHandlers  []EventHandler
 	servers        []Server
-	running        bool
 	vars           map[string]interface{}
+	watchdog       chan struct{}
 }
 
 func NewEngine(config Config) *Engine {
@@ -49,6 +50,7 @@ func NewEngine(config Config) *Engine {
 		eventHandlers:  make([]EventHandler, 0),
 		servers:        make([]Server, 0),
 		vars:           make(map[string]interface{}),
+		watchdog:       make(chan struct{}),
 	}
 	registerResourceSystem(eng)
 	registerActions(eng)
@@ -94,11 +96,6 @@ func (e *Engine) RegisterVars(name string, vars interface{}) {
 	e.vars[name] = vars
 }
 
-func (e *Engine) Run() {
-	e.running = true
-	e.loop()
-}
-
 func (e *Engine) Do(act Action) {
 	e.actionQueue = append(e.actionQueue, act)
 }
@@ -112,9 +109,11 @@ func (e *Engine) Vars(name string) (interface{}, bool) {
 	return vars, ok
 }
 
-func (e *Engine) loop() {
+func (e *Engine) Run() {
 	ticker := time.NewTicker(16670 * time.Microsecond)
+	go watchdog(e.watchdog)
 	for {
+		e.watchdog <- struct{}{}
 		<-ticker.C
 		for len(e.actionQueue) > 0 {
 			var act Action
@@ -132,6 +131,17 @@ func (e *Engine) loop() {
 		}
 		for _, s := range e.servers {
 			s.Service()
+		}
+	}
+}
+
+func watchdog(watchdog chan struct{}) {
+	for {
+		select {
+		case <-watchdog:
+			// tickle
+		case <-time.After(1 * time.Second):
+			log.Panicf("deadlock detected")
 		}
 	}
 }

@@ -12,4 +12,12 @@ var Config = spin.Config{
 	SwitchStartButton:           SwitchStartButton,
 
 	LampStartButton: LampStartButton,
+
+	GI: []string{
+		GI1,
+		GI2,
+		GI3,
+		GI4,
+		GI5,
+	},
 }
