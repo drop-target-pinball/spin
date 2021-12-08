@@ -9,7 +9,7 @@ I am now an owner of a Judge Dredd pinball machine.
 
 ![Judge Dredd](judge-dredd.jpg)
 
-It came with a color dot-matrix display, LED lighting, and even a
+It came with a [color dot-matrix display](https://www.colordmd.com/), LED lighting, and even a
 secondary power supply. That means it is time to get back to doing some pinball development work. I am using the [P-ROC](https://www.multimorphic.com/store/circuit-boards/p-roc/) to control the machine via USB. I've already blown one fuse by hooking it up wrong.
 
 ## Plan

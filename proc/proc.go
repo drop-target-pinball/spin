@@ -227,7 +227,7 @@ func (s *procSystem) flippersOn(act spin.FlippersOn) {
 		s.proc.DriverGetState(flipper.HoldCoilAddr.(uint8), &holdOnState)
 		s.proc.DriverGetState(flipper.HoldCoilAddr.(uint8), &holdOffState)
 
-		pinproc.DriverStatePulse(&pulseState, 25)
+		pinproc.DriverStatePulse(&pulseState, 35)
 		pinproc.DriverStatePulse(&holdOnState, 0)
 		pinproc.DriverStateDisable(&holdOffState)
 
