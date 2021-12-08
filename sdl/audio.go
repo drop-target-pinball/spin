@@ -46,26 +46,26 @@ func (s *audioSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
 	case spin.FadeOutMusic:
 		s.fadeOutMusic(act)
-	case spin.RegisterMusic:
-		s.registerMusic(act)
-	case spin.RegisterSound:
-		s.registerSound(act)
-	case spin.RegisterSpeech:
-		s.registerSpeech(act)
+	case spin.MusicVolume:
+		s.musicVolume(act)
 	case spin.PlayMusic:
 		s.playMusic(act)
 	case spin.PlaySpeech:
 		s.playSpeech(act)
 	case spin.PlaySound:
 		s.playSound(act)
+	case spin.RegisterMusic:
+		s.registerMusic(act)
+	case spin.RegisterSound:
+		s.registerSound(act)
+	case spin.RegisterSpeech:
+		s.registerSpeech(act)
 	case spin.StopAudio:
 		s.stopAudio(act)
 	case spin.StopMusic:
 		s.stopMusic(act)
 	case spin.StopSpeech:
 		s.stopSpeech(act)
-	case spin.VolumeMusic:
-		s.volumeMusic(act)
 	}
 }
 
@@ -98,6 +98,28 @@ func (s *audioSystem) registerSpeech(a spin.RegisterSpeech) {
 		return
 	}
 	s.speech[a.ID] = sp
+}
+
+func (s *audioSystem) musicVolume(a spin.MusicVolume) {
+	prev := mix.VolumeMusic(-1)
+	vol := prev
+	if a.Set == 0 && a.Add == 0 && a.Mul == 0 {
+		vol = 0
+	}
+	if a.Set != 0 {
+		vol = a.Set
+	}
+	if a.Mul != 0 {
+		vol = int(float64(vol) * a.Mul)
+	}
+	if a.Add != 0 {
+		vol += a.Add
+	}
+	if vol < 0 {
+		vol = 0
+
+	}
+	mix.VolumeMusic(vol)
 }
 
 func (s *audioSystem) playMusic(a spin.PlayMusic) {
@@ -153,26 +175,4 @@ func (s *audioSystem) stopSpeech(a spin.StopSpeech) {
 		mix.HaltChannel(0)
 		s.speechPlaying = ""
 	}
-}
-
-func (s *audioSystem) volumeMusic(a spin.VolumeMusic) {
-	prev := mix.VolumeMusic(-1)
-	vol := prev
-	if a.Set == 0 && a.Add == 0 && a.Mul == 0 {
-		vol = 0
-	}
-	if a.Set != 0 {
-		vol = a.Set
-	}
-	if a.Mul != 0 {
-		vol = int(float64(vol) * a.Mul)
-	}
-	if a.Add != 0 {
-		vol += a.Add
-	}
-	if vol < 0 {
-		vol = 0
-
-	}
-	mix.VolumeMusic(vol)
 }

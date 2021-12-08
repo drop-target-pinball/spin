@@ -22,6 +22,7 @@ type procSystem struct {
 	proc         *pinproc.PROC
 	drivers      map[string]spin.Driver
 	switches     map[uint8]spin.Switch
+	flippers     map[string]spin.Flipper
 	events       []pinproc.Event
 	source       spin.Display
 	dots         []uint8
@@ -41,6 +42,7 @@ func RegisterSystem(eng *spin.Engine, opts Options) {
 		proc:     pc,
 		drivers:  make(map[string]spin.Driver),
 		switches: make(map[uint8]spin.Switch),
+		flippers: make(map[string]spin.Flipper),
 		events:   make([]pinproc.Event, pinproc.MaxEvents),
 		opts:     opts,
 	}
@@ -69,12 +71,18 @@ func (s *procSystem) HandleAction(action spin.Action) {
 		s.driverPulse(act)
 	case spin.DriverPWM:
 		s.driverPWM(act)
+	case spin.FlippersOn:
+		s.flippersOn(act)
+	case spin.FlippersOff:
+		s.flippersOff(act)
 	case spin.RegisterCoil:
 		s.registerCoil(act)
 	case spin.RegisterDisplay:
 		s.registerDisplay(act)
 	case spin.RegisterFlasher:
 		s.registerFlasher(act)
+	case spin.RegisterFlipper:
+		s.registerFlipper(act)
 	case spin.RegisterLamp:
 		s.registerLamp(act)
 	case spin.RegisterMagnet:
@@ -148,7 +156,7 @@ func (s *procSystem) driverOn(act spin.DriverOn) {
 		spin.Warn("cannot enable: %v", act.ID)
 		return
 	}
-	addr := uint8(driver.Address.(int))
+	addr := driver.Addr.(uint8)
 	s.proc.DriverEnable(addr)
 }
 
@@ -158,7 +166,7 @@ func (s *procSystem) driverOff(act spin.DriverOff) {
 		spin.Warn("no such driver: %v", act.ID)
 		return
 	}
-	addr := uint8(driver.Address.(int))
+	addr := driver.Addr.(uint8)
 	s.proc.DriverDisable(addr)
 }
 
@@ -179,7 +187,7 @@ func (s *procSystem) driverPulse(act spin.DriverPulse) {
 		spin.Warn("invalid pulse time: %v", time)
 		return
 	}
-	addr := uint8(driver.Address.(int))
+	addr := driver.Addr.(uint8)
 	s.proc.DriverPulse(addr, time)
 }
 
@@ -195,15 +203,94 @@ func (s *procSystem) driverPWM(act spin.DriverPWM) {
 		spin.Warn("PWM off time cannot be zero")
 		return
 	}
-	addr := uint8(driver.Address.(int))
+	addr := driver.Addr.(uint8)
 	s.proc.DriverPatter(addr, timeOn, timeOff, 0, false)
+}
+
+func (s *procSystem) flippersOn(act spin.FlippersOn) {
+	flipperIDs := act.FlipperIDs
+	if len(flipperIDs) == 0 {
+		flipperIDs = make([]string, 0)
+		for id := range s.flippers {
+			flipperIDs = append(flipperIDs, id)
+		}
+	}
+
+	for _, flipperID := range flipperIDs {
+		flipper, ok := s.flippers[flipperID]
+		if !ok {
+			spin.Warn("no such flipper: %v", flipperID)
+			continue
+		}
+		var pulseState, holdOnState, holdOffState pinproc.DriverState
+		s.proc.DriverGetState(flipper.PowerCoilAddr.(uint8), &pulseState)
+		s.proc.DriverGetState(flipper.HoldCoilAddr.(uint8), &holdOnState)
+		s.proc.DriverGetState(flipper.HoldCoilAddr.(uint8), &holdOffState)
+
+		pinproc.DriverStatePulse(&pulseState, 25)
+		pinproc.DriverStatePulse(&holdOnState, 0)
+		pinproc.DriverStateDisable(&holdOffState)
+
+		if err := s.proc.SwitchUpdateRule(
+			flipper.SwitchAddr.(uint8),
+			pinproc.EventTypeSwitchClosedNondebounced,
+			pinproc.SwitchRule{},
+			[]pinproc.DriverState{pulseState, holdOnState},
+			true); err != nil {
+			log.Fatal(err)
+		}
+		if err := s.proc.SwitchUpdateRule(
+			flipper.SwitchAddr.(uint8),
+			pinproc.EventTypeSwitchOpenNondebounced,
+			pinproc.SwitchRule{},
+			[]pinproc.DriverState{holdOffState},
+			true); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func (s *procSystem) flippersOff(act spin.FlippersOff) {
+	flipperIDs := act.FlipperIDs
+	if flipperIDs == nil {
+		flipperIDs = make([]string, 0)
+		for id := range s.flippers {
+			flipperIDs = append(flipperIDs, id)
+		}
+	}
+
+	for _, flipperID := range flipperIDs {
+		flipper, ok := s.flippers[flipperID]
+		if !ok {
+			spin.Warn("no such flipper: %v", flipperID)
+			continue
+		}
+
+		// Flipper buttons are optos so open == button pressed
+		if err := s.proc.SwitchUpdateRule(
+			flipper.SwitchAddr.(uint8),
+			pinproc.EventTypeSwitchOpenNondebounced,
+			pinproc.SwitchRule{},
+			[]pinproc.DriverState{},
+			true); err != nil {
+			log.Fatal(err)
+		}
+		if err := s.proc.SwitchUpdateRule(
+			flipper.SwitchAddr.(uint8),
+			pinproc.EventTypeSwitchClosedNondebounced,
+			pinproc.SwitchRule{},
+			[]pinproc.DriverState{},
+			true); err != nil {
+			log.Fatal(err)
+		}
+	}
 }
 
 func (s *procSystem) registerCoil(act spin.RegisterCoil) {
 	driver := spin.Driver{
-		ID:      act.ID,
-		Type:    spin.Coil,
-		Address: act.Address,
+		ID:   act.ID,
+		Type: spin.Coil,
+		Addr: act.Addr,
 	}
 	s.drivers[act.ID] = driver
 }
@@ -217,36 +304,46 @@ func (s *procSystem) registerDisplay(act spin.RegisterDisplay) {
 
 func (s *procSystem) registerFlasher(act spin.RegisterFlasher) {
 	driver := spin.Driver{
-		ID:      act.ID,
-		Type:    spin.Flasher,
-		Address: act.Address,
+		ID:   act.ID,
+		Type: spin.Flasher,
+		Addr: act.Addr,
 	}
 	s.drivers[act.ID] = driver
 }
 
+func (s *procSystem) registerFlipper(act spin.RegisterFlipper) {
+	flipper := spin.Flipper{
+		ID:            act.ID,
+		SwitchAddr:    act.SwitchAddr,
+		PowerCoilAddr: act.PowerCoilAddr,
+		HoldCoilAddr:  act.HoldCoilAddr,
+	}
+	s.flippers[act.ID] = flipper
+}
+
 func (s *procSystem) registerLamp(act spin.RegisterLamp) {
 	driver := spin.Driver{
-		ID:      act.ID,
-		Type:    spin.Lamp,
-		Address: act.Address,
+		ID:   act.ID,
+		Type: spin.Lamp,
+		Addr: act.Addr,
 	}
 	s.drivers[act.ID] = driver
 }
 
 func (s *procSystem) registerMagnet(act spin.RegisterMagnet) {
 	driver := spin.Driver{
-		ID:      act.ID,
-		Type:    spin.Magnet,
-		Address: act.Address,
+		ID:   act.ID,
+		Type: spin.Magnet,
+		Addr: act.Addr,
 	}
 	s.drivers[act.ID] = driver
 }
 
 func (s *procSystem) registerMotor(act spin.RegisterMotor) {
 	driver := spin.Driver{
-		ID:      act.ID,
-		Type:    spin.Motor,
-		Address: act.Address,
+		ID:   act.ID,
+		Type: spin.Motor,
+		Addr: act.Addr,
 	}
 	s.drivers[act.ID] = driver
 }
@@ -256,7 +353,7 @@ func (s *procSystem) registerSwitch(act spin.RegisterSwitch) {
 		ID: act.ID,
 		NC: act.NC,
 	}
-	addr := uint8(act.Address.(int))
+	addr := act.Addr.(uint8)
 	s.switches[addr] = sw
 
 	rule := pinproc.SwitchRule{NotifyHost: true}

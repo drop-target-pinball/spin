@@ -7,6 +7,7 @@ func Load(eng *spin.Engine) {
 	RegisterFlashers(eng)
 	RegisterKeys(eng)
 	RegisterLamps(eng)
+	RegisterFlippers(eng)
 	RegisterMagnets(eng)
 	RegisterMotors(eng)
 	RegisterSwitches(eng)

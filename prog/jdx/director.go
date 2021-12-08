@@ -12,6 +12,7 @@ func directorScript(e spin.Env) {
 	e.Do(spin.PlayScript{ID: builtin.ScriptGameStartButton})
 	e.Do(spin.PlayScript{ID: builtin.ScriptScore})
 	e.Do(spin.PlayScript{ID: ScriptPlunge})
+	e.Do(spin.FlippersOn{})
 }
 
 var playerSpeech = map[int]string{

@@ -62,15 +62,15 @@ func sniperScoreCountdownVideoScript(e spin.Env) {
 }
 
 func sniperScoreCountdownAudioScript(e spin.Env) {
-	e.Do(spin.VolumeMusic{Mul: 0.5})
+	e.Do(spin.MusicVolume{Mul: 0.5})
 	e.Do(spin.PlaySpeech{ID: SpeechSniperIsShootingIntoCrowdFromJohnsonTower})
 	if done := e.Sleep(3 * time.Second); done {
 		e.Do(spin.StopSpeech{ID: SpeechSniperIsShootingIntoCrowdFromJohnsonTower})
-		e.Do(spin.VolumeMusic{Mul: 2})
+		e.Do(spin.MusicVolume{Mul: 2})
 		return
 	}
 
-	e.Do(spin.VolumeMusic{Mul: 2})
+	e.Do(spin.MusicVolume{Mul: 2})
 	if done := e.Sleep(1 * time.Second); done {
 		return
 	}
@@ -124,12 +124,12 @@ func sniperTakedownVideoScript(e spin.Env) {
 }
 
 func sniperTakedownAudioScript(e spin.Env) {
-	e.Do(spin.VolumeMusic{Mul: 0.5})
+	e.Do(spin.MusicVolume{Mul: 0.5})
 	e.Do(spin.PlaySound{ID: SoundSuccess})
 	if done := e.Sleep(1500 * time.Millisecond); done {
 		return
 	}
-	e.Do(spin.VolumeMusic{Mul: 2})
+	e.Do(spin.MusicVolume{Mul: 2})
 }
 
 func sniperTakedownScript(e spin.Env) {

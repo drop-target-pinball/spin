@@ -11,12 +11,20 @@ const (
 )
 
 type Driver struct {
-	ID      string
-	Type    DriverType
-	Address interface{}
+	ID   string
+	Type DriverType
+	Addr interface{}
 }
 
 type Switch struct {
 	ID string
 	NC bool
+}
+
+type Flipper struct {
+	ID            string
+	SwitchAddr    interface{}
+	PowerCoilAddr interface{}
+	HoldCoilAddr  interface{}
+	_             struct{}
 }

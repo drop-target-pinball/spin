@@ -10,6 +10,10 @@ type AddPlayer struct {
 type AdvanceGame struct {
 }
 
+type AwardScore struct {
+	Val int
+}
+
 type Debug struct {
 	ID string
 }
@@ -37,8 +41,18 @@ type FadeOutMusic struct {
 	Time int // milliseconds
 }
 
-type AwardScore struct {
-	Val int
+type FlippersOn struct {
+	FlipperIDs []string
+}
+
+type FlippersOff struct {
+	FlipperIDs []string
+}
+
+type MusicVolume struct {
+	Set int
+	Add int
+	Mul float64
 }
 
 type PlayMusic struct {
@@ -60,8 +74,8 @@ type PlaySpeech struct {
 }
 
 type RegisterCoil struct {
-	ID      string
-	Address interface{}
+	ID   string
+	Addr interface{}
 }
 
 type RegisterDisplay struct {
@@ -70,8 +84,15 @@ type RegisterDisplay struct {
 }
 
 type RegisterFlasher struct {
-	ID      string
-	Address interface{}
+	ID   string
+	Addr interface{}
+}
+
+type RegisterFlipper struct {
+	ID            string
+	SwitchAddr    interface{}
+	PowerCoilAddr interface{}
+	HoldCoilAddr  interface{}
 }
 
 type RegisterFont struct {
@@ -81,18 +102,18 @@ type RegisterFont struct {
 }
 
 type RegisterLamp struct {
-	ID      string
-	Address interface{}
+	ID   string
+	Addr interface{}
 }
 
 type RegisterMagnet struct {
-	ID      string
-	Address interface{}
+	ID   string
+	Addr interface{}
 }
 
 type RegisterMotor struct {
-	ID      string
-	Address interface{}
+	ID   string
+	Addr interface{}
 }
 
 type RegisterKey struct {
@@ -122,9 +143,9 @@ type RegisterSpeech struct {
 }
 
 type RegisterSwitch struct {
-	ID      string
-	Address interface{}
-	NC      bool
+	ID   string
+	Addr interface{}
+	NC   bool
 }
 
 type SetScore struct {
@@ -148,12 +169,6 @@ type StopSpeech struct {
 	Any bool
 }
 
-type VolumeMusic struct {
-	Set int
-	Add int
-	Mul float64
-}
-
 func (AddPlayer) action()       {}
 func (AdvanceGame) action()     {}
 func (AwardScore) action()      {}
@@ -163,6 +178,9 @@ func (DriverOff) action()       {}
 func (DriverPulse) action()     {}
 func (DriverPWM) action()       {}
 func (FadeOutMusic) action()    {}
+func (FlippersOn) action()      {}
+func (FlippersOff) action()     {}
+func (MusicVolume) action()     {}
 func (PlayMusic) action()       {}
 func (PlayScript) action()      {}
 func (PlaySound) action()       {}
@@ -170,6 +188,7 @@ func (PlaySpeech) action()      {}
 func (RegisterCoil) action()    {}
 func (RegisterDisplay) action() {}
 func (RegisterFlasher) action() {}
+func (RegisterFlipper) action() {}
 func (RegisterFont) action()    {}
 func (RegisterKey) action()     {}
 func (RegisterLamp) action()    {}
@@ -185,7 +204,6 @@ func (StopAudio) action()       {}
 func (StopMusic) action()       {}
 func (StopScript) action()      {}
 func (StopSpeech) action()      {}
-func (VolumeMusic) action()     {}
 
 func registerActions(e *Engine) {
 	e.RegisterAction(AddPlayer{})
@@ -197,6 +215,9 @@ func registerActions(e *Engine) {
 	e.RegisterAction(DriverPulse{})
 	e.RegisterAction(DriverPWM{})
 	e.RegisterAction(FadeOutMusic{})
+	e.RegisterAction(FlippersOn{})
+	e.RegisterAction(FlippersOff{})
+	e.RegisterAction(MusicVolume{})
 	e.RegisterAction(PlayMusic{})
 	e.RegisterAction(PlayScript{})
 	e.RegisterAction(PlaySound{})
@@ -204,11 +225,9 @@ func registerActions(e *Engine) {
 	e.RegisterAction(RegisterMusic{})
 	e.RegisterAction(RegisterSound{})
 	e.RegisterAction(RegisterSpeech{})
-	e.RegisterAction(RegisterSwitch{})
 	e.RegisterAction(SetScore{})
 	e.RegisterAction(StopAudio{})
 	e.RegisterAction(StopMusic{})
 	e.RegisterAction(StopScript{})
 	e.RegisterAction(StopSpeech{})
-	e.RegisterAction(VolumeMusic{})
 }
