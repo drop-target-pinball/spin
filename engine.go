@@ -28,6 +28,7 @@ type Store interface {
 
 type Engine struct {
 	Config         Config
+	Options        Options
 	Actions        map[string]Action
 	Events         map[string]Event
 	actionQueue    []Action
@@ -39,9 +40,10 @@ type Engine struct {
 	watchdog       chan struct{}
 }
 
-func NewEngine(config Config) *Engine {
+func NewEngine(config Config, options Options) *Engine {
 	eng := &Engine{
 		Config:         config,
+		Options:        options,
 		Actions:        make(map[string]Action),
 		Events:         make(map[string]Event),
 		actionQueue:    make([]Action, 0),

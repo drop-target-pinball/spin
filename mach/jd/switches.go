@@ -100,7 +100,6 @@ func RegisterSwitches(eng *spin.Engine) {
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SD1, ID: SwitchLeftCoinSlot})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S11, ID: SwitchLeftFireButton})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SF4, ID: SwitchLeftFlipperButton})
-	eng.Do(spin.RegisterSwitch{Addr: wpc.SF3, ID: SwitchLeftFlipperEOS})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S16, ID: SwitchLeftOutlane})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S73, ID: SwitchLeftPopper, NC: true})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S36, ID: SwitchLeftPost})
@@ -119,7 +118,6 @@ func RegisterSwitches(eng *spin.Engine) {
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SD3, ID: SwitchRightCoinSlot})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S12, ID: SwitchRightFireButton})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SF2, ID: SwitchRightFlipperButton})
-	eng.Do(spin.RegisterSwitch{Addr: wpc.SF1, ID: SwitchRightFlipperEOS})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S42, ID: SwitchRightOutlane})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S74, ID: SwitchRightPopper, NC: true})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S25, ID: SwitchRightPost})
@@ -142,7 +140,11 @@ func RegisterSwitches(eng *spin.Engine) {
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S86, ID: SwitchTrough6, NC: true})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S87, ID: SwitchTroughJam, NC: true})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SF8, ID: SwitchUpperLeftFlipperButton})
-	eng.Do(spin.RegisterSwitch{Addr: wpc.SF7, ID: SwitchUpperLeftFlipperEOS})
-	eng.Do(spin.RegisterSwitch{Addr: wpc.SF6, ID: SwitchUpperRightFlipperButton})
-	eng.Do(spin.RegisterSwitch{Addr: wpc.SF5, ID: SwitchUpperRightFlipperEOS})
+
+	if eng.Options.RegisterEOS {
+		eng.Do(spin.RegisterSwitch{Addr: wpc.SF3, ID: SwitchLeftFlipperEOS})
+		eng.Do(spin.RegisterSwitch{Addr: wpc.SF1, ID: SwitchRightFlipperEOS})
+		eng.Do(spin.RegisterSwitch{Addr: wpc.SF6, ID: SwitchUpperRightFlipperButton})
+		eng.Do(spin.RegisterSwitch{Addr: wpc.SF5, ID: SwitchUpperRightFlipperEOS})
+	}
 }

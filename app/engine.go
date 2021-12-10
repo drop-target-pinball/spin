@@ -14,6 +14,7 @@ type Options struct {
 	WithLogging    bool
 	WithAudio      bool
 	WithVirtualDMD bool
+	WithEOS        bool
 }
 
 func DefaultOptions() Options {
@@ -24,19 +25,19 @@ func DefaultOptions() Options {
 	}
 }
 
-func NewEngine(opt Options) *spin.Engine {
-	eng := spin.NewEngine(jd.Config)
-	if opt.WithLogging {
+func NewEngine(appOptions Options, spinOptions spin.Options) *spin.Engine {
+	eng := spin.NewEngine(jd.Config, spinOptions)
+	if appOptions.WithLogging {
 		spin.RegisterLoggingSystem(eng)
 	}
-	if opt.WithAudio {
+	if appOptions.WithAudio {
 		sdl.RegisterAudioSystem(eng)
 	}
-	if opt.WithVirtualDMD {
+	if appOptions.WithVirtualDMD {
 		opts := sdl.DefaultOptionsDotMatrix()
 		sdl.RegisterDotMatrixSystem(eng, opts)
 	}
-	if opt.WithPROC {
+	if appOptions.WithPROC {
 		opts := proc.Options{
 			MachType:                wpc.MachType,
 			DMDConfig:               wpc.DMDConfigDefault,

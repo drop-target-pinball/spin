@@ -13,3 +13,11 @@ type Config struct {
 
 	GI []string
 }
+
+type Options struct {
+	RegisterEOS bool
+}
+
+func DefaultOptions() Options {
+	return Options{}
+}
