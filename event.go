@@ -43,6 +43,14 @@ func (e PlayerAddedEvent) Key() interface{} {
 	return "PlayerAddedEvent"
 }
 
+type ShotEvent struct {
+	ID string
+}
+
+func (e ShotEvent) Key() interface{} {
+	return e.ID
+}
+
 type StartOfBallEvent struct {
 	Player     int
 	Ball       int
@@ -70,5 +78,6 @@ func (e SwitchEvent) Key() interface{} {
 
 func registerEvents(e *Engine) {
 	e.RegisterEvent(Message{})
+	e.RegisterEvent(ShotEvent{})
 	e.RegisterEvent(SwitchEvent{})
 }

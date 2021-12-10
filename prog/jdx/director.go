@@ -12,6 +12,11 @@ func directorScript(e spin.Env) {
 	e.Do(spin.PlayScript{ID: builtin.ScriptGameStartButton})
 	e.Do(spin.PlayScript{ID: builtin.ScriptScore})
 	e.Do(spin.PlayScript{ID: ScriptPlunge})
+
+	e.Do(spin.PlayScript{ID: ScriptLeftPopperShot})
+	e.Do(spin.PlayScript{ID: ScriptLeftShooterLaneShot})
+	e.Do(spin.PlayScript{ID: ScriptRightPopperShot})
+
 	e.Do(spin.FlippersOn{})
 }
 
