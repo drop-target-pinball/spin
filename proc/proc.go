@@ -51,7 +51,6 @@ func RegisterSystem(eng *spin.Engine, opts Options) {
 		opts:     opts,
 	}
 	eng.RegisterActionHandler(s)
-	eng.RegisterEventHandler(s)
 	eng.RegisterServer(s)
 
 	s.proc.Reset(pinproc.ResetFlagUpdateDevice)
@@ -107,13 +106,6 @@ func (s *procSystem) HandleAction(action spin.Action) {
 	}
 }
 
-func (s *procSystem) HandleEvent(event spin.Event) {
-	switch evt := event.(type) {
-	case spin.SwitchEvent:
-		s.handleSwitchEvent(evt)
-	}
-}
-
 func (s *procSystem) Service() {
 	n, err := s.proc.GetEvents(s.events)
 	if err != nil {
@@ -126,13 +118,14 @@ func (s *procSystem) Service() {
 		}
 		sw, ok := s.switches[uint8(e.Value)]
 		if !ok {
-			spin.Warn("unknown switch: %v", e.Value)
+			spin.Warn("no such switch: %v", e.Value)
 			continue
 		}
 		released := e.EventType == pinproc.EventTypeSwitchOpenDebounced
 		if sw.NC {
 			released = !released
 		}
+		sw.Active = !released
 		s.eng.Post(spin.SwitchEvent{ID: sw.ID, Released: released})
 	}
 	if s.source != nil {
@@ -421,14 +414,4 @@ func (s *procSystem) registerSwitch(act spin.RegisterSwitch) {
 	if err := s.proc.SwitchUpdateRule(addr, pinproc.EventTypeSwitchOpenDebounced, rule, nil, false); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func (s *procSystem) handleSwitchEvent(evt spin.SwitchEvent) {
-	rv := spin.ResourceVars(s.eng)
-	sw, ok := rv.Switches[evt.ID]
-	if !ok {
-		spin.Warn("no such switch: %v", evt.ID)
-		return
-	}
-	sw.Active = !evt.Released
 }

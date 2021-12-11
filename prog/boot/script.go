@@ -37,7 +37,7 @@ func splashScreenScript(e spin.Env) {
 	}
 
 	splashScreenFrame(e)
-	e.Do(spin.PlayMusic{ID: MusicSplashScreen})
+	e.Do(spin.PlayMusic{ID: MusicSplashScreen, Loops: 1})
 	e.Do(spin.DriverPWM{ID: e.Config.LampStartButton, TimeOn: 127, TimeOff: 127})
 	evt, done := e.WaitForUntil(8*time.Second,
 		spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},

@@ -71,20 +71,7 @@ func raiseDropTargetsScript(e spin.Env) {
 }
 
 func raiseDropTargetsWhenAllDownScript(e spin.Env) {
-	down := 0
-
 	rv := spin.ResourceVars(e)
-	for _, id := range []string{
-		SwitchDropTargetJ,
-		SwitchDropTargetU,
-		SwitchDropTargetD,
-		SwitchDropTargetG,
-		SwitchDropTargetE,
-	} {
-		if rv.Switches[id].Active {
-			down += 1
-		}
-	}
 
 	for {
 		if _, done := e.WaitFor(
@@ -97,13 +84,24 @@ func raiseDropTargetsWhenAllDownScript(e spin.Env) {
 			return
 		}
 
-		down += 1
+		down := 0
+		for _, id := range []string{
+			SwitchDropTargetJ,
+			SwitchDropTargetU,
+			SwitchDropTargetD,
+			SwitchDropTargetG,
+			SwitchDropTargetE,
+		} {
+			if rv.Switches[id].Active {
+				down += 1
+			}
+		}
+
 		if down == 5 {
 			if done := e.Sleep(500 * time.Millisecond); done {
 				return
 			}
 			e.Do(spin.DriverPulse{ID: CoilDropTargetReset})
-			down = 0
 		}
 	}
 

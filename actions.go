@@ -64,8 +64,9 @@ type MusicVolume struct {
 }
 
 type PlayMusic struct {
-	ID  string
-	Vol int
+	ID    string
+	Vol   int
+	Loops int
 }
 
 type PlayScript struct {

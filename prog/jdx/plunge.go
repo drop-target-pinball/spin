@@ -11,12 +11,12 @@ import (
 func useFireButtonFrame(e spin.Env, n int) {
 	r, g := e.Display("").Renderer()
 
-	chevronsL := []string{
-		"   ",
-		"  <",
-		" <<",
-		"<<<",
-	}
+	// chevronsL := []string{
+	// 	"   ",
+	// 	"  <",
+	// 	" <<",
+	// 	"<<<",
+	// }
 
 	chevronsR := []string{
 		"   ",
@@ -37,7 +37,7 @@ func useFireButtonFrame(e spin.Env, n int) {
 	g.H = r.Height()
 	g.Y = 0
 	g.X = 4
-	r.Print(g, chevronsL[n])
+	//r.Print(g, chevronsL[n])
 	g.X = 110
 	r.Print(g, chevronsR[n])
 }
@@ -79,10 +79,7 @@ func plungeScript(e spin.Env) {
 
 	e.Do(spin.PlaySpeech{ID: SpeechLawMasterComputerOnlineWelcomeAboard})
 	e.Do(spin.DriverPulse{ID: jd.CoilTrough})
-	_, done := e.WaitFor(
-		spin.SwitchEvent{ID: jd.SwitchLeftFireButton},
-		spin.SwitchEvent{ID: jd.SwitchRightFireButton},
-	)
+	_, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightFireButton})
 	cancel()
 	if done {
 		return
@@ -90,4 +87,5 @@ func plungeScript(e spin.Env) {
 
 	e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
 	e.Do(spin.PlayMusic{ID: MusicMain})
+	e.Do(spin.PlaySound{ID: SoundMotorcycleStart})
 }

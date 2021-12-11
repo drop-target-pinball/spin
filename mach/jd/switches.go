@@ -25,7 +25,7 @@ const (
 	SwitchGlobePosition1          = "jd.SwitchGlobePosition1"
 	SwitchGlobePosition2          = "jd.SwitchGlobePosition2"
 	SwitchInnerLoop               = "jd.SwitchInnerLoop"
-	SwitchInnerRightReturn        = "jd.SwitchInnerRightReturn"
+	SwitchInnerRightReturnLane    = "jd.SwitchInnerRightReturnLane"
 	SwitchLeftCoinSlot            = "jd.SwitchLeftCoinSlot"
 	SwitchLeftFireButton          = "jd.SwitchLeftFireButton"
 	SwitchLeftFlipperButton       = "jd.SwitchLeftFlipperButton"
@@ -43,7 +43,7 @@ const (
 	SwitchNextServiceButton       = "jd.SwitchNextServiceButton"
 	SwitchOuterLeftLoop           = "jd.SwitchOuterLeftLoop"
 	SwitchOuterRightLoop          = "jd.SwitchOuterRightLoop"
-	SwitchOuterRightReturn        = "jd.SwitchOuterRightReturn"
+	SwitchOuterRightReturnLane    = "jd.SwitchOuterRightReturnLane"
 	SwitchPreviousServiceButton   = "jd.SwitchPreviousServiceButton"
 	SwitchRightCoinSlot           = "jd.SwitchRightCoinSlot"
 	SwitchRightFireButton         = "jd.SwitchRightFireButton"
@@ -96,7 +96,7 @@ func RegisterSwitches(eng *spin.Engine) {
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S61, ID: SwitchGlobePosition1})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S77, ID: SwitchGlobePosition2})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S35, ID: SwitchInnerLoop})
-	eng.Do(spin.RegisterSwitch{Addr: wpc.S34, ID: SwitchInnerRightReturn})
+	eng.Do(spin.RegisterSwitch{Addr: wpc.S34, ID: SwitchInnerRightReturnLane})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SD1, ID: SwitchLeftCoinSlot})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S11, ID: SwitchLeftFireButton})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SF4, ID: SwitchLeftFlipperButton})
@@ -113,7 +113,7 @@ func RegisterSwitches(eng *spin.Engine) {
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SD7, ID: SwitchNextServiceButton})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S33, ID: SwitchOuterLeftLoop})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S72, ID: SwitchOuterRightLoop, NC: true})
-	eng.Do(spin.RegisterSwitch{Addr: wpc.S43, ID: SwitchOuterRightReturn})
+	eng.Do(spin.RegisterSwitch{Addr: wpc.S43, ID: SwitchOuterRightReturnLane})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SD6, ID: SwitchPreviousServiceButton})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SD3, ID: SwitchRightCoinSlot})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S12, ID: SwitchRightFireButton})

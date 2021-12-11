@@ -100,7 +100,7 @@ func sniperScoreCountdownScript(e spin.Env) {
 
 	evt, done := e.WaitFor(
 		spin.Message{ID: MessageSniperTimeout},
-		spin.SwitchEvent{ID: jd.SwitchRightPopper},
+		spin.ShotEvent{ID: jd.ShotRightPopper},
 	)
 	cancel()
 	if done || evt == (spin.Message{ID: MessageSniperTimeout}) {
@@ -214,7 +214,7 @@ func sniperFallCountdownScript(e spin.Env) {
 
 	evt, done := e.WaitFor(
 		spin.Message{ID: MessageSniperTimeout},
-		spin.SwitchEvent{ID: jd.SwitchRightPopper},
+		spin.ShotEvent{ID: jd.ShotRightPopper},
 	)
 	cancel()
 	if done || evt == (spin.Message{ID: MessageSniperTimeout}) {

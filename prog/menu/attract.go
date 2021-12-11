@@ -16,6 +16,7 @@ const (
 var attractScripts = []spin.Script{
 	gameOverScript,
 	dropTargetPinballScript,
+	superPinballSystemScript,
 	freePlayScript,
 }
 
@@ -53,6 +54,26 @@ func dropTargetPinballFrame(e spin.Env) {
 
 func dropTargetPinballScript(e spin.Env) {
 	dropTargetPinballFrame(e)
+	if done := e.Sleep(4000 * time.Millisecond); done {
+		return
+	}
+	e.Post(spin.Message{ID: MessageAttractAdvance})
+}
+
+func superPinballSystemFrame(e spin.Env) {
+	r, g := e.Display("").Renderer()
+
+	r.Clear()
+	g.W = r.Width()
+	g.Y = 7
+	g.Font = builtin.FontPfRondaSevenBold8
+	r.Print(g, "SUPER")
+	g.Y = 18
+	r.Print(g, "PINBALL SYSTEM")
+}
+
+func superPinballSystemScript(e spin.Env) {
+	superPinballSystemFrame(e)
 	if done := e.Sleep(4000 * time.Millisecond); done {
 		return
 	}
