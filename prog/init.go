@@ -39,5 +39,5 @@ func scriptInit(e spin.Env) {
 		return
 	}
 
-	e.Do(spin.PlayScript{ID: jdx.ScriptDirector})
+	e.Do(spin.PlayScript{ID: jdx.ScriptGame})
 }

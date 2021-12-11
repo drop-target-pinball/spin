@@ -2,10 +2,14 @@ package jdx
 
 import (
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
 	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
-func directorScript(e spin.Env) {
+func gameScript(e spin.Env) {
+	for _, gi := range e.Config.GI {
+		e.Do(spin.DriverOn{ID: gi})
+	}
 	e.Do(spin.AddPlayer{})
 	e.Do(spin.AdvanceGame{})
 	e.Do(spin.PlayScript{ID: ScriptPlayerAnnounce})
@@ -16,7 +20,7 @@ func directorScript(e spin.Env) {
 	e.Do(spin.PlayScript{ID: ScriptLeftPopperShot})
 	e.Do(spin.PlayScript{ID: ScriptLeftShooterLaneShot})
 	e.Do(spin.PlayScript{ID: ScriptRightPopperShot})
-
+	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
 	e.Do(spin.FlippersOn{})
 }
 
