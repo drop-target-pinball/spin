@@ -5,6 +5,7 @@ import (
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 func useFireButtonFrame(e spin.Env, n int) {
@@ -25,7 +26,7 @@ func useFireButtonFrame(e spin.Env, n int) {
 	}
 
 	r.Clear()
-	g.Font = FontPfRondaSevenBold8
+	g.Font = builtin.FontPfRondaSevenBold8
 	g.W = r.Width()
 	g.Y = 7
 	r.Print(g, "USE")

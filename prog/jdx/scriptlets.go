@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 func modeIntroFrame(e spin.Env, blinkOn bool, text [3]string) {
@@ -13,11 +14,11 @@ func modeIntroFrame(e spin.Env, blinkOn bool, text [3]string) {
 	r.Clear()
 	g.Y = 2
 	g.W = r.Width()
-	g.Font = FontPfArmaFive8
+	g.Font = builtin.FontPfArmaFive8
 	r.Print(g, text[0])
 	if blinkOn {
 		g.Y = 12
-		g.Font = FontPfRondaSevenBold8
+		g.Font = builtin.FontPfRondaSevenBold8
 		r.Print(g, text[1])
 		g.Y = 22
 		r.Print(g, text[2])

@@ -5,6 +5,7 @@ import (
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 const (
@@ -33,10 +34,10 @@ func selectGameMenuFrame(e spin.Env) {
 	r.Clear()
 	g.W = r.Width()
 	g.Y = 7
-	g.Font = FontPfTempestaFiveExtendedBold8
+	g.Font = builtin.FontPfTempestaFiveExtendedBold8
 	r.Print(g, "GAME SELECT")
 	g.Y = 18
-	g.Font = FontPfTempestaFiveCompressedBold8
+	g.Font = builtin.FontPfTempestaFiveCompressedBold8
 	r.Print(g, games[game])
 
 	if selectBlinkOn {

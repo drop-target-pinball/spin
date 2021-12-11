@@ -13,6 +13,18 @@ const (
 	Font18x10      = "Font18x10"
 	Font18x11      = "Font18x11"
 	Font18x12      = "Font18x12"
+
+	FontPfArmaFive8                   = "FontPfArmaFive8"
+	FontPfRondaSeven8                 = "FontPfRondaSeven8"
+	FontPfRondaSevenBold8             = "FontPfRondaSevenBold8"
+	FontPfTempestaFive8               = "FontPfTempestaFive8"
+	FontPfTempestaFiveBold8           = "FontPfTempestaFiveBold8"
+	FontPfTempestaFiveCompressed8     = "FontPfTempestaFiveCompressed8"
+	FontPfTempestaFiveCompressedBold8 = "FontPfTempestaFiveCompressedBold8"
+	FontPfTempestaFiveCondensed8      = "FontPfTempestaFiveCondensed8"
+	FontPfTempestaFiveCondensedBold8  = "FontPfTempestaFiveCondensedBold8"
+	FontPfTempestaFiveExtended8       = "FontPfTempestaFiveExtended8"
+	FontPfTempestaFiveExtendedBold8   = "FontPfTempestaFiveExtendedBold8"
 )
 
 func RegisterFonts(eng *spin.Engine) {
@@ -55,5 +67,61 @@ func RegisterFonts(eng *spin.Engine) {
 	eng.Do(spin.RegisterFont{
 		ID:   Font18x12,
 		Path: "proc-shared/Font18x12.dmd",
+	})
+
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfArmaFive8,
+		Size: 8,
+		Path: "pf-fonts/pf_arma_five.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfRondaSeven8,
+		Size: 8,
+		Path: "pf-fonts/pf_ronda_seven.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfRondaSevenBold8,
+		Size: 8,
+		Path: "pf-fonts/pf_ronda_seven_bold.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfTempestaFive8,
+		Size: 8,
+		Path: "pf-fonts/pf_tempesta_five.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfTempestaFiveBold8,
+		Size: 8,
+		Path: "pf-fonts/pf_tempesta_five_bold.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfTempestaFiveCompressed8,
+		Size: 8,
+		Path: "pf-fonts/pf_tempesta_five_compressed.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfTempestaFiveCompressedBold8,
+		Size: 8,
+		Path: "pf-fonts/pf_tempesta_five_compressed_bold.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfTempestaFiveCondensed8,
+		Size: 8,
+		Path: "pf-fonts/pf_tempesta_five_condensed.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfTempestaFiveCondensedBold8,
+		Size: 8,
+		Path: "pf-fonts/pf_tempesta_five_condensed_bold.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfTempestaFiveExtended8,
+		Size: 8,
+		Path: "pf-fonts/pf_tempesta_five_extended.ttf",
+	})
+	eng.Do(spin.RegisterFont{
+		ID:   FontPfTempestaFiveExtendedBold8,
+		Size: 8,
+		Path: "pf-fonts/pf_tempesta_five_extended_bold.ttf",
 	})
 }

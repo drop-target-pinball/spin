@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 const (
@@ -25,7 +26,7 @@ func gameOverFrame(e spin.Env) {
 	g.Y = 2
 	g.W = r.Width()
 	g.H = r.Height()
-	g.Font = FontPfRondaSevenBold8
+	g.Font = builtin.FontPfRondaSevenBold8
 	r.Print(g, "GAME OVER")
 }
 
@@ -43,10 +44,10 @@ func dropTargetPinballFrame(e spin.Env) {
 	r.Clear()
 	g.W = r.Width()
 	g.Y = 7
-	g.Font = FontPfArmaFive8
+	g.Font = builtin.FontPfArmaFive8
 	r.Print(g, "DROP TARGET PINBALL")
 	g.Y = 18
-	g.Font = FontPfRondaSevenBold8
+	g.Font = builtin.FontPfRondaSevenBold8
 	r.Print(g, "PRESENTS")
 }
 
@@ -64,7 +65,7 @@ func freePlayFrame(e spin.Env, blinkOn bool) {
 	r.Clear()
 	g.W = r.Width()
 	g.Y = 7
-	g.Font = FontPfRondaSevenBold8
+	g.Font = builtin.FontPfRondaSevenBold8
 	if blinkOn {
 		r.Print(g, "PRESS START")
 	}

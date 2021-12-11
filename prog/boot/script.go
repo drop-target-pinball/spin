@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 // Scripts
@@ -18,7 +19,7 @@ const (
 
 func splashScreenFrame(e spin.Env) {
 	r, g := e.Display("").Renderer()
-	g.Font = FontPfTempestaFiveCompressedBold8
+	g.Font = builtin.FontPfTempestaFiveCompressedBold8
 	g.W = r.Width()
 	g.Y = 4
 	r.Print(g, "SUPER PINBALL SYSTEM")

@@ -21,7 +21,7 @@ func sniperScoreFrame(e spin.Env, blinkOn bool) {
 	r.Clear()
 	g.Y = 2
 	g.W = r.Width()
-	g.Font = FontPfArmaFive8
+	g.Font = builtin.FontPfArmaFive8
 	r.Print(g, "SNIPER")
 	g.Y = 12
 
@@ -147,7 +147,7 @@ func sniperFallFrame(e spin.Env, seconds int) {
 	r.Clear()
 	g.Y = 2
 	g.W = r.Width()
-	g.Font = FontPfArmaFive8
+	g.Font = builtin.FontPfArmaFive8
 	r.Print(g, "SNIPER")
 	g.Y = 12
 

@@ -143,7 +143,9 @@ func watchdog(watchdog chan struct{}) {
 		case <-watchdog:
 			// tickle
 		case <-time.After(1 * time.Second):
-			log.Panicf("deadlock detected")
+			Error("deadlock detected")
+			printStackTrace()
+			log.Panicf("stopping on deadlock")
 		}
 	}
 }
