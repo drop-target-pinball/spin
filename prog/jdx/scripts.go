@@ -5,12 +5,14 @@ import (
 )
 
 const (
+	ScriptBall                 = "jdx.ScriptBall"
 	ScriptGame                 = "jdx.ScriptGame"
 	ScriptLeftShooterLaneShot  = "jdx.ScriptLeftShooterLaneShot"
 	ScriptLeftPopperShot       = "jdx.ScriptLeftPopperShot"
 	ScriptPlayerAnnounce       = "jdx.ScriptPlayerAnnounce"
 	ScriptPlunge               = "jdx.ScriptPlunge"
 	ScriptRightPopperShot      = "jdx.ScriptRightPopperShot"
+	ScriptSling                = "jdx.ScriptSling"
 	ScriptSniperMode           = "jdx.ScriptSniperMode"
 	ScriptSniperScoreCountdown = "jdx.ScriptSniperScoreCountdown"
 	ScriptSniperSplatTimeout   = "jdx.ScriptSniperSplatTimeout"
@@ -19,6 +21,10 @@ const (
 )
 
 func RegisterScripts(eng *spin.Engine) {
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBall,
+		Script: ballScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptGame,
 		Script: gameScript,
@@ -42,6 +48,10 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptRightPopperShot,
 		Script: rightPopperShotScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSling,
+		Script: slingScript,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperTakedown,

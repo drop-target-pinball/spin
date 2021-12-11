@@ -28,3 +28,10 @@ type Flipper struct {
 	HoldCoilAddr  interface{}
 	_             struct{}
 }
+
+type AutoPulse struct {
+	ID         string
+	SwitchAddr interface{}
+	CoilAddr   interface{}
+	Time       int // milliseconds
+}

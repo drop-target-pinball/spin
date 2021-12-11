@@ -10,6 +10,14 @@ type AddPlayer struct {
 type AdvanceGame struct {
 }
 
+type AutoPulseOn struct {
+	ID string
+}
+
+type AutoPulseOff struct {
+	ID string
+}
+
 type AwardScore struct {
 	Val int
 }
@@ -71,6 +79,13 @@ type PlaySound struct {
 type PlaySpeech struct {
 	ID  string
 	Vol int
+}
+
+type RegisterAutoPulse struct {
+	ID         string
+	SwitchAddr interface{}
+	CoilAddr   interface{}
+	Time       int // millseconds
 }
 
 type RegisterCoil struct {
@@ -169,41 +184,44 @@ type StopSpeech struct {
 	Any bool
 }
 
-func (AddPlayer) action()       {}
-func (AdvanceGame) action()     {}
-func (AwardScore) action()      {}
-func (Debug) action()           {}
-func (DriverOn) action()        {}
-func (DriverOff) action()       {}
-func (DriverPulse) action()     {}
-func (DriverPWM) action()       {}
-func (FadeOutMusic) action()    {}
-func (FlippersOn) action()      {}
-func (FlippersOff) action()     {}
-func (MusicVolume) action()     {}
-func (PlayMusic) action()       {}
-func (PlayScript) action()      {}
-func (PlaySound) action()       {}
-func (PlaySpeech) action()      {}
-func (RegisterCoil) action()    {}
-func (RegisterDisplay) action() {}
-func (RegisterFlasher) action() {}
-func (RegisterFlipper) action() {}
-func (RegisterFont) action()    {}
-func (RegisterKey) action()     {}
-func (RegisterLamp) action()    {}
-func (RegisterMagnet) action()  {}
-func (RegisterMotor) action()   {}
-func (RegisterMusic) action()   {}
-func (RegisterScript) action()  {}
-func (RegisterSound) action()   {}
-func (RegisterSpeech) action()  {}
-func (RegisterSwitch) action()  {}
-func (SetScore) action()        {}
-func (StopAudio) action()       {}
-func (StopMusic) action()       {}
-func (StopScript) action()      {}
-func (StopSpeech) action()      {}
+func (AddPlayer) action()         {}
+func (AdvanceGame) action()       {}
+func (AutoPulseOn) action()       {}
+func (AutoPulseOff) action()      {}
+func (AwardScore) action()        {}
+func (Debug) action()             {}
+func (DriverOn) action()          {}
+func (DriverOff) action()         {}
+func (DriverPulse) action()       {}
+func (DriverPWM) action()         {}
+func (FadeOutMusic) action()      {}
+func (FlippersOn) action()        {}
+func (FlippersOff) action()       {}
+func (MusicVolume) action()       {}
+func (PlayMusic) action()         {}
+func (PlayScript) action()        {}
+func (PlaySound) action()         {}
+func (PlaySpeech) action()        {}
+func (RegisterAutoPulse) action() {}
+func (RegisterCoil) action()      {}
+func (RegisterDisplay) action()   {}
+func (RegisterFlasher) action()   {}
+func (RegisterFlipper) action()   {}
+func (RegisterFont) action()      {}
+func (RegisterKey) action()       {}
+func (RegisterLamp) action()      {}
+func (RegisterMagnet) action()    {}
+func (RegisterMotor) action()     {}
+func (RegisterMusic) action()     {}
+func (RegisterScript) action()    {}
+func (RegisterSound) action()     {}
+func (RegisterSpeech) action()    {}
+func (RegisterSwitch) action()    {}
+func (SetScore) action()          {}
+func (StopAudio) action()         {}
+func (StopMusic) action()         {}
+func (StopScript) action()        {}
+func (StopSpeech) action()        {}
 
 func registerActions(e *Engine) {
 	e.RegisterAction(AddPlayer{})

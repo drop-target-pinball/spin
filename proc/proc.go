@@ -23,6 +23,7 @@ type procSystem struct {
 	drivers      map[string]spin.Driver
 	switches     map[uint8]spin.Switch
 	flippers     map[string]spin.Flipper
+	autos        map[string]spin.AutoPulse
 	events       []pinproc.Event
 	source       spin.Display
 	dots         []uint8
@@ -43,6 +44,7 @@ func RegisterSystem(eng *spin.Engine, opts Options) {
 		drivers:  make(map[string]spin.Driver),
 		switches: make(map[uint8]spin.Switch),
 		flippers: make(map[string]spin.Flipper),
+		autos:    make(map[string]spin.AutoPulse),
 		events:   make([]pinproc.Event, pinproc.MaxEvents),
 		opts:     opts,
 	}
@@ -63,6 +65,8 @@ func RegisterSystem(eng *spin.Engine, opts Options) {
 
 func (s *procSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
+	case spin.AutoPulseOn:
+		s.autoPulseOn(act)
 	case spin.DriverOff:
 		s.driverOff(act)
 	case spin.DriverOn:
@@ -75,6 +79,8 @@ func (s *procSystem) HandleAction(action spin.Action) {
 		s.flippersOn(act)
 	case spin.FlippersOff:
 		s.flippersOff(act)
+	case spin.RegisterAutoPulse:
+		s.registerAutoPulse(act)
 	case spin.RegisterCoil:
 		s.registerCoil(act)
 	case spin.RegisterDisplay:
@@ -143,6 +149,32 @@ func (s *procSystem) Service() {
 	}
 	if err := s.proc.FlushWriteData(); err != nil {
 		log.Fatalf("unable to flush data: %v", err)
+	}
+}
+
+func (s *procSystem) autoPulseOn(act spin.AutoPulseOn) {
+	auto, ok := s.autos[act.ID]
+	if !ok {
+		spin.Warn("no such auto: %v", act.ID)
+		return
+	}
+	time := uint8(auto.Time)
+	if time == 0 {
+		time = uint8(s.opts.DefaultCoilPulseTime)
+	}
+
+	var pulseState pinproc.DriverState
+	s.proc.DriverGetState(auto.CoilAddr.(uint8), &pulseState)
+
+	pinproc.DriverStatePulse(&pulseState, time)
+
+	if err := s.proc.SwitchUpdateRule(
+		auto.SwitchAddr.(uint8),
+		pinproc.EventTypeSwitchClosedDebounced,
+		pinproc.SwitchRule{NotifyHost: true},
+		[]pinproc.DriverState{pulseState},
+		true); err != nil {
+		log.Fatal(err)
 	}
 }
 
@@ -284,6 +316,10 @@ func (s *procSystem) flippersOff(act spin.FlippersOff) {
 			log.Fatal(err)
 		}
 	}
+}
+
+func (s *procSystem) registerAutoPulse(act spin.RegisterAutoPulse) {
+	s.autos[act.ID] = spin.AutoPulse(act)
 }
 
 func (s *procSystem) registerCoil(act spin.RegisterCoil) {

@@ -6,6 +6,8 @@ import (
 )
 
 const (
+	AutoSlingLeft              = "jd.AutoSlingLeft"
+	AutoSlingRight             = "jd.AutoSlingRight"
 	CoilDiverter               = "jd.CoilDiverter"
 	CoilDropTargetReset        = "jd.CoilDropTargetReset"
 	CoilDropTargetTrip         = "jd.CoilDropTargetTrip"
@@ -57,7 +59,7 @@ func RegisterCoils(eng *spin.Engine) {
 	eng.Do(spin.RegisterCoil{Addr: wpc.FURM, ID: CoilFlipperUpperRightPower})
 }
 
-func RegisterFlippers(eng *spin.Engine) {
+func RegisterAuto(eng *spin.Engine) {
 	eng.Do(spin.RegisterFlipper{
 		ID:            FlipperLeft,
 		SwitchAddr:    wpc.SF4,
@@ -81,6 +83,17 @@ func RegisterFlippers(eng *spin.Engine) {
 		SwitchAddr:    wpc.SF6,
 		PowerCoilAddr: wpc.FURM,
 		HoldCoilAddr:  wpc.FURH,
+	})
+
+	eng.Do(spin.RegisterAutoPulse{
+		ID:         AutoSlingLeft,
+		SwitchAddr: wpc.S51,
+		CoilAddr:   wpc.C15,
+	})
+	eng.Do(spin.RegisterAutoPulse{
+		ID:         AutoSlingRight,
+		SwitchAddr: wpc.S52,
+		CoilAddr:   wpc.C16,
 	})
 }
 
