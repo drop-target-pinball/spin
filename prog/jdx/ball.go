@@ -15,6 +15,9 @@ func ballScript(e spin.Env) {
 	e.Do(spin.PlayScript{ID: ScriptLeftShooterLaneShot})
 	e.Do(spin.PlayScript{ID: ScriptRightPopperShot})
 	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
+
+	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
+	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
 }
 
 func slingScript(e spin.Env) {

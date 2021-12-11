@@ -169,16 +169,16 @@ func RegisterLamps(eng *spin.Engine) {
 }
 
 func RegisterFlashers(eng *spin.Engine) {
-	eng.Do(spin.RegisterLamp{Addr: wpc.C23, ID: FlasherBlackout})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C24, ID: FlasherCursedEarth})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C26, ID: FlasherGlobe})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C28, ID: FlasherInsert})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C19, ID: FlasherJudgeDeath})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C17, ID: FlasherJudgeFire})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C18, ID: FlasherJudgeFear})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C20, ID: FlasherJudgeMortis})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C21, ID: FlasherLeftPursuit})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C22, ID: FlasherRightPursuit})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C27, ID: FlasherRightRamp})
-	eng.Do(spin.RegisterLamp{Addr: wpc.C25, ID: FlasherSubwayExit})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C23, ID: FlasherBlackout})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C24, ID: FlasherCursedEarth})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C26, ID: FlasherGlobe})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C28, ID: FlasherInsert})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C19, ID: FlasherJudgeDeath})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C17, ID: FlasherJudgeFire})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C18, ID: FlasherJudgeFear})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C20, ID: FlasherJudgeMortis})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C21, ID: FlasherLeftPursuit})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C22, ID: FlasherRightPursuit})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C27, ID: FlasherRightRamp})
+	eng.Do(spin.RegisterFlasher{Addr: wpc.C25, ID: FlasherSubwayExit})
 }

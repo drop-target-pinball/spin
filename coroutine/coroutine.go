@@ -93,7 +93,10 @@ func New(parent context.Context, fn func(*Context)) {
 	}
 	go func() {
 		fn(context)
-		cr.yield <- waitCond{}
+		select {
+		case cr.yield <- waitCond{}:
+		default:
+		}
 		cr.cancel()
 	}()
 

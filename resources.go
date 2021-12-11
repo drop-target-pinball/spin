@@ -3,7 +3,8 @@ package spin
 import "log"
 
 type Resources struct {
-	Fonts map[string]struct{}
+	Fonts    map[string]struct{}
+	Switches map[string]*Switch
 }
 
 type resourceSystem struct {
@@ -13,7 +14,8 @@ type resourceSystem struct {
 func registerResourceSystem(eng *Engine) {
 	s := &resourceSystem{
 		resources: Resources{
-			Fonts: make(map[string]struct{}),
+			Fonts:    make(map[string]struct{}),
+			Switches: make(map[string]*Switch),
 		},
 	}
 	eng.RegisterVars("resources", &s.resources)

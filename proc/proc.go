@@ -21,10 +21,11 @@ type procSystem struct {
 	eng          *spin.Engine
 	proc         *pinproc.PROC
 	drivers      map[string]spin.Driver
-	switches     map[uint8]spin.Switch
+	switches     map[uint8]*spin.Switch
 	flippers     map[string]spin.Flipper
 	autos        map[string]spin.AutoPulse
 	events       []pinproc.Event
+	states       []pinproc.EventType
 	source       spin.Display
 	dots         []uint8
 	frameSize    int
@@ -42,13 +43,15 @@ func RegisterSystem(eng *spin.Engine, opts Options) {
 		eng:      eng,
 		proc:     pc,
 		drivers:  make(map[string]spin.Driver),
-		switches: make(map[uint8]spin.Switch),
+		switches: make(map[uint8]*spin.Switch),
 		flippers: make(map[string]spin.Flipper),
 		autos:    make(map[string]spin.AutoPulse),
 		events:   make([]pinproc.Event, pinproc.MaxEvents),
+		states:   make([]pinproc.EventType, pinproc.MaxSwitches),
 		opts:     opts,
 	}
 	eng.RegisterActionHandler(s)
+	eng.RegisterEventHandler(s)
 	eng.RegisterServer(s)
 
 	s.proc.Reset(pinproc.ResetFlagUpdateDevice)
@@ -61,6 +64,10 @@ func RegisterSystem(eng *spin.Engine, opts Options) {
 	s.subFrameSize = int(opts.DMDConfig.NumColumns) * int(opts.DMDConfig.NumRows) / 8
 	s.frameSize = s.subFrameSize * int(opts.DMDConfig.NumSubFrames)
 	s.dots = make([]uint8, s.frameSize)
+
+	if err := s.proc.GetSwitchStates(s.states); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (s *procSystem) HandleAction(action spin.Action) {
@@ -97,6 +104,13 @@ func (s *procSystem) HandleAction(action spin.Action) {
 		s.registerMotor(act)
 	case spin.RegisterSwitch:
 		s.registerSwitch(act)
+	}
+}
+
+func (s *procSystem) HandleEvent(event spin.Event) {
+	switch evt := event.(type) {
+	case spin.SwitchEvent:
+		s.handleSwitchEvent(evt)
 	}
 }
 
@@ -385,12 +399,20 @@ func (s *procSystem) registerMotor(act spin.RegisterMotor) {
 }
 
 func (s *procSystem) registerSwitch(act spin.RegisterSwitch) {
+	rv := spin.ResourceVars(s.eng)
 	sw := spin.Switch{
 		ID: act.ID,
 		NC: act.NC,
 	}
 	addr := act.Addr.(uint8)
-	s.switches[addr] = sw
+	initial := s.states[addr] == pinproc.EventTypeSwitchClosedDebounced
+	if act.NC {
+		initial = !initial
+	}
+	sw.Active = initial
+
+	s.switches[addr] = &sw
+	rv.Switches[act.ID] = &sw
 
 	rule := pinproc.SwitchRule{NotifyHost: true}
 	if err := s.proc.SwitchUpdateRule(addr, pinproc.EventTypeSwitchClosedDebounced, rule, nil, false); err != nil {
@@ -399,4 +421,14 @@ func (s *procSystem) registerSwitch(act spin.RegisterSwitch) {
 	if err := s.proc.SwitchUpdateRule(addr, pinproc.EventTypeSwitchOpenDebounced, rule, nil, false); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func (s *procSystem) handleSwitchEvent(evt spin.SwitchEvent) {
+	rv := spin.ResourceVars(s.eng)
+	sw, ok := rv.Switches[evt.ID]
+	if !ok {
+		spin.Warn("no such switch: %v", evt.ID)
+		return
+	}
+	sw.Active = !evt.Released
 }

@@ -128,7 +128,7 @@ func (s *audioSystem) playMusic(a spin.PlayMusic) {
 		spin.Warn("%v not found", a.ID)
 		return
 	}
-	m.Play(1)
+	m.Play(-1)
 	s.musicPlaying = a.ID
 	if a.Vol == 0 {
 		mix.VolumeMusic(mix.MAX_VOLUME)

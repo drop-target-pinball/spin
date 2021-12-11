@@ -17,8 +17,9 @@ type Driver struct {
 }
 
 type Switch struct {
-	ID string
-	NC bool
+	ID     string
+	NC     bool
+	Active bool
 }
 
 type Flipper struct {
