@@ -224,8 +224,7 @@ func sniperFallCountdownScript(e spin.Env) {
 	e.Post(spin.Message{ID: MessageSniperAdvance})
 }
 
-func sniperSplatTimeoutScript(e spin.Env) {
-	e.Do(spin.StopMusic{ID: MusicMode1})
+func sniperSplatScript(e spin.Env) {
 	e.Do(spin.PlayMusic{ID: MusicMain})
 	e.Do(spin.PlaySound{ID: SoundSniperSplat})
 	if done := e.Sleep(1000 * time.Millisecond); done {
@@ -243,7 +242,11 @@ func sniperSplatTimeoutScript(e spin.Env) {
 func sniperModeScript(e spin.Env) {
 	game := spin.GameVars(e)
 	game.HideScore = true
-	defer func() { game.HideScore = false }()
+	e.Do(spin.StopScript{ID: ScriptDefaultRightPopper})
+	defer func() {
+		game.HideScore = false
+		e.Do(spin.PlayScript{ID: ScriptDefaultRightPopper})
+	}()
 
 	e.Do(spin.StopAudio{})
 	e.Do(spin.PlayMusic{ID: MusicMode1})
@@ -253,7 +256,7 @@ func sniperModeScript(e spin.Env) {
 		spin.Message{ID: MessageSniperAdvance},
 	)
 	if done || evt == (spin.Message{ID: MessageSniperTimeout}) {
-		e.Do(spin.StopMusic{ID: MusicMode1})
+		e.Do(spin.PlayMusic{ID: MusicMain})
 		return
 	}
 
@@ -264,21 +267,26 @@ func sniperModeScript(e spin.Env) {
 	}
 
 	e.Do(spin.PlayScript{ID: ScriptSniperFallCountdown})
+	if done := e.Sleep(1750 * time.Millisecond); done {
+		return
+	}
+	e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
 	evt, done = e.WaitFor(
 		spin.Message{ID: MessageSniperTimeout},
 		spin.Message{ID: MessageSniperAdvance},
 	)
-	if done || evt == (spin.Message{ID: MessageSniperTimeout}) {
-		e.Do(spin.StopMusic{ID: MusicMode1})
+	e.Do(spin.StopMusic{ID: MusicMode1})
+	if done {
 		return
 	}
 
 	success := evt == spin.Message{ID: MessageSniperAdvance}
-	e.Do(spin.PlayScript{ID: ScriptSniperSplatTimeout})
+	e.Do(spin.PlayScript{ID: ScriptSniperSplat})
 	if _, done := e.WaitFor(spin.Message{ID: MessageSniperAdvance}); done || !success {
 		return
 	}
 
 	e.Do(spin.PlayScript{ID: ScriptSniperTakedown})
 	e.WaitFor(spin.Message{ID: MessageSniperAdvance})
+	e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
 }

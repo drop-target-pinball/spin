@@ -9,11 +9,10 @@ import (
 )
 
 func leftShooterLaneShotScript(e spin.Env) {
-	ctx, cancel := e.Derive()
-	defer cancel()
-	e.NewCoroutine(ctx, func(e spin.Env) {
-		builtin.ShotTrapScript(e, jd.SwitchLeftShooterLane, jd.ShotLeftShooterLane, 250*time.Millisecond)
-	})
+	builtin.ShotTrapScript(e, jd.SwitchLeftShooterLane, jd.ShotLeftShooterLane, 250*time.Millisecond)
+}
+
+func defaultLeftShooterLaneScript(e spin.Env) {
 	for {
 		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotLeftShooterLane}); done {
 			return
@@ -27,11 +26,10 @@ func leftShooterLaneShotScript(e spin.Env) {
 }
 
 func leftPopperShotScript(e spin.Env) {
-	ctx, cancel := e.Derive()
-	defer cancel()
-	e.NewCoroutine(ctx, func(e spin.Env) {
-		builtin.ShotTrapScript(e, jd.SwitchLeftPopper, jd.ShotLeftPopper, 250*time.Millisecond)
-	})
+	builtin.ShotTrapScript(e, jd.SwitchLeftPopper, jd.ShotLeftPopper, 250*time.Millisecond)
+}
+
+func defaultLeftPopperScript(e spin.Env) {
 	for {
 		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotLeftPopper}); done {
 			return
@@ -47,13 +45,12 @@ func leftPopperShotScript(e spin.Env) {
 }
 
 func rightPopperShotScript(e spin.Env) {
-	ctx, cancel := e.Derive()
-	e.NewCoroutine(ctx, func(e spin.Env) {
-		builtin.ShotTrapScript(e, jd.SwitchRightPopper, jd.ShotRightPopper, 250*time.Millisecond)
-	})
+	builtin.ShotTrapScript(e, jd.SwitchRightPopper, jd.ShotRightPopper, 250*time.Millisecond)
+}
+
+func defaultRightPopperScript(e spin.Env) {
 	for {
 		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper}); done {
-			cancel()
 			return
 		}
 		e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})

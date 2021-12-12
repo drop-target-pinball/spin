@@ -13,19 +13,47 @@ func ballScript(e spin.Env) {
 	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingRight})
 
 	e.Do(spin.PlayScript{ID: ScriptSling})
+
 	e.Do(spin.PlayScript{ID: ScriptLeftPopperShot})
 	e.Do(spin.PlayScript{ID: ScriptLeftShooterLaneShot})
+	e.Do(spin.PlayScript{ID: ScriptRightPopperShot})
+
+	e.Do(spin.PlayScript{ID: ScriptDefaultLeftPopper})
+	e.Do(spin.PlayScript{ID: ScriptDefaultLeftShooterLane})
+	e.Do(spin.PlayScript{ID: ScriptDefaultRightPopper})
+
 	e.Do(spin.PlayScript{ID: ScriptOutlane})
 	e.Do(spin.PlayScript{ID: ScriptReturnLane})
-	e.Do(spin.PlayScript{ID: ScriptRightPopperShot})
 	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
-
 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
+
+	e.Do(spin.PlayScript{ID: ScriptDebugExtraBall})
 
 	if done := e.Sleep(1000 * time.Millisecond); done {
 		return
 	}
 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
+
+	for {
+		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftFireButton}); done {
+			return
+		}
+		e.Do(spin.PlayScript{ID: ScriptSniperMode})
+	}
+}
+
+func debugExtraBallScript(e spin.Env) {
+	e.Do(spin.DriverOn{ID: jd.LampBuyInButton})
+	for {
+		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchBuyInButton}); done {
+			return
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilTrough})
+		if done := e.Sleep(1 * time.Second); done {
+			return
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
+	}
 }
 
 func outlaneScript(e spin.Env) {

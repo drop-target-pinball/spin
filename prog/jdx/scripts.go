@@ -5,27 +5,47 @@ import (
 )
 
 const (
-	ScriptBall                 = "jdx.ScriptBall"
-	ScriptGame                 = "jdx.ScriptGame"
-	ScriptLeftShooterLaneShot  = "jdx.ScriptLeftShooterLaneShot"
-	ScriptLeftPopperShot       = "jdx.ScriptLeftPopperShot"
-	ScriptOutlane              = "jdx.ScriptOutlane"
-	ScriptPlayerAnnounce       = "jdx.ScriptPlayerAnnounce"
-	ScriptPlunge               = "jdx.ScriptPlunge"
-	ScriptReturnLane           = "jdx.ScriptReturnLane"
-	ScriptRightPopperShot      = "jdx.ScriptRightPopperShot"
-	ScriptSling                = "jdx.ScriptSling"
-	ScriptSniperMode           = "jdx.ScriptSniperMode"
-	ScriptSniperScoreCountdown = "jdx.ScriptSniperScoreCountdown"
-	ScriptSniperSplatTimeout   = "jdx.ScriptSniperSplatTimeout"
-	ScriptSniperTakedown       = "jdx.ScriptSniperTakedown"
-	ScriptSniperFallCountdown  = "jdx.ScriptSniperFallCountdown"
+	ScriptBall                   = "jdx.ScriptBall"
+	ScriptDefaultLeftShooterLane = "jdx.ScriptDefaultLeftShooterLane"
+	ScriptDefaultLeftPopper      = "jdx.ScriptDefaultLeftPopper"
+	ScriptDefaultRightPopper     = "jdx.ScriptDefaultRightPopper"
+	ScriptDebugExtraBall         = "jdx.ScriptDebugExtraBall"
+	ScriptGame                   = "jdx.ScriptGame"
+	ScriptLeftShooterLaneShot    = "jdx.ScriptLeftShooterLaneShot"
+	ScriptLeftPopperShot         = "jdx.ScriptLeftPopperShot"
+	ScriptOutlane                = "jdx.ScriptOutlane"
+	ScriptPlayerAnnounce         = "jdx.ScriptPlayerAnnounce"
+	ScriptPlunge                 = "jdx.ScriptPlunge"
+	ScriptReturnLane             = "jdx.ScriptReturnLane"
+	ScriptRightPopperShot        = "jdx.ScriptRightPopperShot"
+	ScriptSling                  = "jdx.ScriptSling"
+	ScriptSniperMode             = "jdx.ScriptSniperMode"
+	ScriptSniperScoreCountdown   = "jdx.ScriptSniperScoreCountdown"
+	ScriptSniperSplat            = "jdx.ScriptSniperSplat"
+	ScriptSniperTakedown         = "jdx.ScriptSniperTakedown"
+	ScriptSniperFallCountdown    = "jdx.ScriptSniperFallCountdown"
 )
 
 func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBall,
 		Script: ballScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptDefaultLeftShooterLane,
+		Script: defaultLeftShooterLaneScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptDefaultLeftPopper,
+		Script: defaultLeftPopperScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptDefaultRightPopper,
+		Script: defaultRightPopperScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptDebugExtraBall,
+		Script: debugExtraBallScript,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptGame,
@@ -72,8 +92,8 @@ func RegisterScripts(eng *spin.Engine) {
 		Script: sniperScoreCountdownScript,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptSniperSplatTimeout,
-		Script: sniperSplatTimeoutScript,
+		ID:     ScriptSniperSplat,
+		Script: sniperSplatScript,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperFallCountdown,
