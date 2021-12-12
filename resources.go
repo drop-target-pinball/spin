@@ -1,24 +1,18 @@
 package spin
 
-import "log"
-
 type Resources struct {
 	Fonts    map[string]struct{}
 	Switches map[string]*Switch
 }
 
 type resourceSystem struct {
-	resources Resources
+	resources *Resources
 }
 
 func registerResourceSystem(eng *Engine) {
 	s := &resourceSystem{
-		resources: Resources{
-			Fonts:    make(map[string]struct{}),
-			Switches: make(map[string]*Switch),
-		},
+		resources: ResourceVars(eng),
 	}
-	eng.RegisterVars("resources", &s.resources)
 	eng.RegisterActionHandler(s)
 }
 
@@ -31,8 +25,15 @@ func (s *resourceSystem) HandleAction(action Action) {
 
 func ResourceVars(store Store) *Resources {
 	v, ok := store.Vars("resources")
-	if !ok {
-		log.Panicf("resources vars not defined")
+	var vars *Resources
+	if ok {
+		vars = v.(*Resources)
+	} else {
+		vars = &Resources{
+			Fonts:    make(map[string]struct{}),
+			Switches: make(map[string]*Switch),
+		}
+		store.RegisterVars("resources", vars)
 	}
-	return v.(*Resources)
+	return vars
 }

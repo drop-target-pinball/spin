@@ -3,9 +3,14 @@ package spin
 import (
 	"context"
 	"log"
+	"sort"
 	"time"
 
 	"github.com/drop-target-pinball/spin/coroutine"
+)
+
+const (
+	DebugScripts = "Scripts"
 )
 
 const (
@@ -96,6 +101,8 @@ func registerScriptSystem(eng *Engine) {
 
 func (s *scriptSystem) HandleAction(action Action) {
 	switch act := action.(type) {
+	case Debug:
+		s.debug(act)
 	case RegisterDisplay:
 		s.registerDisplay(act)
 	case RegisterScript:
@@ -107,12 +114,32 @@ func (s *scriptSystem) HandleAction(action Action) {
 	}
 }
 
-func (s *scriptSystem) HandleEvent(evt Event) {
-	coroutine.Post(evt)
+func (s *scriptSystem) HandleEvent(event Event) {
+	coroutine.Post(event)
 }
 
 func (s *scriptSystem) Service() {
 	coroutine.Service()
+}
+
+func (s *scriptSystem) debug(evt Debug) {
+	switch evt.ID {
+	case DebugScripts:
+		s.debugScripts()
+	}
+}
+
+func (s *scriptSystem) debugScripts() {
+	running := make([]string, 0)
+	for name, fn := range s.running {
+		if fn != nil {
+			running = append(running, name)
+		}
+	}
+	sort.Strings(running)
+	for _, name := range running {
+		Log(name)
+	}
 }
 
 func (s *scriptSystem) registerDisplay(act RegisterDisplay) {

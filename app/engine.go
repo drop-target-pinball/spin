@@ -46,6 +46,8 @@ func NewEngine(appOptions Options, spinOptions spin.Options) *spin.Engine {
 			DefaultFlasherPulseTime: 20, // milliseconds
 		}
 		proc.RegisterSystem(eng, opts)
+	} else {
+		proc.RegisterNullSystem(eng)
 	}
 	sdl.RegisterDisplaySystem(eng, spin.DisplayOptions{Width: 128, Height: 32})
 	sdl.RegisterInputSystem(eng)

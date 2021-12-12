@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	DebugPrintStackTrace = "PrintStackTrace"
+	DebugStackTrace = "StackTrace"
 )
 
 type loggingSystem struct {
@@ -38,10 +38,8 @@ func (s *loggingSystem) HandleEvent(evt Event) {
 
 func (s *loggingSystem) debug(act Debug) {
 	switch act.ID {
-	case DebugPrintStackTrace:
-		printStackTrace()
-	default:
-		Warn("unknown debug action: %v", act.ID)
+	case DebugStackTrace:
+		debugStackTrace()
 	}
 }
 
@@ -65,7 +63,7 @@ func Log(format string, a ...interface{}) {
 	log.Printf(format, a...)
 }
 
-func printStackTrace() {
+func debugStackTrace() {
 	profile := pprof.Lookup("goroutine")
 	profile.WriteTo(os.Stdout, 1)
 }
