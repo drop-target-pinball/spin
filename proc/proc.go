@@ -121,12 +121,15 @@ func (s *procSystem) Service() {
 			spin.Warn("no such switch: %v", e.Value)
 			continue
 		}
-		released := e.EventType == pinproc.EventTypeSwitchOpenDebounced
+		active := e.EventType == pinproc.EventTypeSwitchClosedDebounced
 		if sw.NC {
-			released = !released
+			active = !active
 		}
-		sw.Active = !released
-		s.eng.Post(spin.SwitchEvent{ID: sw.ID, Released: released})
+		changed := sw.Active != active
+		if changed {
+			sw.Active = active
+			s.eng.Post(spin.SwitchEvent{ID: sw.ID, Released: !active})
+		}
 	}
 	if s.source != nil {
 		for i := 0; i < len(s.dots); i++ {
