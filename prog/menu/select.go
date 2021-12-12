@@ -21,8 +21,8 @@ var games = []string{
 	"DREDD REMIX",
 	"MEGAMAN 3",
 	"DR MARIO",
-	"HIGH SPEED 3",
 	"PINGOLF",
+	"PRACTICE",
 }
 
 var game int
