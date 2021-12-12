@@ -26,8 +26,9 @@ I would like to do the following:
 
 A work in progress. Judge Dredd Remix is first.
 
-v3-alpha was for putting in the P-ROC and giving the code a first test drive.
-The next version will be to get a playable ball that doesn't get stuck anywhere.
+v4-alpha was for getting a playable ball that doesn't get stuck anywhere.
+The next version will be to implement cancellation contexts and a full
+game sequence.
 
 ## License
 
