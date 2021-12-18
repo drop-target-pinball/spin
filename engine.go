@@ -31,13 +31,15 @@ type Engine struct {
 	Options        Options
 	Actions        map[string]Action
 	Events         map[string]Event
-	actionQueue    []Action
-	eventQueue     []Event
+	queue          []interface{}
 	actionHandlers []ActionHandler
 	eventHandlers  []EventHandler
 	servers        []Server
 	vars           map[string]interface{}
 	watchdog       chan struct{}
+	//actionQueue    []Action
+	//eventQueue     []Event
+
 }
 
 func NewEngine(config Config, options Options) *Engine {
@@ -46,13 +48,14 @@ func NewEngine(config Config, options Options) *Engine {
 		Options:        options,
 		Actions:        make(map[string]Action),
 		Events:         make(map[string]Event),
-		actionQueue:    make([]Action, 0),
-		eventQueue:     make([]Event, 0),
+		queue:          make([]interface{}, 0),
 		actionHandlers: make([]ActionHandler, 0),
 		eventHandlers:  make([]EventHandler, 0),
 		servers:        make([]Server, 0),
 		vars:           make(map[string]interface{}),
 		watchdog:       make(chan struct{}),
+		// actionQueue:    make([]Action, 0),
+		// eventQueue:     make([]Event, 0),
 	}
 	registerResourceSystem(eng)
 	registerActions(eng)
@@ -99,11 +102,11 @@ func (e *Engine) RegisterVars(name string, vars interface{}) {
 }
 
 func (e *Engine) Do(act Action) {
-	e.actionQueue = append(e.actionQueue, act)
+	e.queue = append(e.queue, act)
 }
 
 func (e *Engine) Post(evt Event) {
-	e.eventQueue = append(e.eventQueue, evt)
+	e.queue = append(e.queue, evt)
 }
 
 func (e *Engine) Vars(name string) (interface{}, bool) {
@@ -117,18 +120,18 @@ func (e *Engine) Run() {
 	for {
 		e.watchdog <- struct{}{}
 		<-ticker.C
-		for len(e.actionQueue) > 0 {
-			var act Action
-			act, e.actionQueue = e.actionQueue[0], e.actionQueue[1:]
-			for _, h := range e.actionHandlers {
-				h.HandleAction(act)
-			}
-		}
-		for len(e.eventQueue) > 0 {
-			var evt Event
-			evt, e.eventQueue = e.eventQueue[0], e.eventQueue[1:]
-			for _, h := range e.eventHandlers {
-				h.HandleEvent(evt)
+		for len(e.queue) > 0 {
+			var item interface{}
+			item, e.queue = e.queue[0], e.queue[1:]
+			switch i := item.(type) {
+			case Action:
+				for _, h := range e.actionHandlers {
+					h.HandleAction(i)
+				}
+			case Event:
+				for _, h := range e.eventHandlers {
+					h.HandleEvent(i)
+				}
 			}
 		}
 		for _, s := range e.servers {

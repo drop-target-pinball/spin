@@ -9,6 +9,7 @@ import (
 )
 
 func ballScript(e spin.Env) {
+	e.Do(spin.PlayScript{ID: builtin.ScriptBallTracker})
 	e.Do(spin.FlippersOn{})
 	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingLeft})
 	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingRight})
@@ -19,27 +20,37 @@ func ballScript(e spin.Env) {
 	e.Do(spin.PlayScript{ID: ScriptLeftShooterLaneShot})
 	e.Do(spin.PlayScript{ID: ScriptRightPopperShot})
 
-	e.Do(spin.PlayScript{ID: ScriptDefaultLeftPopper})
-	e.Do(spin.PlayScript{ID: ScriptDefaultLeftShooterLane})
-	e.Do(spin.PlayScript{ID: ScriptDefaultRightPopper})
-
 	e.Do(spin.PlayScript{ID: ScriptOutlane})
 	e.Do(spin.PlayScript{ID: ScriptReturnLane})
 	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
 
 	e.Do(spin.PlayScript{ID: ScriptDebugExtraBall})
-
-	if done := e.Sleep(1000 * time.Millisecond); done {
-		return
-	}
 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
 
+	ctx, cancel := e.Derive()
+	defer cancel()
+	e.NewCoroutine(ctx, modeScript)
+
+	_, done := e.WaitFor(spin.BallDrainEvent{})
+	if done {
+		return
+	}
+	e.Do(spin.AdvanceGame{})
+}
+
+func modeScript(e spin.Env) {
+	e.Do(spin.PlayScript{ID: ScriptPlungeMode})
+	if _, done := e.WaitFor(spin.ModeFinishedEvent{ID: ScriptPlungeMode}); done {
+		return
+	}
+	e.Do(spin.StopScope{ID: spin.ScopeMode})
+	e.Do(spin.PlayScript{ID: ScriptBasicMode})
+
 	for {
-		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftFireButton}); done {
+		if _, done := e.WaitFor(spin.Done{}); done {
 			return
 		}
-		e.Do(spin.PlayScript{ID: ScriptSniperMode})
 	}
 }
 
@@ -101,51 +112,10 @@ func leftShooterLaneShotScript(e spin.Env) {
 	builtin.ShotTrapScript(e, jd.SwitchLeftShooterLane, jd.ShotLeftShooterLane, 250*time.Millisecond)
 }
 
-func defaultLeftShooterLaneScript(e spin.Env) {
-	for {
-		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotLeftShooterLane}); done {
-			return
-		}
-		e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
-		if done := e.Sleep(1 * time.Second); done {
-			return
-		}
-		e.Do(spin.DriverPulse{ID: jd.CoilLeftShooterLane})
-	}
-}
-
 func leftPopperShotScript(e spin.Env) {
 	builtin.ShotTrapScript(e, jd.SwitchLeftPopper, jd.ShotLeftPopper, 250*time.Millisecond)
 }
 
-func defaultLeftPopperScript(e spin.Env) {
-	for {
-		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotLeftPopper}); done {
-			return
-		}
-		for i := 0; i < 3; i++ {
-			e.Do(spin.DriverPulse{ID: jd.FlasherSubwayExit})
-			if done := e.Sleep(250 * time.Millisecond); done {
-				return
-			}
-		}
-		e.Do(spin.DriverPulse{ID: jd.CoilLeftPopper})
-	}
-}
-
 func rightPopperShotScript(e spin.Env) {
 	builtin.ShotTrapScript(e, jd.SwitchRightPopper, jd.ShotRightPopper, 250*time.Millisecond)
-}
-
-func defaultRightPopperScript(e spin.Env) {
-	vars := ProgVars(e)
-	for {
-		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper}); done {
-			return
-		}
-		if vars.ManualRightPopper {
-			continue
-		}
-		e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
-	}
 }

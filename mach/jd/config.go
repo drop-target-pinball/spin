@@ -10,8 +10,9 @@ var Config = spin.Config{
 	SwitchPreviousServiceButton: SwitchPreviousServiceButton,
 	SwitchRightFlipperButton:    SwitchRightFlipperButton,
 	SwitchStartButton:           SwitchStartButton,
-
-	LampStartButton: LampStartButton,
+	SwitchDrain:                 SwitchTrough6,
+	SwitchWillDrain:             []string{SwitchLeftOutlane, SwitchRightOutlane},
+	LampStartButton:             LampStartButton,
 
 	GI: []string{
 		GI1,

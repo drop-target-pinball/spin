@@ -70,6 +70,7 @@ func useFireButtonScript(e spin.Env) {
 }
 
 func plungeScript(e spin.Env) {
+	e.Do(spin.PlayScript{ID: builtin.ScriptScore})
 	e.Do(spin.PlayMusic{ID: MusicPlungeLoop})
 	ctx, cancel := e.Derive()
 	e.NewCoroutine(ctx, useFireButtonScript)
@@ -85,4 +86,5 @@ func plungeScript(e spin.Env) {
 	e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
 	e.Do(spin.PlayMusic{ID: MusicMain})
 	e.Do(spin.PlaySound{ID: SoundMotorcycleStart})
+	e.Post(spin.ModeFinishedEvent{ID: ScriptPlungeMode})
 }

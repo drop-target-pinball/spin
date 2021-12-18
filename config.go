@@ -8,6 +8,8 @@ type Config struct {
 	SwitchPreviousServiceButton string
 	SwitchRightFlipperButton    string
 	SwitchStartButton           string
+	SwitchDrain                 string
+	SwitchWillDrain             []string
 
 	LampStartButton string
 

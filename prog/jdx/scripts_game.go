@@ -1,6 +1,8 @@
 package jdx
 
 import (
+	"time"
+
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/prog/builtin"
 )
@@ -10,13 +12,29 @@ func gameScript(e spin.Env) {
 		e.Do(spin.DriverOn{ID: gi})
 	}
 	e.Do(spin.AddPlayer{})
-	e.Do(spin.AdvanceGame{})
 	e.Do(spin.PlayScript{ID: ScriptPlayerAnnounce})
 	e.Do(spin.PlayScript{ID: builtin.ScriptGameStartButton})
-	e.Do(spin.PlayScript{ID: builtin.ScriptScore})
-	e.Do(spin.PlayScript{ID: ScriptPlunge})
+	e.Do(spin.PlayScript{ID: ScriptPlungeMode})
 
-	e.Do(spin.PlayScript{ID: ScriptBall})
+	for {
+		e.Do(spin.AdvanceGame{})
+		evt, done := e.WaitFor(spin.StartOfBallEvent{}, spin.EndOfGameEvent{})
+		if done {
+			return
+		}
+		if evt == (spin.EndOfGameEvent{}) {
+			break
+		}
+		e.Do(spin.PlayScript{ID: ScriptBall})
+		if _, done := e.WaitFor(spin.EndOfBallEvent{}); done {
+			return
+		}
+		e.Do(spin.StopScope{ID: spin.ScopeBall})
+		if done := e.Sleep(1 * time.Second); done {
+			return
+		}
+	}
+
 }
 
 var playerSpeech = map[int]string{

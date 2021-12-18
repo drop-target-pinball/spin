@@ -28,6 +28,14 @@ func RegisterKeys(eng *spin.Engine) {
 		EventDown: spin.SwitchEvent{ID: SwitchStartButton},
 	})
 	eng.Do(spin.RegisterKey{
+		Key:       "1",
+		EventDown: spin.SwitchEvent{ID: SwitchTrough6},
+	})
+	eng.Do(spin.RegisterKey{
+		Key:       "2",
+		EventDown: spin.SwitchEvent{ID: SwitchLeftOutlane},
+	})
+	eng.Do(spin.RegisterKey{
 		Key:       "7",
 		EventDown: spin.SwitchEvent{ID: SwitchExitServiceButton},
 	})

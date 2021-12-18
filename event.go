@@ -6,13 +6,25 @@ type Event interface {
 	coroutine.Selector
 }
 
+type BallDrainEvent struct{}
+
+func (e BallDrainEvent) Key() interface{} {
+	return "BallDrainEvent"
+}
+
+type BallWillDrainEvent struct{}
+
+func (e BallWillDrainEvent) Key() interface{} {
+	return "BallWillDrainEvent"
+}
+
 type EndOfBallEvent struct {
 	Player int
 	Ball   int
 }
 
 func (e EndOfBallEvent) Key() interface{} {
-	return e
+	return "EndOfBallEvent"
 }
 
 type EndOfGameEvent struct{}
@@ -32,6 +44,14 @@ type Message struct {
 }
 
 func (e Message) Key() interface{} {
+	return e.ID
+}
+
+type ModeFinishedEvent struct {
+	ID string
+}
+
+func (e ModeFinishedEvent) Key() interface{} {
 	return e.ID
 }
 
@@ -58,7 +78,7 @@ type StartOfBallEvent struct {
 }
 
 func (e StartOfBallEvent) Key() interface{} {
-	return e
+	return "StartOfBallEvent"
 }
 
 type SwitchEvent struct {
@@ -74,6 +94,12 @@ func (e SwitchEvent) Key() interface{} {
 		e.ID,
 		e.Released,
 	}
+}
+
+type Done struct{}
+
+func (e Done) Key() interface{} {
+	return "Done"
 }
 
 func registerEvents(e *Engine) {

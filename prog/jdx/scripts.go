@@ -1,11 +1,15 @@
 package jdx
 
 import (
+	"time"
+
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
 const (
 	ScriptBall                   = "jdx.ScriptBall"
+	ScriptBasicMode              = "jdx.ScriptBasicMode"
 	ScriptDefaultLeftShooterLane = "jdx.ScriptDefaultLeftShooterLane"
 	ScriptDefaultLeftPopper      = "jdx.ScriptDefaultLeftPopper"
 	ScriptDefaultRightPopper     = "jdx.ScriptDefaultRightPopper"
@@ -15,7 +19,7 @@ const (
 	ScriptLeftPopperShot         = "jdx.ScriptLeftPopperShot"
 	ScriptOutlane                = "jdx.ScriptOutlane"
 	ScriptPlayerAnnounce         = "jdx.ScriptPlayerAnnounce"
-	ScriptPlunge                 = "jdx.ScriptPlunge"
+	ScriptPlungeMode             = "jdx.ScriptPlungeMode"
 	ScriptReturnLane             = "jdx.ScriptReturnLane"
 	ScriptRightPopperShot        = "jdx.ScriptRightPopperShot"
 	ScriptSling                  = "jdx.ScriptSling"
@@ -26,10 +30,56 @@ const (
 	ScriptSniperFallCountdown    = "jdx.ScriptSniperFallCountdown"
 )
 
+func defaultLeftShooterLaneScript(e spin.Env) {
+	for {
+		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotLeftShooterLane}); done {
+			return
+		}
+		e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
+		if done := e.Sleep(1 * time.Second); done {
+			return
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilLeftShooterLane})
+	}
+}
+
+func defaultLeftPopperScript(e spin.Env) {
+	for {
+		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotLeftPopper}); done {
+			return
+		}
+		for i := 0; i < 3; i++ {
+			e.Do(spin.DriverPulse{ID: jd.FlasherSubwayExit})
+			if done := e.Sleep(250 * time.Millisecond); done {
+				return
+			}
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilLeftPopper})
+	}
+}
+
+func defaultRightPopperScript(e spin.Env) {
+	vars := ProgVars(e)
+	for {
+		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper}); done {
+			return
+		}
+		if vars.ManualRightPopper {
+			continue
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
+	}
+}
+
 func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBall,
 		Script: ballScript,
+		Scope:  spin.ScopeBall,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBasicMode,
+		Script: basicModeScript,
 		Scope:  spin.ScopeBall,
 	})
 	eng.Do(spin.RegisterScript{
@@ -78,9 +128,9 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeGame,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptPlunge,
+		ID:     ScriptPlungeMode,
 		Script: plungeScript,
-		Scope:  spin.ScopeBall,
+		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptReturnLane,
