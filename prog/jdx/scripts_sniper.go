@@ -240,12 +240,14 @@ func sniperSplatScript(e spin.Env) {
 }
 
 func sniperModeScript(e spin.Env) {
+	vars := ProgVars(e)
 	game := spin.GameVars(e)
+
 	game.HideScore = true
-	e.Do(spin.StopScript{ID: ScriptDefaultRightPopper})
+	vars.ManualRightPopper = true
 	defer func() {
 		game.HideScore = false
-		e.Do(spin.PlayScript{ID: ScriptDefaultRightPopper})
+		vars.ManualRightPopper = false
 	}()
 
 	e.Do(spin.StopAudio{})

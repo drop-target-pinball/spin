@@ -2,11 +2,20 @@ package spin
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/drop-target-pinball/spin/coroutine"
+)
+
+const (
+	ScopeRoot = "spin"
+	ScopeGame = "spin.game"
+	ScopeBall = "spin.game.ball"
+	ScopeMode = "spin.game.ball.mode"
 )
 
 const (
@@ -17,7 +26,14 @@ const (
 	FrameDuration = 16670 * time.Microsecond
 )
 
-type Script func(Env)
+type ScriptFn func(Env)
+
+type script struct {
+	id        string
+	scope     string
+	fn        ScriptFn
+	coroutine coroutine.ID
+}
 
 type Env struct {
 	Config   Config
@@ -58,9 +74,7 @@ func (e Env) Derive() (context.Context, context.CancelFunc) {
 	return e.ctx.Derive()
 }
 
-var anonCounter = 1
-
-func (e Env) NewCoroutine(ctx context.Context, scr Script) {
+func (e Env) NewCoroutine(ctx context.Context, scr ScriptFn) {
 	coroutine.New(ctx, func(ctx *coroutine.Context) {
 		e := Env{
 			Config:   e.eng.Config,
@@ -82,16 +96,14 @@ func (e Env) RegisterVars(name string, vars interface{}) {
 
 type scriptSystem struct {
 	eng      *Engine
-	scripts  map[string]Script
-	running  map[string]context.CancelFunc
+	scripts  map[string]*script
 	displays map[string]Display
 }
 
 func registerScriptSystem(eng *Engine) {
 	sys := &scriptSystem{
 		eng:      eng,
-		scripts:  make(map[string]Script),
-		running:  make(map[string]context.CancelFunc),
+		scripts:  make(map[string]*script),
 		displays: make(map[string]Display),
 	}
 	eng.RegisterActionHandler(sys)
@@ -109,8 +121,10 @@ func (s *scriptSystem) HandleAction(action Action) {
 		s.registerScript(act)
 	case PlayScript:
 		s.playScript(act)
+	case StopScope:
+		s.stopScope(act)
 	case StopScript:
-		s.stopScripts(act)
+		s.stopScript(act)
 	}
 }
 
@@ -131,9 +145,9 @@ func (s *scriptSystem) debug(evt Debug) {
 
 func (s *scriptSystem) debugScripts() {
 	running := make([]string, 0)
-	for name, fn := range s.running {
-		if fn != nil {
-			running = append(running, name)
+	for _, script := range s.scripts {
+		if coroutine.IsActive(script.coroutine) {
+			running = append(running, fmt.Sprintf("%v: %v", script.scope, script.id))
 		}
 	}
 	sort.Strings(running)
@@ -147,53 +161,51 @@ func (s *scriptSystem) registerDisplay(act RegisterDisplay) {
 }
 
 func (s *scriptSystem) registerScript(a RegisterScript) {
-	s.scripts[a.ID] = a.Script
-	s.running[a.ID] = nil
+	scope := a.Scope
+	if scope == "" {
+		scope = "spin"
+	}
+	s.scripts[a.ID] = &script{
+		id:    a.ID,
+		scope: scope,
+		fn:    a.Script,
+	}
 }
 
 func (s *scriptSystem) playScript(a PlayScript) {
 	scr, ok := s.scripts[a.ID]
 	if !ok {
-		Warn("%v: no such script", a.ID)
+		Warn("no such script: %v", a.ID)
 		return
 	}
-	if cancel := s.running[a.ID]; cancel != nil {
-		cancel()
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	s.running[a.ID] = cancel
-
-	coroutine.New(ctx, func(ctx *coroutine.Context) {
+	coroutine.Cancel(scr.coroutine)
+	id := coroutine.New(context.Background(), func(ctx *coroutine.Context) {
 		e := Env{
 			Config:   s.eng.Config,
 			eng:      s.eng,
 			displays: s.displays,
 			ctx:      ctx,
 		}
-		scr(e)
+		scr.fn(e)
 	})
+	scr.coroutine = id
 }
 
-func (s *scriptSystem) stopScript(id string) {
-	cancel, ok := s.running[id]
+func (s *scriptSystem) stopScript(act StopScript) {
+	scr, ok := s.scripts[act.ID]
 	if !ok {
-		Warn("%v: no such script", id)
+		Warn("no such script: %v", act.ID)
 		return
 	}
-	if cancel == nil {
-		return
-	}
-	cancel()
-	s.running[id] = nil
+	coroutine.Cancel(scr.coroutine)
 }
 
-func (s *scriptSystem) stopScripts(a StopScript) {
-	if a.ID == "*" {
-		for id := range s.running {
-			s.stopScript(id)
+func (s *scriptSystem) stopScope(a StopScope) {
+	stopPrefix := a.ID + "."
+	for _, scr := range s.scripts {
+		scope := scr.scope + "."
+		if strings.HasPrefix(scope, stopPrefix) {
+			coroutine.Cancel(scr.coroutine)
 		}
-	} else {
-		s.stopScript(a.ID)
 	}
 }

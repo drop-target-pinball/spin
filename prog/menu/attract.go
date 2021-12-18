@@ -13,7 +13,7 @@ const (
 	MessageAttractDone    = "menu.MessageAttractDone"
 )
 
-var attractScripts = []spin.Script{
+var attractScripts = []spin.ScriptFn{
 	gameOverScript,
 	dropTargetPinballScript,
 	superPinballSystemScript,

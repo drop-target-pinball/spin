@@ -111,13 +111,16 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptInactiveGlobe,
 		Script: inactiveGlobeScript,
+		Scope:  spin.ScopeBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptRaiseDropTargets,
 		Script: raiseDropTargetsScript,
+		Scope:  spin.ScopeBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptRaiseDropTargetsWhenAllDown,
 		Script: raiseDropTargetsWhenAllDownScript,
+		Scope:  spin.ScopeBall,
 	})
 }

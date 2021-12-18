@@ -145,7 +145,8 @@ type RegisterMusic struct {
 
 type RegisterScript struct {
 	ID     string
-	Script Script
+	Script ScriptFn
+	Scope  string
 }
 
 type RegisterSound struct {
@@ -174,6 +175,10 @@ type StopAudio struct {
 type StopMusic struct {
 	ID  string
 	Any bool
+}
+
+type StopScope struct {
+	ID string
 }
 
 type StopScript struct {
@@ -221,6 +226,7 @@ func (RegisterSwitch) action()    {}
 func (SetScore) action()          {}
 func (StopAudio) action()         {}
 func (StopMusic) action()         {}
+func (StopScope) action()         {}
 func (StopScript) action()        {}
 func (StopSpeech) action()        {}
 
@@ -247,6 +253,7 @@ func registerActions(e *Engine) {
 	e.RegisterAction(SetScore{})
 	e.RegisterAction(StopAudio{})
 	e.RegisterAction(StopMusic{})
+	e.RegisterAction(StopScope{})
 	e.RegisterAction(StopScript{})
 	e.RegisterAction(StopSpeech{})
 }

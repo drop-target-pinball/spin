@@ -5,6 +5,12 @@ import (
 	"time"
 )
 
+type ID int
+
+var (
+	nextID = ID(1)
+)
+
 type Selector interface {
 	Key() interface{}
 }
@@ -69,9 +75,10 @@ func (c *Context) Derive() (context.Context, context.CancelFunc) {
 	return context.WithCancel(c.ctx)
 }
 
-var active []*coroutine
+var active map[ID]*coroutine
 
 type coroutine struct {
+	id       ID
 	ctx      context.Context
 	cancel   context.CancelFunc
 	waitCond waitCond
@@ -79,12 +86,19 @@ type coroutine struct {
 	resume   chan Selector
 }
 
-func New(parent context.Context, fn func(*Context)) {
-	cr := &coroutine{}
+func New(parent context.Context, fn func(*Context)) ID {
+	if active == nil {
+		active = make(map[ID]*coroutine)
+	}
+
+	cr := &coroutine{id: nextID}
+	nextID++
 
 	cr.ctx, cr.cancel = context.WithCancel(parent)
 	cr.yield = make(chan waitCond)
 	cr.resume = make(chan Selector)
+
+	active[cr.id] = cr
 
 	context := &Context{
 		ctx:    cr.ctx,
@@ -101,53 +115,59 @@ func New(parent context.Context, fn func(*Context)) {
 	}()
 
 	cr.waitCond = <-cr.yield
-
-	for i, entry := range active {
-		if entry == nil {
-			active[i] = cr
-			return
-		}
-	}
-
-	if active == nil {
-		active = make([]*coroutine, 0)
-	}
-	active = append(active, cr)
+	return cr.id
 }
 
 func Service() {
-	for i, entry := range active {
-		if entry == nil || entry.waitCond.timer == nil {
+	for id, entry := range active {
+		select {
+		case <-entry.ctx.Done():
+			delete(active, id)
+			entry.waitCond.timer = nil
+			continue
+		default:
+		}
+
+		if entry.waitCond.timer == nil {
 			continue
 		}
+
 		select {
 		case <-entry.waitCond.timer:
 			entry.resume <- timeout{}
 			entry.waitCond = <-entry.yield
-		case <-entry.ctx.Done():
-			active[i] = nil
 		default:
 		}
 	}
 }
 
 func Post(s Selector) {
-	for i, entry := range active {
-		if entry == nil {
-			continue
-		}
+	for id, entry := range active {
 		select {
 		case <-entry.ctx.Done():
-			active[i] = nil
-			continue
+			delete(active, id)
+			entry.waitCond.selectors = []Selector{}
 		default:
-			for _, wait := range entry.waitCond.selectors {
-				if wait.Key() == s.Key() {
-					entry.resume <- s
-					entry.waitCond = <-entry.yield
-					continue
-				}
+		}
+
+		for _, wait := range entry.waitCond.selectors {
+			if wait.Key() == s.Key() {
+				entry.resume <- s
+				entry.waitCond = <-entry.yield
+				continue
 			}
 		}
 	}
+}
+
+func Cancel(id ID) {
+	cr, ok := active[id]
+	if ok {
+		cr.cancel()
+	}
+}
+
+func IsActive(id ID) bool {
+	_, ok := active[id]
+	return ok
 }
