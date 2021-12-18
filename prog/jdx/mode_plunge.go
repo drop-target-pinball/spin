@@ -70,12 +70,16 @@ func useFireButtonScript(e spin.Env) {
 }
 
 func plungeScript(e spin.Env) {
+	game := spin.GameVars(e)
+
 	e.Do(spin.PlayScript{ID: builtin.ScriptScore})
 	e.Do(spin.PlayMusic{ID: MusicPlungeLoop})
 	ctx, cancel := e.Derive()
 	e.NewCoroutine(ctx, useFireButtonScript)
 
-	e.Do(spin.PlaySpeech{ID: SpeechLawMasterComputerOnlineWelcomeAboard})
+	if game.Player == 1 && game.Ball == 1 && !game.IsExtraBall {
+		e.Do(spin.PlaySpeech{ID: SpeechLawMasterComputerOnlineWelcomeAboard})
+	}
 	e.Do(spin.DriverPulse{ID: jd.CoilTrough})
 	_, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightFireButton})
 	cancel()

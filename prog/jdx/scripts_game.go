@@ -14,7 +14,6 @@ func gameScript(e spin.Env) {
 	e.Do(spin.AddPlayer{})
 	e.Do(spin.PlayScript{ID: ScriptPlayerAnnounce})
 	e.Do(spin.PlayScript{ID: builtin.ScriptGameStartButton})
-	e.Do(spin.PlayScript{ID: ScriptPlungeMode})
 
 	for {
 		e.Do(spin.AdvanceGame{})
@@ -30,7 +29,8 @@ func gameScript(e spin.Env) {
 			return
 		}
 		e.Do(spin.StopScope{ID: spin.ScopeBall})
-		if done := e.Sleep(1 * time.Second); done {
+		e.Do(spin.StopAudio{})
+		if done := e.Sleep(3 * time.Second); done {
 			return
 		}
 	}
