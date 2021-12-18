@@ -125,6 +125,12 @@ func (r *REPL) Eval(line string) error {
 				return fmt.Errorf("not a float: %v", val)
 			}
 			v.FieldByName(key).SetFloat(fVal)
+		case reflect.Bool:
+			bVal, err := strconv.ParseBool(val)
+			if err != nil {
+				return fmt.Errorf("not a bool: %v", val)
+			}
+			v.FieldByName(key).SetBool(bVal)
 		default:
 			return fmt.Errorf("cannot handle type %v: %v", f.Type.Kind(), val)
 		}

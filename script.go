@@ -12,10 +12,11 @@ import (
 )
 
 const (
-	ScopeRoot = "spin"
-	ScopeGame = "spin.game"
-	ScopeBall = "spin.game.ball"
-	ScopeMode = "spin.game.ball.mode"
+	ScopeRoot    = "spin"
+	ScopeProgram = "spin.program"
+	ScopeGame    = "spin.program.game"
+	ScopeBall    = "spin.program.game.ball"
+	ScopeMode    = "spin.program.game.ball.mode"
 )
 
 const (

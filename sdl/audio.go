@@ -139,6 +139,12 @@ func (s *audioSystem) playMusic(a spin.PlayMusic) {
 	} else {
 		mix.VolumeMusic(a.Vol)
 	}
+
+	if a.Notify {
+		mix.HookMusicFinished(func() {
+			s.eng.Post(spin.MusicFinishedEvent{})
+		})
+	}
 }
 
 func (s *audioSystem) playSound(a spin.PlaySound) {

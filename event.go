@@ -55,6 +55,12 @@ func (e ModeFinishedEvent) Key() interface{} {
 	return e.ID
 }
 
+type MusicFinishedEvent struct{}
+
+func (e MusicFinishedEvent) Key() interface{} {
+	return "MusicFinishedEvent"
+}
+
 type PlayerAddedEvent struct {
 	Player int
 }

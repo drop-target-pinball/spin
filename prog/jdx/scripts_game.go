@@ -35,6 +35,9 @@ func gameScript(e spin.Env) {
 		}
 	}
 
+	e.Do(spin.StopScope{ID: spin.ScopeGame})
+	e.Do(spin.PlayScript{ID: ScriptMatch})
+	e.WaitFor(spin.GameOverEvent{})
 }
 
 var playerSpeech = map[int]string{
@@ -57,4 +60,25 @@ func playerAnnounceScript(e spin.Env) {
 			}
 		}
 	}
+}
+
+func matchScript(e spin.Env) {
+	r, g := e.Display("").Renderer("")
+
+	r.Fill(spin.ColorBlack)
+	g.Y = 2
+	g.W = r.Width()
+	g.H = r.Height()
+	g.Font = builtin.FontPfRondaSevenBold8
+	r.Print(g, "GAME OVER")
+
+	e.Do(spin.PlayMusic{ID: MusicMatch, Loops: 1, Notify: true})
+	if _, done := e.WaitFor(spin.MusicFinishedEvent{}); done {
+		return
+	}
+	e.Do(spin.PlayMusic{ID: MusicMatchHit, Loops: 1, Notify: true})
+	if _, done := e.WaitFor(spin.MusicFinishedEvent{}); done {
+		return
+	}
+	e.Post(spin.GameOverEvent{})
 }

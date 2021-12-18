@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	ScriptAttractMode            = "jdx.ScriptAttractMode"
 	ScriptBall                   = "jdx.ScriptBall"
 	ScriptBasicMode              = "jdx.ScriptBasicMode"
 	ScriptDefaultLeftShooterLane = "jdx.ScriptDefaultLeftShooterLane"
@@ -17,9 +18,11 @@ const (
 	ScriptGame                   = "jdx.ScriptGame"
 	ScriptLeftShooterLaneShot    = "jdx.ScriptLeftShooterLaneShot"
 	ScriptLeftPopperShot         = "jdx.ScriptLeftPopperShot"
+	ScriptMatch                  = "jdx.ScriptMatch"
 	ScriptOutlane                = "jdx.ScriptOutlane"
 	ScriptPlayerAnnounce         = "jdx.ScriptPlayerAnnounce"
 	ScriptPlungeMode             = "jdx.ScriptPlungeMode"
+	ScriptProgram                = "jdx.ScriptProgram"
 	ScriptReturnLane             = "jdx.ScriptReturnLane"
 	ScriptRightPopperShot        = "jdx.ScriptRightPopperShot"
 	ScriptSling                  = "jdx.ScriptSling"
@@ -73,6 +76,11 @@ func defaultRightPopperScript(e spin.Env) {
 
 func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptAttractMode,
+		Script: attractModeScript,
+		Scope:  spin.ScopeProgram,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptBall,
 		Script: ballScript,
 		Scope:  spin.ScopeBall,
@@ -118,6 +126,11 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeBall,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptMatch,
+		Script: matchScript,
+		Scope:  spin.ScopeGame,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptOutlane,
 		Script: outlaneScript,
 		Scope:  spin.ScopeBall,
@@ -131,6 +144,11 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptPlungeMode,
 		Script: plungeScript,
 		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptProgram,
+		Script: programScript,
+		Scope:  spin.ScopeProgram,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptReturnLane,

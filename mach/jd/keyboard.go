@@ -29,7 +29,7 @@ func RegisterKeys(eng *spin.Engine) {
 	})
 	eng.Do(spin.RegisterKey{
 		Key:       "1",
-		EventDown: spin.SwitchEvent{ID: SwitchTrough6},
+		EventDown: spin.SwitchEvent{ID: SwitchTrough1},
 	})
 	eng.Do(spin.RegisterKey{
 		Key:       "2",

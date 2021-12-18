@@ -64,9 +64,10 @@ type MusicVolume struct {
 }
 
 type PlayMusic struct {
-	ID    string
-	Vol   int
-	Loops int
+	ID     string
+	Vol    int
+	Loops  int
+	Notify bool
 }
 
 type PlayScript struct {
