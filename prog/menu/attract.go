@@ -21,9 +21,9 @@ var attractScripts = []spin.ScriptFn{
 }
 
 func gameOverFrame(e spin.Env) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	g.Y = 2
 	g.W = r.Width()
 	g.H = r.Height()
@@ -40,9 +40,9 @@ func gameOverScript(e spin.Env) {
 }
 
 func dropTargetPinballFrame(e spin.Env) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	g.W = r.Width()
 	g.Y = 7
 	g.Font = builtin.FontPfArmaFive8
@@ -61,9 +61,9 @@ func dropTargetPinballScript(e spin.Env) {
 }
 
 func superPinballSystemFrame(e spin.Env) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	g.W = r.Width()
 	g.Y = 7
 	g.Font = builtin.FontPfRondaSevenBold8
@@ -81,9 +81,9 @@ func superPinballSystemScript(e spin.Env) {
 }
 
 func freePlayFrame(e spin.Env, blinkOn bool) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	g.W = r.Width()
 	g.Y = 7
 	g.Font = builtin.FontPfRondaSevenBold8

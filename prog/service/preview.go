@@ -14,9 +14,9 @@ type fontMode struct {
 }
 
 func fontPreviewFrame(e spin.Env, fm *fontMode) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	g.Font = fm.fonts[fm.selected]
 	g.X = fm.offset
 	r.Print(g, "0123456,789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")

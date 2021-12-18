@@ -2,6 +2,15 @@ package spin
 
 import "image/color"
 
+var (
+	ColorBlack = color.RGBA{0x00, 0x00, 0x00, 0xff}
+	ColorWhite = color.RGBA{0xff, 0xff, 0xff, 0xff}
+)
+
+const (
+	LayerPriority = "LayerPriority"
+)
+
 type AnchorX int
 
 const (
@@ -30,7 +39,7 @@ type Graphics struct {
 }
 
 type Renderer interface {
-	Clear()
+	Fill(color.RGBA)
 	FillRect(*Graphics)
 	Height() int32
 	Print(*Graphics, string, ...interface{})
@@ -38,7 +47,8 @@ type Renderer interface {
 }
 
 type Display interface {
-	Renderer() (Renderer, *Graphics)
+	Clear(string)
+	Renderer(string) (Renderer, *Graphics)
 	Width() int
 	Height() int
 	At(int, int) color.Color
@@ -48,6 +58,7 @@ type DisplayOptions struct {
 	ID     string
 	Width  int
 	Height int
+	Layers []string
 }
 
 // https://stackoverflow.com/questions/42516203/converting-rgba-image-to-grayscale-golang
@@ -55,4 +66,8 @@ func RGBToGray(rgb color.Color) uint8 {
 	r, g, b, _ := rgb.RGBA()
 	lum := 0.299*float64(r) + 0.587*float64(g) + 0.114*float64(b)
 	return uint8(lum / 256)
+}
+
+func RGBAToUint32(c color.RGBA) uint32 {
+	return uint32(c.R)<<24 | uint32(c.G)<<16 | uint32(c.B)<<8 | uint32(c.A)
 }

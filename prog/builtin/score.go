@@ -8,7 +8,7 @@ import (
 // https://github.com/preble/pyprocgame/blob/master/procgame/modes/scoredisplay.py#L104
 
 func singlePlayerPanel(e spin.Env) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 	vars := spin.GameVars(e)
 
 	switch {
@@ -25,7 +25,7 @@ func singlePlayerPanel(e spin.Env) {
 }
 
 func multiPlayerPanel(e spin.Env) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 	vars := spin.GameVars(e)
 
 	sizedFont := func(player int) string {
@@ -73,14 +73,10 @@ func multiPlayerPanel(e spin.Env) {
 }
 
 func scoreFrame(e spin.Env) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 	game := spin.GameVars(e)
 
-	if game.HideScore {
-		return
-	}
-
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	if game.NumPlayers == 1 {
 		singlePlayerPanel(e)
 	} else if game.NumPlayers > 1 {

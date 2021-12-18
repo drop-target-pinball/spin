@@ -18,9 +18,11 @@ import (
 )
 
 type displaySystem struct {
-	id    string
-	surf  *sdl.Surface
-	fonts map[string]font
+	id           string
+	surf         *sdl.Surface
+	layers       []*sdl.Surface
+	layersByName map[string]*sdl.Surface
+	fonts        map[string]font
 }
 
 func (d *displaySystem) Width() int {
@@ -35,11 +37,26 @@ func (d *displaySystem) At(x, y int) color.Color {
 	return d.surf.At(x, y)
 }
 
-func (d *displaySystem) Renderer() (spin.Renderer, *spin.Graphics) {
+func (d *displaySystem) Renderer(layer string) (spin.Renderer, *spin.Graphics) {
+	surf, ok := d.layersByName[layer]
+	if !ok {
+		log.Panicf("no such layer: %v", layer)
+	}
 	return &rendererSDL{
-		surf:  d.surf,
+		surf:  surf,
 		fonts: d.fonts,
 	}, &spin.Graphics{}
+}
+
+func (d *displaySystem) Clear(layer string) {
+	surf, ok := d.layersByName[layer]
+	if !ok {
+		log.Panicf("no such layer: %v", layer)
+	}
+	rect := sdl.Rect{X: 0, Y: 0, W: surf.W, H: surf.H}
+	if err := surf.FillRect(&rect, 0); err != nil {
+		log.Panic(err)
+	}
 }
 
 func RegisterDisplaySystem(eng *spin.Engine, opts spin.DisplayOptions) {
@@ -52,22 +69,52 @@ func RegisterDisplaySystem(eng *spin.Engine, opts spin.DisplayOptions) {
 		log.Fatalf("unable to create SDL surface: %v", err)
 	}
 
-	s := &displaySystem{
-		id:    opts.ID,
-		surf:  surf,
-		fonts: make(map[string]font),
+	if opts.Layers == nil {
+		opts.Layers = []string{""}
 	}
+
+	s := &displaySystem{
+		id:           opts.ID,
+		surf:         surf,
+		fonts:        make(map[string]font),
+		layers:       make([]*sdl.Surface, len(opts.Layers)),
+		layersByName: make(map[string]*sdl.Surface),
+	}
+
+	for i, name := range opts.Layers {
+		surf, err := sdl.CreateRGBSurfaceWithFormat(0, int32(opts.Width), int32(opts.Height),
+			32, sdl.PIXELFORMAT_RGBA8888)
+		if err != nil {
+			log.Fatalf("unable to create SDL surface: %v", err)
+		}
+		s.layers[i] = surf
+		s.layersByName[name] = surf
+	}
+
 	eng.Do(spin.RegisterDisplay{
 		ID:      s.id,
 		Display: s,
 	})
 	eng.RegisterActionHandler(s)
+	eng.RegisterServer(s)
 }
 
 func (s *displaySystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
 	case spin.RegisterFont:
 		s.registerFont(act)
+	}
+}
+
+func (s *displaySystem) Service() {
+	rect := sdl.Rect{X: 0, Y: 0, W: s.surf.W, H: s.surf.H}
+	if err := s.surf.FillRect(&rect, 0); err != nil {
+		log.Panic(err)
+	}
+	for _, layer := range s.layers {
+		if err := layer.Blit(&rect, s.surf, &rect); err != nil {
+			log.Panic(err)
+		}
 	}
 }
 
@@ -78,9 +125,12 @@ type rendererSDL struct {
 	fonts map[string]font
 }
 
-func (r *rendererSDL) Clear() {
+func (r *rendererSDL) Fill(color color.RGBA) {
 	rect := sdl.Rect{X: 0, Y: 0, W: r.surf.W, H: r.surf.H}
-	if err := r.surf.FillRect(&rect, 0); err != nil {
+	// if err := r.surf.FillRect(&rect, 0); err != nil {
+	// 	log.Panic(err)
+	// }
+	if err := r.surf.FillRect(&rect, spin.RGBAToUint32(color)); err != nil {
 		log.Panic(err)
 	}
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func useFireButtonFrame(e spin.Env, n int) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer(spin.LayerPriority)
 
 	// chevronsL := []string{
 	// 	"   ",
@@ -25,7 +25,7 @@ func useFireButtonFrame(e spin.Env, n int) {
 		">>>",
 	}
 
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	g.Font = builtin.FontPfRondaSevenBold8
 	g.W = r.Width()
 	g.Y = 7
@@ -43,10 +43,7 @@ func useFireButtonFrame(e spin.Env, n int) {
 }
 
 func useFireButtonVideo(e spin.Env) {
-	game := spin.GameVars(e)
-	game.HideScore = true
-	defer func() { game.HideScore = false }()
-
+	defer e.Display("").Clear(spin.LayerPriority)
 	for i := 0; i < 7*4; i++ {
 		useFireButtonFrame(e, i%4)
 		if done := e.Sleep(100 * time.Millisecond); done {

@@ -29,9 +29,9 @@ var game int
 var selectBlinkOn bool
 
 func selectGameMenuFrame(e spin.Env) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	g.W = r.Width()
 	g.Y = 7
 	g.Font = builtin.FontPfTempestaFiveExtendedBold8
@@ -51,8 +51,8 @@ func selectGameMenuFrame(e spin.Env) {
 }
 
 func clearFrame(e spin.Env) {
-	r, _ := e.Display("").Renderer()
-	r.Clear()
+	r, _ := e.Display("").Renderer("")
+	r.Fill(spin.ColorBlack)
 }
 
 func selectGameMenuScript(e spin.Env) {

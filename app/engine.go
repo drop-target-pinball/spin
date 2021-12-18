@@ -49,7 +49,15 @@ func NewEngine(appOptions Options, spinOptions spin.Options) *spin.Engine {
 	} else {
 		proc.RegisterNullSystem(eng)
 	}
-	sdl.RegisterDisplaySystem(eng, spin.DisplayOptions{Width: 128, Height: 32})
+	displayOptions := spin.DisplayOptions{
+		Width:  128,
+		Height: 32,
+		Layers: []string{
+			"",
+			spin.LayerPriority,
+		},
+	}
+	sdl.RegisterDisplaySystem(eng, displayOptions)
 	sdl.RegisterInputSystem(eng)
 	builtin.Load(eng)
 

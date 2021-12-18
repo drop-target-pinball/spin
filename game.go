@@ -9,7 +9,7 @@ type Game struct {
 	Scores       []int
 	ExtraBalls   int
 	BallActive   bool
-	HideScore    bool
+	//HideScore    bool
 }
 
 func (g *Game) Score() int {

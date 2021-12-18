@@ -8,10 +8,10 @@ import (
 )
 
 func modeIntroFrame(e spin.Env, blinkOn bool, text [3]string) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 	//defer r.Unlock()
 
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	g.Y = 2
 	g.W = r.Width()
 	g.Font = builtin.FontPfArmaFive8

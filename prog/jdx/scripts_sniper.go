@@ -16,9 +16,9 @@ const (
 var sniperScore int
 
 func sniperScoreFrame(e spin.Env, blinkOn bool) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	g.Y = 2
 	g.W = r.Width()
 	g.Font = builtin.FontPfArmaFive8
@@ -142,9 +142,9 @@ func sniperTakedownScript(e spin.Env) {
 }
 
 func sniperFallFrame(e spin.Env, seconds int) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 
-	r.Clear()
+	r.Fill(spin.ColorBlack)
 	g.Y = 2
 	g.W = r.Width()
 	g.Font = builtin.FontPfArmaFive8
@@ -241,12 +241,9 @@ func sniperSplatScript(e spin.Env) {
 
 func sniperModeScript(e spin.Env) {
 	vars := ProgVars(e)
-	game := spin.GameVars(e)
 
-	game.HideScore = true
 	vars.ManualRightPopper = true
 	defer func() {
-		game.HideScore = false
 		vars.ManualRightPopper = false
 	}()
 

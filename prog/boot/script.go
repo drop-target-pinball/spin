@@ -18,7 +18,7 @@ const (
 )
 
 func splashScreenFrame(e spin.Env) {
-	r, g := e.Display("").Renderer()
+	r, g := e.Display("").Renderer("")
 	g.Font = builtin.FontPfTempestaFiveCompressedBold8
 	g.W = r.Width()
 	g.Y = 4
