@@ -11,6 +11,7 @@ const (
 	ScriptAttractMode            = "jdx.ScriptAttractMode"
 	ScriptBall                   = "jdx.ScriptBall"
 	ScriptBasicMode              = "jdx.ScriptBasicMode"
+	ScriptChain                  = "jdx.ScriptChain"
 	ScriptDefaultLeftShooterLane = "jdx.ScriptDefaultLeftShooterLane"
 	ScriptDefaultLeftPopper      = "jdx.ScriptDefaultLeftPopper"
 	ScriptDefaultRightPopper     = "jdx.ScriptDefaultRightPopper"
@@ -62,13 +63,9 @@ func defaultLeftPopperScript(e spin.Env) {
 }
 
 func defaultRightPopperScript(e spin.Env) {
-	vars := ProgVars(e)
 	for {
 		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper}); done {
 			return
-		}
-		if vars.ManualRightPopper {
-			continue
 		}
 		e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
 	}
@@ -91,19 +88,24 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeBall,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptChain,
+		Script: chainScript,
+		Scope:  spin.ScopeBall,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptDefaultLeftShooterLane,
 		Script: defaultLeftShooterLaneScript,
-		Scope:  spin.ScopeBall,
+		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptDefaultLeftPopper,
 		Script: defaultLeftPopperScript,
-		Scope:  spin.ScopeBall,
+		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptDefaultRightPopper,
 		Script: defaultRightPopperScript,
-		Scope:  spin.ScopeBall,
+		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptDebugExtraBall,

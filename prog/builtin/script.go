@@ -17,7 +17,7 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptScore,
 		Script: scoreScript,
-		Scope:  spin.ScopeGame,
+		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptGameStartButton,

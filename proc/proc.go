@@ -239,8 +239,8 @@ func (s *procSystem) driverPWM(act spin.DriverPWM) {
 		spin.Warn("no such driver: %v", act.ID)
 		return
 	}
-	timeOn := uint8(act.TimeOn)
-	timeOff := uint8(act.TimeOff)
+	timeOn := uint8(act.On)
+	timeOff := uint8(act.Off)
 	if timeOff == 0 {
 		spin.Warn("PWM off time cannot be zero")
 		return

@@ -240,12 +240,12 @@ func sniperSplatScript(e spin.Env) {
 }
 
 func sniperModeScript(e spin.Env) {
-	vars := ProgVars(e)
+	e.Do(spin.DriverPWM{ID: jd.LampAwardSniper, On: 127, Off: 127})
+	defer e.Do(spin.DriverOff{ID: jd.LampAwardSniper})
+	defer e.Post(spin.ScriptFinishedEvent{ID: ScriptSniperMode})
 
-	vars.ManualRightPopper = true
-	defer func() {
-		vars.ManualRightPopper = false
-	}()
+	e.Do(spin.PlayScript{ID: ScriptDefaultLeftPopper})
+	e.Do(spin.PlayScript{ID: ScriptDefaultLeftShooterLane})
 
 	e.Do(spin.StopAudio{})
 	e.Do(spin.PlayMusic{ID: MusicMode1})

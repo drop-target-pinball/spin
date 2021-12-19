@@ -40,9 +40,9 @@ type DriverPulse struct {
 }
 
 type DriverPWM struct {
-	ID      string
-	TimeOn  int // milliseconds
-	TimeOff int // milliseconds
+	ID  string
+	On  int // milliseconds
+	Off int // milliseconds
 }
 
 type FadeOutMusic struct {

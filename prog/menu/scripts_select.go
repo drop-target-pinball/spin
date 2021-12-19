@@ -74,7 +74,7 @@ func selectGameMenuBlinkScript(e spin.Env, local *selectVars) {
 }
 
 func selectGameScript(e spin.Env) {
-	e.Do(spin.DriverPWM{ID: jd.LampSuperGameButton, TimeOn: 127, TimeOff: 127})
+	e.Do(spin.DriverPWM{ID: jd.LampSuperGameButton, On: 127, Off: 127})
 	defer e.Do(spin.DriverOff{ID: jd.LampSuperGameButton})
 
 	vars := system.GetVars(e)

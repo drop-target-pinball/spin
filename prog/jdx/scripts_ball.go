@@ -28,6 +28,8 @@ func ballScript(e spin.Env) {
 	e.Do(spin.PlayScript{ID: ScriptDebugExtraBall})
 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
 
+	e.Do(spin.PlayScript{ID: ScriptChain})
+
 	ctx, cancel := e.Derive()
 	defer cancel()
 	e.NewCoroutine(ctx, modeScript)

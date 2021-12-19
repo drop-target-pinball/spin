@@ -132,7 +132,7 @@ func attractModeScript(e spin.Env) {
 		}
 	}
 
-	e.Do(spin.DriverPWM{ID: e.Config.LampStartButton, TimeOn: 127, TimeOff: 127})
+	e.Do(spin.DriverPWM{ID: e.Config.LampStartButton, On: 127, Off: 127})
 	for {
 		ctx, cancel = e.Derive()
 		e.NewCoroutine(ctx, attractScripts[script])
