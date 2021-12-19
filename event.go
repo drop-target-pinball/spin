@@ -47,14 +47,6 @@ func (e Message) Key() interface{} {
 	return e.ID
 }
 
-type ModeFinishedEvent struct {
-	ID string
-}
-
-func (e ModeFinishedEvent) Key() interface{} {
-	return e.ID
-}
-
 type MusicFinishedEvent struct{}
 
 func (e MusicFinishedEvent) Key() interface{} {
@@ -67,6 +59,14 @@ type PlayerAddedEvent struct {
 
 func (e PlayerAddedEvent) Key() interface{} {
 	return "PlayerAddedEvent"
+}
+
+type ScriptFinishedEvent struct {
+	ID string
+}
+
+func (e ScriptFinishedEvent) Key() interface{} {
+	return e.ID
 }
 
 type ShotEvent struct {

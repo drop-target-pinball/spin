@@ -8,12 +8,15 @@ import (
 func programScript(e spin.Env) {
 	for {
 		e.Do(spin.PlayScript{ID: ScriptAttractMode})
-		_, done := e.WaitFor(
+		evt, done := e.WaitFor(
 			spin.SwitchEvent{ID: jd.SwitchStartButton},
 			spin.SwitchEvent{ID: jd.SwitchSuperGameButton},
 		)
 		if done {
 			return
+		}
+		if evt == (spin.SwitchEvent{ID: jd.SwitchSuperGameButton}) {
+			break
 		}
 		e.Do(spin.StopScope{ID: spin.ScopeMode})
 		e.Do(spin.PlayScript{ID: ScriptGame})
@@ -21,4 +24,6 @@ func programScript(e spin.Env) {
 			return
 		}
 	}
+
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptProgram})
 }

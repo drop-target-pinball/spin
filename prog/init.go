@@ -20,24 +20,45 @@ func Load(eng *spin.Engine) {
 	jdx.Load(eng)
 	service.Load(eng)
 
-	eng.Do(spin.RegisterScript{ID: ScriptInit, Script: scriptInit})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptInit,
+		Script: scriptInit,
+		Scope:  spin.ScopeInit,
+	})
 }
 
 func scriptInit(e spin.Env) {
+	defer panic("unexpected end of init")
+
 	e.Do(spin.PlayScript{ID: boot.ScriptSplashScreen})
-	if _, done := e.WaitFor(spin.Message{ID: boot.MessageDone}); done {
+	if _, done := e.WaitFor(spin.Message{ID: boot.ScriptSplashScreen}); done {
 		return
 	}
 
-	e.Do(spin.PlayScript{ID: menu.ScriptAttractMode})
-	if _, done := e.WaitFor(spin.Message{ID: menu.MessageAttractDone}); done {
-		return
+	for {
+		e.Do(spin.PlayScript{ID: menu.ScriptAttractMode})
+		if _, done := e.WaitFor(spin.Message{ID: menu.MessageAttractDone}); done {
+			return
+		}
+
+		for {
+			e.Do(spin.PlayScript{ID: menu.ScriptSelectGame})
+			evt, done := e.WaitFor(
+				spin.Message{ID: menu.MessageGameSelected},
+				spin.Message{ID: menu.MessageExit},
+			)
+			if done {
+				return
+			}
+
+			if evt == (spin.Message{ID: menu.MessageExit}) {
+				break
+			}
+			e.Do(spin.PlayScript{ID: jdx.ScriptGame})
+			if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: jdx.ScriptProgram}); done {
+				return
+			}
+		}
 	}
 
-	e.Do(spin.PlayScript{ID: menu.ScriptSelectGame})
-	if _, done := e.WaitFor(spin.Message{ID: menu.MessageSelectDone}); done {
-		return
-	}
-
-	e.Do(spin.PlayScript{ID: jdx.ScriptGame})
 }

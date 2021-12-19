@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	ScopeInit    = "init"
 	ScopeRoot    = "spin"
 	ScopeProgram = "spin.program"
 	ScopeGame    = "spin.program.game"

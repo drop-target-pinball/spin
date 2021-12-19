@@ -41,7 +41,7 @@ func ballScript(e spin.Env) {
 
 func modeScript(e spin.Env) {
 	e.Do(spin.PlayScript{ID: ScriptPlungeMode})
-	if _, done := e.WaitFor(spin.ModeFinishedEvent{ID: ScriptPlungeMode}); done {
+	if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: ScriptPlungeMode}); done {
 		return
 	}
 	e.Do(spin.StopScope{ID: spin.ScopeMode})

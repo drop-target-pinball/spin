@@ -6,30 +6,22 @@ import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
 	"github.com/drop-target-pinball/spin/prog/builtin"
+	"github.com/drop-target-pinball/spin/prog/system"
 )
 
 const (
-	MessageGameUpdated = "menu.MessageGameUpdated"
-	MessageSelectDone  = "menu.MessageSelectDone"
+	MessageGameUpdated  = "menu.MessageGameUpdated"
+	MessageGameSelected = "menu.MessageGameSelected"
+	MessageExit         = "menu.Exit"
 )
 
-const (
-	VariableGame = "menu.VariableGame"
-)
-
-var games = []string{
-	"DREDD REMIX",
-	"MEGAMAN 3",
-	"DR MARIO",
-	"PINGOLF",
-	"PRACTICE",
+type selectVars struct {
+	blinkOn bool
 }
 
-var game int
-var selectBlinkOn bool
-
-func selectGameMenuFrame(e spin.Env) {
+func selectGameMenuFrame(e spin.Env, local *selectVars) {
 	r, g := e.Display("").Renderer("")
+	vars := system.GetVars(e)
 
 	r.Fill(spin.ColorBlack)
 	g.W = r.Width()
@@ -38,9 +30,9 @@ func selectGameMenuFrame(e spin.Env) {
 	r.Print(g, "GAME SELECT")
 	g.Y = 18
 	g.Font = builtin.FontPfTempestaFiveCompressedBold8
-	r.Print(g, games[game])
+	r.Print(g, vars.Games[vars.Game])
 
-	if selectBlinkOn {
+	if local.blinkOn {
 		g.W = 0
 		g.X = 20
 		g.Y = 18
@@ -55,10 +47,9 @@ func clearFrame(e spin.Env) {
 	r.Fill(spin.ColorBlack)
 }
 
-func selectGameMenuScript(e spin.Env) {
-	game = 0
+func selectGameMenuScript(e spin.Env, local *selectVars) {
 	for {
-		selectGameMenuFrame(e)
+		selectGameMenuFrame(e, local)
 		_, done := e.WaitFor(spin.Message{ID: MessageGameUpdated})
 		if done {
 			return
@@ -66,17 +57,16 @@ func selectGameMenuScript(e spin.Env) {
 	}
 }
 
-func selectGameMenuBlinkScript(e spin.Env) {
-	game = 0
+func selectGameMenuBlinkScript(e spin.Env, local *selectVars) {
 	for {
-		selectBlinkOn = true
-		selectGameMenuFrame(e)
+		local.blinkOn = true
+		selectGameMenuFrame(e, local)
 		if done := e.Sleep(256 * time.Millisecond); done {
 			return
 		}
 
-		selectBlinkOn = false
-		selectGameMenuFrame(e)
+		local.blinkOn = false
+		selectGameMenuFrame(e, local)
 		if done := e.Sleep(100 * time.Millisecond); done {
 			return
 		}
@@ -84,23 +74,29 @@ func selectGameMenuBlinkScript(e spin.Env) {
 }
 
 func selectGameScript(e spin.Env) {
+	e.Do(spin.DriverPWM{ID: jd.LampSuperGameButton, TimeOn: 127, TimeOff: 127})
+	defer e.Do(spin.DriverOff{ID: jd.LampSuperGameButton})
+
+	vars := system.GetVars(e)
+
 	next := func() {
-		game += 1
-		if game >= len(games) {
-			game = 0
+		vars.Game += 1
+		if vars.Game >= len(vars.Games) {
+			vars.Game = 0
 		}
 	}
 
 	prev := func() {
-		game -= 1
-		if game < 0 {
-			game = len(games) - 1
+		vars.Game -= 1
+		if vars.Game < 0 {
+			vars.Game = len(vars.Games) - 1
 		}
 	}
 
+	local := &selectVars{}
 	ctx, cancel := e.Derive()
-	e.NewCoroutine(ctx, selectGameMenuScript)
-	e.NewCoroutine(ctx, selectGameMenuBlinkScript)
+	e.NewCoroutine(ctx, func(e spin.Env) { selectGameMenuScript(e, local) })
+	e.NewCoroutine(ctx, func(e spin.Env) { selectGameMenuBlinkScript(e, local) })
 	e.Do(spin.PlayMusic{ID: MusicSelectMode})
 
 	for {
@@ -108,10 +104,17 @@ func selectGameScript(e spin.Env) {
 			spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},
 			spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton},
 			spin.SwitchEvent{ID: e.Config.SwitchStartButton},
+			spin.SwitchEvent{ID: jd.SwitchSuperGameButton},
 		)
 		if done {
 			e.Do(spin.StopMusic{ID: MusicSelectMode})
 			cancel()
+			return
+		}
+		if evt == (spin.SwitchEvent{ID: jd.SwitchSuperGameButton}) {
+			e.Do(spin.StopMusic{ID: MusicSelectMode})
+			cancel()
+			e.Post(spin.Message{ID: MessageExit})
 			return
 		}
 		if evt == (spin.SwitchEvent{ID: jd.SwitchStartButton}) {
@@ -129,8 +132,8 @@ func selectGameScript(e spin.Env) {
 	}
 	cancel()
 
-	selectBlinkOn = false
-	selectGameMenuFrame(e)
+	local.blinkOn = false
+	selectGameMenuFrame(e, local)
 	e.Do(spin.DriverOn{ID: e.Config.LampStartButton})
 	e.Do(spin.PlaySound{ID: SoundSelect})
 	e.Do(spin.FadeOutMusic{Time: 1500})
@@ -144,5 +147,5 @@ func selectGameScript(e spin.Env) {
 		return
 	}
 
-	e.Post(spin.Message{ID: MessageSelectDone})
+	e.Post(spin.Message{ID: MessageGameSelected})
 }

@@ -12,11 +12,6 @@ const (
 	ScriptSplashScreen = "boot.ScriptSplashScreen"
 )
 
-// Messages
-const (
-	MessageDone = "boot.MessageDone"
-)
-
 func splashScreenFrame(e spin.Env) {
 	r, g := e.Display("").Renderer("")
 	g.Font = builtin.FontPfTempestaFiveCompressedBold8
@@ -50,9 +45,13 @@ func splashScreenScript(e spin.Env) {
 	if evt != nil {
 		e.Do(spin.StopMusic{ID: MusicSplashScreen})
 	}
-	e.Post(spin.Message{ID: MessageDone})
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptSplashScreen})
 }
 
 func RegisterScripts(eng *spin.Engine) {
-	eng.Do(spin.RegisterScript{ID: ScriptSplashScreen, Script: splashScreenScript})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSplashScreen,
+		Script: splashScreenScript,
+		Scope:  spin.ScopeRoot,
+	})
 }

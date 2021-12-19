@@ -6,6 +6,10 @@ import (
 
 func RegisterKeys(eng *spin.Engine) {
 	eng.Do(spin.RegisterKey{
+		Key:       "escape",
+		EventDown: spin.SwitchEvent{ID: SwitchSuperGameButton},
+	})
+	eng.Do(spin.RegisterKey{
 		Key:       "left",
 		EventDown: spin.SwitchEvent{ID: SwitchLeftFlipperButton},
 	})

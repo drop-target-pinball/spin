@@ -90,5 +90,5 @@ func plungeScript(e spin.Env) {
 	e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
 	e.Do(spin.PlayMusic{ID: MusicMain})
 	e.Do(spin.PlaySound{ID: SoundMotorcycleStart})
-	e.Post(spin.ModeFinishedEvent{ID: ScriptPlungeMode})
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptPlungeMode})
 }
