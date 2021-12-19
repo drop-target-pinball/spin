@@ -13,9 +13,8 @@ const (
 	MessageSniperTimeout = "jdx.MessageSniperTimeout"
 )
 
-var sniperScore int
-
 func sniperScoreFrame(e spin.Env, blinkOn bool) {
+	vars := GetVars(e)
 	r, g := e.Display("").Renderer("")
 
 	r.Fill(spin.ColorBlack)
@@ -27,13 +26,14 @@ func sniperScoreFrame(e spin.Env, blinkOn bool) {
 
 	if blinkOn {
 		g.Font = builtin.Font14x10
-		score := spin.FormatScore("%10d", sniperScore)
+		score := spin.FormatScore("%10d", vars.SniperScore)
 		r.Print(g, score)
 	}
 }
 
 func sniperScoreCountdownVideoScript(e spin.Env) {
-	sniperScore = 20_000_000
+	vars := GetVars(e)
+	vars.SniperScore = 20_000_000
 	modeText := [3]string{"SNIPER", "SHOOT", "SNIPER TOWER"}
 	if done := modeIntroVideo(e, modeText); done {
 		return
@@ -46,14 +46,14 @@ func sniperScoreCountdownVideoScript(e spin.Env) {
 
 	expires := time.Now().Add(30 * time.Second)
 	for time.Now().Before(expires) {
-		sniperScore -= 78_330
+		vars.SniperScore -= 78_330
 		sniperScoreFrame(e, true)
 		if done := e.Sleep(160 * time.Millisecond); done {
 			return
 		}
 	}
 
-	sniperScore = 5_000_000
+	vars.SniperScore = 5_000_000
 	sniperScoreFrame(e, true)
 	if done := e.Sleep(2000 * time.Millisecond); done {
 		return
@@ -240,7 +240,9 @@ func sniperSplatScript(e spin.Env) {
 }
 
 func sniperModeScript(e spin.Env) {
-	e.Do(spin.DriverPWM{ID: jd.LampAwardSniper, On: 127, Off: 127})
+	vars := GetVars(e)
+
+	e.Do(spin.DriverBlink{ID: jd.LampAwardSniper})
 	defer e.Do(spin.DriverOff{ID: jd.LampAwardSniper})
 	defer e.Post(spin.ScriptFinishedEvent{ID: ScriptSniperMode})
 
@@ -259,6 +261,7 @@ func sniperModeScript(e spin.Env) {
 		return
 	}
 
+	vars.SniperBonus = vars.SniperScore
 	e.Do(spin.PlayScript{ID: ScriptSniperTakedown})
 	if _, done := e.WaitFor(spin.Message{ID: MessageSniperAdvance}); done {
 		e.Do(spin.StopMusic{ID: MusicMode1})
@@ -285,6 +288,7 @@ func sniperModeScript(e spin.Env) {
 		return
 	}
 
+	vars.SniperBonus += vars.SniperScore
 	e.Do(spin.PlayScript{ID: ScriptSniperTakedown})
 	e.WaitFor(spin.Message{ID: MessageSniperAdvance})
 	e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})

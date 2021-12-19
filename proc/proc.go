@@ -8,6 +8,16 @@ import (
 	"github.com/drop-target-pinball/spin"
 )
 
+const (
+	BlinkStyleRegular = ""
+)
+
+var (
+	blinkStyles = map[string]uint32{
+		BlinkStyleRegular: 0xff00ff00,
+	}
+)
+
 type Options struct {
 	ID                      string
 	MachType                pinproc.MachType
@@ -73,6 +83,8 @@ func (s *procSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
 	case spin.AutoPulseOn:
 		s.autoPulseOn(act)
+	case spin.DriverBlink:
+		s.driverBlink(act)
 	case spin.DriverOff:
 		s.driverOff(act)
 	case spin.DriverOn:
@@ -247,6 +259,23 @@ func (s *procSystem) driverPWM(act spin.DriverPWM) {
 	}
 	addr := driver.Addr.(uint8)
 	s.proc.DriverPatter(addr, timeOn, timeOff, 0, false)
+}
+
+func (s *procSystem) driverBlink(act spin.DriverBlink) {
+	driver, ok := s.drivers[act.ID]
+	if !ok {
+		spin.Warn("no such driver: %v", act.ID)
+		return
+	}
+	schedule, ok := blinkStyles[act.Style]
+	if !ok {
+		spin.Warn("no such blink style: %v", act.Style)
+		return
+	}
+	addr := driver.Addr.(uint8)
+	if err := s.proc.DriverSchedule(addr, schedule, 0, false); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (s *procSystem) flippersOn(act spin.FlippersOn) {

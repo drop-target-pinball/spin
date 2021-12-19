@@ -43,7 +43,7 @@ func waitForModeStart(e spin.Env, parent context.Context, side bool) bool {
 	defer cancel()
 
 	m := modeStartConfigs[side]
-	e.Do(spin.DriverPWM{ID: m.lamp, On: 127, Off: 127})
+	e.Do(spin.DriverBlink{ID: m.lamp})
 	e.NewCoroutine(ctx, m.shotScript)
 	e.NewCoroutine(ctx, selectModeScript)
 	_, done := e.WaitFor(spin.ShotEvent{ID: m.shot})
@@ -95,7 +95,7 @@ func selectModeScript(e spin.Env) {
 			}
 		}
 		e.Do(spin.DriverOff{ID: ModeLamps[previous]})
-		e.Do(spin.DriverPWM{ID: ModeLamps[next], On: 127, Off: 127})
+		e.Do(spin.DriverBlink{ID: ModeLamps[next]})
 		vars.SelectedMode = next
 	}
 }
@@ -127,7 +127,7 @@ func chainScript(e spin.Env) {
 			e.Do(spin.DriverOn{ID: ModeLamps[mode]})
 		}
 		if vars.SelectedMode == mode {
-			e.Do(spin.DriverPWM{ID: ModeLamps[mode], On: 127, Off: 127})
+			e.Do(spin.DriverBlink{ID: ModeLamps[mode]})
 		}
 	}
 

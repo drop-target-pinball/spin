@@ -26,6 +26,11 @@ type Debug struct {
 	ID string
 }
 
+type DriverBlink struct {
+	ID    string
+	Style string
+}
+
 type DriverOn struct {
 	ID string
 }
@@ -197,6 +202,7 @@ func (AutoPulseOn) action()       {}
 func (AutoPulseOff) action()      {}
 func (AwardScore) action()        {}
 func (Debug) action()             {}
+func (DriverBlink) action()       {}
 func (DriverOn) action()          {}
 func (DriverOff) action()         {}
 func (DriverPulse) action()       {}
@@ -236,6 +242,7 @@ func registerActions(e *Engine) {
 	e.RegisterAction(AdvanceGame{})
 	e.RegisterAction(AwardScore{})
 	e.RegisterAction(Debug{})
+	e.RegisterAction(DriverBlink{})
 	e.RegisterAction(DriverOn{})
 	e.RegisterAction(DriverOff{})
 	e.RegisterAction(DriverPulse{})

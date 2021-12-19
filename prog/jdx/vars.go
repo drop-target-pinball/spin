@@ -66,6 +66,17 @@ var (
 type Vars struct {
 	AwardedModes int
 	SelectedMode int
+	SniperBonus  int
+	SniperScore  int
+}
+
+func StartOfBallReset(store spin.Store) {
+	vars := GetVars(store)
+	vars.SniperBonus = 0
+	vars.SniperScore = 0
+	if vars.SelectedMode == 0 {
+		vars.SelectedMode = ModeSniper
+	}
 }
 
 func GetVars(store spin.Store) *Vars {
@@ -77,9 +88,7 @@ func GetVars(store spin.Store) *Vars {
 	if ok {
 		vars = v.(*Vars)
 	} else {
-		vars = &Vars{
-			SelectedMode: ModeSniper,
-		}
+		vars = &Vars{}
 		store.RegisterVars(name, vars)
 	}
 	return vars

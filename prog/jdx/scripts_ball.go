@@ -9,6 +9,8 @@ import (
 )
 
 func ballScript(e spin.Env) {
+	StartOfBallReset(e)
+
 	e.Do(spin.PlayScript{ID: builtin.ScriptBallTracker})
 	e.Do(spin.FlippersOn{})
 	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingLeft})
