@@ -7,6 +7,14 @@ import (
 	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
+// Scores
+const (
+	ScoreReturnLane = 50_000
+	ScoreSling      = 1_930
+	ScoreOutlane    = 100_000
+	ScorePost       = 5_210
+)
+
 const (
 	ModePursuit = 1 << iota
 	ModeBlackout
@@ -70,7 +78,7 @@ type Vars struct {
 	SniperScore  int
 }
 
-func StartOfBallReset(store spin.Store) {
+func startOfBallReset(store spin.Store) {
 	vars := GetVars(store)
 	vars.SniperBonus = 0
 	vars.SniperScore = 0

@@ -9,7 +9,7 @@ import (
 )
 
 func ballScript(e spin.Env) {
-	StartOfBallReset(e)
+	startOfBallReset(e)
 
 	e.Do(spin.PlayScript{ID: builtin.ScriptBallTracker})
 	e.Do(spin.FlippersOn{})
