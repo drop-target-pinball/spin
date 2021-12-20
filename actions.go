@@ -175,6 +175,12 @@ type SetScore struct {
 	Val int
 }
 
+type SetVar struct {
+	Vars string
+	ID   string
+	Val  string
+}
+
 type StopAudio struct {
 }
 
@@ -231,6 +237,7 @@ func (RegisterSound) action()     {}
 func (RegisterSpeech) action()    {}
 func (RegisterSwitch) action()    {}
 func (SetScore) action()          {}
+func (SetVar) action()            {}
 func (StopAudio) action()         {}
 func (StopMusic) action()         {}
 func (StopScope) action()         {}
@@ -259,6 +266,7 @@ func registerActions(e *Engine) {
 	e.RegisterAction(RegisterSound{})
 	e.RegisterAction(RegisterSpeech{})
 	e.RegisterAction(SetScore{})
+	e.RegisterAction(SetVar{})
 	e.RegisterAction(StopAudio{})
 	e.RegisterAction(StopMusic{})
 	e.RegisterAction(StopScope{})

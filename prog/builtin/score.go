@@ -9,37 +9,38 @@ import (
 
 func singlePlayerPanel(e spin.Env) {
 	r, g := e.Display("").Renderer("")
-	vars := spin.GameVars(e)
+	player := spin.GetPlayerVars(e)
 
 	switch {
-	case vars.Score() < 1_000_000_000:
+	case player.Score < 1_000_000_000:
 		g.Font = Font18x12
-	case vars.Score() < 10_000_000_000:
+	case player.Score < 10_000_000_000:
 		g.Font = Font18x11
 	default:
 		g.Font = Font18x10
 	}
 	g.Y = 3
 	g.W = r.Width()
-	r.Print(g, spin.FormatScore("%d", vars.Score()))
+	r.Print(g, spin.FormatScore("%d", player.Score))
 }
 
 func multiPlayerPanel(e spin.Env) {
 	r, g := e.Display("").Renderer("")
-	vars := spin.GameVars(e)
+	game := spin.GetGameVars(e)
 
-	sizedFont := func(player int) string {
-		active := vars.Player == player
+	sizedFont := func(active bool, score int) string {
+		//active := game.Player == playerNum
+		//score := spin.GetPlayerVarsFor(e, playerNum).Score
 		switch {
-		case active && vars.Scores[player] < 10_000_000:
+		case active && score < 10_000_000:
 			return Font14x10
-		case active && vars.Scores[player] < 100_000_000:
+		case active && score < 100_000_000:
 			return Font14x9
 		case active:
 			return Font14x8
-		case vars.Scores[player] < 10_000_000:
+		case score < 10_000_000:
 			return Font09x7
-		case vars.Scores[player] < 10_000_000:
+		case score < 10_000_000:
 			return Font09x6
 		default:
 			return Font09x5
@@ -47,34 +48,39 @@ func multiPlayerPanel(e spin.Env) {
 	}
 
 	g.X, g.Y = 0, 0
-	g.Font = sizedFont(1)
-	r.Print(g, spin.FormatScore("%d", vars.Scores[1]))
+	score := spin.GetPlayerVarsFor(e, 1).Score
+	g.Font = sizedFont(game.Player == 1, score)
+	r.Print(g, spin.FormatScore("%d", score))
 
 	g.X, g.Y = r.Width()+1, 0
 	g.AnchorX = spin.AnchorRight
-	g.Font = sizedFont(2)
-	r.Print(g, spin.FormatScore("%d", vars.Scores[2]))
+	score = spin.GetPlayerVarsFor(e, 2).Score
+	g.Font = sizedFont(game.Player == 2, score)
+	score = spin.GetPlayerVarsFor(e, 2).Score
+	r.Print(g, spin.FormatScore("%d", score))
 
-	if vars.NumPlayers >= 3 {
+	if game.NumPlayers >= 3 {
 		g.X, g.Y = 0, r.Height()-6
 		g.AnchorX = spin.AnchorLeft
 		g.AnchorY = spin.AnchorBottom
-		g.Font = sizedFont(3)
-		r.Print(g, spin.FormatScore("%d", vars.Scores[3]))
+		score = spin.GetPlayerVarsFor(e, 3).Score
+		g.Font = sizedFont(game.Player == 3, score)
+		r.Print(g, spin.FormatScore("%d", score))
 	}
 
-	if vars.NumPlayers == 4 {
+	if game.NumPlayers == 4 {
 		g.X, g.Y = r.Width(), r.Height()-6
 		g.AnchorX = spin.AnchorRight
 		g.AnchorY = spin.AnchorBottom
-		g.Font = sizedFont(4)
-		r.Print(g, spin.FormatScore("%d", vars.Scores[4]))
+		score = spin.GetPlayerVarsFor(e, 4).Score
+		g.Font = sizedFont(game.Player == 4, score)
+		r.Print(g, spin.FormatScore("%d", score))
 	}
 }
 
 func scoreFrame(e spin.Env) {
 	r, g := e.Display("").Renderer("")
-	game := spin.GameVars(e)
+	game := spin.GetGameVars(e)
 
 	r.Fill(spin.ColorBlack)
 	if game.NumPlayers == 1 {

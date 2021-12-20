@@ -70,7 +70,7 @@ func useFireButtonScript(e spin.Env) {
 }
 
 func plungeScript(e spin.Env) {
-	game := spin.GameVars(e)
+	game := spin.GetGameVars(e)
 
 	e.Do(spin.PlayScript{ID: builtin.ScriptScore})
 	e.Do(spin.PlayMusic{ID: MusicPlungeLoop})

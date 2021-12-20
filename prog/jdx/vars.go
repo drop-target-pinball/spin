@@ -80,8 +80,8 @@ func StartOfBallReset(store spin.Store) {
 }
 
 func GetVars(store spin.Store) *Vars {
-	game := spin.GameVars(store)
-	name := fmt.Sprintf("jdx.%v", game.Player)
+	game := spin.GetGameVars(store)
+	name := fmt.Sprintf("jdx.p%v", game.Player)
 
 	v, ok := store.Vars(name)
 	var vars *Vars

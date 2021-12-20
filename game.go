@@ -1,53 +1,62 @@
 package spin
 
-type Game struct {
+import "fmt"
+
+type GameVars struct {
 	BallsPerGame int
 	Player       int
 	Ball         int
 	MaxPlayers   int
 	NumPlayers   int
-	Scores       []int
 	ExtraBalls   int
 	IsExtraBall  bool
 	BallActive   bool
 }
 
-func (g *Game) Score() int {
-	return g.Scores[g.Player]
+type PlayerVars struct {
+	Score int
 }
 
-func (g *Game) AddScore(s int) {
-	g.Scores[g.Player] += s
-}
-
-func (g *Game) SetScore(s int) {
-	g.Scores[g.Player] = s
-}
-
-func GameVars(store Store) *Game {
+func GetGameVars(store Store) *GameVars {
 	v, ok := store.Vars("game")
-	var vars *Game
+	var vars *GameVars
 	if ok {
-		vars = v.(*Game)
+		vars = v.(*GameVars)
 	} else {
-		vars = &Game{}
+		vars = &GameVars{}
 		vars.BallsPerGame = 3
 		vars.MaxPlayers = 4
-		vars.Scores = make([]int, vars.MaxPlayers+1)
+		//vars.Scores = make([]int, vars.MaxPlayers+1)
 		store.RegisterVars("game", vars)
 	}
 	return vars
 }
 
+func GetPlayerVarsFor(store Store, player int) *PlayerVars {
+	name := fmt.Sprintf("player.%v", player)
+	v, ok := store.Vars(name)
+	var vars *PlayerVars
+	if ok {
+		vars = v.(*PlayerVars)
+	} else {
+		vars = &PlayerVars{}
+		store.RegisterVars(name, vars)
+	}
+	return vars
+}
+
+func GetPlayerVars(store Store) *PlayerVars {
+	game := GetGameVars(store)
+	return GetPlayerVarsFor(store, game.Player)
+}
+
 type gameSystem struct {
-	eng  *Engine
-	game *Game
+	eng *Engine
 }
 
 func registerGameSystem(eng *Engine) {
 	s := &gameSystem{
-		eng:  eng,
-		game: GameVars(eng),
+		eng: eng,
 	}
 	eng.RegisterActionHandler(s)
 }
@@ -66,26 +75,28 @@ func (s gameSystem) HandleAction(action Action) {
 }
 
 func (s *gameSystem) addPlayer(act AddPlayer) {
-	if s.game.Ball > 1 {
+	game := GetGameVars(s.eng)
+	if game.Ball > 1 {
 		return
 	}
-	if s.game.NumPlayers == s.game.MaxPlayers {
+	if game.NumPlayers == game.MaxPlayers {
 		return
 	}
-	s.game.NumPlayers += 1
-	s.eng.Post(PlayerAddedEvent{Player: s.game.NumPlayers})
+	game.NumPlayers += 1
+	s.eng.Post(PlayerAddedEvent{Player: game.NumPlayers})
 }
 
 func (s *gameSystem) advanceGame(act AdvanceGame) {
-	g := s.game
+	g := GetGameVars(s.eng)
 
 	if g.NumPlayers == 0 {
 		return
 	}
 
 	if g.Ball == 0 {
-		for i := range g.Scores {
-			g.Scores[i] = 0
+		for i := 1; i < g.NumPlayers; i++ {
+			player := GetPlayerVarsFor(s.eng, i)
+			player.Score = 0
 		}
 		g.Ball = 1
 		g.Player = 1
@@ -128,9 +139,11 @@ func (s *gameSystem) advanceGame(act AdvanceGame) {
 }
 
 func (s *gameSystem) awardScore(act AwardScore) {
-	s.game.AddScore(act.Val)
+	player := GetPlayerVars(s.eng)
+	player.Score += act.Val
 }
 
 func (s *gameSystem) setScore(act SetScore) {
-	s.game.SetScore(act.Val)
+	player := GetPlayerVars(s.eng)
+	player.Score = act.Val
 }

@@ -5,7 +5,7 @@ import (
 )
 
 func gameStartButtonScript(e spin.Env) {
-	game := spin.GameVars(e)
+	game := spin.GetGameVars(e)
 
 	e.Do(spin.DriverOn{ID: e.Config.LampStartButton})
 
