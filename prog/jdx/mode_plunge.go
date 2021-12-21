@@ -27,15 +27,13 @@ func useFireButtonFrame(e spin.Env, n int) {
 
 	r.Fill(spin.ColorBlack)
 	g.Font = builtin.FontPfRondaSevenBold8
-	g.W = r.Width()
 	g.Y = 7
 	r.Print(g, "USE")
 	g.Y = 18
 	r.Print(g, "FIRE BUTTON")
 
-	g.W = 0
-	g.H = r.Height()
-	g.Y = 0
+	g.AnchorY = spin.AnchorMiddle
+	g.Y = r.Height() / 2
 	g.X = 4
 	//r.Print(g, chevronsL[n])
 	g.X = 110

@@ -24,9 +24,8 @@ func gameOverFrame(e spin.Env) {
 	r, g := e.Display("").Renderer("")
 
 	r.Fill(spin.ColorBlack)
-	g.Y = 2
-	g.W = r.Width()
-	g.H = r.Height()
+	g.AnchorY = spin.AnchorMiddle
+	g.Y = r.Height() / 2
 	g.Font = builtin.FontPfRondaSevenBold8
 	r.Print(g, "GAME OVER")
 }
@@ -43,7 +42,6 @@ func dropTargetPinballFrame(e spin.Env) {
 	r, g := e.Display("").Renderer("")
 
 	r.Fill(spin.ColorBlack)
-	g.W = r.Width()
 	g.Y = 7
 	g.Font = builtin.FontPfArmaFive8
 	r.Print(g, "DROP TARGET PINBALL")
@@ -64,7 +62,6 @@ func superPinballSystemFrame(e spin.Env) {
 	r, g := e.Display("").Renderer("")
 
 	r.Fill(spin.ColorBlack)
-	g.W = r.Width()
 	g.Y = 7
 	g.Font = builtin.FontPfRondaSevenBold8
 	r.Print(g, "SUPER")
@@ -84,7 +81,6 @@ func freePlayFrame(e spin.Env, blinkOn bool) {
 	r, g := e.Display("").Renderer("")
 
 	r.Fill(spin.ColorBlack)
-	g.W = r.Width()
 	g.Y = 7
 	g.Font = builtin.FontPfRondaSevenBold8
 	if blinkOn {

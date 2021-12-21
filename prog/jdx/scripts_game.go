@@ -30,14 +30,21 @@ func gameScript(e spin.Env) {
 		}
 		e.Do(spin.StopScope{ID: spin.ScopeBall})
 		e.Do(spin.StopAudio{})
-		if done := e.Sleep(3 * time.Second); done {
+		if done := e.Sleep(1 * time.Second); done {
+			return
+		}
+		e.Do(spin.PlayScript{ID: ScriptBonusMode})
+		if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: ScriptBonusMode}); done {
 			return
 		}
 	}
 
 	e.Do(spin.StopScope{ID: spin.ScopeGame})
-	e.Do(spin.PlayScript{ID: ScriptMatch})
-	e.WaitFor(spin.GameOverEvent{})
+	e.Do(spin.PlayScript{ID: ScriptMatchMode})
+	if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: ScriptMatchMode}); done {
+		return
+	}
+	e.Post(spin.GameOverEvent{})
 }
 
 var playerSpeech = map[int]string{
@@ -60,25 +67,4 @@ func playerAnnounceScript(e spin.Env) {
 			}
 		}
 	}
-}
-
-func matchScript(e spin.Env) {
-	r, g := e.Display("").Renderer("")
-
-	r.Fill(spin.ColorBlack)
-	g.Y = 2
-	g.W = r.Width()
-	g.H = r.Height()
-	g.Font = builtin.FontPfRondaSevenBold8
-	r.Print(g, "GAME OVER")
-
-	e.Do(spin.PlayMusic{ID: MusicMatch, Loops: 1, Notify: true})
-	if _, done := e.WaitFor(spin.MusicFinishedEvent{}); done {
-		return
-	}
-	e.Do(spin.PlayMusic{ID: MusicMatchHit, Loops: 1, Notify: true})
-	if _, done := e.WaitFor(spin.MusicFinishedEvent{}); done {
-		return
-	}
-	e.Post(spin.GameOverEvent{})
 }

@@ -145,7 +145,7 @@ func watchdog(watchdog chan struct{}) {
 		select {
 		case <-watchdog:
 			// tickle
-		case <-time.After(1 * time.Second):
+		case <-time.After(2 * time.Second):
 			Error("deadlock detected")
 			debugStackTrace()
 			log.Panicf("stopping on deadlock")

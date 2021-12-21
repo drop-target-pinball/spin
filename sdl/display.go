@@ -42,10 +42,18 @@ func (d *displaySystem) Renderer(layer string) (spin.Renderer, *spin.Graphics) {
 	if !ok {
 		log.Panicf("no such layer: %v", layer)
 	}
-	return &rendererSDL{
+
+	graphics := &spin.Graphics{
+		X:       d.surf.W / 2,
+		Y:       d.surf.H / 2,
+		AnchorX: spin.AnchorCenter,
+		AnchorY: spin.AnchorTop,
+	}
+	renderer := &rendererSDL{
 		surf:  surf,
 		fonts: d.fonts,
-	}, &spin.Graphics{}
+	}
+	return renderer, graphics
 }
 
 func (d *displaySystem) Clear(layer string) {
@@ -159,11 +167,11 @@ func (r *rendererSDL) Print(g *spin.Graphics, format string, a ...interface{}) {
 	text := fmt.Sprintf(format, a...)
 	w, h := font.size(text)
 	x, y := g.X, g.Y
-	if g.W > 0 {
-		x += (r.surf.W - w) / 2
+	if g.AnchorX == spin.AnchorCenter {
+		x -= w / 2
 	}
-	if g.H > 0 {
-		y += (r.surf.H - h) / 2
+	if g.AnchorY == spin.AnchorMiddle {
+		y -= h / 2
 	}
 	if g.AnchorX == spin.AnchorRight {
 		x -= w

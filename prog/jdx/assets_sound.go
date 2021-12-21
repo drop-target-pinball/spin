@@ -4,6 +4,7 @@ import "github.com/drop-target-pinball/spin"
 
 const (
 	SoundBallLost        = "jdx.SoundBallLost"
+	SoundBonus           = "jdx.SoundBonus"
 	SoundGunLoadSniper   = "jdx.SoundGunLoadSniper"
 	SoundGunFire         = "jdx.SoundGunFire"
 	SoundMotorcycleStart = "jdx.SoundMotorcycleStart"
@@ -17,6 +18,10 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundBallLost,
 		Path: "jd-pinsound/sfx/000112-ball_lost/ball_los__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundBonus,
+		Path: "jd-pinsound/sfx/000063-piano_1/piano_1___LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundGunLoadSniper,

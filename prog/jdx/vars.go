@@ -2,6 +2,7 @@ package jdx
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
@@ -13,6 +14,9 @@ const (
 	ScoreSling      = 1_930
 	ScoreOutlane    = 100_000
 	ScorePost       = 5_210
+
+	ScoreMinimumBonus    = 1_000_000
+	ScoreCrimeSceneBonus = 1_000_000
 )
 
 const (
@@ -28,9 +32,10 @@ const (
 )
 
 const (
-	AllModes = ModePursuit | ModeBlackout | ModeSniper | ModeBattleTank | ModeBadImpersonator | ModeMeltdown | ModeSafeCracker | ModeManhunt | ModeStakeout
-	MinMode  = ModePursuit
-	MaxMode  = ModeStakeout
+	AllModes   = ModePursuit | ModeBlackout | ModeSniper | ModeBattleTank | ModeBadImpersonator | ModeMeltdown | ModeSafeCracker | ModeManhunt | ModeStakeout
+	MinMode    = ModePursuit
+	MaxMode    = ModeStakeout
+	MaxPlayers = 4
 )
 
 var (
@@ -73,6 +78,7 @@ var (
 
 type Vars struct {
 	AwardedModes int
+	CrimeScenes  int
 	SelectedMode int
 	SniperBonus  int
 	SniperScore  int
@@ -89,15 +95,19 @@ func startOfBallReset(store spin.Store) {
 
 func GetVars(store spin.Store) *Vars {
 	game := spin.GetGameVars(store)
-	name := fmt.Sprintf("jdx.p%v", game.Player)
+	name := fmt.Sprintf("jdx.%v", game.Player)
 
 	v, ok := store.Vars(name)
-	var vars *Vars
-	if ok {
-		vars = v.(*Vars)
-	} else {
-		vars = &Vars{}
-		store.RegisterVars(name, vars)
+	if !ok {
+		log.Panicf("no such vars: %v", name)
 	}
-	return vars
+	return v.(*Vars)
+}
+
+func RegisterVars(e *spin.Engine) {
+	for i := 0; i <= MaxPlayers; i++ {
+		id := fmt.Sprintf("jdx.%v", i)
+		vars := &Vars{}
+		e.RegisterVars(id, vars)
+	}
 }

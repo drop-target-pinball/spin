@@ -12,6 +12,7 @@ const (
 	ScriptAttractMode            = "jdx.ScriptAttractMode"
 	ScriptBall                   = "jdx.ScriptBall"
 	ScriptBasicMode              = "jdx.ScriptBasicMode"
+	ScriptBonusMode              = "jdx.ScriptBonusMode"
 	ScriptChain                  = "jdx.ScriptChain"
 	ScriptDefaultLeftShooterLane = "jdx.ScriptDefaultLeftShooterLane"
 	ScriptDefaultLeftPopper      = "jdx.ScriptDefaultLeftPopper"
@@ -20,7 +21,7 @@ const (
 	ScriptGame                   = "jdx.ScriptGame"
 	ScriptLeftShooterLaneShot    = "jdx.ScriptLeftShooterLaneShot"
 	ScriptLeftPopperShot         = "jdx.ScriptLeftPopperShot"
-	ScriptMatch                  = "jdx.ScriptMatch"
+	ScriptMatchMode              = "jdx.ScriptMatchMode"
 	ScriptOutlane                = "jdx.ScriptOutlane"
 	ScriptPlayerAnnounce         = "jdx.ScriptPlayerAnnounce"
 	ScriptPlungeMode             = "jdx.ScriptPlungeMode"
@@ -74,11 +75,9 @@ func defaultRightPopperScript(e spin.Env) {
 
 func modeIntroFrame(e spin.Env, blinkOn bool, text [3]string) {
 	r, g := e.Display("").Renderer("")
-	//defer r.Unlock()
 
 	r.Fill(spin.ColorBlack)
 	g.Y = 2
-	g.W = r.Width()
 	g.Font = builtin.FontPfArmaFive8
 	r.Print(g, text[0])
 	if blinkOn {
@@ -121,6 +120,11 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeBall,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptBonusMode,
+		Script: bonusModeScript,
+		Scope:  spin.ScopeGame,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptChain,
 		Script: chainScript,
 		Scope:  spin.ScopeBall,
@@ -161,8 +165,8 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeBall,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptMatch,
-		Script: matchScript,
+		ID:     ScriptMatchMode,
+		Script: matchModeScript,
 		Scope:  spin.ScopeGame,
 	})
 	eng.Do(spin.RegisterScript{

@@ -24,7 +24,6 @@ func selectGameMenuFrame(e spin.Env, local *selectVars) {
 	vars := system.GetVars(e)
 
 	r.Fill(spin.ColorBlack)
-	g.W = r.Width()
 	g.Y = 7
 	g.Font = builtin.FontPfTempestaFiveExtendedBold8
 	r.Print(g, "GAME SELECT")
@@ -32,8 +31,8 @@ func selectGameMenuFrame(e spin.Env, local *selectVars) {
 	g.Font = builtin.FontPfTempestaFiveCompressedBold8
 	r.Print(g, vars.Games[vars.Game])
 
+	g.AnchorX = spin.AnchorLeft
 	if local.blinkOn {
-		g.W = 0
 		g.X = 20
 		g.Y = 18
 		r.Print(g, ">>")

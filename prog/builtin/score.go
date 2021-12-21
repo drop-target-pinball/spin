@@ -20,7 +20,6 @@ func singlePlayerPanel(e spin.Env) {
 		g.Font = Font18x10
 	}
 	g.Y = 3
-	g.W = r.Width()
 	r.Print(g, spin.FormatScore("%d", player.Score))
 }
 
@@ -90,7 +89,7 @@ func scoreFrame(e spin.Env) {
 	}
 
 	g.Font = Font04B_03_7px
-	g.W = 0
+	g.AnchorX = spin.AnchorLeft
 	g.X, g.Y = 25, r.Height()-5
 	r.Print(g, "BALL %v", game.Ball)
 	g.X = 75
