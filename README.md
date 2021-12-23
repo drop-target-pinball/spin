@@ -31,7 +31,7 @@ is time to work on some modes.
 
 ## Demo
 
-[![Super Pinball System: alpha-v5](https://img.youtube.com/vi/hTm5NL2evjM/0.jpg)](https://www.youtube.com/watch?v=hTm5NL2evjM "Super Pinball System: alpha-v5")
+[![Super Pinball System: alpha-v5](https://img.youtube.com/vi/tfHG1smM2WI/0.jpg)](https://www.youtube.com/watch?v=tfHG1smM2WI "Super Pinball System: alpha-v5")
 
 ## License
 
