@@ -9,6 +9,8 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+const chanSpeech = 0
+
 type audioSystem struct {
 	eng    *spin.Engine
 	music  map[string]*mix.Music
@@ -17,6 +19,10 @@ type audioSystem struct {
 
 	musicPlaying  string
 	speechPlaying string
+	soundsPlaying []string
+
+	musicNotify  bool
+	speechNotify bool
 }
 
 func RegisterAudioSystem(eng *spin.Engine) {
@@ -33,13 +39,20 @@ func RegisterAudioSystem(eng *spin.Engine) {
 		mix.DEFAULT_CHUNKSIZE,
 	)
 	mix.ReserveChannels(1)
-	sys := &audioSystem{
-		eng:    eng,
-		music:  make(map[string]*mix.Music),
-		speech: make(map[string]*mix.Chunk),
-		sound:  make(map[string]*mix.Chunk),
+	nChan := mix.AllocateChannels(-1)
+
+	s := &audioSystem{
+		eng:           eng,
+		music:         make(map[string]*mix.Music),
+		speech:        make(map[string]*mix.Chunk),
+		sound:         make(map[string]*mix.Chunk),
+		soundsPlaying: make([]string, nChan),
 	}
-	eng.RegisterActionHandler(sys)
+
+	mix.ChannelFinished(s.channelFinished)
+	mix.HookMusicFinished(s.musicFinished)
+
+	eng.RegisterActionHandler(s)
 }
 
 func (s *audioSystem) HandleAction(action spin.Action) {
@@ -64,6 +77,8 @@ func (s *audioSystem) HandleAction(action spin.Action) {
 		s.stopAudio(act)
 	case spin.StopMusic:
 		s.stopMusic(act)
+	case spin.StopSound:
+		s.stopSound(act)
 	case spin.StopSpeech:
 		s.stopSpeech(act)
 	}
@@ -134,16 +149,12 @@ func (s *audioSystem) playMusic(a spin.PlayMusic) {
 	}
 	m.Play(loops)
 	s.musicPlaying = a.ID
+	s.musicNotify = a.Notify
+
 	if a.Vol == 0 {
 		mix.VolumeMusic(mix.MAX_VOLUME)
 	} else {
 		mix.VolumeMusic(a.Vol)
-	}
-
-	if a.Notify {
-		mix.HookMusicFinished(func() {
-			s.eng.Post(spin.MusicFinishedEvent{})
-		})
 	}
 }
 
@@ -153,7 +164,11 @@ func (s *audioSystem) playSound(a spin.PlaySound) {
 		spin.Warn("%v not found", a.ID)
 		return
 	}
-	sp.Play(-1, 0)
+	channel, err := sp.Play(-1, a.Loops)
+	if err != nil {
+		log.Panic(err)
+	}
+	s.soundsPlaying[channel] = a.ID
 }
 
 func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
@@ -163,7 +178,8 @@ func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
 		return
 	}
 	s.speechPlaying = a.ID
-	sp.Play(0, 0)
+	s.speechNotify = a.Notify
+	sp.Play(chanSpeech, 0)
 }
 
 func (s *audioSystem) stopAudio(a spin.StopAudio) {
@@ -180,9 +196,30 @@ func (s *audioSystem) stopMusic(a spin.StopMusic) {
 	}
 }
 
+func (s *audioSystem) stopSound(a spin.StopSound) {
+	for channel, id := range s.soundsPlaying {
+		if id == a.ID {
+			mix.HaltChannel(channel)
+			break
+		}
+	}
+}
+
 func (s *audioSystem) stopSpeech(a spin.StopSpeech) {
 	if a.Any || a.ID == s.speechPlaying {
 		mix.HaltChannel(0)
 		s.speechPlaying = ""
+	}
+}
+
+func (s *audioSystem) channelFinished(ch int) {
+	if ch == chanSpeech && s.speechNotify {
+		s.eng.Post(spin.SpeechFinishedEvent{})
+	}
+}
+
+func (s *audioSystem) musicFinished() {
+	if s.musicNotify {
+		s.eng.Post(spin.MusicFinishedEvent{})
 	}
 }

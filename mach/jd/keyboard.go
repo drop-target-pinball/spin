@@ -63,4 +63,12 @@ func RegisterKeys(eng *spin.Engine) {
 		Key:       "w",
 		EventDown: spin.SwitchEvent{ID: SwitchLeftRampExit},
 	})
+	eng.Do(spin.RegisterKey{
+		Key:       "e",
+		EventDown: spin.SwitchEvent{ID: SwitchRightRampExit},
+	})
+	eng.Do(spin.RegisterKey{
+		Key:       "d",
+		EventDown: spin.SwitchEvent{ID: SwitchRightPopper},
+	})
 }

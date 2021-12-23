@@ -4,12 +4,26 @@ import (
 	"time"
 
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 const (
 	ScriptInactiveGlobe               = "jd.ScriptInactiveGlobe"
+	ScriptLeftPopperShot              = "jd.ScriptLeftPopperShot"
+	ScriptLeftRampShot                = "jd.ScriptLeftRampShot"
+	ScriptLeftShooterLaneShot         = "jd.ScriptLeftShooterLaneShot"
 	ScriptRaiseDropTargets            = "jd.ScriptRaiseDropTargets"
 	ScriptRaiseDropTargetsWhenAllDown = "jd.ScriptRaiseDropTargetsWhenAllDown"
+	ScriptRightPopperShot             = "jd.ScriptRightPopperShot"
+	ScriptRightRampShot               = "jd.ScriptRightRampShot"
+)
+
+const (
+	ShotLeftPopper      = "jd.ShotLeftPopper"
+	ShotLeftRamp        = "jd.ShotLeftRamp"
+	ShotLeftShooterLane = "jd.ShotLeftShooterLane"
+	ShotRightPopper     = "jd.ShotRightPopper"
+	ShotRightRamp       = "jd.ShotRightRamp"
 )
 
 func inactiveGlobeScript(e spin.Env) {
@@ -107,11 +121,46 @@ func raiseDropTargetsWhenAllDownScript(e spin.Env) {
 
 }
 
+func leftRampShotScript(e spin.Env) {
+	builtin.ShotSequenceScript(e, []string{SwitchLeftRampEnter, SwitchLeftRampExit}, ShotLeftRamp, 1000*time.Millisecond)
+}
+
+func leftShooterLaneShotScript(e spin.Env) {
+	builtin.ShotTrapScript(e, SwitchLeftShooterLane, ShotLeftShooterLane, 250*time.Millisecond)
+}
+
+func leftPopperShotScript(e spin.Env) {
+	builtin.ShotTrapScript(e, SwitchLeftPopper, ShotLeftPopper, 250*time.Millisecond)
+}
+
+func rightPopperShotScript(e spin.Env) {
+	builtin.ShotTrapScript(e, SwitchRightPopper, ShotRightPopper, 250*time.Millisecond)
+}
+
+func rightRampShotScript(e spin.Env) {
+	builtin.ShotSwitchScript(e, SwitchRightRampExit, ShotRightRamp)
+}
+
 func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptInactiveGlobe,
 		Script: inactiveGlobeScript,
 		Scope:  spin.ScopeBall,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptLeftShooterLaneShot,
+		Script: leftShooterLaneShotScript,
+		Scope:  spin.ScopeRoot,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptLeftRampShot,
+		Script: leftRampShotScript,
+		Scope:  spin.ScopeRoot,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptLeftPopperShot,
+		Script: leftPopperShotScript,
+		Scope:  spin.ScopeRoot,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptRaiseDropTargets,
@@ -123,4 +172,20 @@ func RegisterScripts(eng *spin.Engine) {
 		Script: raiseDropTargetsWhenAllDownScript,
 		Scope:  spin.ScopeBall,
 	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptRightPopperShot,
+		Script: rightPopperShotScript,
+		Scope:  spin.ScopeRoot,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptRightRampShot,
+		Script: rightRampShotScript,
+		Scope:  spin.ScopeRoot,
+	})
+
+	eng.Do(spin.PlayScript{ID: ScriptLeftPopperShot})
+	eng.Do(spin.PlayScript{ID: ScriptLeftRampShot})
+	eng.Do(spin.PlayScript{ID: ScriptLeftShooterLaneShot})
+	eng.Do(spin.PlayScript{ID: ScriptRightPopperShot})
+	eng.Do(spin.PlayScript{ID: ScriptRightRampShot})
 }

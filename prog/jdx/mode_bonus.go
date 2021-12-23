@@ -33,6 +33,7 @@ func bonusModeScript(e spin.Env) {
 		score int
 	}{
 		{"CRIME SCENES", vars.CrimeScenes * ScoreCrimeSceneBonus},
+		{"PURSUIT", vars.PursuitBonus},
 		{"SNIPER", vars.SniperBonus},
 	}
 

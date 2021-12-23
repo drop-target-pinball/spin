@@ -4,7 +4,9 @@ import "github.com/drop-target-pinball/spin"
 
 const (
 	SpeechAaaaah                                    = "jdx.SpeechAaaaah"
+	SpeechDreddToControl                            = "jdx.SpeechDreddToControl"
 	SpeechICanSeeMyHouseFromHere                    = "jdx.SpeechICanSeeMyHouseFromHere"
+	SpeechImInPursuitOfAStolenVehicle               = "jdx.SpeechImInPursuitOfAStolenVehicle"
 	SpeechItsALongWayDown                           = "jdx.SpeechItsALongWayDown"
 	SpeechLawMasterComputerOnlineWelcomeAboard      = "jdx.SpeechLawMasterComputerOnlineWelcomeAboard"
 	SpeechPlayer2                                   = "jdx.SpeechPlayer2"
@@ -13,7 +15,9 @@ const (
 	SpeechShootSniperTower                          = "jdx.SpeechShootSniperTower"
 	SpeechSniperEliminated                          = "jdx.SpeechSniperEliminated"
 	SpeechSniperIsShootingIntoCrowdFromJohnsonTower = "jdx.SpeechSniperIsShootingIntoCrowdFromJohnsonTower"
+	SpeechSuspectGotAway                            = "jdx.SpeechSuspectGotAway"
 	SpeechUseFireButtonToLaunchBall                 = "jdx.SpeechUseFireButtonToLaunchBall"
+	SpeechYourDrivingDaysAreOverPunk                = "jdx.SpeechYourDrivingDaysAreOverPunk"
 )
 
 func RegisterSpeech(eng *spin.Engine) {
@@ -22,8 +26,16 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000282-aaaaaaaaaaaaaaaaaaaah/aaaaaaaa__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechDreddToControl,
+		Path: "jd-pinsound/voice/000248-dredd_to_control/dredd_to__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechICanSeeMyHouseFromHere,
 		Path: "jd-pinsound/voice/000284-i_can_see_my_house_from_here/i_can_se__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechImInPursuitOfAStolenVehicle,
+		Path: "jd-pinsound/voice/000249-i_m_in_pursuit_of_a_stolen_vehicle/i_m_in_p__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechItsALongWayDown,
@@ -58,7 +70,15 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000346-sniper_is_shooting_into_crowd_from_johnson_tower/sniper_i__LEGACY.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechSuspectGotAway,
+		Path: "jd-pinsound/voice/000252-suspect_got_away/000252-suspect_got_away_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechUseFireButtonToLaunchBall,
 		Path: "jd-pinsound/voice/000326-use_fire_button_to_launch_ball/use_fire__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechYourDrivingDaysAreOverPunk,
+		Path: "jd-pinsound/voice/000209-your_driving_days_are_over_punk/your_dri__LEGACY.wav",
 	})
 }

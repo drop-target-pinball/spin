@@ -1,6 +1,6 @@
 package spin
 
 const (
-	Version = "alpha-v4"
-	Date    = "Dec 12 2021"
+	Version = "alpha-v5"
+	Date    = "Dec 22 2021"
 )

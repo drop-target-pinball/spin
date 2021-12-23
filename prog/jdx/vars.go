@@ -2,7 +2,6 @@ package jdx
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
@@ -14,6 +13,11 @@ const (
 	ScoreSling      = 1_930
 	ScoreOutlane    = 100_000
 	ScorePost       = 5_210
+
+	ScorePursuit0 = 3_000_000
+	ScorePursuit1 = 6_000_000
+	ScorePursuit2 = 12_000_000
+	ScorePursuit3 = 36_000_000
 
 	ScoreMinimumBonus    = 1_000_000
 	ScoreCrimeSceneBonus = 1_000_000
@@ -64,7 +68,7 @@ var (
 	}
 
 	ModeScripts = map[int]string{
-		ModePursuit:         ScriptSniperMode,
+		ModePursuit:         ScriptPursuitMode,
 		ModeBlackout:        ScriptSniperMode,
 		ModeSniper:          ScriptSniperMode,
 		ModeBattleTank:      ScriptSniperMode,
@@ -79,6 +83,7 @@ var (
 type Vars struct {
 	AwardedModes int
 	CrimeScenes  int
+	PursuitBonus int
 	SelectedMode int
 	SniperBonus  int
 	SniperScore  int
@@ -86,28 +91,25 @@ type Vars struct {
 
 func startOfBallReset(store spin.Store) {
 	vars := GetVars(store)
+	vars.PursuitBonus = 0
 	vars.SniperBonus = 0
 	vars.SniperScore = 0
 	if vars.SelectedMode == 0 {
-		vars.SelectedMode = ModeSniper
+		vars.SelectedMode = ModeStakeout // FIXME
 	}
 }
 
 func GetVars(store spin.Store) *Vars {
 	game := spin.GetGameVars(store)
 	name := fmt.Sprintf("jdx.%v", game.Player)
+	var vars *Vars
 
 	v, ok := store.Vars(name)
-	if !ok {
-		log.Panicf("no such vars: %v", name)
+	if ok {
+		vars = v.(*Vars)
+	} else {
+		vars = &Vars{}
+		store.RegisterVars(name, vars)
 	}
-	return v.(*Vars)
-}
-
-func RegisterVars(e *spin.Engine) {
-	for i := 0; i <= MaxPlayers; i++ {
-		id := fmt.Sprintf("jdx.%v", i)
-		vars := &Vars{}
-		e.RegisterVars(id, vars)
-	}
+	return vars
 }

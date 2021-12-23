@@ -26,10 +26,14 @@ I would like to do the following:
 
 A work in progress. Judge Dredd Remix is first.
 
-v4-alpha was for getting a playable ball that doesn't get stuck anywhere.
-The next version will be to implement cancellation contexts and a full
-game sequence.
+v5-alpha was for getting a full game sequence working. Now it
+is time to work on some modes.
+
+## Demo
+
+[![Super Pinball System: alpha-v5](https://img.youtube.com/vi/hTm5NL2evjM/0.jpg)](https://www.youtube.com/watch?v=hTm5NL2evjM "Super Pinball System: alpha-v5")
 
 ## License
 
 MIT
+

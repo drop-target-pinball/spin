@@ -1,6 +1,8 @@
 package builtin
 
-import "github.com/drop-target-pinball/spin"
+import (
+	"github.com/drop-target-pinball/spin"
+)
 
 const (
 	ScriptBallTracker     = "ScriptBallTracker"

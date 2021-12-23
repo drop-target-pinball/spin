@@ -2,11 +2,9 @@ package jdx
 
 import (
 	"context"
-	"time"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
-	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 const (
@@ -15,9 +13,8 @@ const (
 )
 
 type modeStartConfig struct {
-	lamp       string
-	shot       string
-	shotScript func(spin.Env)
+	lamp string
+	shot string
 }
 
 const (
@@ -27,14 +24,12 @@ const (
 
 var modeStartConfigs = map[bool]modeStartConfig{
 	modeLeft: {
-		lamp:       jd.LampLeftModeStart,
-		shot:       ShotStartLeftMode,
-		shotScript: startLeftModeShotScript,
+		lamp: jd.LampLeftModeStart,
+		shot: jd.ShotLeftRamp,
 	},
 	modeRight: {
-		lamp:       jd.LampRightModeStart,
-		shot:       ShotStartRightMode,
-		shotScript: startRightModeShotScript,
+		lamp: jd.LampRightModeStart,
+		shot: jd.ShotRightPopper,
 	},
 }
 
@@ -44,7 +39,6 @@ func waitForModeStart(e spin.Env, parent context.Context, side bool) bool {
 
 	m := modeStartConfigs[side]
 	e.Do(spin.DriverBlink{ID: m.lamp})
-	e.NewCoroutine(ctx, m.shotScript)
 	e.NewCoroutine(ctx, selectModeScript)
 	_, done := e.WaitFor(spin.ShotEvent{ID: m.shot})
 	e.Do(spin.DriverOff{ID: m.lamp})
@@ -53,7 +47,6 @@ func waitForModeStart(e spin.Env, parent context.Context, side bool) bool {
 
 func selectModeScript(e spin.Env) {
 	rv := spin.ResourceVars(e)
-	vars := GetVars(e)
 
 	for {
 		evt, done := e.WaitFor(
@@ -64,56 +57,55 @@ func selectModeScript(e spin.Env) {
 			return
 		}
 
-		previous := vars.SelectedMode
-		next := 0
 		if evt == (spin.SwitchEvent{ID: jd.SwitchLeftFireButton}) {
 			if rv.Switches[jd.SwitchLeftShooterLane].Active {
 				continue
 			}
-			for {
-				next = previous >> 1
-				if next < MinMode {
-					next = MaxMode
-				}
-				if next&vars.AwardedModes == 0 {
-					break
-				}
-			}
+			prevChain(e)
 		}
 		if evt == (spin.SwitchEvent{ID: jd.SwitchRightFireButton}) {
 			if rv.Switches[jd.SwitchRightShooterLane].Active {
 				continue
 			}
-			for {
-				next = previous << 1
-				if next > MaxMode {
-					next = MinMode
-				}
-				if next&vars.AwardedModes == 0 {
-					break
-				}
-			}
+			nextChain(e)
 		}
-		e.Do(spin.DriverOff{ID: ModeLamps[previous]})
-		e.Do(spin.DriverBlink{ID: ModeLamps[next]})
-		vars.SelectedMode = next
 	}
 }
 
-func startLeftModeShotScript(e spin.Env) {
-	builtin.ShotSequenceScript(e,
-		[]string{
-			jd.SwitchLeftRampEnter,
-			jd.SwitchLeftRampExit,
-		},
-		ShotStartLeftMode,
-		2*time.Second)
+func nextChain(e spin.Env) {
+	vars := GetVars(e)
+	previous := vars.SelectedMode
+	next := 0
+	for {
+		next = previous << 1
+		if next > MaxMode {
+			next = MinMode
+		}
+		if next&vars.AwardedModes == 0 {
+			break
+		}
+	}
+	e.Do(spin.DriverOff{ID: ModeLamps[previous]})
+	e.Do(spin.DriverBlink{ID: ModeLamps[next]})
+	vars.SelectedMode = next
 }
 
-func startRightModeShotScript(e spin.Env) {
-	builtin.ShotSwitchScript(e,
-		jd.SwitchRightRampExit,
-		ShotStartRightMode)
+func prevChain(e spin.Env) {
+	vars := GetVars(e)
+	previous := vars.SelectedMode
+	next := 0
+	for {
+		next = previous >> 1
+		if next < MinMode {
+			next = MaxMode
+		}
+		if next&vars.AwardedModes == 0 {
+			break
+		}
+	}
+	e.Do(spin.DriverOff{ID: ModeLamps[previous]})
+	e.Do(spin.DriverBlink{ID: ModeLamps[next]})
+	vars.SelectedMode = next
 }
 
 func chainScript(e spin.Env) {
@@ -155,6 +147,7 @@ func chainScript(e spin.Env) {
 		if vars.AwardedModes == AllModes {
 			break
 		}
+		nextChain(e)
 		modeSide = !modeSide
 	}
 }

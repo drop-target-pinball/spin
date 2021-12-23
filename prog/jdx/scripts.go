@@ -19,15 +19,16 @@ const (
 	ScriptDefaultRightPopper     = "jdx.ScriptDefaultRightPopper"
 	ScriptDebugExtraBall         = "jdx.ScriptDebugExtraBall"
 	ScriptGame                   = "jdx.ScriptGame"
-	ScriptLeftShooterLaneShot    = "jdx.ScriptLeftShooterLaneShot"
-	ScriptLeftPopperShot         = "jdx.ScriptLeftPopperShot"
 	ScriptMatchMode              = "jdx.ScriptMatchMode"
 	ScriptOutlane                = "jdx.ScriptOutlane"
 	ScriptPlayerAnnounce         = "jdx.ScriptPlayerAnnounce"
 	ScriptPlungeMode             = "jdx.ScriptPlungeMode"
 	ScriptProgram                = "jdx.ScriptProgram"
+	ScriptPursuitCaught          = "jdx.ScriptPursuitCaught"
+	ScriptPursuitCountdown       = "jdx.ScriptPursuitCountdown"
+	ScriptPursuitEscape          = "jdx.ScriptPursuitEscape"
+	ScriptPursuitMode            = "jdx.ScriptPursuitMode"
 	ScriptReturnLane             = "jdx.ScriptReturnLane"
-	ScriptRightPopperShot        = "jdx.ScriptRightPopperShot"
 	ScriptSling                  = "jdx.ScriptSling"
 	ScriptSniperMode             = "jdx.ScriptSniperMode"
 	ScriptSniperScoreCountdown   = "jdx.ScriptSniperScoreCountdown"
@@ -155,16 +156,6 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeGame,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptLeftShooterLaneShot,
-		Script: leftShooterLaneShotScript,
-		Scope:  spin.ScopeBall,
-	})
-	eng.Do(spin.RegisterScript{
-		ID:     ScriptLeftPopperShot,
-		Script: leftPopperShotScript,
-		Scope:  spin.ScopeBall,
-	})
-	eng.Do(spin.RegisterScript{
 		ID:     ScriptMatchMode,
 		Script: matchModeScript,
 		Scope:  spin.ScopeGame,
@@ -190,13 +181,28 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeProgram,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptReturnLane,
-		Script: returnLaneScript,
-		Scope:  spin.ScopeBall,
+		ID:     ScriptPursuitCaught,
+		Script: pursuitCaughtScript,
+		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptRightPopperShot,
-		Script: rightPopperShotScript,
+		ID:     ScriptPursuitCountdown,
+		Script: pursuitCountdownScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptPursuitEscape,
+		Script: pursuitEscapeScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptPursuitMode,
+		Script: pursuitModeScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptReturnLane,
+		Script: returnLaneScript,
 		Scope:  spin.ScopeBall,
 	})
 	eng.Do(spin.RegisterScript{

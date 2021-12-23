@@ -11,25 +11,18 @@ import (
 func ballScript(e spin.Env) {
 	startOfBallReset(e)
 
-	e.Do(spin.PlayScript{ID: builtin.ScriptBallTracker})
 	e.Do(spin.FlippersOn{})
 	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingLeft})
 	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingRight})
 
+	e.Do(spin.PlayScript{ID: builtin.ScriptBallTracker})
 	e.Do(spin.PlayScript{ID: ScriptSling})
-
-	e.Do(spin.PlayScript{ID: ScriptLeftPopperShot})
-	e.Do(spin.PlayScript{ID: ScriptLeftShooterLaneShot})
-	e.Do(spin.PlayScript{ID: ScriptRightPopperShot})
-
 	e.Do(spin.PlayScript{ID: ScriptOutlane})
 	e.Do(spin.PlayScript{ID: ScriptReturnLane})
 	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
-
 	e.Do(spin.PlayScript{ID: ScriptDebugExtraBall})
 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
-
 	e.Do(spin.PlayScript{ID: ScriptChain})
 
 	ctx, cancel := e.Derive()
@@ -110,16 +103,4 @@ func slingScript(e spin.Env) {
 		e.Do(spin.PlaySound{ID: SoundSling})
 		e.Do(spin.AwardScore{Val: ScoreSling})
 	}
-}
-
-func leftShooterLaneShotScript(e spin.Env) {
-	builtin.ShotTrapScript(e, jd.SwitchLeftShooterLane, jd.ShotLeftShooterLane, 250*time.Millisecond)
-}
-
-func leftPopperShotScript(e spin.Env) {
-	builtin.ShotTrapScript(e, jd.SwitchLeftPopper, jd.ShotLeftPopper, 250*time.Millisecond)
-}
-
-func rightPopperShotScript(e spin.Env) {
-	builtin.ShotTrapScript(e, jd.SwitchRightPopper, jd.ShotRightPopper, 250*time.Millisecond)
 }

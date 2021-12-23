@@ -80,12 +80,14 @@ type PlayScript struct {
 }
 
 type PlaySound struct {
-	ID string
+	ID    string
+	Loops int
 }
 
 type PlaySpeech struct {
-	ID  string
-	Vol int
+	ID     string
+	Vol    int
+	Notify bool
 }
 
 type RegisterAutoPulse struct {
@@ -197,6 +199,10 @@ type StopScript struct {
 	ID string
 }
 
+type StopSound struct {
+	ID string
+}
+
 type StopSpeech struct {
 	ID  string
 	Any bool
@@ -242,6 +248,7 @@ func (StopAudio) action()         {}
 func (StopMusic) action()         {}
 func (StopScope) action()         {}
 func (StopScript) action()        {}
+func (StopSound) action()         {}
 func (StopSpeech) action()        {}
 
 func registerActions(e *Engine) {
@@ -271,5 +278,6 @@ func registerActions(e *Engine) {
 	e.RegisterAction(StopMusic{})
 	e.RegisterAction(StopScope{})
 	e.RegisterAction(StopScript{})
+	e.RegisterAction(StopSound{})
 	e.RegisterAction(StopSpeech{})
 }

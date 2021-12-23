@@ -9,13 +9,13 @@ type Event interface {
 type BallDrainEvent struct{}
 
 func (e BallDrainEvent) Key() interface{} {
-	return "BallDrainEvent"
+	return BallDrainEvent{}
 }
 
 type BallWillDrainEvent struct{}
 
 func (e BallWillDrainEvent) Key() interface{} {
-	return "BallWillDrainEvent"
+	return BallDrainEvent{}
 }
 
 type EndOfBallEvent struct {
@@ -24,19 +24,19 @@ type EndOfBallEvent struct {
 }
 
 func (e EndOfBallEvent) Key() interface{} {
-	return "EndOfBallEvent"
+	return EndOfBallEvent{}
 }
 
 type EndOfGameEvent struct{}
 
 func (e EndOfGameEvent) Key() interface{} {
-	return e
+	return EndOfGameEvent{}
 }
 
 type GameOverEvent struct{}
 
 func (e GameOverEvent) Key() interface{} {
-	return e
+	return GameOverEvent{}
 }
 
 type Message struct {
@@ -44,13 +44,13 @@ type Message struct {
 }
 
 func (e Message) Key() interface{} {
-	return e.ID
+	return Message{ID: e.ID}
 }
 
 type MusicFinishedEvent struct{}
 
 func (e MusicFinishedEvent) Key() interface{} {
-	return "MusicFinishedEvent"
+	return MusicFinishedEvent{}
 }
 
 type PlayerAddedEvent struct {
@@ -58,7 +58,7 @@ type PlayerAddedEvent struct {
 }
 
 func (e PlayerAddedEvent) Key() interface{} {
-	return "PlayerAddedEvent"
+	return PlayerAddedEvent{}
 }
 
 type ScriptFinishedEvent struct {
@@ -66,7 +66,7 @@ type ScriptFinishedEvent struct {
 }
 
 func (e ScriptFinishedEvent) Key() interface{} {
-	return e.ID
+	return ScriptFinishedEvent{ID: e.ID}
 }
 
 type ShotEvent struct {
@@ -74,7 +74,13 @@ type ShotEvent struct {
 }
 
 func (e ShotEvent) Key() interface{} {
-	return e.ID
+	return ShotEvent{ID: e.ID}
+}
+
+type SpeechFinishedEvent struct{}
+
+func (e SpeechFinishedEvent) Key() interface{} {
+	return SpeechFinishedEvent{}
 }
 
 type StartOfBallEvent struct {
@@ -84,7 +90,7 @@ type StartOfBallEvent struct {
 }
 
 func (e StartOfBallEvent) Key() interface{} {
-	return "StartOfBallEvent"
+	return StartOfBallEvent{}
 }
 
 type SwitchEvent struct {
@@ -93,19 +99,13 @@ type SwitchEvent struct {
 }
 
 func (e SwitchEvent) Key() interface{} {
-	return struct {
-		ID       string
-		Released bool
-	}{
-		e.ID,
-		e.Released,
-	}
+	return SwitchEvent{ID: e.ID, Released: e.Released}
 }
 
 type Done struct{}
 
 func (e Done) Key() interface{} {
-	return "Done"
+	return Done{}
 }
 
 func registerEvents(e *Engine) {

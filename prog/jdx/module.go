@@ -7,5 +7,4 @@ func Load(eng *spin.Engine) {
 	RegisterScripts(eng)
 	RegisterSounds(eng)
 	RegisterSpeech(eng)
-	RegisterVars(eng)
 }
