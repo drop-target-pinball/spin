@@ -35,6 +35,9 @@ const (
 	ScriptSniperSplat            = "jdx.ScriptSniperSplat"
 	ScriptSniperTakedown         = "jdx.ScriptSniperTakedown"
 	ScriptSniperFallCountdown    = "jdx.ScriptSniperFallCountdown"
+	ScriptTankCountdown          = "jdx.ScriptTankCountdown"
+	ScriptTankDestroyed          = "jdx.ScriptTankDestroyed"
+	ScriptTankMode               = "jdx.ScriptTankMode"
 )
 
 func defaultLeftShooterLaneScript(e spin.Env) {
@@ -233,6 +236,21 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperMode,
 		Script: sniperModeScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptTankCountdown,
+		Script: tankCountdownScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptTankDestroyed,
+		Script: tankDestroyedScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptTankMode,
+		Script: tankModeScript,
 		Scope:  spin.ScopeMode,
 	})
 }

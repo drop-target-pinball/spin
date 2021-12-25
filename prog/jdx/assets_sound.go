@@ -17,6 +17,8 @@ const (
 	SoundSling            = "jdx.SoundSling"
 	SoundSniperSplat      = "jdx.SoundSniperSplat"
 	SoundSuccess          = "jdx.SoundSuccess"
+	SoundTankDestroyed    = "jdx.SoundTankDestroyed"
+	SoundTankFire         = "jdx.SoundTankFire"
 	SoundTireSqueal1      = "jdx.SoundTireSqueal1"
 	SoundTireSqueal2      = "jdx.SoundTireSqueal2"
 )
@@ -77,6 +79,14 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundSuccess,
 		Path: "jd-pinsound/jingle/000153-accepted_sound/accepted__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundTankDestroyed,
+		Path: "jd-pinsound/sfx/000066-little_explosion/little_e__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundTankFire,
+		Path: "jd-pinsound/sfx/000066-little_explosion/little_e__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundTireSqueal1,

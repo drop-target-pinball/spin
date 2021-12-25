@@ -18,6 +18,10 @@ const (
 	ScorePursuit1 = 6_000_000
 	ScorePursuit2 = 12_000_000
 	ScorePursuit3 = 36_000_000
+	ScoreTank0    = 3_000_000
+	ScoreTank1    = 12_000_000
+	ScoreTank2    = 24_000_000
+	ScoreTank3    = 36_000_000
 
 	ScoreMinimumBonus    = 1_000_000
 	ScoreCrimeSceneBonus = 1_000_000
@@ -71,7 +75,7 @@ var (
 		ModePursuit:         ScriptPursuitMode,
 		ModeBlackout:        ScriptSniperMode,
 		ModeSniper:          ScriptSniperMode,
-		ModeBattleTank:      ScriptSniperMode,
+		ModeBattleTank:      ScriptTankMode,
 		ModeBadImpersonator: ScriptSniperMode,
 		ModeMeltdown:        ScriptSniperMode,
 		ModeSafeCracker:     ScriptSniperMode,
@@ -87,6 +91,8 @@ type Vars struct {
 	SelectedMode int
 	SniperBonus  int
 	SniperScore  int
+	TankTimer    int
+	TankBonus    int
 }
 
 func startOfBallReset(store spin.Store) {

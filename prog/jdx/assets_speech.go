@@ -4,6 +4,9 @@ import "github.com/drop-target-pinball/spin"
 
 const (
 	SpeechAaaaah                                    = "jdx.SpeechAaaaah"
+	SpeechBattleTankDamageAt                        = "jdx.SpeechBattleTankDamageAt"
+	SpeechBattleTankDestroyed                       = "jdx.SpeechBattleTankDestroyed"
+	SpeechBattleTankSightedInSectorSix              = "jdx.SpeechBattleTankSightedInSectorSix"
 	SpeechDreddToControl                            = "jdx.SpeechDreddToControl"
 	SpeechICanSeeMyHouseFromHere                    = "jdx.SpeechICanSeeMyHouseFromHere"
 	SpeechImInPursuitOfAStolenVehicle               = "jdx.SpeechImInPursuitOfAStolenVehicle"
@@ -13,9 +16,11 @@ const (
 	SpeechPlayer3                                   = "jdx.SpeechPlayer3"
 	SpeechPlayer4                                   = "jdx.SpeechPlayer4"
 	SpeechShootSniperTower                          = "jdx.SpeechShootSniperTower"
+	SpeechSixtyPercent                              = "jdx.SpeechSixtyPercent"
 	SpeechSniperEliminated                          = "jdx.SpeechSniperEliminated"
 	SpeechSniperIsShootingIntoCrowdFromJohnsonTower = "jdx.SpeechSniperIsShootingIntoCrowdFromJohnsonTower"
 	SpeechSuspectGotAway                            = "jdx.SpeechSuspectGotAway"
+	SpeechTwentyFivePercent                         = "jdx.SpeechTwentyFivePercent"
 	SpeechUseFireButtonToLaunchBall                 = "jdx.SpeechUseFireButtonToLaunchBall"
 	SpeechYourDrivingDaysAreOverPunk                = "jdx.SpeechYourDrivingDaysAreOverPunk"
 )
@@ -24,6 +29,18 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechAaaaah,
 		Path: "jd-pinsound/voice/000282-aaaaaaaaaaaaaaaaaaaah/aaaaaaaa__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechBattleTankDamageAt,
+		Path: "jd-pinsound/voice/000323-battle_tank_damage_at/battle_t__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechBattleTankDestroyed,
+		Path: "jd-pinsound/voice/000257-battle_tank_destroyed/battle_t__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechBattleTankSightedInSectorSix,
+		Path: "jd-pinsound/voice/000345-battle_tank_sighted_in_sector_six/battle_t__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechDreddToControl,
@@ -62,6 +79,10 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000356-shoot_sniper_tower/shoot_sn__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechSixtyPercent,
+		Path: "jd-pinsound/voice/000324-60_percent/60_perce__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechSniperEliminated,
 		Path: "jd-pinsound/voice/000253-sniper_eliminated/sniper_e__LEGACY_AUD.wav",
 	})
@@ -72,6 +93,10 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechSuspectGotAway,
 		Path: "jd-pinsound/voice/000252-suspect_got_away/000252-suspect_got_away_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechTwentyFivePercent,
+		Path: "jd-pinsound/voice/000306-twenty_five_percent/twenty_f__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechUseFireButtonToLaunchBall,
