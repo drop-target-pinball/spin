@@ -57,6 +57,7 @@ func NewEngine(config Config, options Options) *Engine {
 		// actionQueue:    make([]Action, 0),
 		// eventQueue:     make([]Event, 0),
 	}
+	eng.RegisterVars("config", config)
 	registerResourceSystem(eng)
 	registerActions(eng)
 	registerEvents(eng)

@@ -4,11 +4,11 @@ type Action interface {
 	action()
 }
 
-type AddPlayer struct {
-}
+type AddBall struct{}
 
-type AdvanceGame struct {
-}
+type AddPlayer struct{}
+
+type AdvanceGame struct{}
 
 type AutoPulseOn struct {
 	ID string
@@ -208,6 +208,7 @@ type StopSpeech struct {
 	Any bool
 }
 
+func (AddBall) action()           {}
 func (AddPlayer) action()         {}
 func (AdvanceGame) action()       {}
 func (AutoPulseOn) action()       {}

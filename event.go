@@ -6,7 +6,17 @@ type Event interface {
 	coroutine.Selector
 }
 
-type BallDrainEvent struct{}
+type BallAddedEvent struct {
+	BallsInPlay int
+}
+
+func (e BallAddedEvent) Key() interface{} {
+	return BallAddedEvent{}
+}
+
+type BallDrainEvent struct {
+	BallsInPlay int
+}
 
 func (e BallDrainEvent) Key() interface{} {
 	return BallDrainEvent{}

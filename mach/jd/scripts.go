@@ -65,7 +65,7 @@ func inactiveGlobeScript(e spin.Env) {
 }
 
 func raiseDropTargetsScript(e spin.Env) {
-	rv := spin.ResourceVars(e)
+	rv := spin.GetResourceVars(e)
 	raise := false
 	for _, id := range []string{
 		SwitchDropTargetJ,
@@ -85,7 +85,7 @@ func raiseDropTargetsScript(e spin.Env) {
 }
 
 func raiseDropTargetsWhenAllDownScript(e spin.Env) {
-	rv := spin.ResourceVars(e)
+	rv := spin.GetResourceVars(e)
 
 	for {
 		if _, done := e.WaitFor(

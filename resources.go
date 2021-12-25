@@ -18,7 +18,7 @@ type resourceSystem struct {
 func registerResourceSystem(eng *Engine) {
 	s := &resourceSystem{
 		eng:       eng,
-		resources: ResourceVars(eng),
+		resources: GetResourceVars(eng),
 	}
 	eng.RegisterActionHandler(s)
 }
@@ -65,7 +65,7 @@ func (s *resourceSystem) setVar(act SetVar) {
 	}
 }
 
-func ResourceVars(store Store) *Resources {
+func GetResourceVars(store Store) *Resources {
 	v, ok := store.Vars("resources")
 	var vars *Resources
 	if ok {

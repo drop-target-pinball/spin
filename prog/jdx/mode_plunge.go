@@ -78,7 +78,7 @@ func plungeScript(e spin.Env) {
 	if game.Player == 1 && game.Ball == 1 && !game.IsExtraBall {
 		e.Do(spin.PlaySpeech{ID: SpeechLawMasterComputerOnlineWelcomeAboard})
 	}
-	e.Do(spin.DriverPulse{ID: jd.CoilTrough})
+	e.Do(spin.AddBall{})
 	_, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightFireButton})
 	cancel()
 	if done {

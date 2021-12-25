@@ -3,6 +3,8 @@ package spin
 import "fmt"
 
 type GameVars struct {
+	BallActive   bool
+	BallsInPlay  int
 	BallsPerGame int
 	Player       int
 	Ball         int
@@ -10,7 +12,6 @@ type GameVars struct {
 	NumPlayers   int
 	ExtraBalls   int
 	IsExtraBall  bool
-	BallActive   bool
 }
 
 type PlayerVars struct {
@@ -26,7 +27,6 @@ func GetGameVars(store Store) *GameVars {
 		vars = &GameVars{}
 		vars.BallsPerGame = 3
 		vars.MaxPlayers = 4
-		//vars.Scores = make([]int, vars.MaxPlayers+1)
 		store.RegisterVars("game", vars)
 	}
 	return vars
@@ -51,18 +51,24 @@ func GetPlayerVars(store Store) *PlayerVars {
 }
 
 type gameSystem struct {
-	eng *Engine
+	eng    *Engine
+	config *Config
+	game   *GameVars
 }
 
 func registerGameSystem(eng *Engine) {
 	s := &gameSystem{
-		eng: eng,
+		eng:    eng,
+		config: &eng.Config,
+		game:   GetGameVars(eng),
 	}
 	eng.RegisterActionHandler(s)
 }
 
 func (s gameSystem) HandleAction(action Action) {
 	switch act := action.(type) {
+	case AddBall:
+		s.addBall(act)
 	case AddPlayer:
 		s.addPlayer(act)
 	case AdvanceGame:
@@ -74,8 +80,16 @@ func (s gameSystem) HandleAction(action Action) {
 	}
 }
 
+func (s gameSystem) addBall(act AddBall) {
+	if s.game.BallsInPlay >= s.config.NumBalls {
+		return
+	}
+	s.game.BallsInPlay += 1
+	s.eng.Post(BallAddedEvent{BallsInPlay: s.game.BallsInPlay})
+}
+
 func (s *gameSystem) addPlayer(act AddPlayer) {
-	game := GetGameVars(s.eng)
+	game := s.game
 	if game.Ball > 1 {
 		return
 	}
@@ -87,7 +101,7 @@ func (s *gameSystem) addPlayer(act AddPlayer) {
 }
 
 func (s *gameSystem) advanceGame(act AdvanceGame) {
-	g := GetGameVars(s.eng)
+	g := s.game
 
 	if g.NumPlayers == 0 {
 		return

@@ -46,7 +46,7 @@ func waitForModeStart(e spin.Env, parent context.Context, side bool) bool {
 }
 
 func selectModeScript(e spin.Env) {
-	rv := spin.ResourceVars(e)
+	rv := spin.GetResourceVars(e)
 
 	for {
 		evt, done := e.WaitFor(

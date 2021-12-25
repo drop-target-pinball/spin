@@ -21,7 +21,7 @@ func (s *nullSystem) HandleAction(action spin.Action) {
 }
 
 func (s *nullSystem) registerSwitch(act spin.RegisterSwitch) {
-	rv := spin.ResourceVars(s.eng)
+	rv := spin.GetResourceVars(s.eng)
 	sw := spin.Switch{
 		ID: act.ID,
 		NC: act.NC,

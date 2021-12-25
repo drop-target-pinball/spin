@@ -41,7 +41,7 @@ func fontPreviewScript(e spin.Env) {
 		fonts:    make([]string, 0),
 		selected: 0,
 	}
-	rsrc := spin.ResourceVars(e)
+	rsrc := spin.GetResourceVars(e)
 	for name, _ := range rsrc.Fonts {
 		fm.fonts = append(fm.fonts, name)
 	}
