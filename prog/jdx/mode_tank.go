@@ -25,7 +25,7 @@ func tankCountdownFrame(e spin.Env) {
 	g.Y = 12
 
 	g.Font = builtin.Font14x10
-	r.Print(g, "%v", vars.TankTimer)
+	r.Print(g, "%v", vars.Timer)
 }
 
 func tankDestroyedFrame(e spin.Env) {
@@ -48,17 +48,17 @@ func tankCountdownVideoScript(e spin.Env) {
 		return
 	}
 
-	vars.TankTimer = 30
+	vars.Timer = 30
 	tankCountdownFrame(e)
 	if done := e.Sleep(200 * time.Millisecond); done {
 		return
 	}
 
-	for vars.TankTimer > 0 {
+	for vars.Timer > 0 {
 		if done := e.Sleep(1000 * time.Millisecond); done {
 			return
 		}
-		vars.TankTimer -= 1
+		vars.Timer -= 1
 		tankCountdownFrame(e)
 	}
 	e.Post(spin.Message{ID: MessageTankTimeout})

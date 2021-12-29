@@ -91,8 +91,8 @@ type Vars struct {
 	SelectedMode int
 	SniperBonus  int
 	SniperScore  int
-	TankTimer    int
 	TankBonus    int
+	Timer        int
 }
 
 func startOfBallReset(store spin.Store) {

@@ -3,24 +3,25 @@ package jdx
 import "github.com/drop-target-pinball/spin"
 
 const (
-	SoundBallLost         = "jdx.SoundBallLost"
-	SoundBonus            = "jdx.SoundBonus"
-	SoundGunLoadSniper    = "jdx.SoundGunLoadSniper"
-	SoundGunFire          = "jdx.SoundGunFire"
-	SoundMotorcycleStart  = "jdx.SoundMotorcycleStart"
-	SoundMotorRev         = "jdx.SoundMotorRev"
-	SoundPoliceSiren      = "jdx.SoundPoliceSiren"
-	SoundPursuitEngine    = "jdx.SoundPursuitEngine"
-	SoundPursuitExplosion = "jdx.SoundPursuitExplosion"
-	SoundPursuitMissile   = "jdx.SoundPursuitMissile"
-	SoundReturnLane       = "jdx.SoundReturnLane"
-	SoundSling            = "jdx.SoundSling"
-	SoundSniperSplat      = "jdx.SoundSniperSplat"
-	SoundSuccess          = "jdx.SoundSuccess"
-	SoundTankDestroyed    = "jdx.SoundTankDestroyed"
-	SoundTankFire         = "jdx.SoundTankFire"
-	SoundTireSqueal1      = "jdx.SoundTireSqueal1"
-	SoundTireSqueal2      = "jdx.SoundTireSqueal2"
+	SoundBallLost          = "jdx.SoundBallLost"
+	SoundBonus             = "jdx.SoundBonus"
+	SoundGunLoadSniper     = "jdx.SoundGunLoadSniper"
+	SoundGunFire           = "jdx.SoundGunFire"
+	SoundMeltdownExplosion = "jdx.SoundMeltdownExplosion"
+	SoundMotorcycleStart   = "jdx.SoundMotorcycleStart"
+	SoundMotorRev          = "jdx.SoundMotorRev"
+	SoundPoliceSiren       = "jdx.SoundPoliceSiren"
+	SoundPursuitEngine     = "jdx.SoundPursuitEngine"
+	SoundPursuitExplosion  = "jdx.SoundPursuitExplosion"
+	SoundPursuitMissile    = "jdx.SoundPursuitMissile"
+	SoundReturnLane        = "jdx.SoundReturnLane"
+	SoundSling             = "jdx.SoundSling"
+	SoundSniperSplat       = "jdx.SoundSniperSplat"
+	SoundSuccess           = "jdx.SoundSuccess"
+	SoundTankDestroyed     = "jdx.SoundTankDestroyed"
+	SoundTankFire          = "jdx.SoundTankFire"
+	SoundTireSqueal1       = "jdx.SoundTireSqueal1"
+	SoundTireSqueal2       = "jdx.SoundTireSqueal2"
 )
 
 func RegisterSounds(eng *spin.Engine) {
@@ -39,6 +40,10 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundGunFire,
 		Path: "jd-pinsound/sfx/000133-gun_fire/gun_fire__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundMeltdownExplosion,
+		Path: "jd-pinsound/sfx/000128-very_big_explosion/very_big__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundMotorcycleStart,

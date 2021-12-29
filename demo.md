@@ -45,3 +45,11 @@ PlayScript ID=jdx.ScriptTankMode
 ShotEvent ID=jd.ShotLeftRamp
 ShotEvent ID=jd.ShotTopLeftRamp
 SwitchEvent ID=jd.SwitchBankTargets
+
+## Meltdown
+
+PlayScript ID=jdx.ScriptMeltdownMode
+SetVar Vars=jdx.0 ID=Timer Val=21
+SetVar Vars=jdx.0 ID=Timer Val=11
+SetVar Vars=jdx.0 ID=Timer Val=5
+
