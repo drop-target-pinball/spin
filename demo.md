@@ -49,7 +49,12 @@ SwitchEvent ID=jd.SwitchBankTargets
 ## Meltdown
 
 PlayScript ID=jdx.ScriptMeltdownMode
-SetVar Vars=jdx.0 ID=Timer Val=21
-SetVar Vars=jdx.0 ID=Timer Val=11
-SetVar Vars=jdx.0 ID=Timer Val=5
+SetVar Vars=jdx.1 ID=Timer Val=21
+SetVar Vars=jdx.1 ID=Timer Val=11
+SetVar Vars=jdx.1 ID=Timer Val=5
+SwitchEvent ID=jd.SwitchCaptiveBall1
+SwitchEvent ID=jd.SwitchCaptiveBall2
+SwitchEvent ID=jd.SwitchCaptiveBall3
+
+
 

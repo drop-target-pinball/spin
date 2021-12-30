@@ -25,6 +25,7 @@ func GetGameVars(store Store) *GameVars {
 		vars = v.(*GameVars)
 	} else {
 		vars = &GameVars{}
+		vars.Player = 1
 		vars.BallsPerGame = 3
 		vars.MaxPlayers = 4
 		store.RegisterVars("game", vars)

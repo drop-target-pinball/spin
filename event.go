@@ -6,6 +6,14 @@ type Event interface {
 	coroutine.Selector
 }
 
+type AdvanceEvent struct {
+	ID string
+}
+
+func (e AdvanceEvent) Key() interface{} {
+	return e.ID
+}
+
 type BallAddedEvent struct {
 	BallsInPlay int
 }
@@ -110,6 +118,14 @@ type SwitchEvent struct {
 
 func (e SwitchEvent) Key() interface{} {
 	return SwitchEvent{ID: e.ID, Released: e.Released}
+}
+
+type TimeoutEvent struct {
+	ID string
+}
+
+func (e TimeoutEvent) Key() interface{} {
+	return e.ID
 }
 
 type Done struct{}

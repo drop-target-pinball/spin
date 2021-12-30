@@ -14,6 +14,11 @@ const (
 	ScoreOutlane    = 100_000
 	ScorePost       = 5_210
 
+	ScoreMeltdown0 = 3_000_000
+	ScoreMeltdown1 = 13_000_000
+	ScoreMeltdown2 = 23_000_000
+	ScoreMeltdown3 = 33_000_000
+
 	ScorePursuit0 = 3_000_000
 	ScorePursuit1 = 6_000_000
 	ScorePursuit2 = 12_000_000
@@ -85,14 +90,15 @@ var (
 )
 
 type Vars struct {
-	AwardedModes int
-	CrimeScenes  int
-	PursuitBonus int
-	SelectedMode int
-	SniperBonus  int
-	SniperScore  int
-	TankBonus    int
-	Timer        int
+	AwardedModes  int
+	CrimeScenes   int
+	MeltdownBonus int
+	PursuitBonus  int
+	SelectedMode  int
+	SniperBonus   int
+	SniperScore   int
+	TankBonus     int
+	Timer         int
 }
 
 func startOfBallReset(store spin.Store) {
