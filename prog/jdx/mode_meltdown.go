@@ -23,7 +23,7 @@ func meltdownCountdownFrame(e spin.Env) {
 	r.Print(g, "%v", vars.Timer)
 }
 
-func meltdownFailureFrame(e spin.Env) {
+func meltdownTotalFrame(e spin.Env) {
 	r, g := e.Display("").Renderer("")
 	vars := GetVars(e)
 
@@ -44,13 +44,13 @@ func meltdownSequenceScript(e spin.Env) {
 	}
 
 	vars.MeltdownBonus = ScoreMeltdown1
-	e.Do(spin.PlaySpeech{ID: SpeechReactorOneStabilized})
+	e.Do(spin.PlaySpeech{ID: SpeechReactorOneStabilized, Priority: spin.PriorityAudioModeCallout})
 	if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchCaptiveBall2}); done {
 		return
 	}
 
 	vars.MeltdownBonus = ScoreMeltdown2
-	e.Do(spin.PlaySpeech{ID: SpeechReactorTwoStabilized})
+	e.Do(spin.PlaySpeech{ID: SpeechReactorTwoStabilized, Priority: spin.PriorityAudioModeCallout})
 	if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchCaptiveBall3}); done {
 		return
 	}
@@ -59,13 +59,7 @@ func meltdownSequenceScript(e spin.Env) {
 	e.Post(spin.AdvanceEvent{ID: ScriptMeltdownMode})
 }
 
-func meltdownCountdownScript(e spin.Env) {
-	ctx, cancel := e.Derive()
-	defer cancel()
-
-	e.NewCoroutine(ctx, meltdownCountdownAudioScript)
-	e.NewCoroutine(ctx, meltdownSequenceScript)
-
+func meltdownCountdownVideoScript(e spin.Env) {
 	vars := GetVars(e)
 	modeText := [3]string{"MELTDOWN", "SHOOT", "CAPTIVE BALLS"}
 	if done := modeIntroVideo(e, modeText); done {
@@ -126,13 +120,16 @@ func meltdownCountdownAudioScript(e spin.Env) {
 	}
 }
 
+func meltdownCountdownScript(e spin.Env) {
+}
+
 func meltdownTimeoutScript(e spin.Env) {
 	e.Do(spin.PlaySound{ID: SoundMeltdownExplosion})
 	if done := e.Sleep(2000 * time.Millisecond); done {
 		return
 	}
 
-	meltdownFailureFrame(e)
+	meltdownTotalFrame(e)
 	e.Do(spin.PlaySound{ID: SoundSuccess})
 	if done := e.Sleep(2500 * time.Millisecond); done {
 		return
@@ -142,14 +139,9 @@ func meltdownTimeoutScript(e spin.Env) {
 }
 
 func meltdownCompleteScript(e spin.Env) {
+	meltdownTotalFrame(e)
 	e.Do(spin.PlaySpeech{ID: SpeechAllReactorsStabilized})
 	if done := e.Sleep(3000 * time.Millisecond); done {
-		return
-	}
-
-	e.Do(spin.PlaySpeech{ID: SpeechDreddToControl, Notify: true})
-	if _, done := e.WaitFor(spin.SpeechFinishedEvent{}); done {
-		e.Do(spin.StopSound{ID: SpeechDreddToControl})
 		return
 	}
 
@@ -161,12 +153,17 @@ func meltdownCompleteScript(e spin.Env) {
 }
 
 func meltdownModeScript(e spin.Env) {
-	e.Do(spin.PlayScript{ID: ScriptMeltdownCountdown})
+	ctx, cancel := e.Derive()
+
+	e.NewCoroutine(ctx, meltdownCountdownAudioScript)
+	e.NewCoroutine(ctx, meltdownCountdownVideoScript)
+	e.NewCoroutine(ctx, meltdownSequenceScript)
+
 	evt, done := e.WaitFor(
 		spin.AdvanceEvent{ID: ScriptMeltdownMode},
 		spin.TimeoutEvent{ID: ScriptMeltdownMode},
 	)
-	e.Do(spin.StopScript{ID: ScriptTankCountdown})
+	cancel()
 	if done {
 		return
 	}

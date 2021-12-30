@@ -11,6 +11,12 @@ import (
 
 const chanSpeech = 0
 
+type audio struct {
+	id       string
+	priority int
+	notify   bool
+}
+
 type audioSystem struct {
 	eng    *spin.Engine
 	music  map[string]*mix.Music
@@ -18,11 +24,10 @@ type audioSystem struct {
 	sound  map[string]*mix.Chunk
 
 	musicPlaying  string
-	speechPlaying string
+	speechPlaying audio
 	soundsPlaying []string
 
-	musicNotify  bool
-	speechNotify bool
+	musicNotify bool
 }
 
 func RegisterAudioSystem(eng *spin.Engine) {
@@ -177,8 +182,15 @@ func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
 		spin.Warn("%v not found", a.ID)
 		return
 	}
-	s.speechPlaying = a.ID
-	s.speechNotify = a.Notify
+	if s.speechPlaying.id != "" && s.speechPlaying.priority > a.Priority {
+		spin.Info("speech does not have priority: %v", a.ID)
+		return
+	}
+	s.speechPlaying = audio{
+		id:       a.ID,
+		priority: a.Priority,
+		notify:   a.Notify,
+	}
 	sp.Play(chanSpeech, 0)
 }
 
@@ -186,7 +198,7 @@ func (s *audioSystem) stopAudio(a spin.StopAudio) {
 	mix.HaltMusic()
 	mix.HaltChannel(-1)
 	s.musicPlaying = ""
-	s.speechPlaying = ""
+	s.speechPlaying = audio{}
 }
 
 func (s *audioSystem) stopMusic(a spin.StopMusic) {
@@ -206,14 +218,17 @@ func (s *audioSystem) stopSound(a spin.StopSound) {
 }
 
 func (s *audioSystem) stopSpeech(a spin.StopSpeech) {
-	if a.Any || a.ID == s.speechPlaying {
+	if a.ID == "" || a.ID == s.speechPlaying.id {
 		mix.HaltChannel(0)
-		s.speechPlaying = ""
+		s.speechPlaying = audio{}
 	}
 }
 
 func (s *audioSystem) channelFinished(ch int) {
-	if ch == chanSpeech && s.speechNotify {
+	if ch == chanSpeech {
+		s.speechPlaying = audio{}
+	}
+	if ch == chanSpeech && s.speechPlaying.notify {
 		s.eng.Post(spin.SpeechFinishedEvent{})
 	}
 }

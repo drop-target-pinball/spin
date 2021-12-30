@@ -85,9 +85,10 @@ type PlaySound struct {
 }
 
 type PlaySpeech struct {
-	ID     string
-	Vol    int
-	Notify bool
+	ID       string
+	Vol      int
+	Priority int
+	Notify   bool
 }
 
 type RegisterAutoPulse struct {
@@ -204,8 +205,7 @@ type StopSound struct {
 }
 
 type StopSpeech struct {
-	ID  string
-	Any bool
+	ID string
 }
 
 func (AddBall) action()           {}
