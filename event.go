@@ -95,6 +95,14 @@ func (e ShotEvent) Key() interface{} {
 	return ShotEvent{ID: e.ID}
 }
 
+type SoundFinishedEvent struct {
+	ID string
+}
+
+func (e SoundFinishedEvent) Key() interface{} {
+	return SoundFinishedEvent{ID: e.ID}
+}
+
 type SpeechFinishedEvent struct{}
 
 func (e SpeechFinishedEvent) Key() interface{} {

@@ -25,7 +25,7 @@ type audioSystem struct {
 
 	musicPlaying  string
 	speechPlaying audio
-	soundsPlaying []string
+	soundsPlaying []audio
 
 	musicNotify bool
 }
@@ -51,7 +51,7 @@ func RegisterAudioSystem(eng *spin.Engine) {
 		music:         make(map[string]*mix.Music),
 		speech:        make(map[string]*mix.Chunk),
 		sound:         make(map[string]*mix.Chunk),
-		soundsPlaying: make([]string, nChan),
+		soundsPlaying: make([]audio, nChan),
 	}
 
 	mix.ChannelFinished(s.channelFinished)
@@ -125,19 +125,16 @@ func (s *audioSystem) musicVolume(a spin.MusicVolume) {
 	vol := prev
 	if a.Set == 0 && a.Add == 0 && a.Mul == 0 {
 		vol = 0
-	}
-	if a.Set != 0 {
+	} else if a.Set != 0 {
 		vol = a.Set
-	}
-	if a.Mul != 0 {
+	} else if a.Mul != 0 {
 		vol = int(float64(vol) * a.Mul)
-	}
-	if a.Add != 0 {
+	} else if a.Add != 0 {
 		vol += a.Add
 	}
+
 	if vol < 0 {
 		vol = 0
-
 	}
 	mix.VolumeMusic(vol)
 }
@@ -173,7 +170,7 @@ func (s *audioSystem) playSound(a spin.PlaySound) {
 	if err != nil {
 		log.Panic(err)
 	}
-	s.soundsPlaying[channel] = a.ID
+	s.soundsPlaying[channel] = audio{id: a.ID, notify: a.Notify}
 }
 
 func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
@@ -209,8 +206,8 @@ func (s *audioSystem) stopMusic(a spin.StopMusic) {
 }
 
 func (s *audioSystem) stopSound(a spin.StopSound) {
-	for channel, id := range s.soundsPlaying {
-		if id == a.ID {
+	for channel, playing := range s.soundsPlaying {
+		if playing.id == a.ID {
 			mix.HaltChannel(channel)
 			break
 		}
@@ -225,11 +222,18 @@ func (s *audioSystem) stopSpeech(a spin.StopSpeech) {
 }
 
 func (s *audioSystem) channelFinished(ch int) {
-	if ch == chanSpeech {
-		s.speechPlaying = audio{}
-	}
 	if ch == chanSpeech && s.speechPlaying.notify {
 		s.eng.Post(spin.SpeechFinishedEvent{})
+	} else {
+		playing := s.soundsPlaying[ch]
+		if playing.notify {
+			s.eng.Post(spin.SoundFinishedEvent{ID: playing.id})
+		}
+	}
+	if ch == chanSpeech {
+		s.speechPlaying = audio{}
+	} else {
+		s.soundsPlaying[ch] = audio{}
 	}
 }
 

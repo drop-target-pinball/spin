@@ -12,6 +12,7 @@ const (
 	ScriptAttractMode            = "jdx.ScriptAttractMode"
 	ScriptBall                   = "jdx.ScriptBall"
 	ScriptBasicMode              = "jdx.ScriptBasicMode"
+	ScriptBlackoutMode           = "jdx.ScriptBlackoutMode"
 	ScriptBonusMode              = "jdx.ScriptBonusMode"
 	ScriptChain                  = "jdx.ScriptChain"
 	ScriptDefaultLeftShooterLane = "jdx.ScriptDefaultLeftShooterLane"
@@ -126,6 +127,11 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptBasicMode,
 		Script: basicModeScript,
 		Scope:  spin.ScopeBall,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBlackoutMode,
+		Script: blackoutModeScript,
+		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBonusMode,

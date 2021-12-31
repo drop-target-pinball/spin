@@ -19,14 +19,15 @@ const (
 	ScoreMeltdown2 = 23_000_000
 	ScoreMeltdown3 = 33_000_000
 
-	ScorePursuit0 = 3_000_000
-	ScorePursuit1 = 6_000_000
-	ScorePursuit2 = 12_000_000
-	ScorePursuit3 = 36_000_000
-	ScoreTank0    = 3_000_000
-	ScoreTank1    = 12_000_000
-	ScoreTank2    = 24_000_000
-	ScoreTank3    = 36_000_000
+	ScoreBlackoutJackpot = 10_000_000
+	ScorePursuit0        = 3_000_000
+	ScorePursuit1        = 6_000_000
+	ScorePursuit2        = 12_000_000
+	ScorePursuit3        = 36_000_000
+	ScoreTank0           = 3_000_000
+	ScoreTank1           = 12_000_000
+	ScoreTank2           = 24_000_000
+	ScoreTank3           = 36_000_000
 
 	ScoreMinimumBonus    = 1_000_000
 	ScoreCrimeSceneBonus = 1_000_000
@@ -78,11 +79,11 @@ var (
 
 	ModeScripts = map[int]string{
 		ModePursuit:         ScriptPursuitMode,
-		ModeBlackout:        ScriptSniperMode,
+		ModeBlackout:        ScriptBlackoutMode,
 		ModeSniper:          ScriptSniperMode,
 		ModeBattleTank:      ScriptTankMode,
 		ModeBadImpersonator: ScriptSniperMode,
-		ModeMeltdown:        ScriptSniperMode,
+		ModeMeltdown:        ScriptMeltdownMode,
 		ModeSafeCracker:     ScriptSniperMode,
 		ModeManhunt:         ScriptSniperMode,
 		ModeStakeout:        ScriptSniperMode,
@@ -93,6 +94,7 @@ type Vars struct {
 	AwardedModes  int
 	CrimeScenes   int
 	MeltdownBonus int
+	Multiplier    int
 	PursuitBonus  int
 	SelectedMode  int
 	SniperBonus   int
@@ -124,4 +126,12 @@ func GetVars(store spin.Store) *Vars {
 		store.RegisterVars(name, vars)
 	}
 	return vars
+}
+
+func Multiplier(store spin.Store) int {
+	vars := GetVars(store)
+	if vars.Multiplier > 0 {
+		return vars.Multiplier
+	}
+	return 1
 }

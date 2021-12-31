@@ -3,38 +3,40 @@ package jdx
 import "github.com/drop-target-pinball/spin"
 
 const (
-	SpeechAaaaah                                    = "jdx.SpeechAaaaah"
-	SpeechAllReactorsApprochingCriticalMass         = "jdx.SpeechAllReactorsApprochingCriticalMass"
-	SpeechAllReactorsStabilized                     = "jdx.SpeechAllReactorsStabilized"
-	SpeechBattleTankDamageAt                        = "jdx.SpeechBattleTankDamageAt"
-	SpeechBattleTankDestroyed                       = "jdx.SpeechBattleTankDestroyed"
-	SpeechBattleTankSightedInSectorSix              = "jdx.SpeechBattleTankSightedInSectorSix"
-	SpeechContainmentFailureAtThreeMeterIsland      = "jdx.SpeechContainmentFailureAtThreeMetereIsland"
-	SpeechControlToDredd                            = "jdx.SpeechControlToDredd"
-	SpeechDreddToControl                            = "jdx.SpeechDreddToControl"
-	SpeechFour                                      = "jdx.SpeechFour"
-	SpeechICanSeeMyHouseFromHere                    = "jdx.SpeechICanSeeMyHouseFromHere"
-	SpeechImInPursuitOfAStolenVehicle               = "jdx.SpeechImInPursuitOfAStolenVehicle"
-	SpeechItsALongWayDown                           = "jdx.SpeechItsALongWayDown"
-	SpeechLawMasterComputerOnlineWelcomeAboard      = "jdx.SpeechLawMasterComputerOnlineWelcomeAboard"
-	SpeechMeltdownIsImminent                        = "jdx.SpeechMeltdownIsImminent"
-	SpeechOne                                       = "jdx.SpeechOne"
-	SpeechPlayer2                                   = "jdx.SpeechPlayer2"
-	SpeechPlayer3                                   = "jdx.SpeechPlayer3"
-	SpeechPlayer4                                   = "jdx.SpeechPlayer4"
-	SpeechReactorOneStabilized                      = "jdx.ReactorOneStabilized"
-	SpeechReactorTwoStabilized                      = "jdx.ReactorTwoStabilized"
-	SpeechShootSniperTower                          = "jdx.SpeechShootSniperTower"
-	SpeechSixtyPercent                              = "jdx.SpeechSixtyPercent"
-	SpeechSniperEliminated                          = "jdx.SpeechSniperEliminated"
-	SpeechSniperIsShootingIntoCrowdFromJohnsonTower = "jdx.SpeechSniperIsShootingIntoCrowdFromJohnsonTower"
-	SpeechSuspectGotAway                            = "jdx.SpeechSuspectGotAway"
-	SpeechThree                                     = "jdx.SpeechThree"
-	SpeechThreeMeterIslandIsSecured                 = "jdx.SpeechThreeMeterIslandIsSecured"
-	SpeechTwentyFivePercent                         = "jdx.SpeechTwentyFivePercent"
-	SpeechTwo                                       = "jdx.SpeechTwo"
-	SpeechUseFireButtonToLaunchBall                 = "jdx.SpeechUseFireButtonToLaunchBall"
-	SpeechYourDrivingDaysAreOverPunk                = "jdx.SpeechYourDrivingDaysAreOverPunk"
+	SpeechAaaaah                                        = "jdx.SpeechAaaaah"
+	SpeechAllReactorsApprochingCriticalMass             = "jdx.SpeechAllReactorsApprochingCriticalMass"
+	SpeechAllReactorsStabilized                         = "jdx.SpeechAllReactorsStabilized"
+	SpeechBattleTankDamageAt                            = "jdx.SpeechBattleTankDamageAt"
+	SpeechBattleTankDestroyed                           = "jdx.SpeechBattleTankDestroyed"
+	SpeechBattleTankSightedInSectorSix                  = "jdx.SpeechBattleTankSightedInSectorSix"
+	SpeechContainmentFailureAtThreeMeterIsland          = "jdx.SpeechContainmentFailureAtThreeMetereIsland"
+	SpeechControlToDredd                                = "jdx.SpeechControlToDredd"
+	SpeechDreddToControl                                = "jdx.SpeechDreddToControl"
+	SpeechFour                                          = "jdx.SpeechFour"
+	SpeechICanSeeMyHouseFromHere                        = "jdx.SpeechICanSeeMyHouseFromHere"
+	SpeechImInPursuitOfAStolenVehicle                   = "jdx.SpeechImInPursuitOfAStolenVehicle"
+	SpeechItsALongWayDown                               = "jdx.SpeechItsALongWayDown"
+	SpeechLawMasterComputerOnlineWelcomeAboard          = "jdx.SpeechLawMasterComputerOnlineWelcomeAboard"
+	SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters = "jdx.SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters"
+	SpeechMeltdownIsImminent                            = "jdx.SpeechMeltdownIsImminent"
+	SpeechOne                                           = "jdx.SpeechOne"
+	SpeechPlayer2                                       = "jdx.SpeechPlayer2"
+	SpeechPlayer3                                       = "jdx.SpeechPlayer3"
+	SpeechPlayer4                                       = "jdx.SpeechPlayer4"
+	SpeechReactorOneStabilized                          = "jdx.SpeechReactorOneStabilized"
+	SpeechReactorTwoStabilized                          = "jdx.SpeechReactorTwoStabilized"
+	SpeechSendBackupUnits                               = "jdx.SpeechSendBackupUnits"
+	SpeechShootSniperTower                              = "jdx.SpeechShootSniperTower"
+	SpeechSixtyPercent                                  = "jdx.SpeechSixtyPercent"
+	SpeechSniperEliminated                              = "jdx.SpeechSniperEliminated"
+	SpeechSniperIsShootingIntoCrowdFromJohnsonTower     = "jdx.SpeechSniperIsShootingIntoCrowdFromJohnsonTower"
+	SpeechSuspectGotAway                                = "jdx.SpeechSuspectGotAway"
+	SpeechThree                                         = "jdx.SpeechThree"
+	SpeechThreeMeterIslandIsSecured                     = "jdx.SpeechThreeMeterIslandIsSecured"
+	SpeechTwentyFivePercent                             = "jdx.SpeechTwentyFivePercent"
+	SpeechTwo                                           = "jdx.SpeechTwo"
+	SpeechUseFireButtonToLaunchBall                     = "jdx.SpeechUseFireButtonToLaunchBall"
+	SpeechYourDrivingDaysAreOverPunk                    = "jdx.SpeechYourDrivingDaysAreOverPunk"
 )
 
 func RegisterSpeech(eng *spin.Engine) {
@@ -95,6 +97,10 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000322-law_master_computer_online_welcome_aboard/law_mast__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters,
+		Path: "jd-pinsound/voice/3609427385-megocity_one_is_blacked_out_be_on_the_alert_for_looters/megocity__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechMeltdownIsImminent,
 		Path: "jd-pinsound/voice/000318-meltdown_is_imminent/meltdown__LEGACY_AUD.wav",
 	})
@@ -121,6 +127,10 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechReactorTwoStabilized,
 		Path: "jd-pinsound/voice/000316-reactor_two_stabilized/reactor___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechSendBackupUnits,
+		Path: "jd-pinsound/voice/000260-send_backup_units/send_bac__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechShootSniperTower,

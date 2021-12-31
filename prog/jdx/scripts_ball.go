@@ -74,7 +74,7 @@ func outlaneScript(e spin.Env) {
 			return
 		}
 		e.Do(spin.PlaySound{ID: SoundBallLost})
-		e.Do(spin.AwardScore{Val: ScoreOutlane})
+		e.Do(spin.AwardScore{Val: ScoreOutlane * Multiplier(e)})
 	}
 }
 
@@ -88,7 +88,7 @@ func returnLaneScript(e spin.Env) {
 			return
 		}
 		e.Do(spin.PlaySound{ID: SoundReturnLane})
-		e.Do(spin.AwardScore{Val: ScoreReturnLane})
+		e.Do(spin.AwardScore{Val: ScoreReturnLane * Multiplier(e)})
 	}
 }
 
@@ -101,6 +101,6 @@ func slingScript(e spin.Env) {
 			return
 		}
 		e.Do(spin.PlaySound{ID: SoundSling})
-		e.Do(spin.AwardScore{Val: ScoreSling})
+		e.Do(spin.AwardScore{Val: ScoreSling * Multiplier(e)})
 	}
 }

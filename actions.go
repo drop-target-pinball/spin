@@ -80,8 +80,9 @@ type PlayScript struct {
 }
 
 type PlaySound struct {
-	ID    string
-	Loops int
+	ID     string
+	Loops  int
+	Notify bool
 }
 
 type PlaySpeech struct {
@@ -253,6 +254,7 @@ func (StopSound) action()         {}
 func (StopSpeech) action()        {}
 
 func registerActions(e *Engine) {
+	e.RegisterAction(AddBall{})
 	e.RegisterAction(AddPlayer{})
 	e.RegisterAction(AdvanceGame{})
 	e.RegisterAction(AwardScore{})

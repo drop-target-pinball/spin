@@ -200,7 +200,7 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeRoot,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptTopLeftRampShot,
+		ID:     ScriptTopRightRampShot,
 		Script: topRightRampShotScript,
 		Scope:  spin.ScopeRoot,
 	})
