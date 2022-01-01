@@ -56,5 +56,8 @@ SwitchEvent ID=jd.SwitchCaptiveBall1
 SwitchEvent ID=jd.SwitchCaptiveBall2
 SwitchEvent ID=jd.SwitchCaptiveBall3
 
+## Bad Impersonator
 
+PlayScript ID=jdx.ScriptBadImpersonatorMode
+SwitchEvent ID=jd.SwitchDropTargetE
 

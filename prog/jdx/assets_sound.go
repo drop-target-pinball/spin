@@ -3,31 +3,42 @@ package jdx
 import "github.com/drop-target-pinball/spin"
 
 const (
-	SoundBallLost          = "jdx.SoundBallLost"
-	SoundBlackoutJackpot   = "jdx.SoundBlackoutJackpot"
-	SoundBonus             = "jdx.SoundBonus"
-	SoundGunLoadSniper     = "jdx.SoundGunLoadSniper"
-	SoundGunFire           = "jdx.SoundGunFire"
-	SoundMeltdownCracking  = "jdx.SoundMeltdownCracking"
-	SoundMeltdownExplosion = "jdx.SoundMeltdownExplosion"
-	SoundMeltdownKlaxon    = "jdx.SoundMeltdownKlaxon"
-	SoundMotorcycleStart   = "jdx.SoundMotorcycleStart"
-	SoundMotorRev          = "jdx.SoundMotorRev"
-	SoundPoliceSiren       = "jdx.SoundPoliceSiren"
-	SoundPursuitEngine     = "jdx.SoundPursuitEngine"
-	SoundPursuitExplosion  = "jdx.SoundPursuitExplosion"
-	SoundPursuitMissile    = "jdx.SoundPursuitMissile"
-	SoundReturnLane        = "jdx.SoundReturnLane"
-	SoundSling             = "jdx.SoundSling"
-	SoundSniperSplat       = "jdx.SoundSniperSplat"
-	SoundSuccess           = "jdx.SoundSuccess"
-	SoundTankDestroyed     = "jdx.SoundTankDestroyed"
-	SoundTankFire          = "jdx.SoundTankFire"
-	SoundTireSqueal1       = "jdx.SoundTireSqueal1"
-	SoundTireSqueal2       = "jdx.SoundTireSqueal2"
+	SoundBadImpersonatorGunFire = "jdx.SoundBadImpersonatorGunFire"
+	SoundBadImpersonatorThrow   = "jdx.SoundBadImpersonatorThrow"
+	SoundBallLost               = "jdx.SoundBallLost"
+	SoundBlackoutJackpot        = "jdx.SoundBlackoutJackpot"
+	SoundBonus                  = "jdx.SoundBonus"
+	SoundGunLoadSniper          = "jdx.SoundGunLoadSniper"
+	SoundGunFire                = "jdx.SoundGunFire"
+	SoundMeltdownCracking       = "jdx.SoundMeltdownCracking"
+	SoundMeltdownExplosion      = "jdx.SoundMeltdownExplosion"
+	SoundMeltdownKlaxon         = "jdx.SoundMeltdownKlaxon"
+	SoundMotorcycleStart        = "jdx.SoundMotorcycleStart"
+	SoundMotorRev               = "jdx.SoundMotorRev"
+	SoundPoliceSiren            = "jdx.SoundPoliceSiren"
+	SoundPursuitEngine          = "jdx.SoundPursuitEngine"
+	SoundPursuitExplosion       = "jdx.SoundPursuitExplosion"
+	SoundPursuitMissile         = "jdx.SoundPursuitMissile"
+	SoundReturnLane             = "jdx.SoundReturnLane"
+	SoundShock                  = "jdx.SoundShock"
+	SoundSling                  = "jdx.SoundSling"
+	SoundSniperSplat            = "jdx.SoundSniperSplat"
+	SoundSuccess                = "jdx.SoundSuccess"
+	SoundTankDestroyed          = "jdx.SoundTankDestroyed"
+	SoundTankFire               = "jdx.SoundTankFire"
+	SoundTireSqueal1            = "jdx.SoundTireSqueal1"
+	SoundTireSqueal2            = "jdx.SoundTireSqueal2"
 )
 
 func RegisterSounds(eng *spin.Engine) {
+	eng.Do(spin.RegisterSound{
+		ID:   SoundBadImpersonatorGunFire,
+		Path: "jd-pinsound/sfx/000045-sniper/sniper_2___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundBadImpersonatorThrow,
+		Path: "jd-pinsound/sfx/000052-bad_inpersonator/bad_inpe__LEGACY_AUD.wav",
+	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundBallLost,
 		Path: "jd-pinsound/sfx/000112-ball_lost/ball_los__LEGACY_AUD.wav",
@@ -87,6 +98,10 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundReturnLane,
 		Path: "jd-pinsound/sfx/000122-explosion_3/explosio__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundShock,
+		Path: "jd-pinsound/sfx/000049-bad_inpersonator/bad_inpe__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundSling,

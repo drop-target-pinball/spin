@@ -9,10 +9,13 @@ const (
 	SpeechBattleTankDamageAt                            = "jdx.SpeechBattleTankDamageAt"
 	SpeechBattleTankDestroyed                           = "jdx.SpeechBattleTankDestroyed"
 	SpeechBattleTankSightedInSectorSix                  = "jdx.SpeechBattleTankSightedInSectorSix"
+	SpeechBoo                                           = "jdx.SpeechBoo"
+	SpeechCivilDisorderHasEruptedInHeitschMusicHall     = "jdx.SpeechCivilDisorderHasEruptedInHeitschMusicHall"
 	SpeechContainmentFailureAtThreeMeterIsland          = "jdx.SpeechContainmentFailureAtThreeMetereIsland"
 	SpeechControlToDredd                                = "jdx.SpeechControlToDredd"
 	SpeechDreddToControl                                = "jdx.SpeechDreddToControl"
 	SpeechFour                                          = "jdx.SpeechFour"
+	SpeechGoHome                                        = "jdx.SpeechGoHome"
 	SpeechICanSeeMyHouseFromHere                        = "jdx.SpeechICanSeeMyHouseFromHere"
 	SpeechImInPursuitOfAStolenVehicle                   = "jdx.SpeechImInPursuitOfAStolenVehicle"
 	SpeechItsALongWayDown                               = "jdx.SpeechItsALongWayDown"
@@ -37,6 +40,7 @@ const (
 	SpeechTwo                                           = "jdx.SpeechTwo"
 	SpeechUseFireButtonToLaunchBall                     = "jdx.SpeechUseFireButtonToLaunchBall"
 	SpeechYourDrivingDaysAreOverPunk                    = "jdx.SpeechYourDrivingDaysAreOverPunk"
+	SpeechYouSuck                                       = "jdx.SpeechYouSuck"
 )
 
 func RegisterSpeech(eng *spin.Engine) {
@@ -65,6 +69,14 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000345-battle_tank_sighted_in_sector_six/battle_t__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechBoo,
+		Path: "jd-pinsound/sfx/000357-booooo_from_the_crowd/booooo_f__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechCivilDisorderHasEruptedInHeitschMusicHall,
+		Path: "jd-pinsound/voice/000347-several_disorder_has_urepted_in_hight_school_musical/several___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechContainmentFailureAtThreeMeterIsland,
 		Path: "jd-pinsound/voice/000344-containment_failure_at_three_meter_island/containm__LEGACY_AUD.wav",
 	})
@@ -79,6 +91,10 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechFour,
 		Path: "jd-pinsound/voice/000310-4/4__LEGAC__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechGoHome,
+		Path: "jd-pinsound/voice/000359-go_home/go_home___LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechICanSeeMyHouseFromHere,
@@ -175,5 +191,9 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechYourDrivingDaysAreOverPunk,
 		Path: "jd-pinsound/voice/000209-your_driving_days_are_over_punk/your_dri__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechYouSuck,
+		Path: "jd-pinsound/voice/000358-you_suck/you_suck__LEGACY_AUD.wav",
 	})
 }

@@ -3,16 +3,21 @@ package jdx
 import "github.com/drop-target-pinball/spin"
 
 const (
-	MusicMain       = "jdx.MusicMain"
-	MusicMatch      = "jdx.MusicMatch"
-	MusicMatchHit   = "jdx.MusicMatchHit"
-	MusicMultiball  = "jdx.MusicMultiball"
-	MusicMode1      = "jdx.MusicMode1"
-	MusicMode2      = "jdx.MusicMode2"
-	MusicPlungeLoop = "jdx.MusicPlungeLoop"
+	MusicBadImpersonator = "jdx.MusicBadImpersonator"
+	MusicMain            = "jdx.MusicMain"
+	MusicMatch           = "jdx.MusicMatch"
+	MusicMatchHit        = "jdx.MusicMatchHit"
+	MusicMultiball       = "jdx.MusicMultiball"
+	MusicMode1           = "jdx.MusicMode1"
+	MusicMode2           = "jdx.MusicMode2"
+	MusicPlungeLoop      = "jdx.MusicPlungeLoop"
 )
 
 func RegisterMusic(eng *spin.Engine) {
+	eng.Do(spin.RegisterMusic{
+		ID:   MusicBadImpersonator,
+		Path: "jd-pinsound/music/000005-bad_impersonator/bad_impe__LEGACY_AUD.wav",
+	})
 	eng.Do(spin.RegisterMusic{
 		ID:   MusicMain,
 		Path: "jd-pinsound/music/000002-main_theme/main_the__LEGACY_AUD-fixed.wav",

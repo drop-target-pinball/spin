@@ -95,6 +95,14 @@ const (
 	GI5 = "jd.GI5"
 )
 
+var DropTargetLamps = []string{
+	LampDropTargetJ,
+	LampDropTargetU,
+	LampDropTargetD,
+	LampDropTargetG,
+	LampDropTargetE,
+}
+
 func RegisterLamps(eng *spin.Engine) {
 	eng.Do(spin.RegisterLamp{Addr: wpc.L85, ID: LampAdvanceCrimeLevel})
 	eng.Do(spin.RegisterLamp{Addr: wpc.L65, ID: LampAirRaid})

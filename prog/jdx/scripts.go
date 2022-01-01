@@ -9,40 +9,45 @@ import (
 )
 
 const (
-	ScriptAttractMode            = "jdx.ScriptAttractMode"
-	ScriptBall                   = "jdx.ScriptBall"
-	ScriptBasicMode              = "jdx.ScriptBasicMode"
-	ScriptBlackoutMode           = "jdx.ScriptBlackoutMode"
-	ScriptBonusMode              = "jdx.ScriptBonusMode"
-	ScriptChain                  = "jdx.ScriptChain"
-	ScriptDefaultLeftShooterLane = "jdx.ScriptDefaultLeftShooterLane"
-	ScriptDefaultLeftPopper      = "jdx.ScriptDefaultLeftPopper"
-	ScriptDefaultRightPopper     = "jdx.ScriptDefaultRightPopper"
-	ScriptDebugExtraBall         = "jdx.ScriptDebugExtraBall"
-	ScriptGame                   = "jdx.ScriptGame"
-	ScriptMeltdownComplete       = "jdx.ScriptMeltdownComplete"
-	ScriptMeltdownCountdown      = "jdx.ScriptMeltdownCountdown"
-	ScriptMeltdownMode           = "jdx.ScriptMeltdownMode"
-	ScriptMeltdownTimeout        = "jdx.ScriptMeltdownTimeout"
-	ScriptMatchMode              = "jdx.ScriptMatchMode"
-	ScriptOutlane                = "jdx.ScriptOutlane"
-	ScriptPlayerAnnounce         = "jdx.ScriptPlayerAnnounce"
-	ScriptPlungeMode             = "jdx.ScriptPlungeMode"
-	ScriptProgram                = "jdx.ScriptProgram"
-	ScriptPursuitCaught          = "jdx.ScriptPursuitCaught"
-	ScriptPursuitCountdown       = "jdx.ScriptPursuitCountdown"
-	ScriptPursuitEscape          = "jdx.ScriptPursuitEscape"
-	ScriptPursuitMode            = "jdx.ScriptPursuitMode"
-	ScriptReturnLane             = "jdx.ScriptReturnLane"
-	ScriptSling                  = "jdx.ScriptSling"
-	ScriptSniperMode             = "jdx.ScriptSniperMode"
-	ScriptSniperScoreCountdown   = "jdx.ScriptSniperScoreCountdown"
-	ScriptSniperSplat            = "jdx.ScriptSniperSplat"
-	ScriptSniperTakedown         = "jdx.ScriptSniperTakedown"
-	ScriptSniperFallCountdown    = "jdx.ScriptSniperFallCountdown"
-	ScriptTankCountdown          = "jdx.ScriptTankCountdown"
-	ScriptTankDestroyed          = "jdx.ScriptTankDestroyed"
-	ScriptTankMode               = "jdx.ScriptTankMode"
+	ScriptAttractMode                   = "jdx.ScriptAttractMode"
+	ScriptBadImpersonatorComplete       = "jdx.ScriptBadImpersonatorComplete"
+	ScriptBadImpersonatorCountdown      = "jdx.ScriptBadImpersonatorCountdown"
+	ScriptBadImpersonatorCountdownAudio = "jdx.ScriptBadImpersonatorCountdownAudio"
+	ScriptBadImpersonatorHit            = "jdx.ScriptBadImpersonatorHit"
+	ScriptBadImpersonatorMode           = "jdx.ScriptBadImpersonatorMode"
+	ScriptBall                          = "jdx.ScriptBall"
+	ScriptBasicMode                     = "jdx.ScriptBasicMode"
+	ScriptBlackoutMode                  = "jdx.ScriptBlackoutMode"
+	ScriptBonusMode                     = "jdx.ScriptBonusMode"
+	ScriptChain                         = "jdx.ScriptChain"
+	ScriptDefaultLeftShooterLane        = "jdx.ScriptDefaultLeftShooterLane"
+	ScriptDefaultLeftPopper             = "jdx.ScriptDefaultLeftPopper"
+	ScriptDefaultRightPopper            = "jdx.ScriptDefaultRightPopper"
+	ScriptDebugExtraBall                = "jdx.ScriptDebugExtraBall"
+	ScriptGame                          = "jdx.ScriptGame"
+	ScriptMeltdownComplete              = "jdx.ScriptMeltdownComplete"
+	ScriptMeltdownCountdown             = "jdx.ScriptMeltdownCountdown"
+	ScriptMeltdownMode                  = "jdx.ScriptMeltdownMode"
+	ScriptMeltdownTimeout               = "jdx.ScriptMeltdownTimeout"
+	ScriptMatchMode                     = "jdx.ScriptMatchMode"
+	ScriptOutlane                       = "jdx.ScriptOutlane"
+	ScriptPlayerAnnounce                = "jdx.ScriptPlayerAnnounce"
+	ScriptPlungeMode                    = "jdx.ScriptPlungeMode"
+	ScriptProgram                       = "jdx.ScriptProgram"
+	ScriptPursuitCaught                 = "jdx.ScriptPursuitCaught"
+	ScriptPursuitCountdown              = "jdx.ScriptPursuitCountdown"
+	ScriptPursuitEscape                 = "jdx.ScriptPursuitEscape"
+	ScriptPursuitMode                   = "jdx.ScriptPursuitMode"
+	ScriptReturnLane                    = "jdx.ScriptReturnLane"
+	ScriptSling                         = "jdx.ScriptSling"
+	ScriptSniperMode                    = "jdx.ScriptSniperMode"
+	ScriptSniperScoreCountdown          = "jdx.ScriptSniperScoreCountdown"
+	ScriptSniperSplat                   = "jdx.ScriptSniperSplat"
+	ScriptSniperTakedown                = "jdx.ScriptSniperTakedown"
+	ScriptSniperFallCountdown           = "jdx.ScriptSniperFallCountdown"
+	ScriptTankCountdown                 = "jdx.ScriptTankCountdown"
+	ScriptTankDestroyed                 = "jdx.ScriptTankDestroyed"
+	ScriptTankMode                      = "jdx.ScriptTankMode"
 )
 
 func defaultLeftShooterLaneScript(e spin.Env) {
@@ -117,6 +122,31 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptAttractMode,
 		Script: attractModeScript,
 		Scope:  spin.ScopeProgram,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBadImpersonatorComplete,
+		Script: impersonatorCompleteScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBadImpersonatorCountdown,
+		Script: impersonatorCountdownScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBadImpersonatorCountdownAudio,
+		Script: impersonatorCountdownAudioScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBadImpersonatorHit,
+		Script: impersonatorHitScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBadImpersonatorMode,
+		Script: impersonatorModeScript,
+		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBall,

@@ -3,6 +3,7 @@ package jd
 import (
 	"github.com/drop-target-pinball/go-pinproc/wpc"
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/coroutine"
 )
 
 const (
@@ -75,6 +76,22 @@ const (
 	SwitchUpperRightFlipperButton = "jd.SwitchUpperLeftFlipperButton"
 	SwitchUpperRightFlipperEOS    = "jd.SwitchUpperRightFlipperEOS"
 )
+
+var DropTargetSwitches = []string{
+	SwitchDropTargetJ,
+	SwitchDropTargetU,
+	SwitchDropTargetD,
+	SwitchDropTargetG,
+	SwitchDropTargetE,
+}
+
+var SwitchAnyDropTarget = []coroutine.Selector{
+	spin.SwitchEvent{ID: SwitchDropTargetJ},
+	spin.SwitchEvent{ID: SwitchDropTargetU},
+	spin.SwitchEvent{ID: SwitchDropTargetD},
+	spin.SwitchEvent{ID: SwitchDropTargetG},
+	spin.SwitchEvent{ID: SwitchDropTargetE},
+}
 
 func RegisterSwitches(eng *spin.Engine) {
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S71, ID: SwitchArmFarRight})
