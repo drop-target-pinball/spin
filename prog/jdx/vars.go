@@ -26,6 +26,9 @@ const (
 	ScorePursuit1         = 6_000_000
 	ScorePursuit2         = 12_000_000
 	ScorePursuit3         = 36_000_000
+	ScoreSafecrackerStart = 8_000_000
+	ScoreSafecrackerEnd   = 3_000_000
+	ScoreSafecrackerDec   = 75_400
 	ScoreTank0            = 3_000_000
 	ScoreTank1            = 12_000_000
 	ScoreTank2            = 24_000_000
@@ -100,6 +103,9 @@ type Vars struct {
 	MeltdownBonus          int
 	Multiplier             int
 	PursuitBonus           int
+	SafecrackerAttempts    int
+	SafecrackerBonus       int
+	SafecrackerScore       int
 	SelectedMode           int
 	SniperBonus            int
 	SniperScore            int

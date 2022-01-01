@@ -61,3 +61,7 @@ SwitchEvent ID=jd.SwitchCaptiveBall3
 PlayScript ID=jdx.ScriptBadImpersonatorMode
 SwitchEvent ID=jd.SwitchDropTargetE
 
+## Safecracker
+
+PlayScript ID=jdx.ScriptSafecrackerMode
+SwitchEvent ID=jd.SwitchSubwayEnter1

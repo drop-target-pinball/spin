@@ -149,12 +149,14 @@ func Post(s Selector) {
 			entry.waitCond.selectors = []Selector{}
 		default:
 		}
+	}
 
+	for _, entry := range active {
 		for _, wait := range entry.waitCond.selectors {
 			if wait.Key() == s.Key() {
 				entry.resume <- s
 				entry.waitCond = <-entry.yield
-				continue
+				break
 			}
 		}
 	}
