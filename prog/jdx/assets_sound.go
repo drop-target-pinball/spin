@@ -8,6 +8,7 @@ const (
 	SoundBallLost               = "jdx.SoundBallLost"
 	SoundBlackoutJackpot        = "jdx.SoundBlackoutJackpot"
 	SoundBonus                  = "jdx.SoundBonus"
+	SoundDing                   = "jdx.SoundDing"
 	SoundGunLoadSniper          = "jdx.SoundGunLoadSniper"
 	SoundGunFire                = "jdx.SoundGunFire"
 	SoundMeltdownCracking       = "jdx.SoundMeltdownCracking"
@@ -22,6 +23,12 @@ const (
 	SoundReturnLane             = "jdx.SoundReturnLane"
 	SoundShock                  = "jdx.SoundShock"
 	SoundSling                  = "jdx.SoundSling"
+	SoundSafecrackerExplosion   = "jdx.SoundSafecrackerExplosion"
+	SoundSafecrackerGunFire1    = "jdx.SoundSafecrackerGunFire1"
+	SoundSafecrackerGunFire2    = "jdx.SoundSafecrackerGunFire2"
+	SoundSafecrackerGunFire3    = "jdx.SoundSafecrackerGunFire3"
+	SoundSafecrackerLaserFire   = "jdx.SoundSafecrackerLaserFire"
+	SoundSafecrackerTankFire    = "jdx.SoundSafecrackerTankFire"
 	SoundSniperSplat            = "jdx.SoundSniperSplat"
 	SoundSnore                  = "jdx.SoundSnore"
 	SoundSuccess                = "jdx.SoundSuccess"
@@ -51,6 +58,10 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundBonus,
 		Path: "jd-pinsound/sfx/000063-piano_1/piano_1___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundDing,
+		Path: "jd-pinsound/sfx/000101-dring/dring__L__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundGunLoadSniper,
@@ -107,6 +118,30 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundSling,
 		Path: "jd-pinsound/sfx/000107-check_point/check_po__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundSafecrackerExplosion,
+		Path: "jd-pinsound/sfx/000093-big_explosion/big_expl__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundSafecrackerGunFire1,
+		Path: "jd-pinsound/sfx/000040-manhunt_mode/manhunt___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundSafecrackerGunFire2,
+		Path: "jd-pinsound/sfx/000085-laser_fire/laser_fi__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundSafecrackerGunFire3,
+		Path: "jd-pinsound/sfx/000086-little_laser_fire/little_l__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundSafecrackerLaserFire,
+		Path: "jd-pinsound/sfx/000095-special_gun_fire/special___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundSafecrackerTankFire,
+		Path: "jd-pinsound/sfx/000041-fire/fire__LE__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundSniperSplat,

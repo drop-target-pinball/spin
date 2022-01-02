@@ -1,6 +1,8 @@
 package spin
 
-import "image/color"
+import (
+	"image/color"
+)
 
 var (
 	ColorBlack = color.RGBA{0x00, 0x00, 0x00, 0xff}

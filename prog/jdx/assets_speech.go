@@ -13,6 +13,7 @@ const (
 	SpeechCivilDisorderHasEruptedInHeitschMusicHall     = "jdx.SpeechCivilDisorderHasEruptedInHeitschMusicHall"
 	SpeechContainmentFailureAtThreeMeterIsland          = "jdx.SpeechContainmentFailureAtThreeMetereIsland"
 	SpeechControlToDredd                                = "jdx.SpeechControlToDredd"
+	SpeechDinnerTime                                    = "jdx.SpeechDinnerTime"
 	SpeechDreddToControl                                = "jdx.SpeechDreddToControl"
 	SpeechFour                                          = "jdx.SpeechFour"
 	SpeechGoHome                                        = "jdx.SpeechGoHome"
@@ -86,6 +87,10 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechControlToDredd,
 		Path: "jd-pinsound/voice/000342-control_to_dredd/control___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechDinnerTime,
+		Path: "jd-pinsound/voice/000208-aah_diner_time/aah_dine__LEGACY.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechDreddToControl,

@@ -113,6 +113,8 @@ type Vars struct {
 	Timer                  int
 }
 
+const ScopeModeEnd = "spin.program.game.ball.mode_end"
+
 func startOfBallReset(store spin.Store) {
 	vars := GetVars(store)
 	vars.PursuitBonus = 0
