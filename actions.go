@@ -83,6 +83,7 @@ type PlaySound struct {
 	ID     string
 	Loops  int
 	Notify bool
+	Duck   float64
 }
 
 type PlaySpeech struct {

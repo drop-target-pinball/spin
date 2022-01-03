@@ -16,6 +16,7 @@ const (
 	SpeechDinnerTime                                    = "jdx.SpeechDinnerTime"
 	SpeechDreddToControl                                = "jdx.SpeechDreddToControl"
 	SpeechFour                                          = "jdx.SpeechFour"
+	SpeechFreeze                                        = "jdx.SpeechFreeze"
 	SpeechGoHome                                        = "jdx.SpeechGoHome"
 	SpeechICanSeeMyHouseFromHere                        = "jdx.SpeechICanSeeMyHouseFromHere"
 	SpeechIllBeBack                                     = "jdx.SpeechIllBeBack"
@@ -26,17 +27,21 @@ const (
 	SpeechMeltdownIsImminent                            = "jdx.SpeechMeltdownIsImminent"
 	SpeechOne                                           = "jdx.SpeechOne"
 	SpeechOpenThatSafe                                  = "jdx.SpeechOpenThatSafe"
+	SpeechOrIWillShoot                                  = "jdx.SpeechOrIWillShoot"
 	SpeechPlayer2                                       = "jdx.SpeechPlayer2"
 	SpeechPlayer3                                       = "jdx.SpeechPlayer3"
 	SpeechPlayer4                                       = "jdx.SpeechPlayer4"
 	SpeechReactorOneStabilized                          = "jdx.SpeechReactorOneStabilized"
 	SpeechReactorTwoStabilized                          = "jdx.SpeechReactorTwoStabilized"
 	SpeechSendBackupUnits                               = "jdx.SpeechSendBackupUnits"
+	SpeechShootLeftRamp                                 = "jdx.SpeechShootLeftRamp"
 	SpeechShootSniperTower                              = "jdx.SpeechShootSniperTower"
 	SpeechSixtyPercent                                  = "jdx.SpeechSixtyPercent"
 	SpeechSniperEliminated                              = "jdx.SpeechSniperEliminated"
 	SpeechSniperIsShootingIntoCrowdFromJohnsonTower     = "jdx.SpeechSniperIsShootingIntoCrowdFromJohnsonTower"
+	SpeechStop                                          = "jdx.SpeechStop"
 	SpeechSuspectGotAway                                = "jdx.SpeechSuspectGotAway"
+	SpeechSuspiciousCharacterReportedInEugeneBlock      = "jdx.SpeechSuspiciousCharacterReportedInEugeneBlock"
 	SpeechThree                                         = "jdx.SpeechThree"
 	SpeechThreeMeterIslandIsSecured                     = "jdx.SpeechThreeMeterIslandIsSecured"
 	SpeechTwentyFivePercent                             = "jdx.SpeechTwentyFivePercent"
@@ -101,6 +106,10 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000310-4/4__LEGAC__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechFreeze,
+		Path: "jd-pinsound/voice/000216-freeze/freeze____LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechGoHome,
 		Path: "jd-pinsound/voice/000359-go_home/go_home___LEGACY_AUD.wav",
 	})
@@ -141,6 +150,10 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000201-open_that_safe/000201-open_that_safe_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechOrIWillShoot,
+		Path: "jd-pinsound/voice/000213-or_i_will_shoot/or_i_wil__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechPlayer2,
 		Path: "jd-pinsound/voice/000210-player_two/player_t__LEGACY_AUD.wav",
 	})
@@ -165,6 +178,10 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000260-send_backup_units/send_bac__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechShootLeftRamp,
+		Path: "jd-pinsound/voice/000353-shoot_left_ramp/shoot_le__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechShootSniperTower,
 		Path: "jd-pinsound/voice/000356-shoot_sniper_tower/shoot_sn__LEGACY_AUD.wav",
 	})
@@ -181,8 +198,16 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000346-sniper_is_shooting_into_crowd_from_johnson_tower/sniper_i__LEGACY.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechStop,
+		Path: "jd-pinsound/voice/000212-stop/stop__LE__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechSuspectGotAway,
 		Path: "jd-pinsound/voice/000252-suspect_got_away/000252-suspect_got_away_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechSuspiciousCharacterReportedInEugeneBlock,
+		Path: "jd-pinsound/voice/000348-the_special_caracter_reported_are_using_block/the_spec__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechThree,

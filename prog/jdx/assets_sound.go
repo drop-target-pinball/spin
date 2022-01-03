@@ -11,6 +11,8 @@ const (
 	SoundDing                   = "jdx.SoundDing"
 	SoundGunLoadSniper          = "jdx.SoundGunLoadSniper"
 	SoundGunFire                = "jdx.SoundGunFire"
+	SoundManhuntAutoFire        = "jdx.SoundManhuntAutoFire"
+	SoundManhuntSingleFire      = "jdx.SoundManhuntSingleFire"
 	SoundMeltdownCracking       = "jdx.SoundMeltdownCracking"
 	SoundMeltdownExplosion      = "jdx.SoundMeltdownExplosion"
 	SoundMeltdownKlaxon         = "jdx.SoundMeltdownKlaxon"
@@ -36,6 +38,7 @@ const (
 	SoundTankFire               = "jdx.SoundTankFire"
 	SoundTireSqueal1            = "jdx.SoundTireSqueal1"
 	SoundTireSqueal2            = "jdx.SoundTireSqueal2"
+	SoundWalking                = "jdx.SoundWalking"
 )
 
 func RegisterSounds(eng *spin.Engine) {
@@ -69,6 +72,14 @@ func RegisterSounds(eng *spin.Engine) {
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundGunFire,
+		Path: "jd-pinsound/sfx/000133-gun_fire/gun_fire__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundManhuntAutoFire,
+		Path: "jd-pinsound/sfx/000040-manhunt_mode/manhunt___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundManhuntSingleFire,
 		Path: "jd-pinsound/sfx/000133-gun_fire/gun_fire__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
@@ -170,5 +181,9 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundTireSqueal2,
 		Path: "jd-pinsound/sfx/000073-rustling_tire_1/rustling_2_LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundWalking,
+		Path: "jd-pinsound/sfx/000146-walking_sound/walking___LEGACY_AUD.wav",
 	})
 }

@@ -15,6 +15,7 @@ type audio struct {
 	id       string
 	priority int
 	notify   bool
+	origVol  int
 }
 
 type audioSystem struct {
@@ -170,7 +171,17 @@ func (s *audioSystem) playSound(a spin.PlaySound) {
 	if err != nil {
 		log.Panic(err)
 	}
-	s.soundsPlaying[channel] = audio{id: a.ID, notify: a.Notify}
+	if a.Duck < 0 || a.Duck > 1 {
+		spin.Error("invalid duck factor: %v", a.Duck)
+		return
+	}
+	prev := 0
+	if a.Duck > 0 {
+		prev = mix.VolumeMusic(-1)
+		ducked := int(a.Duck * float64(prev))
+		mix.VolumeMusic(ducked)
+	}
+	s.soundsPlaying[channel] = audio{id: a.ID, notify: a.Notify, origVol: prev}
 }
 
 func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
@@ -228,6 +239,9 @@ func (s *audioSystem) channelFinished(ch int) {
 		playing := s.soundsPlaying[ch]
 		if playing.notify {
 			s.eng.Post(spin.SoundFinishedEvent{ID: playing.id})
+		}
+		if playing.origVol > 0 {
+			mix.VolumeMusic(playing.origVol)
 		}
 	}
 	if ch == chanSpeech {

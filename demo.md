@@ -65,3 +65,8 @@ SwitchEvent ID=jd.SwitchDropTargetE
 
 PlayScript ID=jdx.ScriptSafecrackerMode
 SwitchEvent ID=jd.SwitchSubwayEnter1
+
+## Manhunt
+
+PlayScript ID=jdx.ScriptManhuntMode
+ShotEvent ID=jd.ShotLeftRamp

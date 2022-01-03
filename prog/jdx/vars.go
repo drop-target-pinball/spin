@@ -14,14 +14,15 @@ const (
 	ScoreOutlane    = 100_000
 	ScorePost       = 5_210
 
-	ScoreMeltdown0 = 3_000_000
-	ScoreMeltdown1 = 13_000_000
-	ScoreMeltdown2 = 23_000_000
-	ScoreMeltdown3 = 33_000_000
-
 	ScoreBadImpersonator0 = 3_000_000
 	ScoreBadImpersonatorN = 5_000_000
 	ScoreBlackoutJackpot  = 10_000_000
+	ScoreManhunt0         = 3_000_000
+	ScoreManhuntN         = 6_000_000
+	ScoreMeltdown0        = 3_000_000
+	ScoreMeltdown1        = 13_000_000
+	ScoreMeltdown2        = 23_000_000
+	ScoreMeltdown3        = 33_000_000
 	ScorePursuit0         = 3_000_000
 	ScorePursuit1         = 6_000_000
 	ScorePursuit2         = 12_000_000
@@ -100,6 +101,7 @@ type Vars struct {
 	BadImpersonatorBonus   int
 	BadImpersonatorTargets int
 	CrimeScenes            int
+	ManhuntBonus           int
 	MeltdownBonus          int
 	Multiplier             int
 	PursuitBonus           int

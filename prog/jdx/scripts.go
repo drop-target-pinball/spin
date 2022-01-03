@@ -25,6 +25,8 @@ const (
 	ScriptDefaultRightPopper            = "jdx.ScriptDefaultRightPopper"
 	ScriptDebugExtraBall                = "jdx.ScriptDebugExtraBall"
 	ScriptGame                          = "jdx.ScriptGame"
+	ScriptManhuntComplete               = "jdx.ScriptManhuntComplete"
+	ScriptManhuntMode                   = "jdx.ScriptManhuntMode"
 	ScriptMeltdownComplete              = "jdx.ScriptMeltdownComplete"
 	ScriptMeltdownCountdown             = "jdx.ScriptMeltdownCountdown"
 	ScriptMeltdownMode                  = "jdx.ScriptMeltdownMode"
@@ -202,6 +204,16 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptGame,
 		Script: gameScript,
 		Scope:  spin.ScopeGame,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptManhuntComplete,
+		Script: manhuntCompleteScript,
+		Scope:  spin.ScopePriority,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptManhuntMode,
+		Script: manhuntModeScript,
+		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptMeltdownComplete,

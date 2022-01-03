@@ -185,7 +185,7 @@ func safecrackerOpenThatSafeScript(e spin.Env) {
 func safecrackerCountdown2Script(e spin.Env) {
 	vars := GetVars(e)
 	vars.Timer = 30
-	cancel := spin.CountdownScript(e, &vars.Timer, 1000*time.Millisecond, spin.TimeoutEvent{ID: ScriptSafecrackerMode})
+	cancel := spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{ID: ScriptSafecrackerMode})
 	defer cancel()
 
 	for {
@@ -196,7 +196,7 @@ func safecrackerCountdown2Script(e spin.Env) {
 		if done := e.Sleep(2000 * time.Millisecond); done {
 			return
 		}
-		cancel = spin.CountdownScript(e, &vars.Timer, 1000*time.Millisecond, spin.TimeoutEvent{ID: ScriptSafecrackerMode})
+		cancel = spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{ID: ScriptSafecrackerMode})
 	}
 }
 
