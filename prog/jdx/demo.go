@@ -10,17 +10,26 @@ func demoScript(e spin.Env) {
 		Do(spin.PlayScript{ID: ScriptGame}).
 		Sleep(11_000).
 		Post(spin.SwitchEvent{ID: jd.SwitchRightFireButton}).
-		Sleep(3_000).
+		Sleep(6_000).
 		Run(e)
 
 	spin.NewSequencer().
-		Post(spin.ShotEvent{ID: jd.ShotLeftRamp}).
-		Sleep(7_000).
+		Post(spin.Message{ID: MessageStartChainMode}).
+		Sleep(10_000).
 		Post(spin.ShotEvent{ID: jd.ShotRightRamp}).
-		Sleep(3_000).
+		Sleep(4_000).
 		Post(spin.ShotEvent{ID: jd.ShotLeftRamp}).
-		Sleep(3_000).
+		Sleep(4_000).
 		Post(spin.ShotEvent{ID: jd.ShotRightRamp}).
+		Sleep(10_000).
+		Run(e)
+
+	spin.NewSequencer().
+		Post(spin.Message{ID: MessageStartChainMode}).
+		Sleep(8_000).
+		Post(spin.ShotEvent{ID: jd.ShotTopLeftRamp}).
+		Sleep(8_000).
+		Post(spin.SwitchEvent{ID: jd.SwitchTrough1}).
 		Run(e)
 
 }

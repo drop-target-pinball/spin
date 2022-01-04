@@ -41,11 +41,13 @@ type Graphics struct {
 }
 
 type Renderer interface {
+	Graphics() *Graphics
 	Fill(color.RGBA)
 	FillRect(*Graphics)
 	Height() int32
 	Print(*Graphics, string, ...interface{})
 	Width() int32
+	Clear()
 }
 
 type Display interface {

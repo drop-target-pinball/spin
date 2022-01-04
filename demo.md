@@ -77,6 +77,11 @@ ShotEvent ID=jd.ShotLeftRamp
 PlayScript ID=jdx.ScriptStakeoutMode
 ShotEvent ID=jd.ShotRightRamp
 
+# Blackout
+PlayScript ID=jdx.ScriptBlackoutMode
+ShotEvent ID=jd.ShotTopLeftRamp
+BallDrainEvent
+
 ## Switch Check
 
 SwitchEvent ID=jd.SwitchRightFireButton

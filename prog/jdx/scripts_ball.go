@@ -29,9 +29,15 @@ func ballScript(e spin.Env) {
 	defer cancel()
 	e.NewCoroutine(ctx, modeScript)
 
-	_, done := e.WaitFor(spin.BallDrainEvent{})
-	if done {
-		return
+	for {
+		evt, done := e.WaitFor(spin.BallDrainEvent{})
+		if done {
+			return
+		}
+		e := evt.(spin.BallDrainEvent)
+		if e.BallsInPlay == 0 {
+			break
+		}
 	}
 	e.Do(spin.AdvanceGame{})
 }

@@ -202,10 +202,20 @@ func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
 		spin.Info("speech does not have priority: %v", a.ID)
 		return
 	}
+	if a.Duck < 0 || a.Duck > 1 {
+		spin.Error("invalid duck factor: %v", a.Duck)
+	}
+	prev := 0
+	if a.Duck > 0 {
+		prev = mix.VolumeMusic(-1)
+		ducked := int(a.Duck * float64(prev))
+		mix.VolumeMusic(ducked)
+	}
 	s.speechPlaying = audio{
 		id:       a.ID,
 		priority: a.Priority,
 		notify:   a.Notify,
+		origVol:  prev,
 	}
 	sp.Play(chanSpeech, 0)
 }
@@ -243,6 +253,9 @@ func (s *audioSystem) stopSpeech(a spin.StopSpeech) {
 func (s *audioSystem) channelFinished(ch int) {
 	if ch == chanSpeech && s.speechPlaying.notify {
 		s.eng.Post(spin.SpeechFinishedEvent{})
+		if s.speechPlaying.origVol > 0 {
+			mix.VolumeMusic(s.speechPlaying.origVol)
+		}
 	} else {
 		playing := s.soundsPlaying[ch]
 		if playing.notify {

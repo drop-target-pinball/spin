@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	ShotStartLeftMode  = "jdx.ShotStartLeftMode"
-	ShotStartRightMode = "jdx.ShotStartRightMode"
+	ShotStartLeftMode     = "jdx.ShotStartLeftMode"
+	ShotStartRightMode    = "jdx.ShotStartRightMode"
+	MessageStartChainMode = "jdx.StartChainMode"
 )
 
 type modeStartConfig struct {
@@ -40,7 +41,10 @@ func waitForModeStart(e spin.Env, parent context.Context, side bool) bool {
 	m := modeStartConfigs[side]
 	e.Do(spin.DriverBlink{ID: m.lamp})
 	e.NewCoroutine(ctx, selectModeScript)
-	_, done := e.WaitFor(spin.ShotEvent{ID: m.shot})
+	_, done := e.WaitFor(
+		spin.ShotEvent{ID: m.shot},
+		spin.Message{ID: MessageStartChainMode},
+	)
 	e.Do(spin.DriverOff{ID: m.lamp})
 	return done
 }

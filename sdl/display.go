@@ -133,6 +133,15 @@ type rendererSDL struct {
 	fonts map[string]font
 }
 
+func (r *rendererSDL) Graphics() *spin.Graphics {
+	return &spin.Graphics{
+		X:       r.surf.W / 2,
+		Y:       r.surf.H / 2,
+		AnchorX: spin.AnchorCenter,
+		AnchorY: spin.AnchorTop,
+	}
+}
+
 func (r *rendererSDL) Fill(color color.RGBA) {
 	rect := sdl.Rect{X: 0, Y: 0, W: r.surf.W, H: r.surf.H}
 	// if err := r.surf.FillRect(&rect, 0); err != nil {
@@ -156,6 +165,10 @@ func (r *rendererSDL) FillRect(g *spin.Graphics) {
 	if err := r.surf.FillRect(&rect, g.Color); err != nil {
 		log.Panic(err)
 	}
+}
+
+func (r *rendererSDL) Clear() {
+	r.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 0})
 }
 
 func (r *rendererSDL) Print(g *spin.Graphics, format string, a ...interface{}) {

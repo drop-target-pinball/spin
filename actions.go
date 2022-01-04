@@ -6,11 +6,6 @@ type Action interface {
 
 type AddBall struct{}
 
-type AddIntVar struct {
-	Var *int
-	Val int
-}
-
 type AddPlayer struct{}
 
 type AdvanceGame struct{}
@@ -97,6 +92,7 @@ type PlaySpeech struct {
 	Vol      int
 	Priority int
 	Notify   bool
+	Duck     float64
 }
 
 type RegisterAutoPulse struct {
@@ -186,11 +182,6 @@ type SetScore struct {
 	Val int
 }
 
-type SetIntVar struct {
-	Var *int
-	Val int
-}
-
 type SetVar struct {
 	Vars string
 	ID   string
@@ -222,7 +213,6 @@ type StopSpeech struct {
 }
 
 func (AddBall) action()           {}
-func (AddIntVar) action()         {}
 func (AddPlayer) action()         {}
 func (AdvanceGame) action()       {}
 func (AutoPulseOn) action()       {}
@@ -258,7 +248,6 @@ func (RegisterSound) action()     {}
 func (RegisterSpeech) action()    {}
 func (RegisterSwitch) action()    {}
 func (SetScore) action()          {}
-func (SetIntVar) action()         {}
 func (SetVar) action()            {}
 func (StopAudio) action()         {}
 func (StopMusic) action()         {}

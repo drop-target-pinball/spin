@@ -143,6 +143,7 @@ func (e Done) Key() interface{} {
 }
 
 func registerEvents(e *Engine) {
+	e.RegisterEvent(BallDrainEvent{})
 	e.RegisterEvent(Message{})
 	e.RegisterEvent(ShotEvent{})
 	e.RegisterEvent(SwitchEvent{})

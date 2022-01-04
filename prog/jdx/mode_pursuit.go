@@ -1,30 +1,18 @@
 package jdx
 
 import (
-	"math/rand"
-	"time"
-
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
-const (
-	MessagePursuitAdvance = "jdx.MessagePursuitAdvance"
-	MessagePursuitTimeout = "jdx.MessagePursuitTimeout"
-)
-
-var pursuitSounds = []string{
-	SoundMotorRev,
-	SoundTireSqueal1,
-	SoundTireSqueal2,
-}
-
 func pursuitCompleteScript(e spin.Env) {
-	defer e.Display("").Clear(spin.LayerPriority)
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
+
+	e.Do(spin.PlayMusic{ID: MusicMain})
 
 	vars := GetVars(e)
-	modeTotalPanel(e, "PURSUIT TOTAL", vars.PursuitBonus)
-	e.Do(spin.PlayMusic{ID: MusicMain})
+	modeAndScorePanel(e, r, "PURSUIT TOTAL", vars.PursuitBonus)
 
 	spin.NewSequencer().
 		Do(spin.PlaySound{ID: SoundPursuitMissile}).
@@ -38,11 +26,13 @@ func pursuitCompleteScript(e spin.Env) {
 }
 
 func pursuitIncompleteScript(e spin.Env) {
-	defer e.Display("").Clear(spin.LayerPriority)
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
+
+	e.Do(spin.PlayMusic{ID: MusicMain})
 
 	vars := GetVars(e)
-	modeTotalPanel(e, "PURSUIT TOTAL", vars.PursuitBonus)
-	e.Do(spin.PlayMusic{ID: MusicMain})
+	modeAndScorePanel(e, r, "PURSUIT TOTAL", vars.PursuitBonus)
 
 	spin.NewSequencer().
 		Do(spin.PlaySpeech{ID: SpeechDreddToControl, Notify: true}).
@@ -54,7 +44,9 @@ func pursuitIncompleteScript(e spin.Env) {
 }
 
 func pursuitModeScript(e spin.Env) {
-	defer e.Display("").Clear("")
+	r, _ := e.Display("").Renderer("")
+	defer r.Clear()
+
 	e.Do(spin.PlayMusic{ID: MusicMode2})
 
 	vars := GetVars(e)
@@ -72,32 +64,34 @@ func pursuitModeScript(e spin.Env) {
 			Do(spin.StopSound{ID: SoundPursuitEngine}).
 			Defer(spin.StopSound{ID: SoundPoliceSiren}).
 			Defer(spin.StopSound{ID: SoundPursuitEngine}).
-			Sleep(1_000).
-			Func(func() {
-				for {
-					t := rand.Intn(3000) + 1500
-					sound := rand.Intn(len(pursuitSounds))
-
-					e.Do(spin.PlaySound{ID: pursuitSounds[sound]})
-					if done := e.Sleep(time.Duration(t) * time.Millisecond); done {
-						e.Do(spin.StopSound{ID: pursuitSounds[sound]})
-						return
-					}
-				}
-			}).
+			Sleep(3_000).
+			Do(spin.PlaySound{ID: SoundMotorRev}).
+			Sleep(2_000).
+			Do(spin.PlaySound{ID: SoundMotorRev}).
+			Sleep(4_000).
+			Do(spin.PlaySound{ID: SoundTireSqueal1}).
+			Sleep(4_000).
+			Do(spin.PlaySound{ID: SoundMotorRev}).
+			Sleep(4_000).
+			Do(spin.PlaySound{ID: SoundTireSqueal2}).
+			Sleep(4_000).
+			Do(spin.PlaySound{ID: SoundTireSqueal1}).
+			Sleep(4_000).
+			Do(spin.PlaySound{ID: SoundMotorRev}).
+			WaitFor(spin.Done{}).
 			Run(e)
 	})
 
 	e.NewCoroutine(e.Context(), func(e spin.Env) {
 		spin.NewSequencer().
 			WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp}).
-			Do(spin.SetIntVar{Var: &vars.PursuitBonus, Val: ScorePursuit1}).
+			SetIntVar(&vars.PursuitBonus, ScorePursuit1).
 			Do(spin.PlaySound{ID: SoundPursuitMissile}).
 			WaitFor(spin.ShotEvent{ID: jd.ShotLeftRamp}).
-			Do(spin.SetIntVar{Var: &vars.PursuitBonus, Val: ScorePursuit2}).
+			SetIntVar(&vars.PursuitBonus, ScorePursuit2).
 			Do(spin.PlaySound{ID: SoundPursuitMissile}).
 			WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp}).
-			Do(spin.SetIntVar{Var: &vars.PursuitBonus, Val: ScorePursuit3}).
+			SetIntVar(&vars.PursuitBonus, ScorePursuit3).
 			Post(spin.AdvanceEvent{}).
 			Run(e)
 	})
@@ -109,7 +103,7 @@ func pursuitModeScript(e spin.Env) {
 	}
 
 	spin.RenderFrameScript(e, func(e spin.Env) {
-		timerAndScorePanel(e, "PURSUIT", "SHOOT FLASHING RAMP")
+		timerAndScorePanel(e, r, "PURSUIT", "SHOOT FLASHING RAMP")
 	})
 
 	evt, done := e.WaitFor(

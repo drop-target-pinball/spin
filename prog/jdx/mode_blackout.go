@@ -1,98 +1,71 @@
 package jdx
 
 import (
-	"context"
-
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
-	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
-func blackoutScoreFrame(e spin.Env) {
-	player := spin.GetPlayerVars(e)
-	r, g := e.Display("").Renderer("")
+func blackoutJackpotScript(e spin.Env) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
 
-	r.Fill(spin.ColorBlack)
-	g.Y = 2
-	g.Font = builtin.FontPfArmaFive8
-	r.Print(g, "BLACKOUT")
-	g.Y = 12
+	scoreAndLabelPanel(e, r, ScoreBlackoutJackpot, "JACKPOT")
 
-	g.Font = builtin.Font14x10
-	score := spin.FormatScore("%10d", player.Score)
-	r.Print(g, score)
+	spin.NewSequencer().
+		Do(spin.AwardScore{Val: ScoreBlackoutJackpot}).
+		Do(spin.PlaySound{ID: SoundBlackoutJackpot, Notify: true, Duck: 0.25}).
+		WaitFor(spin.SoundFinishedEvent{ID: SoundBlackoutJackpot}).
+		Run(e)
 }
 
-func blackoutVideoScript(e spin.Env) {
+func blackoutModeScript(e spin.Env) {
+	r, _ := e.Display("").Renderer("")
+	defer r.Clear()
+
+	e.Do(spin.PlayMusic{ID: MusicMode1})
+
 	vars := GetVars(e)
-	vars.SniperScore = 20_000_000
+	player := spin.GetPlayerVars(e)
+	vars.Multiplier = 2
+	defer func() { vars.Multiplier = 1 }()
+
+	e.NewCoroutine(e.Context(), func(e spin.Env) {
+		spin.NewSequencer().
+			Do(spin.PlaySpeech{ID: SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters, Notify: true, Duck: 0.5}).
+			WaitFor(spin.SpeechFinishedEvent{}).
+			Do(spin.PlaySpeech{ID: SpeechSendBackupUnits}).
+			Run(e)
+	})
+
+	e.NewCoroutine(e.Context(), func(e spin.Env) {
+		spin.NewSequencer().
+			WaitFor(spin.ShotEvent{ID: jd.ShotTopLeftRamp}).
+			Do(spin.PlayScript{ID: ScriptBlackoutJackpot}).
+			Loop().
+			Run(e)
+	})
+
+	e.NewCoroutine(e.Context(), func(e spin.Env) {
+		spin.NewSequencer().
+			WaitFor(spin.BallDrainEvent{}).
+			Post(spin.AdvanceEvent{}).
+			Run(e)
+	})
+
+	e.Do(spin.AddBall{})
+
 	modeText := [3]string{"BLACKOUT", "EVERYTHING", "2X"}
 	if done := modeIntroVideo(e, modeText); done {
 		return
 	}
 
-	for {
-		blackoutScoreFrame(e)
-		if done := e.Sleep(spin.FrameDuration); done {
-			return
-		}
-	}
-}
+	spin.RenderFrameScript(e, func(e spin.Env) {
+		modeAndScorePanel(e, r, "BLACKOUT", player.Score)
+	})
 
-func blackoutAudioScript(e spin.Env) {
-	e.Do(spin.PlayMusic{ID: MusicMode1})
-	e.Do(spin.PlaySpeech{ID: SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters, Notify: true})
-	if _, done := e.WaitFor(spin.SpeechFinishedEvent{}); done {
+	if _, done := e.WaitFor(spin.AdvanceEvent{}); done {
 		return
 	}
-	e.Do(spin.PlaySpeech{ID: SpeechSendBackupUnits})
-}
-
-func blackoutAwardJackpot(e spin.Env) {
-	e.Do(spin.AwardScore{Val: ScoreBlackoutJackpot})
-	e.Do(spin.MusicVolume{Mul: 0.25})
-	e.Do(spin.PlaySound{ID: SoundBlackoutJackpot, Notify: true})
-	if _, done := e.WaitFor(spin.SoundFinishedEvent{ID: SoundBlackoutJackpot}); done {
-		e.Do(spin.MusicVolume{Mul: 4})
-		return
-	}
-	e.Do(spin.MusicVolume{Mul: 4})
-}
-
-func blackoutWatchJackpot(e spin.Env) {
-	var ctx context.Context
-	var cancel context.CancelFunc
-
-	for {
-		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotTopLeftRamp}); done {
-			return
-		}
-		if cancel != nil {
-			cancel()
-		}
-		ctx, cancel = e.Derive()
-		e.NewCoroutine(ctx, blackoutAwardJackpot)
-	}
-}
-
-func blackoutModeScript(e spin.Env) {
-	vars := GetVars(e)
-	vars.Multiplier = 2
-
-	ctx, cancel := e.Derive()
-
-	defer func() {
-		cancel()
-		vars.Multiplier = 1
-	}()
-
-	e.NewCoroutine(ctx, blackoutVideoScript)
-	e.NewCoroutine(ctx, blackoutAudioScript)
-	e.NewCoroutine(ctx, blackoutWatchJackpot)
-	e.Do(spin.AddBall{})
-	if _, done := e.WaitFor(spin.BallDrainEvent{}); done {
-		return
-	}
-	cancel()
 	e.Do(spin.PlayMusic{ID: MusicMain})
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptBlackoutMode})
 }

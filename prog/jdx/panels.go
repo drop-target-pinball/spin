@@ -5,10 +5,10 @@ import (
 	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
-func timerAndScorePanel(e spin.Env, title string, instruction string) {
+func timerAndScorePanel(e spin.Env, r spin.Renderer, title string, instruction string) {
 	vars := GetVars(e)
 	player := spin.GetPlayerVars(e)
-	r, g := e.Display("").Renderer("")
+	g := r.Graphics()
 
 	r.Fill(spin.ColorBlack)
 	g.Y = 2
@@ -32,8 +32,8 @@ func timerAndScorePanel(e spin.Env, title string, instruction string) {
 	r.Print(g, spin.FormatScore("%v", player.Score))
 }
 
-func modeTotalPanel(e spin.Env, title string, total int) {
-	r, g := e.Display("").Renderer(spin.LayerPriority)
+func modeAndScorePanel(e spin.Env, r spin.Renderer, title string, score int) {
+	g := r.Graphics()
 
 	r.Fill(spin.ColorBlack)
 	g.Y = 2
@@ -42,11 +42,11 @@ func modeTotalPanel(e spin.Env, title string, total int) {
 	g.Y = 12
 
 	g.Font = builtin.Font14x10
-	r.Print(g, spin.FormatScore("%v", total))
+	r.Print(g, spin.FormatScore("%v", score))
 }
 
-func scoreAwardedPanel(e spin.Env, score int) {
-	r, g := e.Display("").Renderer(spin.LayerPriority)
+func scoreAndLabelPanel(e spin.Env, r spin.Renderer, score int, label string) {
+	g := r.Graphics()
 
 	r.Fill(spin.ColorBlack)
 	g.Y = 5
@@ -55,5 +55,5 @@ func scoreAwardedPanel(e spin.Env, score int) {
 
 	g.Y = 22
 	g.Font = builtin.FontPfArmaFive8
-	r.Print(g, "AWARDED")
+	r.Print(g, label)
 }

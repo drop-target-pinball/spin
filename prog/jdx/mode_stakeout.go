@@ -36,7 +36,8 @@ func stakeoutScoreFrame(e spin.Env) {
 }
 
 func stakeoutInterestingScript(e spin.Env) {
-	defer e.Display("").Clear(spin.LayerPriority)
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
 
 	vars := GetVars(e)
 	callouts := []string{
@@ -51,7 +52,7 @@ func stakeoutInterestingScript(e spin.Env) {
 	}
 
 	vars.StakeoutBonus += ScoreStakeoutN
-	scoreAwardedPanel(e, ScoreStakeoutN)
+	scoreAndLabelPanel(e, r, ScoreStakeoutN, "AWARDED")
 
 	spin.NewSequencer().
 		Do(spin.PlaySpeech{ID: callout, Priority: spin.PriorityAudioModeCallout}).
@@ -70,10 +71,11 @@ func stakeoutWatchRampScript(e spin.Env) {
 }
 
 func stakeoutCompleteScript(e spin.Env) {
-	defer e.Display("").Clear(spin.LayerPriority)
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
 
 	vars := GetVars(e)
-	modeTotalPanel(e, "STAKEOUT TOTAL", vars.StakeoutBonus)
+	modeAndScorePanel(e, r, "STAKEOUT TOTAL", vars.StakeoutBonus)
 	e.Do(spin.PlayMusic{ID: MusicMain})
 
 	if !e.IsActive(ScriptStakeoutInteresting) {
