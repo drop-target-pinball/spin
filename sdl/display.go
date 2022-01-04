@@ -225,6 +225,9 @@ type fontTTF struct {
 }
 
 func (f *fontTTF) render(target *sdl.Surface, x int32, y int32, text string) {
+	if text == "" {
+		return
+	}
 	surf, err := f.font.RenderUTF8Solid(text,
 		sdl.Color{R: 0xff, G: 0xff, B: 0xff, A: 0xff})
 	if err != nil {

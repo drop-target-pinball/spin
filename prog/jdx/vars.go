@@ -30,6 +30,9 @@ const (
 	ScoreSafecrackerStart = 8_000_000
 	ScoreSafecrackerEnd   = 3_000_000
 	ScoreSafecrackerDec   = 75_400
+	ScoreSniperStart      = 20_000_000
+	ScoreSniperEnd        = 5_000_000
+	ScoreSniperDec        = 78_330
 	ScoreStakeout0        = 3_000_000
 	ScoreStakeoutN        = 5_000_000
 	ScoreTank0            = 3_000_000

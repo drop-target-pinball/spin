@@ -75,7 +75,7 @@ func stakeoutCompleteScript(e spin.Env) {
 	defer r.Clear()
 
 	vars := GetVars(e)
-	modeAndScorePanel(e, r, "STAKEOUT TOTAL", vars.StakeoutBonus)
+	ModeAndScorePanel(e, r, "STAKEOUT TOTAL", vars.StakeoutBonus)
 	e.Do(spin.PlayMusic{ID: MusicMain})
 
 	if !e.IsActive(ScriptStakeoutInteresting) {

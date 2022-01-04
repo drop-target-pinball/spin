@@ -25,11 +25,24 @@ func demoScript(e spin.Env) {
 		Run(e)
 
 	spin.NewSequencer().
+		// Post(spin.SwitchEvent{ID: jd.SwitchRightFireButton}).
 		Post(spin.Message{ID: MessageStartChainMode}).
 		Sleep(8_000).
 		Post(spin.ShotEvent{ID: jd.ShotTopLeftRamp}).
 		Sleep(8_000).
 		Post(spin.SwitchEvent{ID: jd.SwitchTrough1}).
+		Sleep(10_000).
+		Run(e)
+
+	spin.NewSequencer().
+		// Post(spin.SwitchEvent{ID: jd.SwitchRightFireButton}).
+		// Post(spin.SwitchEvent{ID: jd.SwitchRightFireButton}).
+		Post(spin.Message{ID: MessageStartChainMode}).
+		Sleep(10_000).
+		Post(spin.ShotEvent{ID: jd.ShotRightPopper}).
+		Sleep(15_000).
+		Post(spin.ShotEvent{ID: jd.ShotRightPopper}).
+		Sleep(10_000).
 		Run(e)
 
 }

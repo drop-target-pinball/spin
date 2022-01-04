@@ -81,22 +81,24 @@ func manhuntModeScript(e spin.Env) {
 		Do(spin.PlaySound{ID: SoundManhuntSingleFire}).
 		Loop()
 
-	spin.NewSequencer().
-		Do(spin.PlaySpeech{ID: SpeechSuspiciousCharacterReportedInEugeneBlock, Notify: true}).
-		WaitFor(spin.SpeechFinishedEvent{}).
-		Do(spin.PlaySound{ID: SoundWalking, Loop: true}).
-		Start(gunfire).
-		Sleep(10_000).
-		Do(spin.PlaySpeech{ID: SpeechShootLeftRamp}).
-		Sleep(3_000).
-		Do(spin.PlaySpeech{ID: SpeechStop}).
-		Sleep(1_000).
-		Do(spin.PlaySpeech{ID: SpeechOrIWillShoot}).
-		Sleep(3_000).
-		Do(spin.PlaySpeech{ID: SpeechFreeze}).
-		Sleep(4_000).
-		Do(spin.PlaySpeech{ID: SpeechShootLeftRamp}).
-		Run0(ctx, e)
+	e.NewCoroutine(e.Context(), func(e spin.Env) {
+		spin.NewSequencer().
+			Do(spin.PlaySpeech{ID: SpeechSuspiciousCharacterReportedInEugeneBlock, Notify: true}).
+			WaitFor(spin.SpeechFinishedEvent{}).
+			Do(spin.PlaySound{ID: SoundWalking, Loop: true}).
+			Func(func() { gunfire.Run(e) }).
+			Sleep(10_000).
+			Do(spin.PlaySpeech{ID: SpeechShootLeftRamp}).
+			Sleep(3_000).
+			Do(spin.PlaySpeech{ID: SpeechStop}).
+			Sleep(1_000).
+			Do(spin.PlaySpeech{ID: SpeechOrIWillShoot}).
+			Sleep(3_000).
+			Do(spin.PlaySpeech{ID: SpeechFreeze}).
+			Sleep(4_000).
+			Do(spin.PlaySpeech{ID: SpeechShootLeftRamp}).
+			Run(e)
+	})
 
 	defer e.Do(spin.StopSound{ID: SoundWalking})
 

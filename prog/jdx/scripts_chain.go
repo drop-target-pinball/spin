@@ -68,10 +68,10 @@ func selectModeScript(e spin.Env) {
 			prevChain(e)
 		}
 		if evt == (spin.SwitchEvent{ID: jd.SwitchRightFireButton}) {
-			if rv.Switches[jd.SwitchRightShooterLane].Active {
+			if e.IsActive(ScriptPlungeMode) {
 				continue
 			}
-			// nextChain(e) FIXME
+			nextChain(e)
 		}
 	}
 }

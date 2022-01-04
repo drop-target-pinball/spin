@@ -1,11 +1,7 @@
 package jdx
 
 import (
-	"time"
-
 	"github.com/drop-target-pinball/spin"
-	"github.com/drop-target-pinball/spin/mach/jd"
-	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 const (
@@ -48,11 +44,10 @@ const (
 	ScriptSafecrackerMode               = "jdx.ScriptSafecrackerMode"
 	ScriptSafecrackerOpenThatSafe       = "jdx.ScriptSafecrackerOpenThatSafe"
 	ScriptSling                         = "jdx.ScriptSling"
+	ScriptSniperComplete                = "jdx.ScriptSniperComplete"
+	ScriptSniperIncomplete              = "jdx.ScriptSniperIncomplete"
 	ScriptSniperMode                    = "jdx.ScriptSniperMode"
-	ScriptSniperScoreCountdown          = "jdx.ScriptSniperScoreCountdown"
-	ScriptSniperSplat                   = "jdx.ScriptSniperSplat"
-	ScriptSniperTakedown                = "jdx.ScriptSniperTakedown"
-	ScriptSniperFallCountdown           = "jdx.ScriptSniperFallCountdown"
+	ScriptSniperMode2                   = "jdx.ScriptSniperMode2"
 	ScriptStakeoutComplete              = "jdx.ScriptStakeoutComplete"
 	ScriptStakeoutMode                  = "jdx.ScriptStakeoutMode"
 	ScriptStakeoutInteresting           = "jdx.ScriptStakeoutInteresting"
@@ -60,73 +55,6 @@ const (
 	ScriptTankDestroyed                 = "jdx.ScriptTankDestroyed"
 	ScriptTankMode                      = "jdx.ScriptTankMode"
 )
-
-func defaultLeftShooterLaneScript(e spin.Env) {
-	for {
-		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotLeftShooterLane}); done {
-			return
-		}
-		e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
-		if done := e.Sleep(1 * time.Second); done {
-			return
-		}
-		e.Do(spin.DriverPulse{ID: jd.CoilLeftShooterLane})
-	}
-}
-
-func defaultLeftPopperScript(e spin.Env) {
-	for {
-		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotLeftPopper}); done {
-			return
-		}
-		for i := 0; i < 3; i++ {
-			e.Do(spin.DriverPulse{ID: jd.FlasherSubwayExit})
-			if done := e.Sleep(250 * time.Millisecond); done {
-				return
-			}
-		}
-		e.Do(spin.DriverPulse{ID: jd.CoilLeftPopper})
-	}
-}
-
-func defaultRightPopperScript(e spin.Env) {
-	for {
-		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper}); done {
-			return
-		}
-		e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
-	}
-}
-
-func modeIntroFrame(e spin.Env, blinkOn bool, text [3]string) {
-	r, g := e.Display("").Renderer("")
-
-	r.Fill(spin.ColorBlack)
-	g.Y = 2
-	g.Font = builtin.FontPfArmaFive8
-	r.Print(g, text[0])
-	if blinkOn {
-		g.Y = 12
-		g.Font = builtin.FontPfRondaSevenBold8
-		r.Print(g, text[1])
-		g.Y = 22
-		r.Print(g, text[2])
-	}
-}
-
-func modeIntroVideo(e spin.Env, text [3]string) bool {
-	for i := 0; i < 9; i++ {
-		modeIntroFrame(e, true, text)
-		if done := e.Sleep(250 * time.Millisecond); done {
-			return done
-		}
-		modeIntroFrame(e, false, text)
-		if done := e.Sleep(100 * time.Millisecond); done {
-			return done
-		}
-	}
-	return false
-}
 
 func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
@@ -325,28 +253,23 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeBall,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptSniperTakedown,
-		Script: sniperTakedownScript,
-		Scope:  spin.ScopeMode,
+		ID:     ScriptSniperComplete,
+		Script: sniperCompleteScript,
+		Scope:  spin.ScopePriority,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptSniperScoreCountdown,
-		Script: sniperScoreCountdownScript,
-		Scope:  spin.ScopeMode,
-	})
-	eng.Do(spin.RegisterScript{
-		ID:     ScriptSniperSplat,
-		Script: sniperSplatScript,
-		Scope:  spin.ScopeMode,
-	})
-	eng.Do(spin.RegisterScript{
-		ID:     ScriptSniperFallCountdown,
-		Script: sniperFallCountdownScript,
-		Scope:  spin.ScopeMode,
+		ID:     ScriptSniperIncomplete,
+		Script: sniperIncompleteScript,
+		Scope:  spin.ScopePriority,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperMode,
 		Script: sniperModeScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSniperMode2,
+		Script: sniperMode2Script,
 		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{

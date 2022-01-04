@@ -80,7 +80,7 @@ ShotEvent ID=jd.ShotRightRamp
 # Blackout
 PlayScript ID=jdx.ScriptBlackoutMode
 ShotEvent ID=jd.ShotTopLeftRamp
-BallDrainEvent
+BallDrainEvent BallsInPlay=1
 
 ## Switch Check
 
