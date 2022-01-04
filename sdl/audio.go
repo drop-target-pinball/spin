@@ -189,6 +189,9 @@ func (s *audioSystem) playSound(a spin.PlaySound) {
 		ducked := int(a.Duck * float64(prev))
 		mix.VolumeMusic(ducked)
 	}
+	if a.Vol > 0 {
+		sp.Volume(a.Vol)
+	}
 	s.soundsPlaying[channel] = audio{id: a.ID, notify: a.Notify, origVol: prev}
 }
 

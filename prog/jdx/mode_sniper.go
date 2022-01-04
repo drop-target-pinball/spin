@@ -108,13 +108,15 @@ func sniperMode2Script(e spin.Env) {
 			Run(e)
 	})
 
-	if done := ModeAndBlinkingScoreSequence(e, r, "SNIPER", vars.SniperScore); done {
-		return
-	}
-	spin.RenderFrameScript(e, func(e spin.Env) {
-		TimerAndScorePanel(e, r, "SNIPER", vars.Timer, vars.SniperScore, "")
+	e.NewCoroutine(e.Context(), func(e spin.Env) {
+		if done := ModeAndBlinkingScoreSequence(e, r, "SNIPER", vars.SniperScore); done {
+			return
+		}
+		spin.RenderFrameScript(e, func(e spin.Env) {
+			TimerAndScorePanel(e, r, "SNIPER", vars.Timer, vars.SniperScore, "")
+		})
+		spin.CountdownScript(e, &vars.Timer, 1500, spin.TimeoutEvent{})
 	})
-	spin.CountdownScript(e, &vars.Timer, 1500, spin.TimeoutEvent{})
 
 	evt, done := e.WaitFor(
 		spin.AdvanceEvent{},
@@ -128,7 +130,7 @@ func sniperMode2Script(e spin.Env) {
 	} else {
 		e.Do(spin.PlayScript{ID: ScriptSniperComplete})
 	}
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptPursuitMode})
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptSniperMode})
 }
 
 func sniperIncompleteScript(e spin.Env) {

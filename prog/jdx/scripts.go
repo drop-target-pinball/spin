@@ -51,8 +51,9 @@ const (
 	ScriptStakeoutComplete              = "jdx.ScriptStakeoutComplete"
 	ScriptStakeoutMode                  = "jdx.ScriptStakeoutMode"
 	ScriptStakeoutInteresting           = "jdx.ScriptStakeoutInteresting"
-	ScriptTankCountdown                 = "jdx.ScriptTankCountdown"
-	ScriptTankDestroyed                 = "jdx.ScriptTankDestroyed"
+	ScriptTankHit                       = "jdx.ScriptTankHit"
+	ScriptTankComplete                  = "jdx.ScriptTakComplete"
+	ScriptTankIncomplete                = "jdx.ScriptTankIncomplete"
 	ScriptTankMode                      = "jdx.ScriptTankMode"
 )
 
@@ -288,14 +289,19 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptTankCountdown,
-		Script: tankCountdownScript,
+		ID:     ScriptTankComplete,
+		Script: tankCompleteScript,
+		Scope:  spin.ScopePriority,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptTankHit,
+		Script: tankHitScript,
 		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptTankDestroyed,
-		Script: tankDestroyedScript,
-		Scope:  spin.ScopeMode,
+		ID:     ScriptTankIncomplete,
+		Script: tankIncompleteScript,
+		Scope:  spin.ScopePriority,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptTankMode,

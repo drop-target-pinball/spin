@@ -81,6 +81,7 @@ type PlayScript struct {
 
 type PlaySound struct {
 	ID     string
+	Vol    int
 	Loop   bool
 	Repeat int
 	Notify bool
