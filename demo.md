@@ -70,3 +70,8 @@ SwitchEvent ID=jd.SwitchSubwayEnter1
 
 PlayScript ID=jdx.ScriptManhuntMode
 ShotEvent ID=jd.ShotLeftRamp
+
+# Stakeout
+
+PlayScript ID=jdx.ScriptStakeoutMode
+ShotEvent ID=jd.ShotRightRamp

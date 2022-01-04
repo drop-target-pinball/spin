@@ -96,7 +96,7 @@ func manhuntModeScript(e spin.Env) {
 		Do(spin.PlaySpeech{ID: SpeechFreeze}).
 		Sleep(4_000).
 		Do(spin.PlaySpeech{ID: SpeechShootLeftRamp}).
-		Run(ctx, e)
+		Run0(ctx, e)
 
 	defer e.Do(spin.StopSound{ID: SoundWalking})
 

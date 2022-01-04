@@ -30,6 +30,8 @@ const (
 	ScoreSafecrackerStart = 8_000_000
 	ScoreSafecrackerEnd   = 3_000_000
 	ScoreSafecrackerDec   = 75_400
+	ScoreStakeout0        = 3_000_000
+	ScoreStakeoutN        = 5_000_000
 	ScoreTank0            = 3_000_000
 	ScoreTank1            = 12_000_000
 	ScoreTank2            = 24_000_000
@@ -90,9 +92,9 @@ var (
 		ModeBattleTank:      ScriptTankMode,
 		ModeBadImpersonator: ScriptBadImpersonatorMode,
 		ModeMeltdown:        ScriptMeltdownMode,
-		ModeSafeCracker:     ScriptSniperMode,
-		ModeManhunt:         ScriptSniperMode,
-		ModeStakeout:        ScriptSniperMode,
+		ModeSafeCracker:     ScriptSafecrackerMode,
+		ModeManhunt:         ScriptManhuntMode,
+		ModeStakeout:        ScriptStakeoutMode,
 	}
 )
 
@@ -111,6 +113,8 @@ type Vars struct {
 	SelectedMode           int
 	SniperBonus            int
 	SniperScore            int
+	StakeoutBonus          int
+	StakeoutCallout        int
 	TankBonus              int
 	Timer                  int
 }
@@ -123,7 +127,7 @@ func startOfBallReset(store spin.Store) {
 	vars.SniperBonus = 0
 	vars.SniperScore = 0
 	if vars.SelectedMode == 0 {
-		vars.SelectedMode = ModeStakeout // FIXME
+		vars.SelectedMode = ModePursuit // FIXME
 	}
 }
 

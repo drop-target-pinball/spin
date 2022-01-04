@@ -105,7 +105,7 @@ func (s *Sequencer) Defer(act Action) *Sequencer {
 	return s
 }
 
-func (s *Sequencer) Run(ctx context.Context, env Env) {
+func (s *Sequencer) Run0(ctx context.Context, env Env) {
 	exit := func() {
 		for _, act := range s.defers {
 			env.Do(act)
@@ -135,7 +135,7 @@ func (s *Sequencer) Run(ctx context.Context, env Env) {
 					return
 				}
 			case opStart:
-				op.seq.Run(ctx, e)
+				op.seq.Run0(ctx, e)
 			case opLoop:
 				pc = 0
 				continue
@@ -144,4 +144,38 @@ func (s *Sequencer) Run(ctx context.Context, env Env) {
 		}
 		exit()
 	})
+}
+
+func (s *Sequencer) Run(e Env) {
+	defer func() {
+		for _, act := range s.defers {
+			e.Do(act)
+		}
+	}()
+
+	pc := 0
+	for {
+		if pc >= len(s.ops) {
+			break
+		}
+		operation := s.ops[pc]
+		switch op := operation.(type) {
+		case opSleep:
+			if done := e.Sleep(op.t); done {
+				return
+			}
+		case opDo:
+			e.Do(op.act)
+		case opPost:
+			e.Post(op.evt)
+		case opWaitFor:
+			if _, done := e.WaitFor(op.selectors...); done {
+				return
+			}
+		case opLoop:
+			pc = 0
+			continue
+		}
+		pc += 1
+	}
 }

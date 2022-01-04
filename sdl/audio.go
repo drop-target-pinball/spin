@@ -16,6 +16,7 @@ type audio struct {
 	priority int
 	notify   bool
 	origVol  int
+	stopped  bool
 }
 
 type audioSystem struct {

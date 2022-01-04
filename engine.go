@@ -37,9 +37,6 @@ type Engine struct {
 	servers        []Server
 	vars           map[string]interface{}
 	watchdog       chan struct{}
-	//actionQueue    []Action
-	//eventQueue     []Event
-
 }
 
 func NewEngine(config Config, options Options) *Engine {
@@ -54,8 +51,6 @@ func NewEngine(config Config, options Options) *Engine {
 		servers:        make([]Server, 0),
 		vars:           make(map[string]interface{}),
 		watchdog:       make(chan struct{}),
-		// actionQueue:    make([]Action, 0),
-		// eventQueue:     make([]Event, 0),
 	}
 	eng.RegisterVars("config", config)
 	registerResourceSystem(eng)

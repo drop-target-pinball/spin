@@ -75,6 +75,10 @@ func (c *Context) Derive() (context.Context, context.CancelFunc) {
 	return context.WithCancel(c.ctx)
 }
 
+func (c *Context) Context() context.Context {
+	return c.ctx
+}
+
 var active map[ID]*coroutine
 
 type coroutine struct {

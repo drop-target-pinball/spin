@@ -21,7 +21,11 @@ const (
 	SpeechICanSeeMyHouseFromHere                        = "jdx.SpeechICanSeeMyHouseFromHere"
 	SpeechIllBeBack                                     = "jdx.SpeechIllBeBack"
 	SpeechImInPursuitOfAStolenVehicle                   = "jdx.SpeechImInPursuitOfAStolenVehicle"
+	SpeechImStakingOutACrackHouseInSectorTwentyThree    = "jdx.SpeechImStakingOutACrackHouseInSectorTwentyThree"
+	SpeechInteresting                                   = "jdx.SpeechInteresting"
 	SpeechItsALongWayDown                               = "jdx.SpeechItsALongWayDown"
+	SpeechIWonderWhatsDownThere                         = "jdx.SpeechIWonderWhatsDownThere"
+	SpeechIWonderWhatsOverThere                         = "jdx.SpeechIWonderWhatsOverThere"
 	SpeechLawMasterComputerOnlineWelcomeAboard          = "jdx.SpeechLawMasterComputerOnlineWelcomeAboard"
 	SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters = "jdx.SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters"
 	SpeechMeltdownIsImminent                            = "jdx.SpeechMeltdownIsImminent"
@@ -35,6 +39,7 @@ const (
 	SpeechReactorTwoStabilized                          = "jdx.SpeechReactorTwoStabilized"
 	SpeechSendBackupUnits                               = "jdx.SpeechSendBackupUnits"
 	SpeechShootLeftRamp                                 = "jdx.SpeechShootLeftRamp"
+	SpeechShootRightRamp                                = "jdx.SpeechShootRightRamp"
 	SpeechShootSniperTower                              = "jdx.SpeechShootSniperTower"
 	SpeechSixtyPercent                                  = "jdx.SpeechSixtyPercent"
 	SpeechSniperEliminated                              = "jdx.SpeechSniperEliminated"
@@ -126,8 +131,24 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000249-i_m_in_pursuit_of_a_stolen_vehicle/i_m_in_p__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechImStakingOutACrackHouseInSectorTwentyThree,
+		Path: "jd-pinsound/voice/000259-i_m_staking_out_a_crack_house_in_sector_23/i_m_stak__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechInteresting,
+		Path: "jd-pinsound/voice/000222-interesting/interest__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechItsALongWayDown,
 		Path: "jd-pinsound/voice/000283-it_s_a_long_way_down/it_s_a_l__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechIWonderWhatsDownThere,
+		Path: "jd-pinsound/voice/000221-i_wonder_what_s_down_there/i_wonder__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechIWonderWhatsOverThere,
+		Path: "jd-pinsound/voice/000220-i_wonder_whats_over_there/000220-I_wonder_whats_over_there_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechLawMasterComputerOnlineWelcomeAboard,
@@ -180,6 +201,10 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechShootLeftRamp,
 		Path: "jd-pinsound/voice/000353-shoot_left_ramp/shoot_le__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechShootRightRamp,
+		Path: "jd-pinsound/voice/000352-shoot_right_ramp/shoot_ri__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechShootSniperTower,

@@ -43,6 +43,7 @@ type Env struct {
 	eng      *Engine
 	displays map[string]Display
 	ctx      *coroutine.Context
+	scripts  map[string]*script
 }
 
 func (e Env) Do(act Action) {
@@ -77,6 +78,18 @@ func (e Env) Derive() (context.Context, context.CancelFunc) {
 	return e.ctx.Derive()
 }
 
+func (e Env) Context() context.Context {
+	return e.ctx.Context()
+}
+
+func (e Env) IsActive(id string) bool {
+	script, ok := e.scripts[id]
+	if !ok {
+		return false
+	}
+	return coroutine.IsActive(script.coroutine)
+}
+
 func (e Env) NewCoroutine(ctx context.Context, scr ScriptFn) {
 	coroutine.New(ctx, func(ctx *coroutine.Context) {
 		e := Env{
@@ -84,6 +97,7 @@ func (e Env) NewCoroutine(ctx context.Context, scr ScriptFn) {
 			eng:      e.eng,
 			displays: e.displays,
 			ctx:      ctx,
+			scripts:  e.scripts,
 		}
 		scr(e)
 	})
@@ -188,6 +202,7 @@ func (s *scriptSystem) playScript(a PlayScript) {
 			eng:      s.eng,
 			displays: s.displays,
 			ctx:      ctx,
+			scripts:  s.scripts,
 		}
 		scr.fn(e)
 	})

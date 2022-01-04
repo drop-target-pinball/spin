@@ -52,6 +52,9 @@ const (
 	ScriptSniperSplat                   = "jdx.ScriptSniperSplat"
 	ScriptSniperTakedown                = "jdx.ScriptSniperTakedown"
 	ScriptSniperFallCountdown           = "jdx.ScriptSniperFallCountdown"
+	ScriptStakeoutComplete              = "jdx.ScriptStakeoutComplete"
+	ScriptStakeoutMode                  = "jdx.ScriptStakeoutMode"
+	ScriptStakeoutInteresting           = "jdx.ScriptStakeoutInteresting"
 	ScriptTankCountdown                 = "jdx.ScriptTankCountdown"
 	ScriptTankDestroyed                 = "jdx.ScriptTankDestroyed"
 	ScriptTankMode                      = "jdx.ScriptTankMode"
@@ -111,7 +114,7 @@ func modeIntroFrame(e spin.Env, blinkOn bool, text [3]string) {
 }
 
 func modeIntroVideo(e spin.Env, text [3]string) bool {
-	for i := 0; i < 8; i++ {
+	for i := 0; i < 9; i++ {
 		modeIntroFrame(e, true, text)
 		if done := e.Sleep(250 * time.Millisecond); done {
 			return done
@@ -338,6 +341,21 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperMode,
 		Script: sniperModeScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptStakeoutComplete,
+		Script: stakeoutCompleteScript,
+		Scope:  spin.ScopePriority,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptStakeoutMode,
+		Script: stakeoutModeScript,
+		Scope:  spin.ScopeMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptStakeoutInteresting,
+		Script: stakeoutInterestingScript,
 		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{

@@ -36,6 +36,11 @@ func bonusModeScript(e spin.Env) {
 		{"PURSUIT", vars.PursuitBonus},
 		{"SNIPER", vars.SniperBonus},
 		{"BATTLE TANK", vars.TankBonus},
+		{"BAD IMPERSONATOR", vars.BadImpersonatorBonus},
+		{"MELTDOWN", vars.MeltdownBonus},
+		{"SAFECRACKER", vars.SafecrackerBonus},
+		{"MANHUNT", vars.ManhuntBonus},
+		{"STAKEOUT", vars.StakeoutBonus},
 	}
 
 	totalBonus := 0
