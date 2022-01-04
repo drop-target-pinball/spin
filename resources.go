@@ -25,8 +25,12 @@ func registerResourceSystem(eng *Engine) {
 
 func (s *resourceSystem) HandleAction(action Action) {
 	switch act := action.(type) {
+	case AddIntVar:
+		s.addIntVar(act)
 	case RegisterFont:
 		s.registerFont(act)
+	case SetIntVar:
+		s.setIntVar(act)
 	case SetVar:
 		s.setVar(act)
 	}
@@ -63,6 +67,14 @@ func (s *resourceSystem) setVar(act SetVar) {
 	default:
 		Warn("cannot handle type %v: %v", f.Type.Kind(), act.Val)
 	}
+}
+
+func (s *resourceSystem) addIntVar(act AddIntVar) {
+	*act.Var += act.Val
+}
+
+func (s *resourceSystem) setIntVar(act SetIntVar) {
+	*act.Var = act.Val
 }
 
 func GetResourceVars(store Store) *Resources {

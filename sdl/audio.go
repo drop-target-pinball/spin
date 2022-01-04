@@ -168,7 +168,14 @@ func (s *audioSystem) playSound(a spin.PlaySound) {
 		spin.Warn("%v not found", a.ID)
 		return
 	}
-	channel, err := sp.Play(-1, a.Loops)
+	loops := 0
+	if a.Loop {
+		loops = -1
+	}
+	if a.Repeat > 0 {
+		loops = a.Repeat
+	}
+	channel, err := sp.Play(-1, loops)
 	if err != nil {
 		log.Panic(err)
 	}

@@ -84,7 +84,7 @@ func manhuntModeScript(e spin.Env) {
 	spin.NewSequencer().
 		Do(spin.PlaySpeech{ID: SpeechSuspiciousCharacterReportedInEugeneBlock, Notify: true}).
 		WaitFor(spin.SpeechFinishedEvent{}).
-		Do(spin.PlaySound{ID: SoundWalking, Loops: -1}).
+		Do(spin.PlaySound{ID: SoundWalking, Loop: true}).
 		Start(gunfire).
 		Sleep(10_000).
 		Do(spin.PlaySpeech{ID: SpeechShootLeftRamp}).

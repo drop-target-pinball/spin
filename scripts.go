@@ -58,6 +58,10 @@ type opLoop struct {
 	n int
 }
 
+type opFunc struct {
+	fn func()
+}
+
 type Sequencer struct {
 	ops    []interface{}
 	defers []Action
@@ -97,6 +101,11 @@ func (s *Sequencer) Loop() *Sequencer {
 
 func (s *Sequencer) Start(seq *Sequencer) *Sequencer {
 	s.ops = append(s.ops, opStart{seq})
+	return s
+}
+
+func (s *Sequencer) Func(fn func()) *Sequencer {
+	s.ops = append(s.ops, opFunc{fn})
 	return s
 }
 
@@ -147,8 +156,13 @@ func (s *Sequencer) Run0(ctx context.Context, env Env) {
 }
 
 func (s *Sequencer) Run(e Env) {
+	cancels := make([]Action, 0)
+
 	defer func() {
 		for _, act := range s.defers {
+			e.Do(act)
+		}
+		for _, act := range cancels {
 			e.Do(act)
 		}
 	}()
@@ -164,14 +178,24 @@ func (s *Sequencer) Run(e Env) {
 			if done := e.Sleep(op.t); done {
 				return
 			}
+			cancels = nil
 		case opDo:
 			e.Do(op.act)
+			switch act := op.act.(type) {
+			case PlaySpeech:
+				cancels = append(cancels, StopSpeech{ID: act.ID})
+			case PlaySound:
+				cancels = append(cancels, StopSound{ID: act.ID})
+			}
 		case opPost:
 			e.Post(op.evt)
 		case opWaitFor:
 			if _, done := e.WaitFor(op.selectors...); done {
 				return
 			}
+			cancels = nil
+		case opFunc:
+			op.fn()
 		case opLoop:
 			pc = 0
 			continue

@@ -32,6 +32,7 @@ PlayScript ID=jdx.ScriptPursuitMode
 ShotEvent ID=jd.ShotRightRamp
 ShotEvent ID=jd.ShotLeftRamp
 ShotEvent ID=jd.ShotRightRamp
+SetVar Vars=jdx.1 ID=Timer Val=3
 
 ## Sniper Tower
 

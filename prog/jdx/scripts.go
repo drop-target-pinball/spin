@@ -37,9 +37,8 @@ const (
 	ScriptPlayerAnnounce                = "jdx.ScriptPlayerAnnounce"
 	ScriptPlungeMode                    = "jdx.ScriptPlungeMode"
 	ScriptProgram                       = "jdx.ScriptProgram"
-	ScriptPursuitCaught                 = "jdx.ScriptPursuitCaught"
-	ScriptPursuitCountdown              = "jdx.ScriptPursuitCountdown"
-	ScriptPursuitEscape                 = "jdx.ScriptPursuitEscape"
+	ScriptPursuitComplete               = "jdx.ScriptPursuitComplete"
+	ScriptPursuitIncomplete             = "jdx.ScriptPursuitIncomplete"
 	ScriptPursuitMode                   = "jdx.ScriptPursuitMode"
 	ScriptReturnLane                    = "jdx.ScriptReturnLane"
 	ScriptSafecrackerComplete           = "jdx.ScriptSafecrackerComplete"
@@ -270,18 +269,13 @@ func RegisterScripts(eng *spin.Engine) {
 		Scope:  spin.ScopeProgram,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptPursuitCaught,
-		Script: pursuitCaughtScript,
-		Scope:  spin.ScopeMode,
+		ID:     ScriptPursuitComplete,
+		Script: pursuitCompleteScript,
+		Scope:  spin.ScopePriority,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptPursuitCountdown,
-		Script: pursuitCountdownScript,
-		Scope:  spin.ScopeMode,
-	})
-	eng.Do(spin.RegisterScript{
-		ID:     ScriptPursuitEscape,
-		Script: pursuitEscapeScript,
+		ID:     ScriptPursuitIncomplete,
+		Script: pursuitIncompleteScript,
 		Scope:  spin.ScopeMode,
 	})
 	eng.Do(spin.RegisterScript{
