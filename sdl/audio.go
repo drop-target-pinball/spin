@@ -9,6 +9,8 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+const DebugVolume = "Volume"
+
 const chanSpeech = 0
 
 type audio struct {
@@ -64,6 +66,8 @@ func RegisterAudioSystem(eng *spin.Engine) {
 
 func (s *audioSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
+	case spin.Debug:
+		s.debug(act)
 	case spin.FadeOutMusic:
 		s.fadeOutMusic(act)
 	case spin.MusicVolume:
@@ -279,4 +283,15 @@ func (s *audioSystem) musicFinished() {
 	if s.musicNotify {
 		s.eng.Post(spin.MusicFinishedEvent{})
 	}
+}
+
+func (s *audioSystem) debug(evt spin.Debug) {
+	switch evt.ID {
+	case DebugVolume:
+		s.debugVolume()
+	}
+}
+
+func (s *audioSystem) debugVolume() {
+	spin.Log("music: %v", mix.VolumeMusic(-1))
 }
