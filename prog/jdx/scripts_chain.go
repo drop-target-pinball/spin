@@ -67,7 +67,7 @@ func selectModeScript(e spin.Env) {
 			if rv.Switches[jd.SwitchRightShooterLane].Active {
 				continue
 			}
-			nextChain(e)
+			// nextChain(e) FIXME
 		}
 	}
 }
