@@ -1,157 +1,150 @@
 package jdx
 
-import (
-	"context"
+// const (
+// 	ShotStartLeftMode     = "jdx.ShotStartLeftMode"
+// 	ShotStartRightMode    = "jdx.ShotStartRightMode"
+// 	MessageStartChainMode = "jdx.StartChainMode"
+// )
 
-	"github.com/drop-target-pinball/spin"
-	"github.com/drop-target-pinball/spin/mach/jd"
-)
+// type modeStartConfig struct {
+// 	lamp string
+// 	shot string
+// }
 
-const (
-	ShotStartLeftMode     = "jdx.ShotStartLeftMode"
-	ShotStartRightMode    = "jdx.ShotStartRightMode"
-	MessageStartChainMode = "jdx.StartChainMode"
-)
+// const (
+// 	modeLeft  = true
+// 	modeRight = false
+// )
 
-type modeStartConfig struct {
-	lamp string
-	shot string
-}
+// var modeStartConfigs = map[bool]modeStartConfig{
+// 	modeLeft: {
+// 		lamp: jd.LampLeftModeStart,
+// 		shot: jd.ShotLeftRamp,
+// 	},
+// 	modeRight: {
+// 		lamp: jd.LampRightModeStart,
+// 		shot: jd.ShotRightPopper,
+// 	},
+// }
 
-const (
-	modeLeft  = true
-	modeRight = false
-)
+// func waitForModeStart(e spin.Env, parent context.Context, side bool) bool {
+// 	ctx, cancel := e.Derive()
+// 	defer cancel()
 
-var modeStartConfigs = map[bool]modeStartConfig{
-	modeLeft: {
-		lamp: jd.LampLeftModeStart,
-		shot: jd.ShotLeftRamp,
-	},
-	modeRight: {
-		lamp: jd.LampRightModeStart,
-		shot: jd.ShotRightPopper,
-	},
-}
+// 	m := modeStartConfigs[side]
+// 	e.Do(spin.DriverBlink{ID: m.lamp})
+// 	e.NewCoroutine(ctx, selectModeScript)
+// 	_, done := e.WaitFor(
+// 		spin.ShotEvent{ID: m.shot},
+// 		spin.Message{ID: MessageStartChainMode},
+// 	)
+// 	e.Do(spin.DriverOff{ID: m.lamp})
+// 	return done
+// }
 
-func waitForModeStart(e spin.Env, parent context.Context, side bool) bool {
-	ctx, cancel := e.Derive()
-	defer cancel()
+// func selectModeScript(e spin.Env) {
+// 	rv := spin.GetResourceVars(e)
 
-	m := modeStartConfigs[side]
-	e.Do(spin.DriverBlink{ID: m.lamp})
-	e.NewCoroutine(ctx, selectModeScript)
-	_, done := e.WaitFor(
-		spin.ShotEvent{ID: m.shot},
-		spin.Message{ID: MessageStartChainMode},
-	)
-	e.Do(spin.DriverOff{ID: m.lamp})
-	return done
-}
+// 	for {
+// 		evt, done := e.WaitFor(
+// 			spin.SwitchEvent{ID: jd.SwitchLeftFireButton},
+// 			spin.SwitchEvent{ID: jd.SwitchRightFireButton},
+// 		)
+// 		if done {
+// 			return
+// 		}
 
-func selectModeScript(e spin.Env) {
-	rv := spin.GetResourceVars(e)
+// 		if evt == (spin.SwitchEvent{ID: jd.SwitchLeftFireButton}) {
+// 			if rv.Switches[jd.SwitchLeftShooterLane].Active {
+// 				continue
+// 			}
+// 			prevChain(e)
+// 		}
+// 		if evt == (spin.SwitchEvent{ID: jd.SwitchRightFireButton}) {
+// 			if e.IsActive(ScriptPlungeMode) {
+// 				continue
+// 			}
+// 			nextChain(e)
+// 		}
+// 	}
+// }
 
-	for {
-		evt, done := e.WaitFor(
-			spin.SwitchEvent{ID: jd.SwitchLeftFireButton},
-			spin.SwitchEvent{ID: jd.SwitchRightFireButton},
-		)
-		if done {
-			return
-		}
+// func nextChain(e spin.Env) {
+// 	vars := GetVars(e)
+// 	previous := vars.SelectedMode
+// 	next := 0
+// 	for {
+// 		next = previous << 1
+// 		if next > MaxMode {
+// 			next = MinMode
+// 		}
+// 		if next&vars.AwardedModes == 0 {
+// 			break
+// 		}
+// 	}
+// 	e.Do(spin.DriverOff{ID: ModeLamps[previous]})
+// 	e.Do(spin.DriverBlink{ID: ModeLamps[next]})
+// 	vars.SelectedMode = next
+// }
 
-		if evt == (spin.SwitchEvent{ID: jd.SwitchLeftFireButton}) {
-			if rv.Switches[jd.SwitchLeftShooterLane].Active {
-				continue
-			}
-			prevChain(e)
-		}
-		if evt == (spin.SwitchEvent{ID: jd.SwitchRightFireButton}) {
-			if e.IsActive(ScriptPlungeMode) {
-				continue
-			}
-			nextChain(e)
-		}
-	}
-}
+// func prevChain(e spin.Env) {
+// 	vars := GetVars(e)
+// 	previous := vars.SelectedMode
+// 	next := 0
+// 	for {
+// 		next = previous >> 1
+// 		if next < MinMode {
+// 			next = MaxMode
+// 		}
+// 		if next&vars.AwardedModes == 0 {
+// 			break
+// 		}
+// 	}
+// 	e.Do(spin.DriverOff{ID: ModeLamps[previous]})
+// 	e.Do(spin.DriverBlink{ID: ModeLamps[next]})
+// 	vars.SelectedMode = next
+// }
 
-func nextChain(e spin.Env) {
-	vars := GetVars(e)
-	previous := vars.SelectedMode
-	next := 0
-	for {
-		next = previous << 1
-		if next > MaxMode {
-			next = MinMode
-		}
-		if next&vars.AwardedModes == 0 {
-			break
-		}
-	}
-	e.Do(spin.DriverOff{ID: ModeLamps[previous]})
-	e.Do(spin.DriverBlink{ID: ModeLamps[next]})
-	vars.SelectedMode = next
-}
+// func chainScript(e spin.Env) {
+// 	ctx, cancel := e.Derive()
+// 	defer cancel()
 
-func prevChain(e spin.Env) {
-	vars := GetVars(e)
-	previous := vars.SelectedMode
-	next := 0
-	for {
-		next = previous >> 1
-		if next < MinMode {
-			next = MaxMode
-		}
-		if next&vars.AwardedModes == 0 {
-			break
-		}
-	}
-	e.Do(spin.DriverOff{ID: ModeLamps[previous]})
-	e.Do(spin.DriverBlink{ID: ModeLamps[next]})
-	vars.SelectedMode = next
-}
+// 	vars := GetVars(e)
 
-func chainScript(e spin.Env) {
-	ctx, cancel := e.Derive()
-	defer cancel()
+// 	for _, mode := range Modes {
+// 		if vars.AwardedModes&mode != 0 {
+// 			e.Do(spin.DriverOn{ID: ModeLamps[mode]})
+// 		}
+// 		if vars.SelectedMode == mode {
+// 			e.Do(spin.DriverBlink{ID: ModeLamps[mode]})
+// 		}
+// 	}
 
-	vars := GetVars(e)
+// 	if vars.AwardedModes == AllModes {
+// 		return
+// 	}
+// 	modeSide := modeLeft
 
-	for _, mode := range Modes {
-		if vars.AwardedModes&mode != 0 {
-			e.Do(spin.DriverOn{ID: ModeLamps[mode]})
-		}
-		if vars.SelectedMode == mode {
-			e.Do(spin.DriverBlink{ID: ModeLamps[mode]})
-		}
-	}
+// 	for {
+// 		if done := waitForModeStart(e, ctx, modeSide); done {
+// 			return
+// 		}
 
-	if vars.AwardedModes == AllModes {
-		return
-	}
-	modeSide := modeLeft
+// 		vars.AwardedModes |= vars.SelectedMode
+// 		e.Do(spin.StopScope{ID: spin.ScopeMode})
+// 		e.Do(spin.DriverOn{ID: ModeLamps[vars.SelectedMode]})
+// 		e.Do(spin.PlayScript{ID: ModeScripts[vars.SelectedMode]})
 
-	for {
-		if done := waitForModeStart(e, ctx, modeSide); done {
-			return
-		}
+// 		if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: ModeScripts[vars.SelectedMode]}); done {
+// 			return
+// 		}
 
-		vars.AwardedModes |= vars.SelectedMode
-		e.Do(spin.StopScope{ID: spin.ScopeMode})
-		e.Do(spin.DriverOn{ID: ModeLamps[vars.SelectedMode]})
-		e.Do(spin.PlayScript{ID: ModeScripts[vars.SelectedMode]})
-
-		if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: ModeScripts[vars.SelectedMode]}); done {
-			return
-		}
-
-		e.Do(spin.StopScope{ID: spin.ScopeMode})
-		e.Do(spin.PlayScript{ID: ScriptBasicMode})
-		if vars.AwardedModes == AllModes {
-			break
-		}
-		nextChain(e)
-		modeSide = !modeSide
-	}
-}
+// 		e.Do(spin.StopScope{ID: spin.ScopeMode})
+// 		e.Do(spin.PlayScript{ID: ScriptBasicMode})
+// 		if vars.AwardedModes == AllModes {
+// 			break
+// 		}
+// 		nextChain(e)
+// 		modeSide = !modeSide
+// 	}
+// }

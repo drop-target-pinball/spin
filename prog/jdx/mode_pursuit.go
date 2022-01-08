@@ -5,7 +5,7 @@ import (
 	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
-func pursuitModeScript(e spin.Env) {
+func pursuitModeScript(e *spin.ScriptEnv) {
 	r, _ := e.Display("").Renderer("")
 	defer r.Clear()
 
@@ -16,58 +16,69 @@ func pursuitModeScript(e spin.Env) {
 	vars.Timer = 30
 	vars.PursuitBonus = ScorePursuit0
 
-	e.NewCoroutine(e.Context(), func(e spin.Env) {
-		spin.NewSequencer().
-			Do(spin.PlaySpeech{ID: SpeechDreddToControl, Notify: true}).
-			WaitFor(spin.SpeechFinishedEvent{}).
-			Do(spin.PlaySpeech{ID: SpeechImInPursuitOfAStolenVehicle, Notify: true}).
-			WaitFor(spin.SpeechFinishedEvent{}).
-			Sleep(1_000).
-			Do(spin.PlaySound{ID: SoundPoliceSiren, Loop: true}).
-			Do(spin.StopSound{ID: SoundPursuitEngine}).
-			Defer(spin.StopSound{ID: SoundPoliceSiren}).
-			Defer(spin.StopSound{ID: SoundPursuitEngine}).
-			Sleep(3_000).
-			Do(spin.PlaySound{ID: SoundMotorRev}).
-			Sleep(2_000).
-			Do(spin.PlaySound{ID: SoundMotorRev}).
-			Sleep(4_000).
-			Do(spin.PlaySound{ID: SoundTireSqueal1}).
-			Sleep(4_000).
-			Do(spin.PlaySound{ID: SoundMotorRev}).
-			Sleep(4_000).
-			Do(spin.PlaySound{ID: SoundTireSqueal2}).
-			Sleep(4_000).
-			Do(spin.PlaySound{ID: SoundTireSqueal1}).
-			Sleep(4_000).
-			Do(spin.PlaySound{ID: SoundMotorRev}).
-			WaitFor(spin.Done{}).
-			Run(e)
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
+
+		s.Do(spin.PlaySpeech{ID: SpeechDreddToControl, Notify: true})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+		s.Do(spin.PlaySpeech{ID: SpeechImInPursuitOfAStolenVehicle, Notify: true})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+
+		s.Sleep(1_000)
+
+		s.Do(spin.PlaySound{ID: SoundPoliceSiren, Loop: true})
+		s.Do(spin.StopSound{ID: SoundPursuitEngine})
+		s.Defer(spin.StopSound{ID: SoundPoliceSiren})
+		s.Defer(spin.StopSound{ID: SoundPursuitEngine})
+
+		s.Sleep(3_000)
+
+		s.Do(spin.PlaySound{ID: SoundMotorRev})
+		s.Sleep(2_000)
+		s.Do(spin.PlaySound{ID: SoundMotorRev})
+		s.Sleep(4_000)
+		s.Do(spin.PlaySound{ID: SoundTireSqueal1})
+		s.Sleep(4_000)
+		s.Do(spin.PlaySound{ID: SoundMotorRev})
+		s.Sleep(4_000)
+		s.Do(spin.PlaySound{ID: SoundTireSqueal2})
+		s.Sleep(4_000)
+		s.Do(spin.PlaySound{ID: SoundTireSqueal1})
+		s.Sleep(4_000)
+		s.Do(spin.PlaySound{ID: SoundMotorRev})
+
+		s.Run()
 	})
 
-	e.NewCoroutine(e.Context(), func(e spin.Env) {
-		spin.NewSequencer().
-			WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp}).
-			SetIntVar(&vars.PursuitBonus, ScorePursuit1).
-			Do(spin.PlaySound{ID: SoundPursuitMissile}).
-			WaitFor(spin.ShotEvent{ID: jd.ShotLeftRamp}).
-			SetIntVar(&vars.PursuitBonus, ScorePursuit2).
-			Do(spin.PlaySound{ID: SoundPursuitMissile}).
-			WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp}).
-			SetIntVar(&vars.PursuitBonus, ScorePursuit3).
-			Post(spin.AdvanceEvent{}).
-			Run(e)
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
+
+		s.WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp})
+		s.Do(spin.PlaySound{ID: SoundPursuitMissile})
+		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit1 })
+
+		s.WaitFor(spin.ShotEvent{ID: jd.ShotLeftRamp})
+		s.Do(spin.PlaySound{ID: SoundPursuitMissile})
+		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit2 })
+
+		s.WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp})
+		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit3 })
+		s.Post(spin.AdvanceEvent{})
+
+		s.Run()
 	})
 
-	e.NewCoroutine(e.Context(), func(e spin.Env) {
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
-		if done := ModeIntroSequence(e, "PURSUIT", "SHOOT", "FLASHING RAMP").Run(e); done {
+	})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		if done := ModeIntroScript(e, "PURSUIT", "SHOOT", "FLASHING RAMP"); done {
 			return
 		}
-		spin.RenderFrameScript(e, func(e spin.Env) {
+		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
 			TimerAndScorePanel(e, r, "PURSUIT", vars.Timer, player.Score, "SHOOT FLASHING RAMP")
 		})
-		e.WaitFor(spin.Done{})
 	})
 
 	evt, done := e.WaitFor(
@@ -85,40 +96,40 @@ func pursuitModeScript(e spin.Env) {
 	e.Post(spin.ScriptFinishedEvent{ID: ScriptPursuitMode})
 }
 
-func pursuitIncompleteScript(e spin.Env) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+// func pursuitIncompleteScript(e spin.Env) {
+// 	r, _ := e.Display("").Renderer(spin.LayerPriority)
+// 	defer r.Clear()
 
-	e.Do(spin.PlayMusic{ID: MusicMain})
+// 	e.Do(spin.PlayMusic{ID: MusicMain})
 
-	vars := GetVars(e)
-	ModeAndScorePanel(e, r, "PURSUIT TOTAL", vars.PursuitBonus)
+// 	vars := GetVars(e)
+// 	ModeAndScorePanel(e, r, "PURSUIT TOTAL", vars.PursuitBonus)
 
-	spin.NewSequencer().
-		Do(spin.PlaySpeech{ID: SpeechDreddToControl, Notify: true}).
-		WaitFor(spin.SpeechFinishedEvent{}).
-		Sleep(1_000).
-		Do(spin.PlaySpeech{ID: SpeechSuspectGotAway, Notify: true}).
-		WaitFor(spin.SpeechFinishedEvent{}).
-		Run(e)
-}
+// 	spin.NewSequencer().
+// 		Do(spin.PlaySpeech{ID: SpeechDreddToControl, Notify: true}).
+// 		WaitFor(spin.SpeechFinishedEvent{}).
+// 		Sleep(1_000).
+// 		Do(spin.PlaySpeech{ID: SpeechSuspectGotAway, Notify: true}).
+// 		WaitFor(spin.SpeechFinishedEvent{}).
+// 		Run(e)
+// }
 
-func pursuitCompleteScript(e spin.Env) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+// func pursuitCompleteScript(e spin.Env) {
+// 	r, _ := e.Display("").Renderer(spin.LayerPriority)
+// 	defer r.Clear()
 
-	e.Do(spin.PlayMusic{ID: MusicMain})
+// 	e.Do(spin.PlayMusic{ID: MusicMain})
 
-	vars := GetVars(e)
-	ModeAndScorePanel(e, r, "PURSUIT TOTAL", vars.PursuitBonus)
+// 	vars := GetVars(e)
+// 	ModeAndScorePanel(e, r, "PURSUIT TOTAL", vars.PursuitBonus)
 
-	spin.NewSequencer().
-		Do(spin.PlaySound{ID: SoundPursuitMissile}).
-		Sleep(500).
-		Do(spin.PlaySound{ID: SoundPursuitExplosion}).
-		Sleep(1_000).
-		Do(spin.PlaySpeech{ID: SpeechYourDrivingDaysAreOverPunk, Notify: true}).
-		WaitFor(spin.SpeechFinishedEvent{}).
-		Sleep(1_000).
-		Run(e)
-}
+// 	spin.NewSequencer().
+// 		Do(spin.PlaySound{ID: SoundPursuitMissile}).
+// 		Sleep(500).
+// 		Do(spin.PlaySound{ID: SoundPursuitExplosion}).
+// 		Sleep(1_000).
+// 		Do(spin.PlaySpeech{ID: SpeechYourDrivingDaysAreOverPunk, Notify: true}).
+// 		WaitFor(spin.SpeechFinishedEvent{}).
+// 		Sleep(1_000).
+// 		Run(e)
+// }

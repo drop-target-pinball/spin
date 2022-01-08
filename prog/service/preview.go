@@ -1,93 +1,86 @@
 package service
 
-import (
-	"sort"
+// type fontMode struct {
+// 	offset   int32
+// 	fonts    []string
+// 	selected int
+// }
 
-	"github.com/drop-target-pinball/spin"
-	"github.com/drop-target-pinball/spin/prog/builtin"
-)
+// func fontPreviewFrame(e spin.Env, fm *fontMode) {
+// 	r, g := e.Display("").Renderer("")
 
-type fontMode struct {
-	offset   int32
-	fonts    []string
-	selected int
-}
+// 	r.Fill(spin.ColorBlack)
+// 	g.Font = fm.fonts[fm.selected]
+// 	g.X = fm.offset
+// 	r.Print(g, "0123456,789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
 
-func fontPreviewFrame(e spin.Env, fm *fontMode) {
-	r, g := e.Display("").Renderer("")
+// 	g.Font = builtin.Font04B_03_7px
+// 	g.Y = 26
+// 	g.X = 0
+// 	r.Print(g, fm.fonts[fm.selected])
+// }
 
-	r.Fill(spin.ColorBlack)
-	g.Font = fm.fonts[fm.selected]
-	g.X = fm.offset
-	r.Print(g, "0123456,789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+// func fontPreviewVideoScript(e spin.Env, fm *fontMode) {
+// 	for {
+// 		fontPreviewFrame(e, fm)
+// 		if done := e.Sleep(spin.FrameDuration); done {
+// 			return
+// 		}
+// 	}
+// }
 
-	g.Font = builtin.Font04B_03_7px
-	g.Y = 26
-	g.X = 0
-	r.Print(g, fm.fonts[fm.selected])
-}
+// func fontPreviewScript(e spin.Env) {
+// 	fm := fontMode{
+// 		fonts:    make([]string, 0),
+// 		selected: 0,
+// 	}
+// 	rsrc := spin.GetResourceVars(e)
+// 	for name, _ := range rsrc.Fonts {
+// 		fm.fonts = append(fm.fonts, name)
+// 	}
+// 	sort.Strings(fm.fonts)
 
-func fontPreviewVideoScript(e spin.Env, fm *fontMode) {
-	for {
-		fontPreviewFrame(e, fm)
-		if done := e.Sleep(spin.FrameDuration); done {
-			return
-		}
-	}
-}
+// 	next := func() {
+// 		fm.selected += 1
+// 		if fm.selected >= len(fm.fonts) {
+// 			fm.selected = 0
+// 		}
+// 	}
 
-func fontPreviewScript(e spin.Env) {
-	fm := fontMode{
-		fonts:    make([]string, 0),
-		selected: 0,
-	}
-	rsrc := spin.GetResourceVars(e)
-	for name, _ := range rsrc.Fonts {
-		fm.fonts = append(fm.fonts, name)
-	}
-	sort.Strings(fm.fonts)
+// 	prev := func() {
+// 		fm.selected -= 1
+// 		if fm.selected < 0 {
+// 			fm.selected = len(fm.fonts) - 1
+// 		}
+// 	}
 
-	next := func() {
-		fm.selected += 1
-		if fm.selected >= len(fm.fonts) {
-			fm.selected = 0
-		}
-	}
+// 	ctx, cancel := e.Derive()
+// 	e.NewCoroutine(ctx, func(e spin.Env) { fontPreviewVideoScript(e, &fm) })
 
-	prev := func() {
-		fm.selected -= 1
-		if fm.selected < 0 {
-			fm.selected = len(fm.fonts) - 1
-		}
-	}
-
-	ctx, cancel := e.Derive()
-	e.NewCoroutine(ctx, func(e spin.Env) { fontPreviewVideoScript(e, &fm) })
-
-	for {
-		evt, done := e.WaitFor(
-			spin.SwitchEvent{ID: e.Config.SwitchExitServiceButton},
-			spin.SwitchEvent{ID: e.Config.SwitchNextServiceButton},
-			spin.SwitchEvent{ID: e.Config.SwitchPreviousServiceButton},
-			spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},
-			spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton},
-		)
-		if done {
-			cancel()
-			return
-		}
-		switch evt {
-		case spin.SwitchEvent{ID: e.Config.SwitchExitServiceButton}:
-			cancel()
-			return
-		case spin.SwitchEvent{ID: e.Config.SwitchNextServiceButton}:
-			next()
-		case spin.SwitchEvent{ID: e.Config.SwitchPreviousServiceButton}:
-			prev()
-		case spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton}:
-			fm.offset -= 1
-		case spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton}:
-			fm.offset += 1
-		}
-	}
-}
+// 	for {
+// 		evt, done := e.WaitFor(
+// 			spin.SwitchEvent{ID: e.Config.SwitchExitServiceButton},
+// 			spin.SwitchEvent{ID: e.Config.SwitchNextServiceButton},
+// 			spin.SwitchEvent{ID: e.Config.SwitchPreviousServiceButton},
+// 			spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},
+// 			spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton},
+// 		)
+// 		if done {
+// 			cancel()
+// 			return
+// 		}
+// 		switch evt {
+// 		case spin.SwitchEvent{ID: e.Config.SwitchExitServiceButton}:
+// 			cancel()
+// 			return
+// 		case spin.SwitchEvent{ID: e.Config.SwitchNextServiceButton}:
+// 			next()
+// 		case spin.SwitchEvent{ID: e.Config.SwitchPreviousServiceButton}:
+// 			prev()
+// 		case spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton}:
+// 			fm.offset -= 1
+// 		case spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton}:
+// 			fm.offset += 1
+// 		}
+// 	}
+// }

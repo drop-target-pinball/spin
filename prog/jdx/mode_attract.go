@@ -1,160 +1,152 @@
 package jdx
 
-import (
-	"context"
-	"time"
+// const (
+// 	MessageAttractAdvance = "jdx.MessageAttractAdvance"
+// 	MessageAttractDone    = "jdx.MessageAttractDone"
+// )
 
-	"github.com/drop-target-pinball/spin"
-	"github.com/drop-target-pinball/spin/prog/builtin"
-)
+// var attractScripts = []spin.ScriptFn{
+// 	gameOverScript,
+// 	dropTargetPinballScript,
+// 	superPinballSystemScript,
+// 	freePlayScript,
+// }
 
-const (
-	MessageAttractAdvance = "jdx.MessageAttractAdvance"
-	MessageAttractDone    = "jdx.MessageAttractDone"
-)
+// func gameOverFrame(e spin.Env) {
+// 	r, g := e.Display("").Renderer("")
 
-var attractScripts = []spin.ScriptFn{
-	gameOverScript,
-	dropTargetPinballScript,
-	superPinballSystemScript,
-	freePlayScript,
-}
+// 	r.Fill(spin.ColorBlack)
+// 	g.Y = 2
+// 	g.AnchorY = spin.AnchorMiddle
+// 	g.Font = builtin.FontPfRondaSevenBold8
+// 	r.Print(g, "GAME OVER")
+// }
 
-func gameOverFrame(e spin.Env) {
-	r, g := e.Display("").Renderer("")
+// func gameOverScript(e spin.Env) {
+// 	gameOverFrame(e)
+// 	if done := e.Sleep(4000 * time.Millisecond); done {
+// 		return
+// 	}
+// 	e.Post(spin.Message{ID: MessageAttractAdvance})
+// }
 
-	r.Fill(spin.ColorBlack)
-	g.Y = 2
-	g.AnchorY = spin.AnchorMiddle
-	g.Font = builtin.FontPfRondaSevenBold8
-	r.Print(g, "GAME OVER")
-}
+// func dropTargetPinballFrame(e spin.Env) {
+// 	r, g := e.Display("").Renderer("")
 
-func gameOverScript(e spin.Env) {
-	gameOverFrame(e)
-	if done := e.Sleep(4000 * time.Millisecond); done {
-		return
-	}
-	e.Post(spin.Message{ID: MessageAttractAdvance})
-}
+// 	r.Fill(spin.ColorBlack)
+// 	g.Y = 7
+// 	g.Font = builtin.FontPfArmaFive8
+// 	r.Print(g, "DROP TARGET PINBALL")
+// 	g.Y = 18
+// 	g.Font = builtin.FontPfRondaSevenBold8
+// 	r.Print(g, "PRESENTS")
+// }
 
-func dropTargetPinballFrame(e spin.Env) {
-	r, g := e.Display("").Renderer("")
+// func dropTargetPinballScript(e spin.Env) {
+// 	dropTargetPinballFrame(e)
+// 	if done := e.Sleep(4000 * time.Millisecond); done {
+// 		return
+// 	}
+// 	e.Post(spin.Message{ID: MessageAttractAdvance})
+// }
 
-	r.Fill(spin.ColorBlack)
-	g.Y = 7
-	g.Font = builtin.FontPfArmaFive8
-	r.Print(g, "DROP TARGET PINBALL")
-	g.Y = 18
-	g.Font = builtin.FontPfRondaSevenBold8
-	r.Print(g, "PRESENTS")
-}
+// func superPinballSystemFrame(e spin.Env) {
+// 	r, g := e.Display("").Renderer("")
 
-func dropTargetPinballScript(e spin.Env) {
-	dropTargetPinballFrame(e)
-	if done := e.Sleep(4000 * time.Millisecond); done {
-		return
-	}
-	e.Post(spin.Message{ID: MessageAttractAdvance})
-}
+// 	r.Fill(spin.ColorBlack)
+// 	g.Y = 7
+// 	g.Font = builtin.FontPfRondaSevenBold8
+// 	r.Print(g, "JUDGE DREDD")
+// 	g.Y = 18
+// 	r.Print(g, "REMIX")
+// }
 
-func superPinballSystemFrame(e spin.Env) {
-	r, g := e.Display("").Renderer("")
+// func superPinballSystemScript(e spin.Env) {
+// 	superPinballSystemFrame(e)
+// 	if done := e.Sleep(4000 * time.Millisecond); done {
+// 		return
+// 	}
+// 	e.Post(spin.Message{ID: MessageAttractAdvance})
+// }
 
-	r.Fill(spin.ColorBlack)
-	g.Y = 7
-	g.Font = builtin.FontPfRondaSevenBold8
-	r.Print(g, "JUDGE DREDD")
-	g.Y = 18
-	r.Print(g, "REMIX")
-}
+// func freePlayFrame(e spin.Env, blinkOn bool) {
+// 	r, g := e.Display("").Renderer("")
 
-func superPinballSystemScript(e spin.Env) {
-	superPinballSystemFrame(e)
-	if done := e.Sleep(4000 * time.Millisecond); done {
-		return
-	}
-	e.Post(spin.Message{ID: MessageAttractAdvance})
-}
+// 	r.Fill(spin.ColorBlack)
+// 	g.Y = 7
+// 	g.Font = builtin.FontPfRondaSevenBold8
+// 	if blinkOn {
+// 		r.Print(g, "PRESS START")
+// 	}
+// 	g.Y = 18
+// 	r.Print(g, "FREE PLAY")
+// }
 
-func freePlayFrame(e spin.Env, blinkOn bool) {
-	r, g := e.Display("").Renderer("")
+// func freePlayScript(e spin.Env) {
+// 	for i := 0; i < 5; i++ {
+// 		freePlayFrame(e, true)
+// 		if done := e.Sleep(200 * time.Millisecond); done {
+// 			return
+// 		}
 
-	r.Fill(spin.ColorBlack)
-	g.Y = 7
-	g.Font = builtin.FontPfRondaSevenBold8
-	if blinkOn {
-		r.Print(g, "PRESS START")
-	}
-	g.Y = 18
-	r.Print(g, "FREE PLAY")
-}
+// 		freePlayFrame(e, false)
+// 		if done := e.Sleep(100 * time.Millisecond); done {
+// 			return
+// 		}
+// 	}
+// 	freePlayFrame(e, true)
+// 	if done := e.Sleep(2500 * time.Millisecond); done {
+// 		return
+// 	}
+// 	e.Post(spin.Message{ID: MessageAttractAdvance})
+// }
 
-func freePlayScript(e spin.Env) {
-	for i := 0; i < 5; i++ {
-		freePlayFrame(e, true)
-		if done := e.Sleep(200 * time.Millisecond); done {
-			return
-		}
+// func attractModeScript(e spin.Env) {
+// 	script := 0
+// 	var ctx context.Context
+// 	var cancel context.CancelFunc
 
-		freePlayFrame(e, false)
-		if done := e.Sleep(100 * time.Millisecond); done {
-			return
-		}
-	}
-	freePlayFrame(e, true)
-	if done := e.Sleep(2500 * time.Millisecond); done {
-		return
-	}
-	e.Post(spin.Message{ID: MessageAttractAdvance})
-}
+// 	next := func() {
+// 		script += 1
+// 		if script >= len(attractScripts) {
+// 			script = 0
+// 		}
+// 	}
 
-func attractModeScript(e spin.Env) {
-	script := 0
-	var ctx context.Context
-	var cancel context.CancelFunc
+// 	prev := func() {
+// 		script -= 1
+// 		if script < 0 {
+// 			script = len(attractScripts) - 1
+// 		}
+// 	}
 
-	next := func() {
-		script += 1
-		if script >= len(attractScripts) {
-			script = 0
-		}
-	}
-
-	prev := func() {
-		script -= 1
-		if script < 0 {
-			script = len(attractScripts) - 1
-		}
-	}
-
-	e.Do(spin.DriverBlink{ID: e.Config.LampStartButton})
-	for {
-		ctx, cancel = e.Derive()
-		e.NewCoroutine(ctx, attractScripts[script])
-		evt, done := e.WaitFor(
-			spin.Message{ID: MessageAttractAdvance},
-			spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},
-			spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton},
-			spin.SwitchEvent{ID: e.Config.SwitchStartButton},
-		)
-		if done {
-			cancel()
-			return
-		}
-		switch evt {
-		case spin.Message{ID: MessageAttractAdvance}:
-			next()
-		case spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton}:
-			cancel()
-			prev()
-		case spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton}:
-			cancel()
-			next()
-		case spin.SwitchEvent{ID: e.Config.SwitchStartButton}:
-			cancel()
-			e.Post(spin.Message{ID: MessageAttractDone})
-			return
-		}
-	}
-}
+// 	e.Do(spin.DriverBlink{ID: e.Config.LampStartButton})
+// 	for {
+// 		ctx, cancel = e.Derive()
+// 		e.NewCoroutine(ctx, attractScripts[script])
+// 		evt, done := e.WaitFor(
+// 			spin.Message{ID: MessageAttractAdvance},
+// 			spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},
+// 			spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton},
+// 			spin.SwitchEvent{ID: e.Config.SwitchStartButton},
+// 		)
+// 		if done {
+// 			cancel()
+// 			return
+// 		}
+// 		switch evt {
+// 		case spin.Message{ID: MessageAttractAdvance}:
+// 			next()
+// 		case spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton}:
+// 			cancel()
+// 			prev()
+// 		case spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton}:
+// 			cancel()
+// 			next()
+// 		case spin.SwitchEvent{ID: e.Config.SwitchStartButton}:
+// 			cancel()
+// 			e.Post(spin.Message{ID: MessageAttractDone})
+// 			return
+// 		}
+// 	}
+// }

@@ -8,6 +8,6 @@ const (
 )
 
 func RegisterScripts(eng *spin.Engine) {
-	eng.Do(spin.RegisterScript{ID: ScriptFontPreview, Script: fontPreviewScript})
-	eng.Do(spin.RegisterScript{ID: ScriptTestFrame, Script: testFrameScript})
+	// eng.Do(spin.RegisterScript{ID: ScriptFontPreview, Script: fontPreviewScript})
+	// eng.Do(spin.RegisterScript{ID: ScriptTestFrame, Script: testFrameScript})
 }

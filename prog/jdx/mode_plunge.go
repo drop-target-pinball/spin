@@ -1,92 +1,84 @@
 package jdx
 
-import (
-	"time"
+// func useFireButtonFrame(e spin.Env, n int) {
+// 	r, g := e.Display("").Renderer(spin.LayerPriority)
 
-	"github.com/drop-target-pinball/spin"
-	"github.com/drop-target-pinball/spin/mach/jd"
-	"github.com/drop-target-pinball/spin/prog/builtin"
-)
+// 	// chevronsL := []string{
+// 	// 	"   ",
+// 	// 	"  <",
+// 	// 	" <<",
+// 	// 	"<<<",
+// 	// }
 
-func useFireButtonFrame(e spin.Env, n int) {
-	r, g := e.Display("").Renderer(spin.LayerPriority)
+// 	chevronsR := []string{
+// 		"   ",
+// 		">  ",
+// 		">> ",
+// 		">>>",
+// 	}
 
-	// chevronsL := []string{
-	// 	"   ",
-	// 	"  <",
-	// 	" <<",
-	// 	"<<<",
-	// }
+// 	r.Fill(spin.ColorBlack)
+// 	g.Font = builtin.FontPfRondaSevenBold8
+// 	g.Y = 7
+// 	r.Print(g, "USE")
+// 	g.Y = 18
+// 	r.Print(g, "FIRE BUTTON")
 
-	chevronsR := []string{
-		"   ",
-		">  ",
-		">> ",
-		">>>",
-	}
+// 	g.AnchorY = spin.AnchorMiddle
+// 	g.Y = r.Height() / 2
+// 	g.X = 4
+// 	//r.Print(g, chevronsL[n])
+// 	g.X = 110
+// 	r.Print(g, chevronsR[n])
+// }
 
-	r.Fill(spin.ColorBlack)
-	g.Font = builtin.FontPfRondaSevenBold8
-	g.Y = 7
-	r.Print(g, "USE")
-	g.Y = 18
-	r.Print(g, "FIRE BUTTON")
+// func useFireButtonVideo(e spin.Env) {
+// 	defer e.Display("").Clear(spin.LayerPriority)
+// 	for i := 0; i < 7*4; i++ {
+// 		useFireButtonFrame(e, i%4)
+// 		if done := e.Sleep(100 * time.Millisecond); done {
+// 			return
+// 		}
+// 	}
+// }
 
-	g.AnchorY = spin.AnchorMiddle
-	g.Y = r.Height() / 2
-	g.X = 4
-	//r.Print(g, chevronsL[n])
-	g.X = 110
-	r.Print(g, chevronsR[n])
-}
+// func useFireButtonScript(e spin.Env) {
+// 	ctx, cancel := e.Derive()
+// 	defer cancel()
 
-func useFireButtonVideo(e spin.Env) {
-	defer e.Display("").Clear(spin.LayerPriority)
-	for i := 0; i < 7*4; i++ {
-		useFireButtonFrame(e, i%4)
-		if done := e.Sleep(100 * time.Millisecond); done {
-			return
-		}
-	}
-}
+// 	if done := e.Sleep(7 * time.Second); done {
+// 		return
+// 	}
+// 	e.Do(spin.PlaySpeech{ID: SpeechUseFireButtonToLaunchBall})
+// 	for {
+// 		e.NewCoroutine(ctx, useFireButtonVideo)
+// 		if done := e.Sleep(13 * time.Second); done {
+// 			e.Do(spin.StopSpeech{ID: SpeechUseFireButtonToLaunchBall})
+// 			return
+// 		}
+// 	}
+// }
 
-func useFireButtonScript(e spin.Env) {
-	ctx, cancel := e.Derive()
-	defer cancel()
+// func plungeScript(e spin.Env) {
+// 	game := spin.GetGameVars(e)
 
-	if done := e.Sleep(7 * time.Second); done {
-		return
-	}
-	e.Do(spin.PlaySpeech{ID: SpeechUseFireButtonToLaunchBall})
-	for {
-		e.NewCoroutine(ctx, useFireButtonVideo)
-		if done := e.Sleep(13 * time.Second); done {
-			e.Do(spin.StopSpeech{ID: SpeechUseFireButtonToLaunchBall})
-			return
-		}
-	}
-}
+// 	e.Do(spin.PlayScript{ID: builtin.ScriptScore})
+// 	e.Do(spin.PlayMusic{ID: MusicPlungeLoop})
+// 	ctx, cancel := e.Derive()
+// 	e.NewCoroutine(ctx, useFireButtonScript)
 
-func plungeScript(e spin.Env) {
-	game := spin.GetGameVars(e)
+// 	if game.Player == 1 && game.Ball == 1 && !game.IsExtraBall {
+// 		e.Do(spin.PlaySpeech{ID: SpeechLawMasterComputerOnlineWelcomeAboard})
+// 	}
+// 	e.Do(spin.AddBall{})
+// 	_, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightFireButton})
+// 	cancel()
+// 	if done {
+// 		return
+// 	}
 
-	e.Do(spin.PlayScript{ID: builtin.ScriptScore})
-	e.Do(spin.PlayMusic{ID: MusicPlungeLoop})
-	ctx, cancel := e.Derive()
-	e.NewCoroutine(ctx, useFireButtonScript)
-
-	if game.Player == 1 && game.Ball == 1 && !game.IsExtraBall {
-		e.Do(spin.PlaySpeech{ID: SpeechLawMasterComputerOnlineWelcomeAboard})
-	}
-	e.Do(spin.AddBall{})
-	_, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightFireButton})
-	cancel()
-	if done {
-		return
-	}
-
-	e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
-	e.Do(spin.PlayMusic{ID: MusicMain})
-	e.Do(spin.PlaySound{ID: SoundMotorcycleStart})
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptPlungeMode})
-}
+// 	e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
+// 	e.Do(spin.PlayMusic{ID: MusicMain})
+// 	e.Do(spin.PlaySound{ID: SoundMotorcycleStart})
+// 	e.Post(spin.ScriptFinishedEvent{ID: ScriptPlungeMode})
+// }

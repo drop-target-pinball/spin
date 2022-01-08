@@ -1,9 +1,7 @@
 package spin
 
-import "github.com/drop-target-pinball/spin/coroutine"
-
 type Event interface {
-	coroutine.Selector
+	Key() interface{}
 }
 
 type AdvanceEvent struct {

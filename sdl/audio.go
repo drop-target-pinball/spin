@@ -244,6 +244,7 @@ func (s *audioSystem) stopMusic(a spin.StopMusic) {
 func (s *audioSystem) stopSound(a spin.StopSound) {
 	for channel, playing := range s.soundsPlaying {
 		if playing.id == a.ID {
+			playing.notify = false
 			mix.HaltChannel(channel)
 			break
 		}
@@ -252,6 +253,7 @@ func (s *audioSystem) stopSound(a spin.StopSound) {
 
 func (s *audioSystem) stopSpeech(a spin.StopSpeech) {
 	if a.ID == "" || a.ID == s.speechPlaying.id {
+		s.speechPlaying.notify = false
 		mix.HaltChannel(0)
 		s.speechPlaying = audio{}
 	}

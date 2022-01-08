@@ -37,7 +37,7 @@ func (s *resourceSystem) registerFont(act RegisterFont) {
 }
 
 func (s *resourceSystem) setVar(act SetVar) {
-	vars, ok := s.eng.Vars(act.Vars)
+	vars, ok := s.eng.GetVars(act.Vars)
 	if !ok {
 		Warn("no such variables: %v", act.Vars)
 		return
@@ -66,7 +66,7 @@ func (s *resourceSystem) setVar(act SetVar) {
 }
 
 func GetResourceVars(store Store) *Resources {
-	v, ok := store.Vars("resources")
+	v, ok := store.GetVars("resources")
 	var vars *Resources
 	if ok {
 		vars = v.(*Resources)

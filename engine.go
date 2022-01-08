@@ -22,8 +22,8 @@ type Server interface {
 }
 
 type Store interface {
+	GetVars(string) (interface{}, bool)
 	RegisterVars(string, interface{})
-	Vars(string) (interface{}, bool)
 }
 
 type Engine struct {
@@ -105,7 +105,7 @@ func (e *Engine) Post(evt Event) {
 	e.queue = append(e.queue, evt)
 }
 
-func (e *Engine) Vars(name string) (interface{}, bool) {
+func (e *Engine) GetVars(name string) (interface{}, bool) {
 	vars, ok := e.vars[name]
 	return vars, ok
 }

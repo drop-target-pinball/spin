@@ -16,7 +16,7 @@ type Vars struct {
 }
 
 func GetVars(store spin.Store) *Vars {
-	v, ok := store.Vars("system")
+	v, ok := store.GetVars("system")
 	var vars *Vars
 	if ok {
 		vars = v.(*Vars)

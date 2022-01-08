@@ -140,7 +140,7 @@ func GetVars(store spin.Store) *Vars {
 	name := fmt.Sprintf("jdx.%v", game.Player)
 	var vars *Vars
 
-	v, ok := store.Vars(name)
+	v, ok := store.GetVars(name)
 	if ok {
 		vars = v.(*Vars)
 	} else {

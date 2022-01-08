@@ -23,7 +23,7 @@ type PlayerVars struct {
 }
 
 func GetGameVars(store Store) *GameVars {
-	v, ok := store.Vars("game")
+	v, ok := store.GetVars("game")
 	var vars *GameVars
 	if ok {
 		vars = v.(*GameVars)
@@ -39,7 +39,7 @@ func GetGameVars(store Store) *GameVars {
 
 func GetPlayerVarsFor(store Store, player int) *PlayerVars {
 	name := fmt.Sprintf("player.%v", player)
-	v, ok := store.Vars(name)
+	v, ok := store.GetVars(name)
 	var vars *PlayerVars
 	if ok {
 		vars = v.(*PlayerVars)
