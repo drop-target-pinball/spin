@@ -37,8 +37,8 @@ SetVar Vars=jdx.1 ID=Timer Val=3
 ## Sniper Tower
 
 PlayScript ID=jdx.ScriptSniperMode
-SwitchEvent ID=jd.SwitchRightPopper
-SwitchEvent ID=jd.SwitchRightPopper
+ShotEvent ID=jd.ShotRightPopper
+ShotEvent ID=jd.ShotRightPopper
 
 ## Battle Tank
 

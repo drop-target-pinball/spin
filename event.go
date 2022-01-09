@@ -101,7 +101,9 @@ func (e SoundFinishedEvent) Key() interface{} {
 	return SoundFinishedEvent{ID: e.ID}
 }
 
-type SpeechFinishedEvent struct{}
+type SpeechFinishedEvent struct {
+	ID string
+}
 
 func (e SpeechFinishedEvent) Key() interface{} {
 	return SpeechFinishedEvent{}

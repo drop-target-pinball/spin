@@ -1,167 +1,192 @@
 package jdx
 
-// func sniperModeScript(e spin.Env) {
-// 	r, _ := e.Display("").Renderer("")
-// 	defer r.Clear()
+import (
+	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
+)
 
-// 	e.Do(spin.PlayMusic{ID: MusicMode1})
+func sniperModeScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer("")
 
-// 	vars := GetVars(e)
-// 	vars.SniperScore = ScoreSniperStart
+	e.Do(spin.PlayMusic{ID: MusicMode1})
 
-// 	gunFire := spin.NewSequencer().
-// 		Do(spin.PlaySound{ID: SoundGunLoadSniper}).
-// 		Sleep(1_500).
-// 		Do(spin.PlaySound{ID: SoundGunFire}).
-// 		Sleep(1_500).
-// 		Loop()
+	vars := GetVars(e)
+	vars.SniperScore = ScoreSniperStart
 
-// 	e.NewCoroutine(e.Context(), func(e spin.Env) {
-// 		spin.NewSequencer().
-// 			Do(spin.PlaySpeech{ID: SpeechSniperIsShootingIntoCrowdFromJohnsonTower, Duck: 0.5}).
-// 			Sleep(4_000).
-// 			Do(spin.PlaySpeech{ID: SpeechShootSniperTower}).
-// 			Sleep(1_000).
-// 			Func(func() {
-// 				spin.ScoreHurryUpScript(e,
-// 					&vars.SniperScore,
-// 					160, // tick ms
-// 					ScoreSniperDec,
-// 					ScoreSniperEnd,
-// 					spin.TimeoutEvent{},
-// 				)
-// 			}).
-// 			Sequence(gunFire).
-// 			Run(e)
-// 	})
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
 
-// 	e.NewCoroutine(e.Context(), func(e spin.Env) {
-// 		if done := ModeIntroSequence(e, "SNIPER", "SHOOT", "SNIPER TOWER").Run(e); done {
-// 			return
-// 		}
-// 		spin.RenderFrameScript(e, func(e spin.Env) {
-// 			ModeAndScorePanel(e, r, "SNIPER", vars.SniperScore)
-// 		})
-// 		e.WaitFor(spin.Done{})
-// 	})
+		s.Do(spin.PlaySpeech{ID: SpeechSniperIsShootingIntoCrowdFromJohnsonTower, Duck: 0.5})
+		s.Sleep(4_000)
+		s.Do(spin.PlaySpeech{ID: SpeechShootSniperTower})
+		s.Sleep(1_000)
 
-// 	e.NewCoroutine(e.Context(), func(e spin.Env) {
-// 		spin.NewSequencer().
-// 			WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper}).
-// 			Post(spin.AdvanceEvent{}).
-// 			Run(e)
-// 	})
+		s.DoFunc(func() {
+			e.NewCoroutine(func(e *spin.ScriptEnv) {
+				spin.ScoreHurryUpScript(e,
+					&vars.SniperScore,
+					160, // tick ms
+					ScoreSniperDec,
+					ScoreSniperEnd,
+					spin.TimeoutEvent{},
+				)
+			})
+		})
 
-// 	evt, done := e.WaitFor(
-// 		spin.AdvanceEvent{},
-// 		spin.TimeoutEvent{},
-// 	)
-// 	if done {
-// 		return
-// 	}
-// 	if evt == (spin.TimeoutEvent{}) {
-// 		e.Do(spin.PlayMusic{ID: MusicMain})
-// 		e.Post(spin.ScriptFinishedEvent{ID: ScriptSniperMode})
-// 		return
-// 	}
-// 	e.Do(spin.PlayScript{ID: ScriptSniperMode2})
-// }
+		s.DoFunc(func() {
+			e.NewCoroutine(func(e *spin.ScriptEnv) {
+				s := spin.NewSequencer(e)
 
-// func sniperMode2Script(e spin.Env) {
-// 	r, _ := e.Display("").Renderer("")
-// 	defer r.Clear()
+				s.Do(spin.PlaySound{ID: SoundGunLoadSniper})
+				s.Sleep(1_500)
+				s.Do(spin.PlaySound{ID: SoundGunFire})
+				s.Sleep(1_500)
+				s.Loop()
 
-// 	vars := GetVars(e)
-// 	vars.Timer = 10
-// 	vars.SniperBonus = vars.SniperScore
+				s.Run()
+			})
+		})
 
-// 	e.NewCoroutine(e.Context(), func(e spin.Env) {
-// 		spin.NewSequencer().
-// 			Do(spin.PlaySound{ID: SoundSuccess, Duck: 0.5}).
-// 			Sleep(1_000).
-// 			Do(spin.DriverPulse{ID: jd.CoilRightPopper}).
-// 			Sleep(1_500).
-// 			Do(spin.PlaySpeech{ID: SpeechShootSniperTower, Notify: true}).
-// 			WaitFor(spin.SpeechFinishedEvent{}).
-// 			Do(spin.PlaySpeech{ID: SpeechAaaaah}).
-// 			Sleep(3_000).
-// 			Do(spin.PlaySpeech{ID: SpeechItsALongWayDown}).
-// 			Sleep(2_500).
-// 			Do(spin.PlaySpeech{ID: SpeechAaaaah}).
-// 			Sleep(3_500).
-// 			Do(spin.PlaySpeech{ID: SpeechICanSeeMyHouseFromHere}).
-// 			Sleep(2_000).
-// 			Do(spin.PlaySpeech{ID: SpeechAaaaah}).
-// 			WaitFor(spin.SpeechFinishedEvent{}).
-// 			Run(e)
-// 	})
+		s.Run()
+	})
 
-// 	e.NewCoroutine(e.Context(), func(e spin.Env) {
-// 		spin.NewSequencer().
-// 			WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper}).
-// 			Post(spin.AdvanceEvent{}).
-// 			Run(e)
-// 	})
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		if done := ModeIntroScript(e, "SNIPER", "SHOOT", "SNIPER TOWER"); done {
+			return
+		}
+		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+			ModeAndScorePanel(e, r, "SNIPER", vars.SniperScore)
+		})
+	})
 
-// 	e.NewCoroutine(e.Context(), func(e spin.Env) {
-// 		if done := ModeAndBlinkingScoreSequence(e, r, "SNIPER", vars.SniperScore); done {
-// 			return
-// 		}
-// 		spin.RenderFrameScript(e, func(e spin.Env) {
-// 			TimerAndScorePanel(e, r, "SNIPER", vars.Timer, vars.SniperScore, "")
-// 		})
-// 		spin.CountdownScript(e, &vars.Timer, 1500, spin.TimeoutEvent{})
-// 	})
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
 
-// 	evt, done := e.WaitFor(
-// 		spin.AdvanceEvent{},
-// 		spin.TimeoutEvent{},
-// 	)
-// 	if done {
-// 		return
-// 	}
-// 	if evt == (spin.TimeoutEvent{}) {
-// 		e.Do(spin.PlayScript{ID: ScriptSniperIncomplete})
-// 	} else {
-// 		e.Do(spin.PlayScript{ID: ScriptSniperComplete})
-// 	}
-// 	e.Post(spin.ScriptFinishedEvent{ID: ScriptSniperMode})
-// }
+		s.WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper})
+		s.Post(spin.AdvanceEvent{})
 
-// func sniperIncompleteScript(e spin.Env) {
-// 	r, _ := e.Display("").Renderer(spin.LayerPriority)
-// 	defer r.Clear()
+		s.Run()
+	})
 
-// 	vars := GetVars(e)
-// 	e.Do(spin.PlayMusic{ID: MusicMain})
-// 	ModeAndScorePanel(e, r, "SNIPER TOTAL", vars.SniperBonus)
+	evt, done := e.WaitFor(
+		spin.AdvanceEvent{},
+		spin.TimeoutEvent{},
+	)
+	if done {
+		return
+	}
+	if evt == (spin.TimeoutEvent{}) {
+		e.Do(spin.PlayMusic{ID: MusicMain})
+		e.Post(spin.ScriptFinishedEvent{ID: ScriptSniperMode})
+		return
+	}
+	e.Do(spin.PlayScript{ID: ScriptSniperMode2})
+}
 
-// 	spin.NewSequencer().
-// 		Do(spin.PlaySound{ID: SoundSniperSplat}).
-// 		Sleep(1_000).
-// 		Do(spin.PlaySpeech{ID: SpeechSniperEliminated, Notify: true}).
-// 		Sleep(2_000).
-// 		Run(e)
-// }
+func sniperMode2Script(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer("")
 
-// func sniperCompleteScript(e spin.Env) {
-// 	r, _ := e.Display("").Renderer(spin.LayerPriority)
-// 	defer r.Clear()
+	vars := GetVars(e)
+	vars.Timer = 10
+	vars.SniperBonus = vars.SniperScore
 
-// 	vars := GetVars(e)
-// 	vars.SniperBonus += vars.SniperScore
-// 	e.Do(spin.PlayMusic{ID: MusicMain})
-// 	TimerAndScorePanel(e, r, "SNIPER", vars.Timer, vars.SniperScore, "")
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
 
-// 	if done := spin.NewSequencer().
-// 		Do(spin.PlaySound{ID: SoundSniperSplat}).
-// 		Sleep(1_000).
-// 		Do(spin.PlaySpeech{ID: SpeechSniperEliminated, Notify: true}).
-// 		Sleep(2_000).
-// 		Run(e); done {
-// 		return
-// 	}
+		s.Do(spin.PlaySound{ID: SoundSuccess, Duck: 0.5})
+		s.Sleep(1_000)
+		s.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
+		s.Sleep(1_500)
 
-// 	e.Do(spin.PlaySound{ID: SoundSuccess})
-// 	ModeAndBlinkingScoreSequence(e, r, "SNIPER", vars.SniperBonus)
-// }
+		s.Do(spin.PlaySpeech{ID: SpeechShootSniperTower, Notify: true})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+		s.Do(spin.PlaySpeech{ID: SpeechAaaaah, Notify: true})
+		s.Sleep(3_000)
+		s.Do(spin.PlaySpeech{ID: SpeechItsALongWayDown, Notify: true})
+		s.Sleep(2_500)
+		s.Do(spin.PlaySpeech{ID: SpeechAaaaah})
+		s.Sleep(3_500)
+		s.Do(spin.PlaySpeech{ID: SpeechICanSeeMyHouseFromHere})
+		s.Sleep(2_000)
+		s.Do(spin.PlaySpeech{ID: SpeechAaaaah})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+
+		s.Run()
+	})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
+
+		s.WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper})
+		s.Post(spin.AdvanceEvent{})
+
+		s.Run()
+	})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		if done := ModeAndBlinkingScoreScript(e, r, "SNIPER", vars.SniperScore); done {
+			return
+		}
+		e.NewCoroutine(func(e *spin.ScriptEnv) {
+			spin.CountdownScript(e, &vars.Timer, 1500, spin.TimeoutEvent{})
+		})
+		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+			TimerAndScorePanel(e, r, "SNIPER", vars.Timer, vars.SniperScore, "")
+		})
+	})
+
+	evt, done := e.WaitFor(
+		spin.AdvanceEvent{},
+		spin.TimeoutEvent{},
+	)
+	if done {
+		return
+	}
+	if evt == (spin.TimeoutEvent{}) {
+		e.Do(spin.PlayScript{ID: ScriptSniperIncomplete})
+	} else {
+		e.Do(spin.PlayScript{ID: ScriptSniperComplete})
+	}
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptSniperMode})
+}
+
+func sniperIncompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
+
+	vars := GetVars(e)
+	e.Do(spin.PlayMusic{ID: MusicMain})
+	ModeAndScorePanel(e, r, "SNIPER TOTAL", vars.SniperBonus)
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlaySound{ID: SoundSniperSplat})
+	s.Sleep(1_000)
+	s.Do(spin.PlaySpeech{ID: SpeechSniperEliminated, Notify: true})
+	s.Sleep(2_000)
+
+	s.Run()
+}
+
+func sniperCompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
+
+	vars := GetVars(e)
+	vars.SniperBonus += vars.SniperScore
+	e.Do(spin.PlayMusic{ID: MusicMain})
+	TimerAndScorePanel(e, r, "SNIPER", vars.Timer, vars.SniperScore, "")
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlaySound{ID: SoundSniperSplat})
+	s.Sleep(1_000)
+	s.Do(spin.PlaySpeech{ID: SpeechSniperEliminated, Notify: true})
+	s.Sleep(2_000)
+	if done := s.Run(); done {
+		return
+	}
+
+	e.Do(spin.PlaySound{ID: SoundSuccess})
+	ModeAndBlinkingScoreScript(e, r, "SNIPER", vars.SniperBonus)
+}

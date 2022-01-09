@@ -18,7 +18,7 @@ type audio struct {
 	priority int
 	notify   bool
 	origVol  int
-	stopped  bool
+	//stopped  bool
 }
 
 type audioSystem struct {
@@ -29,6 +29,7 @@ type audioSystem struct {
 
 	musicPlaying  string
 	speechPlaying audio
+	nextSpeech    audio
 	soundsPlaying []audio
 
 	musicNotify bool
@@ -211,6 +212,7 @@ func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
 	}
 	if a.Duck < 0 || a.Duck > 1 {
 		spin.Error("invalid duck factor: %v", a.Duck)
+		return
 	}
 	prev := 0
 	if a.Duck > 0 {
@@ -218,11 +220,18 @@ func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
 		ducked := int(a.Duck * float64(prev))
 		mix.VolumeMusic(ducked)
 	}
-	s.speechPlaying = audio{
+
+	thisSpeech := audio{
 		id:       a.ID,
 		priority: a.Priority,
 		notify:   a.Notify,
 		origVol:  prev,
+	}
+
+	if s.speechPlaying == (audio{}) {
+		s.speechPlaying = thisSpeech
+	} else {
+		s.nextSpeech = thisSpeech
 	}
 	sp.Play(chanSpeech, 0)
 }
@@ -232,6 +241,7 @@ func (s *audioSystem) stopAudio(a spin.StopAudio) {
 	mix.HaltChannel(-1)
 	s.musicPlaying = ""
 	s.speechPlaying = audio{}
+	s.nextSpeech = audio{}
 }
 
 func (s *audioSystem) stopMusic(a spin.StopMusic) {
@@ -255,13 +265,12 @@ func (s *audioSystem) stopSpeech(a spin.StopSpeech) {
 	if a.ID == "" || a.ID == s.speechPlaying.id {
 		s.speechPlaying.notify = false
 		mix.HaltChannel(0)
-		s.speechPlaying = audio{}
 	}
 }
 
 func (s *audioSystem) channelFinished(ch int) {
 	if ch == chanSpeech && s.speechPlaying.notify {
-		s.eng.Post(spin.SpeechFinishedEvent{})
+		s.eng.Post(spin.SpeechFinishedEvent{ID: s.speechPlaying.id})
 		if s.speechPlaying.origVol > 0 {
 			mix.VolumeMusic(s.speechPlaying.origVol)
 		}
@@ -275,7 +284,14 @@ func (s *audioSystem) channelFinished(ch int) {
 		}
 	}
 	if ch == chanSpeech {
-		s.speechPlaying = audio{}
+		// When this gets cleaned up, make sure that sniper tower still
+		// works when cancelling on SpeechItsALongWayDown
+		if s.nextSpeech != (audio{}) {
+			s.speechPlaying = s.nextSpeech
+			s.nextSpeech = audio{}
+		} else {
+			s.speechPlaying = audio{}
+		}
 	} else {
 		s.soundsPlaying[ch] = audio{}
 	}

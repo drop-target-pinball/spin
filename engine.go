@@ -116,6 +116,10 @@ func (e *Engine) Run() {
 	for {
 		e.watchdog <- struct{}{}
 		<-ticker.C
+		for _, s := range e.servers {
+			s.Service()
+		}
+
 		for len(e.queue) > 0 {
 			var item interface{}
 			item, e.queue = e.queue[0], e.queue[1:]
@@ -129,9 +133,6 @@ func (e *Engine) Run() {
 					h.HandleEvent(i)
 				}
 			}
-		}
-		for _, s := range e.servers {
-			s.Service()
 		}
 	}
 }

@@ -8,6 +8,12 @@ github.com/chzyer/test v0.0.0-20210722231415-061457976a23 h1:dZ0/VyGgQdVGAss6Ju0
 github.com/chzyer/test v0.0.0-20210722231415-061457976a23/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
 github.com/drop-target-pinball/coroutine v0.2.0 h1:rmg6u4/DHTNpFfSqHNXb6eL7gVQweqOIRM3z5JeoEaI=
 github.com/drop-target-pinball/coroutine v0.2.0/go.mod h1:xcQFbn93NIsUndRFpnISr29l1DdtxvA2wNSJlbqM3Ns=
+github.com/drop-target-pinball/coroutine v0.2.1 h1:juVr7OZ0Ziz6nNS2kjdE0P2eqTvCnafcwMg+1VwCNzk=
+github.com/drop-target-pinball/coroutine v0.2.1/go.mod h1:xcQFbn93NIsUndRFpnISr29l1DdtxvA2wNSJlbqM3Ns=
+github.com/drop-target-pinball/go-pinproc v0.0.0-20211219214540-6d27cee8b042 h1:n/Kx34xIepAJIvcMpKIPgXHKhm7ESCxzHkDEgQEDlwo=
+github.com/drop-target-pinball/go-pinproc v0.0.0-20211219214540-6d27cee8b042/go.mod h1:aErWCTOP0BSL094A7gEAjmNiV5d3/raYoVIs9g17fS8=
+github.com/drop-target-pinball/go-pinproc v0.1.0 h1:i3mwXXMGDdYXPkv5i3n82GJRmT1GdO8lcyKgGmXJafk=
+github.com/drop-target-pinball/go-pinproc v0.1.0/go.mod h1:aErWCTOP0BSL094A7gEAjmNiV5d3/raYoVIs9g17fS8=
 github.com/veandco/go-sdl2 v0.4.10 h1:8QoD2bhWl7SbQDflIAUYWfl9Vq+mT8/boJFAUzAScgY=
 github.com/veandco/go-sdl2 v0.4.10/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
 golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e h1:fLOSk5Q00efkSvAm+4xcoXD+RRmLmmulPn5I3Y9F2EM=

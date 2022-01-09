@@ -1,9 +1,9 @@
 package jd
 
 import (
+	"github.com/drop-target-pinball/coroutine"
 	"github.com/drop-target-pinball/go-pinproc/wpc"
 	"github.com/drop-target-pinball/spin"
-	coroutine1 "github.com/drop-target-pinball/spin/coroutine"
 )
 
 const (
@@ -85,7 +85,7 @@ var DropTargetSwitches = []string{
 	SwitchDropTargetE,
 }
 
-var SwitchAnyDropTarget = []coroutine1.Selector{
+var SwitchAnyDropTarget = []coroutine.Event{
 	spin.SwitchEvent{ID: SwitchDropTargetJ},
 	spin.SwitchEvent{ID: SwitchDropTargetU},
 	spin.SwitchEvent{ID: SwitchDropTargetD},

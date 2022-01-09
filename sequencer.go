@@ -29,7 +29,6 @@ func (s *Sequencer) Do(act Action) {
 		s.seq.Cancel(func() { s.env.Do(StopSpeech{ID: a.ID}) })
 	case PlaySound:
 		s.seq.Cancel(func() { s.env.Do(StopSound{ID: a.ID}) })
-
 	}
 }
 

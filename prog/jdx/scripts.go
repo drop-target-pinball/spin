@@ -98,16 +98,14 @@ func RegisterScripts(eng *spin.Engine) {
 	// 	Script: basicModeScript,
 	// 	Scope:  spin.ScopeBall,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptBlackoutJackpot,
-	// 	Script: blackoutJackpotScript,
-	// 	Scope:  spin.ScopePriority,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptBlackoutMode,
-	// 	Script: blackoutModeScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBlackoutJackpot,
+		Script: blackoutJackpotScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBlackoutMode,
+		Script: blackoutModeScript,
+	})
 	// eng.Do(spin.RegisterScript{
 	// 	ID:     ScriptBonusMode,
 	// 	Script: bonusModeScript,
@@ -203,16 +201,14 @@ func RegisterScripts(eng *spin.Engine) {
 	// 	Script: programScript,
 	// 	Scope:  spin.ScopeProgram,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptPursuitComplete,
-	// 	Script: pursuitCompleteScript,
-	// 	Scope:  spin.ScopePriority,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptPursuitIncomplete,
-	// 	Script: pursuitIncompleteScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptPursuitComplete,
+		Script: pursuitCompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptPursuitIncomplete,
+		Script: pursuitIncompleteScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptPursuitMode,
 		Script: pursuitModeScript,
@@ -252,26 +248,22 @@ func RegisterScripts(eng *spin.Engine) {
 	// 	Script: slingScript,
 	// 	Scope:  spin.ScopeBall,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptSniperComplete,
-	// 	Script: sniperCompleteScript,
-	// 	Scope:  spin.ScopePriority,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptSniperIncomplete,
-	// 	Script: sniperIncompleteScript,
-	// 	Scope:  spin.ScopePriority,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptSniperMode,
-	// 	Script: sniperModeScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptSniperMode2,
-	// 	Script: sniperMode2Script,
-	// 	Scope:  spin.ScopeMode,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSniperComplete,
+		Script: sniperCompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSniperIncomplete,
+		Script: sniperIncompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSniperMode,
+		Script: sniperModeScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSniperMode2,
+		Script: sniperMode2Script,
+	})
 	// eng.Do(spin.RegisterScript{
 	// 	ID:     ScriptStakeoutComplete,
 	// 	Script: stakeoutCompleteScript,

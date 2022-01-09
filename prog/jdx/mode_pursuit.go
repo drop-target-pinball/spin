@@ -7,7 +7,6 @@ import (
 
 func pursuitModeScript(e *spin.ScriptEnv) {
 	r, _ := e.Display("").Renderer("")
-	defer r.Clear()
 
 	e.Do(spin.PlayMusic{ID: MusicMode2})
 
@@ -96,40 +95,43 @@ func pursuitModeScript(e *spin.ScriptEnv) {
 	e.Post(spin.ScriptFinishedEvent{ID: ScriptPursuitMode})
 }
 
-// func pursuitIncompleteScript(e spin.Env) {
-// 	r, _ := e.Display("").Renderer(spin.LayerPriority)
-// 	defer r.Clear()
+func pursuitIncompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
 
-// 	e.Do(spin.PlayMusic{ID: MusicMain})
+	e.Do(spin.PlayMusic{ID: MusicMain})
 
-// 	vars := GetVars(e)
-// 	ModeAndScorePanel(e, r, "PURSUIT TOTAL", vars.PursuitBonus)
+	vars := GetVars(e)
+	ModeAndScorePanel(e, r, "PURSUIT TOTAL", vars.PursuitBonus)
 
-// 	spin.NewSequencer().
-// 		Do(spin.PlaySpeech{ID: SpeechDreddToControl, Notify: true}).
-// 		WaitFor(spin.SpeechFinishedEvent{}).
-// 		Sleep(1_000).
-// 		Do(spin.PlaySpeech{ID: SpeechSuspectGotAway, Notify: true}).
-// 		WaitFor(spin.SpeechFinishedEvent{}).
-// 		Run(e)
-// }
+	s := spin.NewSequencer(e)
 
-// func pursuitCompleteScript(e spin.Env) {
-// 	r, _ := e.Display("").Renderer(spin.LayerPriority)
-// 	defer r.Clear()
+	s.Do(spin.PlaySpeech{ID: SpeechDreddToControl, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Sleep(1_000)
 
-// 	e.Do(spin.PlayMusic{ID: MusicMain})
+	s.Do(spin.PlaySpeech{ID: SpeechSuspectGotAway, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Run()
+}
 
-// 	vars := GetVars(e)
-// 	ModeAndScorePanel(e, r, "PURSUIT TOTAL", vars.PursuitBonus)
+func pursuitCompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
 
-// 	spin.NewSequencer().
-// 		Do(spin.PlaySound{ID: SoundPursuitMissile}).
-// 		Sleep(500).
-// 		Do(spin.PlaySound{ID: SoundPursuitExplosion}).
-// 		Sleep(1_000).
-// 		Do(spin.PlaySpeech{ID: SpeechYourDrivingDaysAreOverPunk, Notify: true}).
-// 		WaitFor(spin.SpeechFinishedEvent{}).
-// 		Sleep(1_000).
-// 		Run(e)
-// }
+	e.Do(spin.PlayMusic{ID: MusicMain})
+
+	vars := GetVars(e)
+	ModeAndScorePanel(e, r, "PURSUIT TOTAL", vars.PursuitBonus)
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlaySound{ID: SoundPursuitMissile})
+	s.Sleep(500)
+	s.Do(spin.PlaySound{ID: SoundPursuitExplosion})
+	s.Sleep(1_000)
+	s.Do(spin.PlaySpeech{ID: SpeechYourDrivingDaysAreOverPunk, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Sleep(1_000)
+	s.Run()
+}

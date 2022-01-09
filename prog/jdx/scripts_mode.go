@@ -67,12 +67,14 @@ func ModeIntroScript(e *spin.ScriptEnv, line1 string, line2 string, line3 string
 	return s.Run()
 }
 
-// func ModeAndBlinkingScoreSequence(e spin.Env, r spin.Renderer, title string, score int) bool {
-// 	return spin.NewSequencer().
-// 		Func(func() { modeAndBlinkingScorePanel(e, r, title, score, true) }).
-// 		Sleep(250).
-// 		Func(func() { modeAndBlinkingScorePanel(e, r, title, score, false) }).
-// 		Sleep(100).
-// 		Repeat(6).
-// 		Run(e)
-// }
+func ModeAndBlinkingScoreScript(e *spin.ScriptEnv, r spin.Renderer, title string, score int) bool {
+	s := spin.NewSequencer(e)
+
+	s.DoFunc(func() { ModeAndBlinkingScorePanel(e, r, title, score, true) })
+	s.Sleep(250)
+	s.DoFunc(func() { ModeAndBlinkingScorePanel(e, r, title, score, false) })
+	s.Sleep(100)
+	s.LoopN(6)
+
+	return s.Run()
+}
