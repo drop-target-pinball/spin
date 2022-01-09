@@ -37,9 +37,9 @@ const (
 	ScriptPursuitMode             = "jdx.ScriptPursuitMode"
 	ScriptReturnLane              = "jdx.ScriptReturnLane"
 	ScriptSafecrackerComplete     = "jdx.ScriptSafecrackerComplete"
-	ScriptSafecrackerCountdown1   = "jdx.ScriptSafecrackerCountdown1"
 	ScriptSafecrackerIncomplete   = "jdx.ScriptSafecrackerIncomplete"
 	ScriptSafecrackerMode         = "jdx.ScriptSafecrackerMode"
+	ScriptSafecrackerMode2        = "jdx.ScriptSafecrackerMode2"
 	ScriptSafecrackerOpenThatSafe = "jdx.ScriptSafecrackerOpenThatSafe"
 	ScriptSling                   = "jdx.ScriptSling"
 	ScriptSniperComplete          = "jdx.ScriptSniperComplete"
@@ -135,16 +135,14 @@ func RegisterScripts(eng *spin.Engine) {
 	// 	Script: gameScript,
 	// 	Scope:  spin.ScopeGame,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptManhuntComplete,
-	// 	Script: manhuntCompleteScript,
-	// 	Scope:  spin.ScopePriority,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptManhuntMode,
-	// 	Script: manhuntModeScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptManhuntComplete,
+		Script: manhuntCompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptManhuntMode,
+		Script: manhuntModeScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptMeltdownComplete,
 		Script: meltdownCompleteScript,
@@ -203,31 +201,26 @@ func RegisterScripts(eng *spin.Engine) {
 	// 	Script: returnLaneScript,
 	// 	Scope:  spin.ScopeBall,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptSafecrackerComplete,
-	// 	Script: safecrackerCompleteScript,
-	// 	Scope:  spin.ScopePriority,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptSafecrackerCountdown1,
-	// 	Script: safecrackerCountdown1Script,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptSafecrackerIncomplete,
-	// 	Script: safecrackerIncompleteScript,
-	// 	Scope:  spin.ScopePriority,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptSafecrackerMode,
-	// 	Script: safecrackerModeScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptSafecrackerOpenThatSafe,
-	// 	Script: safecrackerOpenThatSafeScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSafecrackerComplete,
+		Script: safecrackerCompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSafecrackerIncomplete,
+		Script: safecrackerIncompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSafecrackerMode,
+		Script: safecrackerModeScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSafecrackerMode2,
+		Script: safecrackerMode2Script,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSafecrackerOpenThatSafe,
+		Script: safecrackerOpenThatSafeScript,
+	})
 	// eng.Do(spin.RegisterScript{
 	// 	ID:     ScriptSling,
 	// 	Script: slingScript,
@@ -249,21 +242,18 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptSniperMode2,
 		Script: sniperMode2Script,
 	})
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptStakeoutComplete,
-	// 	Script: stakeoutCompleteScript,
-	// 	Scope:  spin.ScopePriority,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptStakeoutMode,
-	// 	Script: stakeoutModeScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptStakeoutInteresting,
-	// 	Script: stakeoutInterestingScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptStakeoutComplete,
+		Script: stakeoutCompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptStakeoutMode,
+		Script: stakeoutModeScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptStakeoutInteresting,
+		Script: stakeoutInterestingScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptTankComplete,
 		Script: tankCompleteScript,

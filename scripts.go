@@ -33,7 +33,7 @@ func WatchTimerScript(e *ScriptEnv, timer *int, fn func(v int)) bool {
 	}
 }
 
-func ScoreHurryUpScript(e *ScriptEnv, score *int, tickMs int, decScore int, endScore int, end Event) bool {
+func ScoreHurryUpScript(e *ScriptEnv, score *int, tickMs int, decScore int, endScore int) bool {
 	for *score > endScore {
 		if done := e.Sleep(tickMs); done {
 			return true
@@ -43,6 +43,5 @@ func ScoreHurryUpScript(e *ScriptEnv, score *int, tickMs int, decScore int, endS
 			*score = endScore
 		}
 	}
-	e.Post(end)
 	return false
 }

@@ -1,329 +1,233 @@
 package jdx
 
-// const (
-// 	MessageOpenSafeAttempt = "jdx.MessageOpenSafeAttempt"
-// )
+import (
+	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/prog/builtin"
+)
 
-// func safecrackerCountdown1Frame(e spin.Env) {
-// 	vars := GetVars(e)
-// 	r, g := e.Display("").Renderer("")
+func safecrackerModeScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer("")
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 2
-// 	g.Font = builtin.FontPfArmaFive8
-// 	r.Print(g, "SHOOT SAFECRACKER")
-// 	g.Y = 12
+	e.Do(spin.PlayMusic{ID: MusicMode2})
 
-// 	g.Font = builtin.Font14x10
-// 	r.Print(g, spin.FormatScore("%v", vars.SafecrackerScore))
-// }
+	vars := GetVars(e)
+	vars.SafecrackerScore = ScoreSafecrackerStart
 
-// func safecrackereCountdown1VideoScript(e spin.Env) {
-// 	vars := GetVars(e)
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
 
-// 	modeText := [3]string{"SAFECRACKER", "SHOOT", "SUBWAY"}
-// 	if done := modeIntroVideo(e, modeText); done {
-// 		return
-// 	}
+		s.Do(spin.PlaySpeech{ID: SpeechWakeUpYouGeezer})
+		s.Sleep(2_000)
+		s.Do(spin.PlaySound{ID: SoundSnore})
+		s.Sleep(1_250)
+		s.Do(spin.PlaySpeech{ID: SpeechIllBeBack})
+		s.Sleep(1_500)
 
-// 	safecrackerCountdown1Frame(e)
-// 	if done := e.Sleep(2000 * time.Millisecond); done {
-// 		return
-// 	}
+		s.DoFunc(func() {
+			e.NewCoroutine(func(e *spin.ScriptEnv) {
+				if done := spin.ScoreHurryUpScript(e,
+					&vars.SafecrackerScore,
+					250, // tick ms
+					ScoreSafecrackerDec,
+					ScoreSafecrackerEnd,
+				); done {
+					return
+				}
+				if done := e.Sleep(2_000); done {
+					return
+				}
+				e.Post(spin.TimeoutEvent{})
+			})
+		})
 
-// 	expires := time.Now().Add(17 * time.Second)
-// 	for time.Now().Before(expires) {
-// 		vars.SafecrackerScore -= ScoreSafecrackerDec
-// 		safecrackerCountdown1Frame(e)
-// 		if done := e.Sleep(250 * time.Millisecond); done {
-// 			return
-// 		}
-// 	}
+		s.Run()
+	})
 
-// 	vars.SafecrackerScore = ScoreSafecrackerEnd
-// 	safecrackerCountdown1Frame(e)
-// 	if done := e.Sleep(2000 * time.Millisecond); done {
-// 		return
-// 	}
-// 	e.Post(spin.TimeoutEvent{ID: ScriptSafecrackerMode})
-// }
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		if done := ModeIntroScript(e, "SAFECRACKER", "SHOOT", "SUBWAY"); done {
+			return
+		}
+		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+			ModeAndScorePanel(e, r, "SAFECRACKER", vars.SafecrackerScore)
+		})
+	})
 
-// func safecrackerCountdown1AudioScript(e spin.Env) {
-// 	e.Do(spin.PlayMusic{ID: MusicMode2})
-// 	e.Do(spin.MusicVolume{Mul: 0.5})
-// 	defer e.Do(spin.MusicVolume{Mul: 2})
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchSubwayEnter1})
+		s.Post(spin.AdvanceEvent{})
+		s.Run()
+	})
 
-// 	e.Do(spin.PlaySpeech{ID: SpeechWakeUpYouGeezer})
-// 	if done := e.Sleep(2000 * time.Millisecond); done {
-// 		e.Do(spin.StopSpeech{ID: SpeechWakeUpYouGeezer})
-// 		return
-// 	}
+	evt, done := e.WaitFor(
+		spin.AdvanceEvent{},
+		spin.TimeoutEvent{},
+	)
+	if done {
+		return
+	}
+	if evt == (spin.TimeoutEvent{}) {
+		vars.SafecrackerBonus = vars.SafecrackerScore
+		e.Do(spin.PlayScript{ID: ScriptSafecrackerIncomplete})
+		e.Post(spin.ScriptFinishedEvent{ID: ScriptSafecrackerMode})
+	} else {
+		e.Do(spin.PlayScript{ID: ScriptSafecrackerMode2})
+	}
+}
 
-// 	e.Do(spin.PlaySound{ID: SoundSnore})
-// 	if done := e.Sleep(1000 * time.Millisecond); done {
-// 		e.Do(spin.StopSound{ID: SoundSnore})
-// 		return
-// 	}
+func safecrackerMode2Script(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	vars.Timer = 30
 
-// 	e.Do(spin.PlaySpeech{ID: SpeechIllBeBack})
-// 	if done := e.Sleep(2000 * time.Millisecond); done {
-// 		e.Do(spin.StopSpeech{ID: SpeechIllBeBack})
-// 		return
-// 	}
-// }
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		e.NewCoroutine(func(e *spin.ScriptEnv) {
+			spin.CountdownScript(e, &vars.Timer, 1500, spin.TimeoutEvent{})
+		})
+		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+			safecrackerMode2Panel(e)
+		})
+	})
 
-// func safecrackerCountdown1Script(e spin.Env) {
-// 	ctx, cancel := e.Derive()
+	e.Do(spin.PlayScript{ID: ScriptSafecrackerOpenThatSafe})
 
-// 	e.NewCoroutine(ctx, safecrackerCountdown1AudioScript)
-// 	e.NewCoroutine(ctx, safecrackereCountdown1VideoScript)
-// 	e.WaitFor(
-// 		spin.AdvanceEvent{ID: ScriptSafecrackerMode},
-// 		spin.TimeoutEvent{ID: ScriptSafecrackerMode},
-// 	)
-// 	cancel()
-// }
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
 
-// func safecrackerAwardedFrame(e spin.Env) {
-// 	vars := GetVars(e)
-// 	r, g := e.Display("").Renderer(spin.LayerPriority)
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchSubwayEnter1})
+		s.Do(spin.PlayScript{ID: ScriptSafecrackerOpenThatSafe})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchSubwayEnter1})
+		s.Do(spin.PlayScript{ID: ScriptSafecrackerOpenThatSafe})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchSubwayEnter1})
+		s.Post(spin.AdvanceEvent{})
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 5
-// 	g.Font = builtin.Font14x10
-// 	r.Print(g, spin.FormatScore("%v", vars.SafecrackerBonus))
+		s.Run()
+	})
 
-// 	g.Y = 22
-// 	g.Font = builtin.FontPfArmaFive8
-// 	r.Print(g, "AWARDED")
-// }
+	evt, done := e.WaitFor(
+		spin.AdvanceEvent{},
+		spin.TimeoutEvent{},
+	)
+	if done {
+		return
+	}
+	if evt == (spin.TimeoutEvent{}) {
+		e.Do(spin.PlayScript{ID: ScriptSafecrackerIncomplete})
+	} else {
+		e.Do(spin.PlayScript{ID: ScriptSafecrackerComplete})
+	}
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptSafecrackerMode})
+}
 
-// func safecrackerOpenThatSafeScript(e spin.Env) {
-// 	defer func() {
-// 		e.Do(spin.MusicVolume{Mul: 2})
-// 		e.Display("").Clear(spin.LayerPriority)
-// 	}()
+func safecrackerOpenThatSafeScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
 
-// 	vars := GetVars(e)
-// 	vars.SafecrackerAttempts += 1
-// 	vars.SafecrackerBonus = vars.SafecrackerScore * vars.SafecrackerAttempts
+	vars := GetVars(e)
+	vars.SafecrackerAttempts += 1
+	vars.SafecrackerBonus = vars.SafecrackerScore * vars.SafecrackerAttempts
 
-// 	e.Do(spin.MusicVolume{Mul: 0.5})
-// 	e.Do(spin.PlaySpeech{ID: SpeechOpenThatSafe, Notify: true})
-// 	safecrackerAwardedFrame(e)
-// 	if _, done := e.WaitFor(spin.SpeechFinishedEvent{}); done {
-// 		e.Do(spin.StopSpeech{ID: SpeechOpenThatSafe})
-// 		return
-// 	}
-// 	switch vars.SafecrackerAttempts {
-// 	case 1:
-// 		e.Do(spin.PlaySound{ID: SoundSafecrackerGunFire1})
-// 		if done := e.Sleep(750 * time.Millisecond); done {
-// 			e.Do(spin.StopSound{ID: SoundSafecrackerGunFire1})
-// 			return
-// 		}
-// 		e.Do(spin.PlaySound{ID: SoundSafecrackerGunFire2})
-// 		if done := e.Sleep(2000 * time.Millisecond); done {
-// 			e.Do(spin.StopSound{ID: SoundSafecrackerGunFire2})
-// 			return
-// 		}
-// 		e.Do(spin.PlaySound{ID: SoundSnore})
-// 		if done := e.Sleep(1000 * time.Millisecond); done {
-// 			e.Do(spin.StopSound{ID: SoundSnore})
-// 			return
-// 		}
-// 	case 2:
-// 		e.Do(spin.PlaySound{ID: SoundSafecrackerTankFire})
-// 		if done := e.Sleep(1000 * time.Millisecond); done {
-// 			e.Do(spin.StopSound{ID: SoundSafecrackerTankFire})
-// 			return
-// 		}
-// 		e.Do(spin.PlaySound{ID: SoundSafecrackerTankFire})
-// 		if done := e.Sleep(1000 * time.Millisecond); done {
-// 			e.Do(spin.StopSound{ID: SoundSafecrackerTankFire})
-// 			return
-// 		}
-// 		e.Do(spin.PlaySound{ID: SoundSafecrackerExplosion})
-// 		if done := e.Sleep(2000 * time.Millisecond); done {
-// 			e.Do(spin.StopSound{ID: SoundSafecrackerExplosion})
-// 			return
-// 		}
-// 		e.Do(spin.PlaySound{ID: SoundSnore})
-// 		if done := e.Sleep(1000 * time.Millisecond); done {
-// 			e.Do(spin.StopSound{ID: SoundSnore})
-// 			return
-// 		}
-// 	case 3:
-// 		for i := 0; i < 3; i++ {
-// 			e.Do(spin.PlaySound{ID: SoundSafecrackerGunFire3})
-// 			if done := e.Sleep(500 * time.Millisecond); done {
-// 				e.Do(spin.StopSound{ID: SoundSafecrackerGunFire3})
-// 				return
-// 			}
-// 		}
-// 		e.Do(spin.PlaySound{ID: SoundSafecrackerExplosion})
-// 		if done := e.Sleep(2000 * time.Millisecond); done {
-// 			e.Do(spin.StopSound{ID: SoundSafecrackerExplosion})
-// 			return
-// 		}
-// 		e.Do(spin.PlaySound{ID: SoundSnore})
-// 		if done := e.Sleep(1000 * time.Millisecond); done {
-// 			e.Do(spin.StopSound{ID: SoundSnore})
-// 			return
-// 		}
-// 	}
-// }
+	ScoreAndLabelPanel(e, r, vars.SafecrackerBonus, "AWARDED")
 
-// func safecrackerCountdown2Script(e spin.Env) {
-// 	vars := GetVars(e)
-// 	vars.Timer = 30
-// 	cancel := spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{ID: ScriptSafecrackerMode})
-// 	defer cancel()
+	s := spin.NewSequencer(e)
 
-// 	for {
-// 		if _, done := e.WaitFor(spin.Message{ID: MessageOpenSafeAttempt}); done {
-// 			return
-// 		}
-// 		cancel()
-// 		if done := e.Sleep(2000 * time.Millisecond); done {
-// 			return
-// 		}
-// 		cancel = spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{ID: ScriptSafecrackerMode})
-// 	}
-// }
+	switch vars.SafecrackerAttempts {
+	case 1:
+		s.Do(spin.PlaySpeech{ID: SpeechOpenThatSafe, Notify: true, Duck: 0.5})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+		s.Do(spin.PlaySound{ID: SoundSafecrackerGunFire1})
+		s.Sleep(750)
+		s.Do(spin.PlaySound{ID: SoundSafecrackerGunFire2})
+		s.Sleep(2_000)
+		s.Do(spin.PlaySound{ID: SoundSnore})
+		s.Sleep(1_000)
+	case 2:
+		s.Do(spin.PlaySpeech{ID: SpeechOpenThatSafe, Notify: true, Duck: 0.5})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+		s.Do(spin.PlaySound{ID: SoundSafecrackerTankFire})
+		s.Sleep(1_000)
+		s.Do(spin.PlaySound{ID: SoundSafecrackerTankFire})
+		s.Sleep(1_000)
+		s.Do(spin.PlaySound{ID: SoundSafecrackerExplosion})
+		s.Sleep(2_000)
+		s.Do(spin.PlaySound{ID: SoundSnore})
+		s.Sleep(1_000)
+	case 3:
+		s.Do(spin.PlaySpeech{ID: SpeechOpenThatSafe, Notify: true, Duck: 0.5})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+		s.Do(spin.PlaySound{ID: SoundSafecrackerGunFire3})
+		s.Sleep(500)
+		s.Do(spin.PlaySound{ID: SoundSafecrackerGunFire3})
+		s.Sleep(500)
+		s.Do(spin.PlaySound{ID: SoundSafecrackerGunFire3})
+		s.Sleep(500)
+		s.Do(spin.PlaySound{ID: SoundSafecrackerExplosion})
+		s.Sleep(2_000)
+		s.Do(spin.PlaySound{ID: SoundSnore})
+		s.Sleep(1_000)
+	}
+	s.Run()
+}
 
-// func safecrackerWatchSubwayScript(e spin.Env) {
-// 	for {
-// 		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchSubwayEnter1}); done {
-// 			return
-// 		}
-// 		e.Post(spin.Message{ID: MessageOpenSafeAttempt})
-// 	}
-// }
+func safecrackerMode2Panel(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	r, g := e.Display("").Renderer("")
 
-// func safecrackerCountdown2Frame(e spin.Env) {
-// 	vars := GetVars(e)
-// 	r, g := e.Display("").Renderer("")
+	r.Fill(spin.ColorBlack)
+	g.Y = 2
+	g.Font = builtin.FontPfArmaFive8
+	r.Print(g, "SHOOT SAFECRACKER")
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 2
-// 	g.Font = builtin.FontPfArmaFive8
-// 	r.Print(g, "SHOOT SAFECRACKER")
+	g.AnchorX = spin.AnchorLeft
+	g.X = 5
+	g.AnchorY = spin.AnchorMiddle
+	g.Y = r.Height()/2 + 6
+	g.Font = builtin.Font14x10
+	r.Print(g, "%v", vars.Timer)
 
-// 	g.AnchorX = spin.AnchorLeft
-// 	g.X = 5
-// 	g.AnchorY = spin.AnchorMiddle
-// 	g.Y = r.Height()/2 + 6
-// 	g.Font = builtin.Font14x10
-// 	r.Print(g, "%v", vars.Timer)
+	g.X = r.Width() / 2
+	g.AnchorX = spin.AnchorCenter
+	g.Font = builtin.Font09x7
+	r.Print(g, spin.FormatScore("%v", vars.SafecrackerScore))
 
-// 	g.X = r.Width() / 2
-// 	g.AnchorX = spin.AnchorCenter
-// 	g.Font = builtin.Font09x7
-// 	r.Print(g, spin.FormatScore("%v", vars.SafecrackerScore))
+	g.X = r.Width() - 2
+	g.AnchorX = spin.AnchorRight
+	g.Font = builtin.FontPfTempestaFiveBold8
+	r.Print(g, spin.FormatScore("X%v", vars.SafecrackerAttempts+1))
+}
 
-// 	g.X = r.Width() - 2
-// 	g.AnchorX = spin.AnchorRight
-// 	g.Font = builtin.FontPfTempestaFiveBold8
-// 	r.Print(g, spin.FormatScore("X%v", vars.SafecrackerAttempts+1))
-// }
+func safecrackerIncompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
 
-// func safecrackerTotalFrame(e spin.Env) {
-// 	r, g := e.Display("").Renderer(spin.LayerPriority)
-// 	vars := GetVars(e)
+	e.Do(spin.PlayMusic{ID: MusicMain})
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 2
-// 	g.Font = builtin.FontPfArmaFive8
-// 	r.Print(g, "SAFECRACKER TOTAL")
-// 	g.Y = 12
+	vars := GetVars(e)
+	ModeAndScorePanel(e, r, "SAFECRACKER TOTAL", vars.SafecrackerBonus)
+	e.Sleep(3_000)
+}
 
-// 	g.Font = builtin.Font14x10
-// 	r.Print(g, spin.FormatScore("%v", vars.SafecrackerBonus))
-// }
+func safecrackerCompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
 
-// func safecrackerIncompleteScript(e spin.Env) {
-// 	e.Do(spin.PlayMusic{ID: MusicMain})
-// 	safecrackerTotalFrame(e)
-// 	if done := e.Sleep(3000 * time.Millisecond); done {
-// 		return
-// 	}
-// 	e.Display("").Clear(spin.LayerPriority)
-// }
+	e.Do(spin.PlayMusic{ID: MusicMain})
 
-// func safecrackerCompleteScript(e spin.Env) {
-// 	e.Do(spin.PlayMusic{ID: MusicMain})
-// 	e.Do(spin.MusicVolume{Mul: 0.5})
-// 	defer e.Do(spin.MusicVolume{Mul: 2})
+	vars := GetVars(e)
+	ModeAndScorePanel(e, r, "SAFECRACKER TOTAL", vars.SafecrackerBonus)
 
-// 	safecrackerTotalFrame(e)
-// 	e.Do(spin.PlaySpeech{ID: SpeechOpenThatSafe, Notify: true})
-// 	if _, done := e.WaitFor(spin.SpeechFinishedEvent{}); done {
-// 		e.Do(spin.StopSpeech{ID: SpeechOpenThatSafe})
-// 		return
-// 	}
+	s := spin.NewSequencer(e)
 
-// 	e.Do(spin.PlaySound{ID: SoundSafecrackerLaserFire})
-// 	if done := e.Sleep(2000 * time.Millisecond); done {
-// 		e.Do(spin.StopSound{ID: SoundSafecrackerLaserFire})
-// 		return
-// 	}
+	s.Do(spin.PlaySpeech{ID: SpeechOpenThatSafe, Notify: true, Duck: 0.5})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Do(spin.PlaySound{ID: SoundSafecrackerLaserFire})
+	s.Sleep(2_000)
+	s.Do(spin.PlaySound{ID: SoundSnore})
+	s.Sleep(1_000)
+	s.Do(spin.PlaySound{ID: SoundDing})
+	s.Sleep(250)
+	s.Do(spin.PlaySpeech{ID: SpeechDinnerTime})
+	s.Sleep(2_250)
 
-// 	e.Do(spin.PlaySound{ID: SoundSnore})
-// 	if done := e.Sleep(1000 * time.Millisecond); done {
-// 		e.Do(spin.StopSound{ID: SoundSnore})
-// 		return
-// 	}
-
-// 	e.Do(spin.PlaySound{ID: SoundDing})
-// 	if done := e.Sleep(250 * time.Millisecond); done {
-// 		return
-// 	}
-
-// 	e.Do(spin.PlaySpeech{ID: SpeechDinnerTime})
-// 	if done := e.Sleep(2250 * time.Millisecond); done {
-// 		return
-// 	}
-// 	e.Display("").Clear(spin.LayerPriority)
-// }
-
-// func safecrackerModeScript(e spin.Env) {
-// 	vars := GetVars(e)
-// 	vars.SafecrackerAttempts = 0
-// 	vars.SafecrackerBonus = 0
-// 	vars.SafecrackerScore = ScoreSafecrackerStart
-
-// 	ctx, cancel := e.Derive()
-// 	defer cancel()
-// 	e.NewCoroutine(ctx, safecrackerWatchSubwayScript)
-
-// 	e.Do(spin.PlayScript{ID: ScriptSafecrackerCountdown1})
-// 	for i := 0; i < 4; i++ {
-// 		evt, done := e.WaitFor(
-// 			spin.Message{ID: MessageOpenSafeAttempt},
-// 			spin.TimeoutEvent{ID: ScriptSafecrackerMode},
-// 		)
-// 		if i == 0 {
-// 			e.Do(spin.StopScript{ID: ScriptSafecrackerCountdown1})
-// 		}
-// 		if done {
-// 			return
-// 		}
-// 		if evt == (spin.TimeoutEvent{ID: ScriptSafecrackerMode}) {
-// 			e.Do(spin.PlayScript{ID: ScriptSafecrackerIncomplete})
-// 			e.Post(spin.ScriptFinishedEvent{ID: ScriptSafecrackerMode})
-// 			return
-// 		}
-// 		if i == 3 {
-// 			break
-// 		}
-// 		e.Do(spin.PlayScript{ID: ScriptSafecrackerOpenThatSafe})
-// 		if i == 0 {
-// 			spin.RenderFrameScript(e, safecrackerCountdown2Frame)
-// 			e.NewCoroutine(ctx, safecrackerCountdown2Script)
-// 		}
-// 	}
-// 	cancel()
-// 	e.Do(spin.PlayScript{ID: ScriptSafecrackerComplete})
-// 	e.Post(spin.ScriptFinishedEvent{ID: ScriptSafecrackerMode})
-// }
+	s.Run()
+}

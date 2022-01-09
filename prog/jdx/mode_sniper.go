@@ -23,13 +23,18 @@ func sniperModeScript(e *spin.ScriptEnv) {
 
 		s.DoFunc(func() {
 			e.NewCoroutine(func(e *spin.ScriptEnv) {
-				spin.ScoreHurryUpScript(e,
+				if done := spin.ScoreHurryUpScript(e,
 					&vars.SniperScore,
 					160, // tick ms
 					ScoreSniperDec,
 					ScoreSniperEnd,
-					spin.TimeoutEvent{},
-				)
+				); done {
+					return
+				}
+				if done := e.Sleep(2_000); done {
+					return
+				}
+				e.Post(spin.TimeoutEvent{})
 			})
 		})
 

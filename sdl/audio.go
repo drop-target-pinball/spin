@@ -236,6 +236,11 @@ func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
 		s.nextSpeech = thisSpeech
 	}
 	sp.Play(chanSpeech, 0)
+	if a.Vol > 0 {
+		sp.Volume(a.Vol)
+	} else {
+		sp.Volume(127)
+	}
 }
 
 func (s *audioSystem) stopAudio(a spin.StopAudio) {

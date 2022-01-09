@@ -1,111 +1,99 @@
 package jdx
 
-// func stakeoutScoreFrame(e spin.Env) {
-// 	vars := GetVars(e)
-// 	player := spin.GetPlayerVars(e)
-// 	r, g := e.Display("").Renderer("")
+import (
+	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
+)
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 2
-// 	g.Font = builtin.FontPfArmaFive8
-// 	r.Print(g, "STAKEOUT")
+func stakeoutModeScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer("")
 
-// 	g.AnchorY = spin.AnchorBottom
-// 	g.Y = r.Height()
-// 	r.Print(g, "SHOOT RIGHT RAMP")
+	e.Do(spin.PlayMusic{ID: MusicMode2})
 
-// 	g.AnchorX = spin.AnchorLeft
-// 	g.X = 5
-// 	g.AnchorY = spin.AnchorMiddle
-// 	g.Y = r.Height() / 2
-// 	g.Font = builtin.Font14x10
-// 	r.Print(g, "%v", vars.Timer)
+	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
+	vars.Timer = 30
+	vars.ManhuntBonus = ScoreStakeout0
 
-// 	g.X = r.Width() - 2
-// 	g.AnchorX = spin.AnchorRight
-// 	g.Font = builtin.Font09x7
-// 	r.Print(g, spin.FormatScore("%v", player.Score))
-// }
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
 
-// func stakeoutInterestingScript(e spin.Env) {
-// 	r, _ := e.Display("").Renderer(spin.LayerPriority)
-// 	defer r.Clear()
+		s.Do(spin.PlaySpeech{ID: SpeechImStakingOutACrackHouseInSectorTwentyThree})
+		s.Sleep(15_000)
+		s.Do(spin.PlaySpeech{ID: SpeechShootRightRamp})
+		s.Sleep(10_000)
+		s.Do(spin.PlaySpeech{ID: SpeechShootRightRamp})
 
-// 	vars := GetVars(e)
-// 	callouts := []string{
-// 		SpeechIWonderWhatsOverThere,
-// 		SpeechIWonderWhatsDownThere,
-// 	}
+		s.Run()
+	})
 
-// 	callout := callouts[vars.StakeoutCallout]
-// 	vars.StakeoutCallout += 1
-// 	if vars.StakeoutCallout >= len(callouts) {
-// 		vars.StakeoutCallout = 0
-// 	}
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		ModeIntroScript(e, "STAKEOUT", "SHOOT", "RIGHT RAMP")
+		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+			TimerAndScorePanel(e, r, "STAKEOUT", vars.Timer, player.Score, "SHOOT RIGHT RAMP")
+		})
+	})
 
-// 	vars.StakeoutBonus += ScoreStakeoutN
-// 	scoreAndLabelPanel(e, r, ScoreStakeoutN, "AWARDED")
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+	})
 
-// 	spin.NewSequencer().
-// 		Do(spin.PlaySpeech{ID: callout, Priority: spin.PriorityAudioModeCallout}).
-// 		Sleep(2_500).
-// 		Do(spin.PlaySpeech{ID: SpeechInteresting, Priority: spin.PriorityAudioModeCallout}).
-// 		Run(e)
-// }
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
 
-// func stakeoutWatchRampScript(e spin.Env) {
-// 	for {
-// 		if _, done := e.WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp}); done {
-// 			return
-// 		}
-// 		e.Do(spin.PlayScript{ID: ScriptStakeoutInteresting})
-// 	}
-// }
+		s.WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp})
+		s.Do(spin.PlayScript{ID: ScriptStakeoutInteresting})
+		s.Loop()
 
-// func stakeoutCompleteScript(e spin.Env) {
-// 	r, _ := e.Display("").Renderer(spin.LayerPriority)
-// 	defer r.Clear()
+		s.Run()
+	})
 
-// 	vars := GetVars(e)
-// 	ModeAndScorePanel(e, r, "STAKEOUT TOTAL", vars.StakeoutBonus)
-// 	e.Do(spin.PlayMusic{ID: MusicMain})
+	if _, done := e.WaitFor(spin.TimeoutEvent{}); done {
+		return
+	}
+	e.Do(spin.PlayScript{ID: ScriptStakeoutComplete})
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptStakeoutMode})
+}
 
-// 	if !e.IsActive(ScriptStakeoutInteresting) {
-// 		e.Do(spin.PlaySound{ID: SoundSuccess, Duck: 0.5})
-// 	}
-// 	if done := e.Sleep(3_000 * time.Millisecond); done {
-// 		e.Do(spin.StopSound{ID: SoundSuccess})
-// 		return
-// 	}
-// }
+func stakeoutInterestingScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
 
-// func stakeoutModeScript(e spin.Env) {
-// 	vars := GetVars(e)
+	vars := GetVars(e)
 
-// 	e.Do(spin.PlayMusic{ID: MusicMode2})
-// 	vars.StakeoutBonus = ScoreStakeout0
+	callouts := []string{
+		SpeechIWonderWhatsOverThere,
+		SpeechIWonderWhatsDownThere,
+	}
+	callout := callouts[vars.StakeoutCallout]
 
-// 	e.NewCoroutine(e.Context(), stakeoutWatchRampScript)
-// 	vars.Timer = 30
-// 	spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+	vars.StakeoutCallout += 1
+	if vars.StakeoutCallout >= len(callouts) {
+		vars.StakeoutCallout = 0
+	}
+	vars.StakeoutBonus += ScoreStakeoutN
 
-// 	e.NewCoroutine(e.Context(), func(e spin.Env) {
-// 		spin.NewSequencer().
-// 			Do(spin.PlaySpeech{ID: SpeechImStakingOutACrackHouseInSectorTwentyThree}).
-// 			Sleep(15_000).
-// 			Do(spin.PlaySpeech{ID: SpeechShootRightRamp}).
-// 			Sleep(10_000).
-// 			Do(spin.PlaySpeech{ID: SpeechShootRightRamp}).
-// 			Run(e)
-// 	})
+	ScoreAndLabelPanel(e, r, ScoreStakeoutN, "AWARDED")
 
-// 	modeText := [3]string{"STAKEOUT", "SHOOT", "RIGHT RAMP"}
-// 	if done := modeIntroVideo(e, modeText); done {
-// 		return
-// 	}
-// 	spin.RenderFrameScript(e, stakeoutScoreFrame)
+	s := spin.NewSequencer(e)
+	s.Do(spin.PlaySpeech{ID: callout, Priority: spin.PriorityAudioModeCallout})
+	s.Sleep(2_500)
+	s.Do(spin.PlaySpeech{ID: SpeechInteresting, Priority: spin.PriorityAudioModeCallout})
+	s.Run()
+}
 
-// 	e.WaitFor(spin.TimeoutEvent{})
-// 	e.Do(spin.PlayScript{ID: ScriptStakeoutComplete})
-// 	e.Post(spin.ScriptFinishedEvent{ID: ScriptStakeoutMode})
-// }
+func stakeoutCompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
+
+	e.Do(spin.PlayMusic{ID: MusicMain})
+
+	vars := GetVars(e)
+
+	s := spin.NewSequencer(e)
+	s.Sleep(1_000)
+	s.DoFunc(func() { ModeAndScorePanel(e, r, "STAKEOUT TOTAL", vars.StakeoutBonus) })
+	s.Do(spin.PlaySound{ID: SoundSuccess, Duck: 0.5})
+	s.Sleep(3_000)
+	s.Run()
+}
