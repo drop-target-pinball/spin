@@ -149,7 +149,7 @@ func (s *audioSystem) musicVolume(a spin.MusicVolume) {
 func (s *audioSystem) playMusic(a spin.PlayMusic) {
 	m, ok := s.music[a.ID]
 	if !ok {
-		spin.Warn("%v not found", a.ID)
+		spin.Warn("music %v not found", a.ID)
 		return
 	}
 	loops := a.Loops
@@ -170,7 +170,7 @@ func (s *audioSystem) playMusic(a spin.PlayMusic) {
 func (s *audioSystem) playSound(a spin.PlaySound) {
 	sp, ok := s.sound[a.ID]
 	if !ok {
-		spin.Warn("%v not found", a.ID)
+		spin.Warn("sound %v not found", a.ID)
 		return
 	}
 	loops := 0
@@ -196,6 +196,8 @@ func (s *audioSystem) playSound(a spin.PlaySound) {
 	}
 	if a.Vol > 0 {
 		sp.Volume(a.Vol)
+	} else {
+		sp.Volume(127)
 	}
 	s.soundsPlaying[channel] = audio{id: a.ID, notify: a.Notify, origVol: prev}
 }
@@ -203,7 +205,7 @@ func (s *audioSystem) playSound(a spin.PlaySound) {
 func (s *audioSystem) playSpeech(a spin.PlaySpeech) {
 	sp, ok := s.speech[a.ID]
 	if !ok {
-		spin.Warn("%v not found", a.ID)
+		spin.Warn("speech %v not found", a.ID)
 		return
 	}
 	if s.speechPlaying.id != "" && s.speechPlaying.priority > a.Priority {

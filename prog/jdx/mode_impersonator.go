@@ -1,15 +1,11 @@
 package jdx
 
-const (
-	MessageImpersonatorHit = "jdx.MessageImpersonatorHit"
-)
+import (
+	"math/rand"
 
-var crowdSounds = []string{
-	SpeechBoo,
-	SpeechYouSuck,
-	SpeechBoo,
-	SpeechGoHome,
-}
+	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
+)
 
 var hitSounds = []string{
 	SoundBadImpersonatorGunFire,
@@ -17,195 +13,146 @@ var hitSounds = []string{
 	SoundShock,
 }
 
-// func impersonatorCountdownFrame(e spin.Env) {
-// 	r, g := e.Display("").Renderer("")
-// 	vars := GetVars(e)
+func impersonatorModeScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer("")
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 2
-// 	g.Font = builtin.FontPfArmaFive8
-// 	r.Print(g, "BAD IMPERSONATOR")
-// 	g.Y = 12
+	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
+	vars.Timer = 30
+	vars.BadImpersonatorBonus = ScoreBadImpersonator0
 
-// 	g.Font = builtin.Font14x10
-// 	r.Print(g, "%v", vars.Timer)
-// }
+	e.Do(spin.PlayScript{ID: ScriptBadImpersonatorCrowd})
 
-// func impersonatorTotalFrame(e spin.Env) {
-// 	r, g := e.Display("").Renderer("")
-// 	vars := GetVars(e)
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
+		s.Do(spin.PlaySpeech{ID: SpeechCivilDisorderHasEruptedInHeitschMusicHall, Notify: true, Duck: 0.5})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+		s.Run()
+	})
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 2
-// 	g.Font = builtin.FontPfArmaFive8
-// 	r.Print(g, "IMPERSONATOR TOTAL")
-// 	g.Y = 12
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		if done := ModeIntroScript(e, "BAD IMPERSONATOR", "SHOOT LIT", "DROP TARGETS"); done {
+			return
+		}
+		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+			TimerAndScorePanel(e, r, "BAD IMPERSONATOR", vars.Timer, player.Score, "SHOOT LIT DROP TARGETS")
+		})
+	})
 
-// 	g.Font = builtin.Font14x10
-// 	r.Print(g, spin.FormatScore("%v", vars.BadImpersonatorBonus))
-// }
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+	})
 
-// func impersonatorCountdownVideoScript(e spin.Env) {
-// 	vars := GetVars(e)
+	e.NewCoroutine(impersonatorLightDropTargets)
+	e.NewCoroutine(impersonatorWatchDropTargets)
 
-// 	modeText := [3]string{"BAD IMPERSONATOR", "SHOOT LIT", "DROP TARGETS"}
-// 	if done := modeIntroVideo(e, modeText); done {
-// 		e.Do(spin.StopSpeech{ID: SpeechCivilDisorderHasEruptedInHeitschMusicHall})
-// 		return
-// 	}
+	if _, done := e.WaitFor(spin.TimeoutEvent{}); done {
+		return
+	}
+	e.Do(spin.StopScript{ID: ScriptBadImpersonatorCrowd})
+	e.Do(spin.PlayScript{ID: ScriptBadImpersonatorComplete})
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptBadImpersonatorMode})
+}
 
-// 	vars.Timer = 25
-// 	for vars.Timer > 0 {
-// 		impersonatorCountdownFrame(e)
-// 		if done := e.Sleep(1000 * time.Millisecond); done {
-// 			return
-// 		}
-// 		vars.Timer -= 1
-// 	}
-// 	impersonatorCountdownFrame(e)
-// 	e.Post(spin.TimeoutEvent{ID: ScriptBadImpersonatorMode})
-// }
+func impersonatorCrowdScript(e *spin.ScriptEnv) {
+	s := spin.NewSequencer(e)
 
-// func impersonatorIntroAudioScript(e spin.Env) {
-// 	e.Do(spin.PlayMusic{ID: MusicBadImpersonator})
-// 	e.Do(spin.MusicVolume{Mul: 0.5})
-// 	e.Do(spin.PlaySpeech{ID: SpeechCivilDisorderHasEruptedInHeitschMusicHall, Notify: true})
-// 	_, done := e.WaitFor(spin.SpeechFinishedEvent{})
-// 	e.Do(spin.MusicVolume{Mul: 2})
-// 	if done {
-// 		e.Do(spin.StopSpeech{ID: SpeechCivilDisorderHasEruptedInHeitschMusicHall})
-// 	} else {
-// 		e.Do(spin.PlayScript{ID: ScriptBadImpersonatorCountdownAudio})
-// 	}
-// }
+	s.Do(spin.PlayMusic{ID: MusicBadImpersonator})
+	s.Sleep(4_000)
+	s.Do(spin.PlaySpeech{ID: SpeechBoo})
+	s.Sleep(4_000)
+	s.Do(spin.PlaySpeech{ID: SpeechYouSuck})
+	s.Sleep(4_000)
+	s.Do(spin.PlaySpeech{ID: SpeechBoo})
+	s.Sleep(4_000)
+	s.Do(spin.PlaySpeech{ID: SpeechGoHome})
+	s.Loop()
 
-// func impersonatorCountdownAudioScript(e spin.Env) {
-// 	if done := e.Sleep(2000 * time.Millisecond); done {
-// 		return
-// 	}
-// 	sound := 0
-// 	for {
-// 		t := rand.Intn(3000) + 1500
-// 		e.Do(spin.PlaySpeech{ID: crowdSounds[sound]})
-// 		if done := e.Sleep(time.Duration(t) * time.Millisecond); done {
-// 			e.Do(spin.StopSpeech{ID: crowdSounds[sound]})
-// 			return
-// 		}
-// 		sound += 1
-// 		if sound >= len(crowdSounds) {
-// 			sound = 0
-// 		}
-// 	}
-// }
+	s.Run()
+}
 
-// func impersonatorLightDropTargets(e spin.Env) {
-// 	vars := GetVars(e)
-// 	vars.BadImpersonatorTargets = jd.DropTargetJ | jd.DropTargetU
+func impersonatorLightDropTargets(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	vars.BadImpersonatorTargets = jd.DropTargetJ | jd.DropTargetU
 
-// 	longWait := time.Duration(3000 * time.Millisecond)
-// 	shortWait := time.Duration(1000 * time.Millisecond)
+	longWait := 3000
+	shortWait := 1000
 
-// 	wait := longWait
-// 	left := true
-// 	for {
-// 		for i, lamp := range jd.DropTargetLamps {
-// 			if vars.BadImpersonatorTargets&(1<<i) != 0 {
-// 				e.Do(spin.DriverOn{ID: lamp})
-// 			} else {
-// 				e.Do(spin.DriverOff{ID: lamp})
-// 			}
-// 		}
-// 		if done := e.Sleep(wait); done {
-// 			return
-// 		}
-// 		if left {
-// 			vars.BadImpersonatorTargets <<= 1
-// 			if vars.BadImpersonatorTargets == jd.DropTargetG|jd.DropTargetE {
-// 				left = false
-// 				wait = longWait
-// 			} else {
-// 				wait = shortWait
-// 			}
-// 		} else {
-// 			vars.BadImpersonatorTargets >>= 1
-// 			if vars.BadImpersonatorTargets == jd.DropTargetJ|jd.DropTargetU {
-// 				left = true
-// 				wait = longWait
-// 			} else {
-// 				wait = shortWait
-// 			}
-// 		}
-// 	}
-// }
+	wait := longWait
+	left := true
+	for {
+		for i, lamp := range jd.DropTargetLamps {
+			if vars.BadImpersonatorTargets&(1<<i) != 0 {
+				e.Do(spin.DriverOn{ID: lamp})
+			} else {
+				e.Do(spin.DriverOff{ID: lamp})
+			}
+		}
+		if done := e.Sleep(wait); done {
+			return
+		}
+		if left {
+			vars.BadImpersonatorTargets <<= 1
+			if vars.BadImpersonatorTargets == jd.DropTargetG|jd.DropTargetE {
+				left = false
+				wait = longWait
+			} else {
+				wait = shortWait
+			}
+		} else {
+			vars.BadImpersonatorTargets >>= 1
+			if vars.BadImpersonatorTargets == jd.DropTargetJ|jd.DropTargetU {
+				left = true
+				wait = longWait
+			} else {
+				wait = shortWait
+			}
+		}
+	}
+}
 
-// func impersonatorHitScript(e spin.Env) {
-// 	vars := GetVars(e)
-// 	vars.BadImpersonatorBonus += ScoreBadImpersonatorN
+func impersonatorWatchDropTargets(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	for {
+		evt, done := e.WaitFor(jd.SwitchAnyDropTarget...)
+		if done {
+			return
+		}
+		switchEvt := evt.(spin.SwitchEvent)
+		idx := jd.DropTargetIndexes[switchEvt.ID]
+		if vars.BadImpersonatorTargets&(1<<idx) != 0 {
+			e.Do(spin.PlayScript{ID: ScriptBadImpersonatorHit})
+		}
+	}
+}
 
-// 	e.Do(spin.StopMusic{ID: MusicBadImpersonator})
-// 	e.Do(spin.StopScript{ID: ScriptBadImpersonatorCountdownAudio})
-// 	sound := rand.Intn(len(hitSounds))
-// 	e.Do(spin.PlaySound{ID: hitSounds[sound]})
-// 	if done := e.Sleep(1000 * time.Millisecond); done {
-// 		return
-// 	}
-// 	e.Do(spin.PlayMusic{ID: MusicBadImpersonator})
-// 	e.Do(spin.PlayScript{ID: ScriptBadImpersonatorCountdownAudio})
-// }
+func impersonatorHitScript(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	vars.BadImpersonatorBonus += ScoreBadImpersonatorN
+	sound := rand.Intn(len(hitSounds))
 
-// func impersonatorWatchDropTargets(e spin.Env) {
-// 	vars := GetVars(e)
-// 	for {
-// 		evt, done := e.WaitFor(jd.SwitchAnyDropTarget...)
-// 		if done {
-// 			return
-// 		}
-// 		switchEvt := evt.(spin.SwitchEvent)
-// 		idx := jd.DropTargetIndexes[switchEvt.ID]
-// 		if vars.BadImpersonatorTargets&(1<<idx) != 0 {
-// 			e.Do(spin.PlayScript{ID: ScriptBadImpersonatorHit})
-// 		}
-// 	}
-// }
+	s := spin.NewSequencer(e)
 
-// func impersonatorCompleteScript(e spin.Env) {
-// 	e.Do(spin.PlayMusic{ID: MusicMain})
-// 	e.Do(spin.MusicVolume{Mul: 0.5})
-// 	defer e.Do(spin.MusicVolume{Mul: 2.0})
+	s.Do(spin.StopMusic{ID: MusicBadImpersonator})
+	s.Do(spin.StopScript{ID: ScriptBadImpersonatorCrowd})
+	s.Do(spin.PlaySound{ID: hitSounds[sound]})
+	s.Sleep(1000)
+	s.Do(spin.PlayMusic{ID: MusicBadImpersonator})
+	s.Do(spin.PlayScript{ID: ScriptBadImpersonatorCrowd})
+	s.Run()
+}
 
-// 	e.Do(spin.PlaySound{ID: SoundSuccess})
-// 	impersonatorTotalFrame(e)
-// 	if done := e.Sleep(2000 * time.Millisecond); done {
-// 		return
-// 	}
-// 	e.Post(spin.AdvanceEvent{ID: ScriptBadImpersonatorMode})
-// }
+func impersonatorCompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
 
-// func impersonatorCountdownScript(e spin.Env) {
-// 	ctx, cancel := e.Derive()
+	e.Do(spin.PlayMusic{ID: MusicMain})
 
-// 	e.NewCoroutine(ctx, impersonatorIntroAudioScript)
-// 	e.NewCoroutine(ctx, impersonatorCountdownVideoScript)
-// 	e.NewCoroutine(ctx, impersonatorLightDropTargets)
-// 	e.NewCoroutine(ctx, impersonatorWatchDropTargets)
+	vars := GetVars(e)
+	ModeAndScorePanel(e, r, "BAD IMPERSONATOR TOTAL", vars.BadImpersonatorBonus)
 
-// 	e.WaitFor(spin.TimeoutEvent{ID: ScriptBadImpersonatorMode})
-// 	e.Do(spin.StopScript{ID: ScriptBadImpersonatorCountdownAudio})
-// 	cancel()
-// }
-
-// func impersonatorModeScript(e spin.Env) {
-// 	vars := GetVars(e)
-// 	vars.BadImpersonatorBonus = ScoreBadImpersonator0
-
-// 	e.Do(spin.PlayScript{ID: ScriptBadImpersonatorCountdown})
-// 	if _, done := e.WaitFor(spin.TimeoutEvent{ID: ScriptBadImpersonatorMode}); done {
-// 		return
-// 	}
-
-// 	e.Do(spin.PlayScript{ID: ScriptBadImpersonatorComplete})
-// 	if _, done := e.WaitFor(spin.AdvanceEvent{ID: ScriptBadImpersonatorMode}); done {
-// 		return
-// 	}
-// 	e.Post(spin.ScriptFinishedEvent{ID: ScriptBadImpersonatorMode})
-// }
+	s := spin.NewSequencer(e)
+	s.Do(spin.PlaySound{ID: SoundSuccess, Duck: 0.5})
+	s.Sleep(2_000)
+	s.Run()
+}

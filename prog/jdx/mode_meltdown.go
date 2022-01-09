@@ -1,54 +1,148 @@
 package jdx
 
-// func meltdownCountdownFrame(e spin.Env) {
-// 	r, g := e.Display("").Renderer("")
-// 	vars := GetVars(e)
+import (
+	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
+)
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 2
-// 	g.Font = builtin.FontPfArmaFive8
-// 	r.Print(g, "MELTDOWN")
-// 	g.Y = 12
+func meltdownModeScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer("")
 
-// 	g.Font = builtin.Font14x10
-// 	r.Print(g, "%v", vars.Timer)
-// }
+	e.Do(spin.PlayMusic{ID: MusicMode1})
 
-// func meltdownTotalFrame(e spin.Env) {
-// 	r, g := e.Display("").Renderer("")
-// 	vars := GetVars(e)
+	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
+	vars.Timer = 30
+	vars.MeltdownBonus = ScoreMeltdown0
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 2
-// 	g.Font = builtin.FontPfArmaFive8
-// 	r.Print(g, "MELTDOWN TOTAL")
-// 	g.Y = 12
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
 
-// 	g.Font = builtin.Font14x10
-// 	r.Print(g, spin.FormatScore("%v", vars.MeltdownBonus))
-// }
+		s.Do(spin.PlaySpeech{ID: SpeechContainmentFailureAtThreeMeterIsland, Notify: true, Duck: 0.5})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+		if done := s.Run(); done {
+			return
+		}
 
-// func meltdownSequenceScript(e spin.Env) {
-// 	vars := GetVars(e)
-// 	if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchCaptiveBall1}); done {
-// 		return
-// 	}
+		s = spin.NewSequencer(e)
+		s.Defer(spin.StopSound{ID: SoundMeltdownKlaxon})
+		s.Sleep(4_000)
+		s.Do(spin.PlaySound{ID: SoundMeltdownCracking})
+		s.Loop()
+		s.Run()
+	})
 
-// 	vars.MeltdownBonus = ScoreMeltdown1
-// 	e.Do(spin.PlaySpeech{ID: SpeechReactorOneStabilized, Priority: spin.PriorityAudioModeCallout})
-// 	if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchCaptiveBall2}); done {
-// 		return
-// 	}
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
 
-// 	vars.MeltdownBonus = ScoreMeltdown2
-// 	e.Do(spin.PlaySpeech{ID: SpeechReactorTwoStabilized, Priority: spin.PriorityAudioModeCallout})
-// 	if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchCaptiveBall3}); done {
-// 		return
-// 	}
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchCaptiveBall1})
+		s.Do(spin.PlaySpeech{ID: SpeechReactorOneStabilized, Duck: 0.5, Priority: spin.PriorityAudioModeCallout})
+		s.DoFunc(func() { vars.MeltdownBonus = ScoreMeltdown1 })
 
-// 	vars.MeltdownBonus = ScoreMeltdown3
-// 	e.Post(spin.AdvanceEvent{ID: ScriptMeltdownMode})
-// }
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchCaptiveBall2})
+		s.Do(spin.PlaySpeech{ID: SpeechReactorTwoStabilized, Duck: 0.5, Priority: spin.PriorityAudioModeCallout})
+		s.DoFunc(func() { vars.MeltdownBonus = ScoreMeltdown2 })
+
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchCaptiveBall3})
+		s.DoFunc(func() { vars.MeltdownBonus = ScoreMeltdown3 })
+		s.Post(spin.AdvanceEvent{})
+
+		s.Run()
+	})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+	})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		if done := ModeIntroScript(e, "MELTDOWN", "SHOOT", "CAPTIVE BALLS"); done {
+			return
+		}
+		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+			TimerAndScorePanel(e, r, "MELTDOWN", vars.Timer, player.Score, "SHOOT CAPTIVE BALLS")
+		})
+	})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		spin.WatchTimerScript(e, &vars.Timer, func(timer int) {
+			if timer < 27 && timer > 0 {
+				vol := 0
+				if timer == 20 || timer == 10 {
+					vol = 64
+				}
+				e.Do(spin.PlaySound{ID: SoundMeltdownKlaxon, Vol: vol})
+			}
+			switch timer {
+			case 20:
+				e.Do(spin.PlaySpeech{ID: SpeechAllReactorsApprochingCriticalMass})
+			case 10:
+				e.Do(spin.PlaySpeech{ID: SpeechMeltdownIsImminent})
+			case 4:
+				e.Do(spin.PlaySpeech{ID: SpeechFour})
+			case 3:
+				e.Do(spin.PlaySpeech{ID: SpeechThree})
+			case 2:
+				e.Do(spin.PlaySpeech{ID: SpeechTwo})
+			case 1:
+				e.Do(spin.PlaySpeech{ID: SpeechOne})
+
+			}
+		})
+	})
+
+	evt, done := e.WaitFor(
+		spin.AdvanceEvent{},
+		spin.TimeoutEvent{},
+	)
+	if done {
+		return
+	}
+	if evt == (spin.TimeoutEvent{}) {
+		e.Do(spin.PlayScript{ID: ScriptMeltdownIncomplete})
+	} else {
+		e.Do(spin.PlayScript{ID: ScriptMeltdownComplete})
+	}
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptMeltdownMode})
+}
+
+func meltdownIncompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
+
+	e.Do(spin.PlayMusic{ID: MusicMain})
+
+	vars := GetVars(e)
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlaySound{ID: SoundMeltdownExplosion})
+	s.Sleep(2_000)
+
+	s.DoFunc(func() { ModeAndScorePanel(e, r, "MELTDOWN TOTAL", vars.PursuitBonus) })
+	s.Do(spin.PlaySound{ID: SoundSuccess})
+	s.Sleep(2_500)
+
+	s.Run()
+}
+
+func meltdownCompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
+
+	e.Do(spin.PlayMusic{ID: MusicMain})
+
+	vars := GetVars(e)
+	ModeAndScorePanel(e, r, "MELTDOWN TOTAL", vars.PursuitBonus)
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlaySpeech{ID: SpeechAllReactorsStabilized})
+	s.Sleep(3_000)
+	s.Do(spin.PlaySpeech{ID: SpeechThreeMeterIslandIsSecured, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+
+	s.Run()
+}
 
 // func meltdownCountdownVideoScript(e spin.Env) {
 // 	vars := GetVars(e)
@@ -112,21 +206,6 @@ package jdx
 // }
 
 // func meltdownCountdownScript(e spin.Env) {
-// }
-
-// func meltdownTimeoutScript(e spin.Env) {
-// 	e.Do(spin.PlaySound{ID: SoundMeltdownExplosion})
-// 	if done := e.Sleep(2000 * time.Millisecond); done {
-// 		return
-// 	}
-
-// 	meltdownTotalFrame(e)
-// 	e.Do(spin.PlaySound{ID: SoundSuccess})
-// 	if done := e.Sleep(2500 * time.Millisecond); done {
-// 		return
-// 	}
-
-// 	e.Post(spin.AdvanceEvent{ID: ScriptMeltdownMode})
 // }
 
 // func meltdownCompleteScript(e spin.Env) {

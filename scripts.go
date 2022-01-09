@@ -20,6 +20,19 @@ func CountdownScript(e *ScriptEnv, timer *int, tickMs int, end Event) bool {
 	return false
 }
 
+func WatchTimerScript(e *ScriptEnv, timer *int, fn func(v int)) bool {
+	seen := *timer
+	for {
+		if done := e.Sleep(16); done {
+			return true
+		}
+		if *timer != seen {
+			seen = *timer
+			fn(*timer)
+		}
+	}
+}
+
 func ScoreHurryUpScript(e *ScriptEnv, score *int, tickMs int, decScore int, endScore int, end Event) bool {
 	for *score > endScore {
 		if done := e.Sleep(tickMs); done {

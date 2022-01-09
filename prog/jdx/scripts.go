@@ -5,56 +5,54 @@ import (
 )
 
 const (
-	ScriptAttractMode                   = "jdx.ScriptAttractMode"
-	ScriptBadImpersonatorComplete       = "jdx.ScriptBadImpersonatorComplete"
-	ScriptBadImpersonatorCountdown      = "jdx.ScriptBadImpersonatorCountdown"
-	ScriptBadImpersonatorCountdownAudio = "jdx.ScriptBadImpersonatorCountdownAudio"
-	ScriptBadImpersonatorHit            = "jdx.ScriptBadImpersonatorHit"
-	ScriptBadImpersonatorMode           = "jdx.ScriptBadImpersonatorMode"
-	ScriptBall                          = "jdx.ScriptBall"
-	ScriptBasicMode                     = "jdx.ScriptBasicMode"
-	ScriptBlackoutJackpot               = "jdx.ScriptBlackoutJackpot"
-	ScriptBlackoutMode                  = "jdx.ScriptBlackoutMode"
-	ScriptBonusMode                     = "jdx.ScriptBonusMode"
-	ScriptChain                         = "jdx.ScriptChain"
-	ScriptDefaultLeftShooterLane        = "jdx.ScriptDefaultLeftShooterLane"
-	ScriptDefaultLeftPopper             = "jdx.ScriptDefaultLeftPopper"
-	ScriptDefaultRightPopper            = "jdx.ScriptDefaultRightPopper"
-	ScriptDebugExtraBall                = "jdx.ScriptDebugExtraBall"
-	ScriptDemo                          = "jdx.ScriptDemo"
-	ScriptGame                          = "jdx.ScriptGame"
-	ScriptManhuntComplete               = "jdx.ScriptManhuntComplete"
-	ScriptManhuntMode                   = "jdx.ScriptManhuntMode"
-	ScriptMeltdownComplete              = "jdx.ScriptMeltdownComplete"
-	ScriptMeltdownCountdown             = "jdx.ScriptMeltdownCountdown"
-	ScriptMeltdownMode                  = "jdx.ScriptMeltdownMode"
-	ScriptMeltdownTimeout               = "jdx.ScriptMeltdownTimeout"
-	ScriptMatchMode                     = "jdx.ScriptMatchMode"
-	ScriptOutlane                       = "jdx.ScriptOutlane"
-	ScriptPlayerAnnounce                = "jdx.ScriptPlayerAnnounce"
-	ScriptPlungeMode                    = "jdx.ScriptPlungeMode"
-	ScriptProgram                       = "jdx.ScriptProgram"
-	ScriptPursuitComplete               = "jdx.ScriptPursuitComplete"
-	ScriptPursuitIncomplete             = "jdx.ScriptPursuitIncomplete"
-	ScriptPursuitMode                   = "jdx.ScriptPursuitMode"
-	ScriptReturnLane                    = "jdx.ScriptReturnLane"
-	ScriptSafecrackerComplete           = "jdx.ScriptSafecrackerComplete"
-	ScriptSafecrackerCountdown1         = "jdx.ScriptSafecrackerCountdown1"
-	ScriptSafecrackerIncomplete         = "jdx.ScriptSafecrackerIncomplete"
-	ScriptSafecrackerMode               = "jdx.ScriptSafecrackerMode"
-	ScriptSafecrackerOpenThatSafe       = "jdx.ScriptSafecrackerOpenThatSafe"
-	ScriptSling                         = "jdx.ScriptSling"
-	ScriptSniperComplete                = "jdx.ScriptSniperComplete"
-	ScriptSniperIncomplete              = "jdx.ScriptSniperIncomplete"
-	ScriptSniperMode                    = "jdx.ScriptSniperMode"
-	ScriptSniperMode2                   = "jdx.ScriptSniperMode2"
-	ScriptStakeoutComplete              = "jdx.ScriptStakeoutComplete"
-	ScriptStakeoutMode                  = "jdx.ScriptStakeoutMode"
-	ScriptStakeoutInteresting           = "jdx.ScriptStakeoutInteresting"
-	ScriptTankHit                       = "jdx.ScriptTankHit"
-	ScriptTankComplete                  = "jdx.ScriptTakComplete"
-	ScriptTankIncomplete                = "jdx.ScriptTankIncomplete"
-	ScriptTankMode                      = "jdx.ScriptTankMode"
+	ScriptAttractMode             = "jdx.ScriptAttractMode"
+	ScriptBadImpersonatorComplete = "jdx.ScriptBadImpersonatorComplete"
+	ScriptBadImpersonatorCrowd    = "jdx.ScriptBadImpersonatorCrowd"
+	ScriptBadImpersonatorHit      = "jdx.ScriptBadImpersonatorHit"
+	ScriptBadImpersonatorMode     = "jdx.ScriptBadImpersonatorMode"
+	ScriptBall                    = "jdx.ScriptBall"
+	ScriptBasicMode               = "jdx.ScriptBasicMode"
+	ScriptBlackoutJackpot         = "jdx.ScriptBlackoutJackpot"
+	ScriptBlackoutMode            = "jdx.ScriptBlackoutMode"
+	ScriptBonusMode               = "jdx.ScriptBonusMode"
+	ScriptChain                   = "jdx.ScriptChain"
+	ScriptDefaultLeftShooterLane  = "jdx.ScriptDefaultLeftShooterLane"
+	ScriptDefaultLeftPopper       = "jdx.ScriptDefaultLeftPopper"
+	ScriptDefaultRightPopper      = "jdx.ScriptDefaultRightPopper"
+	ScriptDebugExtraBall          = "jdx.ScriptDebugExtraBall"
+	ScriptDemo                    = "jdx.ScriptDemo"
+	ScriptGame                    = "jdx.ScriptGame"
+	ScriptManhuntComplete         = "jdx.ScriptManhuntComplete"
+	ScriptManhuntMode             = "jdx.ScriptManhuntMode"
+	ScriptMeltdownComplete        = "jdx.ScriptMeltdownComplete"
+	ScriptMeltdownIncomplete      = "jdx.ScriptMeltdownIncomplete"
+	ScriptMeltdownMode            = "jdx.ScriptMeltdownMode"
+	ScriptMatchMode               = "jdx.ScriptMatchMode"
+	ScriptOutlane                 = "jdx.ScriptOutlane"
+	ScriptPlayerAnnounce          = "jdx.ScriptPlayerAnnounce"
+	ScriptPlungeMode              = "jdx.ScriptPlungeMode"
+	ScriptProgram                 = "jdx.ScriptProgram"
+	ScriptPursuitComplete         = "jdx.ScriptPursuitComplete"
+	ScriptPursuitIncomplete       = "jdx.ScriptPursuitIncomplete"
+	ScriptPursuitMode             = "jdx.ScriptPursuitMode"
+	ScriptReturnLane              = "jdx.ScriptReturnLane"
+	ScriptSafecrackerComplete     = "jdx.ScriptSafecrackerComplete"
+	ScriptSafecrackerCountdown1   = "jdx.ScriptSafecrackerCountdown1"
+	ScriptSafecrackerIncomplete   = "jdx.ScriptSafecrackerIncomplete"
+	ScriptSafecrackerMode         = "jdx.ScriptSafecrackerMode"
+	ScriptSafecrackerOpenThatSafe = "jdx.ScriptSafecrackerOpenThatSafe"
+	ScriptSling                   = "jdx.ScriptSling"
+	ScriptSniperComplete          = "jdx.ScriptSniperComplete"
+	ScriptSniperIncomplete        = "jdx.ScriptSniperIncomplete"
+	ScriptSniperMode              = "jdx.ScriptSniperMode"
+	ScriptSniperMode2             = "jdx.ScriptSniperMode2"
+	ScriptStakeoutComplete        = "jdx.ScriptStakeoutComplete"
+	ScriptStakeoutMode            = "jdx.ScriptStakeoutMode"
+	ScriptStakeoutInteresting     = "jdx.ScriptStakeoutInteresting"
+	ScriptTankHit                 = "jdx.ScriptTankHit"
+	ScriptTankComplete            = "jdx.ScriptTakComplete"
+	ScriptTankIncomplete          = "jdx.ScriptTankIncomplete"
+	ScriptTankMode                = "jdx.ScriptTankMode"
 )
 
 func RegisterScripts(eng *spin.Engine) {
@@ -63,31 +61,22 @@ func RegisterScripts(eng *spin.Engine) {
 	// 	Script: attractModeScript,
 	// 	Scope:  spin.ScopeProgram,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptBadImpersonatorComplete,
-	// 	Script: impersonatorCompleteScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptBadImpersonatorCountdown,
-	// 	Script: impersonatorCountdownScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptBadImpersonatorCountdownAudio,
-	// 	Script: impersonatorCountdownAudioScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptBadImpersonatorHit,
-	// 	Script: impersonatorHitScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptBadImpersonatorMode,
-	// 	Script: impersonatorModeScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBadImpersonatorComplete,
+		Script: impersonatorCompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBadImpersonatorCrowd,
+		Script: impersonatorCrowdScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBadImpersonatorHit,
+		Script: impersonatorHitScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBadImpersonatorMode,
+		Script: impersonatorModeScript,
+	})
 	// eng.Do(spin.RegisterScript{
 	// 	ID:     ScriptBall,
 	// 	Script: ballScript,
@@ -156,26 +145,22 @@ func RegisterScripts(eng *spin.Engine) {
 	// 	Script: manhuntModeScript,
 	// 	Scope:  spin.ScopeMode,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptMeltdownComplete,
-	// 	Script: meltdownCompleteScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptMeltdownCountdown,
-	// 	Script: meltdownCountdownScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptMeltdownMode,
-	// 	Script: meltdownModeScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptMeltdownTimeout,
-	// 	Script: meltdownTimeoutScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMeltdownComplete,
+		Script: meltdownCompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMeltdownComplete,
+		Script: meltdownCompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMeltdownIncomplete,
+		Script: meltdownIncompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMeltdownMode,
+		Script: meltdownModeScript,
+	})
 	// eng.Do(spin.RegisterScript{
 	// 	ID:     ScriptMatchMode,
 	// 	Script: matchModeScript,
@@ -279,24 +264,20 @@ func RegisterScripts(eng *spin.Engine) {
 	// 	Script: stakeoutInterestingScript,
 	// 	Scope:  spin.ScopeMode,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptTankComplete,
-	// 	Script: tankCompleteScript,
-	// 	Scope:  spin.ScopePriority,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptTankHit,
-	// 	Script: tankHitScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptTankIncomplete,
-	// 	Script: tankIncompleteScript,
-	// 	Scope:  spin.ScopePriority,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptTankMode,
-	// 	Script: tankModeScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptTankComplete,
+		Script: tankCompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptTankHit,
+		Script: tankHitScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptTankIncomplete,
+		Script: tankIncompleteScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptTankMode,
+		Script: tankModeScript,
+	})
 }

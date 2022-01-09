@@ -1,140 +1,153 @@
 package jdx
 
-// func tankModeScript(e spin.Env) {
-// 	r, _ := e.Display("").Renderer("")
-// 	defer r.Clear()
+import (
+	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
+)
 
-// 	e.Do(spin.PlayMusic{ID: MusicMode2})
+func tankModeScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer("")
 
-// 	vars := GetVars(e)
-// 	player := spin.GetPlayerVars(e)
-// 	vars.Timer = 30
-// 	vars.TankBonus = ScoreTank0
+	e.Do(spin.PlayMusic{ID: MusicMode2})
 
-// 	tankFire := spin.NewSequencer().
-// 		Do(spin.PlaySound{ID: SoundTankFire, Vol: 100}).
-// 		Sleep(1_500).
-// 		Loop()
+	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
+	vars.Timer = 30
+	vars.TankBonus = ScoreTank0
 
-// 	e.NewCoroutine(e.Context(), func(e spin.Env) {
-// 		spin.NewSequencer().
-// 			Do(spin.PlaySpeech{ID: SpeechBattleTankSightedInSectorSix, Notify: true, Duck: 0.5}).
-// 			WaitFor(spin.SpeechFinishedEvent{}).
-// 			Sleep(1_000).
-// 			Sequence(tankFire).
-// 			Run(e)
-// 	})
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
 
-// 	e.NewCoroutine(e.Context(), func(e spin.Env) {
-// 		if done := ModeIntroSequence(e, "BATTLE TANK", "SHOOT", "GREEN ARROWS").Run(e); done {
-// 			return
-// 		}
-// 		spin.RenderFrameScript(e, func(e spin.Env) {
-// 			TimerAndScorePanel(e, r, "BATTLE TANK", vars.Timer, player.Score, "SHOOT GREEN ARROWS")
-// 		})
-// 		e.WaitFor(spin.Done{})
-// 	})
+		s.Do(spin.PlaySpeech{ID: SpeechBattleTankSightedInSectorSix, Notify: true, Duck: 0.5})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+		s.Sleep(1_000)
 
-// 	e.NewCoroutine(e.Context(), tankSequenceScript)
-// 	spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+		s.DoFunc(func() {
+			s := spin.NewSequencer(e)
+			s.Do(spin.PlaySound{ID: SoundTankFire, Vol: 100})
+			s.Sleep(1_500)
+			s.Loop()
+			s.Run()
+		})
 
-// 	evt, done := e.WaitFor(
-// 		spin.AdvanceEvent{},
-// 		spin.TimeoutEvent{},
-// 	)
-// 	if done {
-// 		return
-// 	}
-// 	if evt == (spin.TimeoutEvent{}) {
-// 		e.Do(spin.PlayScript{ID: ScriptTankIncomplete})
-// 	} else {
-// 		e.Do(spin.PlayScript{ID: ScriptTankComplete})
-// 	}
-// 	e.Post(spin.ScriptFinishedEvent{ID: ScriptTankMode})
+		s.Run()
+	})
 
-// }
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		if done := ModeIntroScript(e, "BATTLE TANK", "SHOOT", "GREEN ARROWS"); done {
+			return
+		}
+		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+			TimerAndScorePanel(e, r, "BATTLE TANK", vars.Timer, player.Score, "SHOOT GREEN ARROWS")
+		})
+	})
 
-// func tankSequenceScript(e spin.Env) {
-// 	vars := GetVars(e)
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+	})
 
-// 	shots := map[interface{}]bool{
-// 		spin.ShotEvent{ID: jd.ShotLeftRamp}:        false,
-// 		spin.ShotEvent{ID: jd.ShotTopLeftRamp}:     false,
-// 		spin.SwitchEvent{ID: jd.SwitchBankTargets}: false,
-// 	}
+	e.NewCoroutine(tankSequenceScript)
 
-// 	vars.TankBonus = ScoreTank0
-// 	hits := 0
-// 	for hits < 3 {
-// 		evt, done := e.WaitFor(
-// 			spin.ShotEvent{ID: jd.ShotLeftRamp},
-// 			spin.ShotEvent{ID: jd.ShotTopLeftRamp},
-// 			spin.SwitchEvent{ID: jd.SwitchBankTargets},
-// 		)
-// 		if done {
-// 			return
-// 		}
-// 		if shots[evt] {
-// 			continue
-// 		}
-// 		hits += 1
-// 		shots[evt] = true
-// 		e.Do(spin.PlayScript{ID: ScriptTankHit})
-// 	}
-// 	vars.TankBonus = ScoreTank3
-// 	e.Post(spin.AdvanceEvent{})
-// }
+	evt, done := e.WaitFor(
+		spin.AdvanceEvent{},
+		spin.TimeoutEvent{},
+	)
+	if done {
+		return
+	}
+	if evt == (spin.TimeoutEvent{}) {
+		e.Do(spin.PlayScript{ID: ScriptTankIncomplete})
+	} else {
+		e.Do(spin.PlayScript{ID: ScriptTankComplete})
+	}
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptTankMode})
 
-// func tankHitScript(e spin.Env) {
-// 	vars := GetVars(e)
-// 	vars.TankHits += 1
+}
 
-// 	var atPercent string
-// 	switch vars.TankHits {
-// 	case 1:
-// 		atPercent = SpeechTwentyFivePercent
-// 		vars.TankBonus = ScoreTank1
-// 	case 2:
-// 		atPercent = SpeechSixtyPercent
-// 		vars.TankBonus = ScoreTank2
-// 	}
-// 	if atPercent == "" {
-// 		return
-// 	}
+func tankSequenceScript(e *spin.ScriptEnv) {
+	vars := GetVars(e)
 
-// 	spin.NewSequencer().
-// 		Do(spin.PlaySpeech{ID: SpeechBattleTankDamageAt, Notify: true, Duck: 0.5}).
-// 		WaitFor(spin.SpeechFinishedEvent{}).
-// 		Do(spin.PlaySpeech{ID: atPercent, Notify: true, Duck: 0.5}).
-// 		WaitFor(spin.SpeechFinishedEvent{}).
-// 		Run(e)
-// }
+	shots := map[interface{}]bool{
+		spin.ShotEvent{ID: jd.ShotLeftRamp}:        false,
+		spin.ShotEvent{ID: jd.ShotTopLeftRamp}:     false,
+		spin.SwitchEvent{ID: jd.SwitchBankTargets}: false,
+	}
 
-// func tankIncompleteScript(e spin.Env) {
-// 	r, _ := e.Display("").Renderer(spin.LayerPriority)
-// 	defer r.Clear()
+	vars.TankBonus = ScoreTank0
+	hits := 0
+	for hits < 3 {
+		evt, done := e.WaitFor(
+			spin.ShotEvent{ID: jd.ShotLeftRamp},
+			spin.ShotEvent{ID: jd.ShotTopLeftRamp},
+			spin.SwitchEvent{ID: jd.SwitchBankTargets},
+		)
+		if done {
+			return
+		}
+		if shots[evt] {
+			continue
+		}
+		hits += 1
+		shots[evt] = true
+		e.Do(spin.PlayScript{ID: ScriptTankHit})
+	}
+	vars.TankBonus = ScoreTank3
+	e.Post(spin.AdvanceEvent{})
+}
 
-// 	vars := GetVars(e)
-// 	e.Do(spin.PlayMusic{ID: MusicMain})
-// 	ModeAndScorePanel(e, r, "BATTLE TANK TOTAL", vars.TankBonus)
-// 	e.Sleep(3_000 * time.Millisecond)
-// }
+func tankHitScript(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	vars.TankHits += 1
 
-// func tankCompleteScript(e spin.Env) {
-// 	r, _ := e.Display("").Renderer(spin.LayerPriority)
-// 	defer r.Clear()
+	var atPercent string
+	switch vars.TankHits {
+	case 1:
+		atPercent = SpeechTwentyFivePercent
+		vars.TankBonus = ScoreTank1
+	case 2:
+		atPercent = SpeechSixtyPercent
+		vars.TankBonus = ScoreTank2
+	}
+	if atPercent == "" {
+		return
+	}
 
-// 	vars := GetVars(e)
-// 	vars.TankHits = 0
-// 	vars.TankBonus = ScoreTank0
+	s := spin.NewSequencer(e)
 
-// 	e.Do(spin.PlayMusic{ID: MusicMain})
-// 	ModeAndScorePanel(e, r, "BATTLE TANK TOTAL", vars.TankBonus)
+	s.Do(spin.PlaySpeech{ID: SpeechBattleTankDamageAt, Notify: true, Duck: 0.5})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Do(spin.PlaySpeech{ID: atPercent, Notify: true, Duck: 0.5})
+	s.WaitFor(spin.SpeechFinishedEvent{})
 
-// 	spin.NewSequencer().
-// 		Do(spin.PlaySound{ID: SoundTankDestroyed}).
-// 		Sleep(1_000).
-// 		Do(spin.PlaySpeech{ID: SpeechBattleTankDestroyed, Notify: true}).
-// 		Sleep(3_000).
-// 		Run(e)
-// }
+	s.Run()
+}
+
+func tankIncompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
+
+	vars := GetVars(e)
+	e.Do(spin.PlayMusic{ID: MusicMain})
+	ModeAndScorePanel(e, r, "BATTLE TANK TOTAL", vars.TankBonus)
+	e.Sleep(3_000)
+}
+
+func tankCompleteScript(e *spin.ScriptEnv) {
+	r, _ := e.Display("").Renderer(spin.LayerPriority)
+	defer r.Clear()
+
+	vars := GetVars(e)
+	vars.TankHits = 0
+	vars.TankBonus = ScoreTank0
+
+	e.Do(spin.PlayMusic{ID: MusicMain})
+	ModeAndScorePanel(e, r, "BATTLE TANK TOTAL", vars.TankBonus)
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlaySound{ID: SoundTankDestroyed})
+	s.Sleep(1_000)
+	s.Do(spin.PlaySpeech{ID: SpeechBattleTankDestroyed, Notify: true})
+	s.Sleep(3_000)
+	s.Run()
+}
