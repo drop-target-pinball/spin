@@ -53,6 +53,7 @@ const (
 	ScriptTankComplete            = "jdx.ScriptTakComplete"
 	ScriptTankIncomplete          = "jdx.ScriptTankIncomplete"
 	ScriptTankMode                = "jdx.ScriptTankMode"
+	ScriptUseFireButton           = "jdx.ScriptUseFireButton"
 )
 
 func RegisterScripts(eng *spin.Engine) {
@@ -174,11 +175,10 @@ func RegisterScripts(eng *spin.Engine) {
 	// 	Script: playerAnnounceScript,
 	// 	Scope:  spin.ScopeGame,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptPlungeMode,
-	// 	Script: plungeScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptPlungeMode,
+		Script: plungeModeScript,
+	})
 	// eng.Do(spin.RegisterScript{
 	// 	ID:     ScriptProgram,
 	// 	Script: programScript,
@@ -269,5 +269,9 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptTankMode,
 		Script: tankModeScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptUseFireButton,
+		Script: useFireButtonScript,
 	})
 }

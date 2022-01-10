@@ -3,7 +3,6 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
-	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 func safecrackerModeScript(e *spin.ScriptEnv) {
@@ -175,24 +174,24 @@ func safecrackerMode2Panel(e *spin.ScriptEnv) {
 
 	r.Fill(spin.ColorBlack)
 	g.Y = 2
-	g.Font = builtin.FontPfArmaFive8
+	g.Font = spin.FontPfArmaFive8
 	r.Print(g, "SHOOT SAFECRACKER")
 
 	g.AnchorX = spin.AnchorLeft
 	g.X = 5
 	g.AnchorY = spin.AnchorMiddle
 	g.Y = r.Height()/2 + 6
-	g.Font = builtin.Font14x10
+	g.Font = spin.Font14x10
 	r.Print(g, "%v", vars.Timer)
 
 	g.X = r.Width() / 2
 	g.AnchorX = spin.AnchorCenter
-	g.Font = builtin.Font09x7
+	g.Font = spin.Font09x7
 	r.Print(g, spin.FormatScore("%v", vars.SafecrackerScore))
 
 	g.X = r.Width() - 2
 	g.AnchorX = spin.AnchorRight
-	g.Font = builtin.FontPfTempestaFiveBold8
+	g.Font = spin.FontPfTempestaFiveBold8
 	r.Print(g, spin.FormatScore("X%v", vars.SafecrackerAttempts+1))
 }
 

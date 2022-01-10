@@ -5,7 +5,6 @@ import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
 	"github.com/drop-target-pinball/spin/proc"
-	"github.com/drop-target-pinball/spin/prog/builtin"
 	"github.com/drop-target-pinball/spin/sdl"
 )
 
@@ -59,7 +58,7 @@ func NewEngine(appOptions Options, spinOptions spin.Options) *spin.Engine {
 	}
 	sdl.RegisterDisplaySystem(eng, displayOptions)
 	sdl.RegisterInputSystem(eng)
-	builtin.Load(eng)
+	spin.RegisterFonts(eng)
 
 	return eng
 }
