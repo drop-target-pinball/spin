@@ -29,13 +29,13 @@ func stakeoutModeScript(e *spin.ScriptEnv) {
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		ModeIntroScript(e, "STAKEOUT", "SHOOT", "RIGHT RAMP")
-		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			TimerAndScorePanel(e, r, "STAKEOUT", vars.Timer, player.Score, "SHOOT RIGHT RAMP")
 		})
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+		spin.CountdownLoop(e, &vars.Timer, 1000, spin.TimeoutEvent{})
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {

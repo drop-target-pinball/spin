@@ -5,6 +5,8 @@ import (
 	"os"
 	"reflect"
 	"time"
+
+	"github.com/drop-target-pinball/coroutine"
 )
 
 var AssetDir = os.Getenv("SPIN_ASSET_DIR")
@@ -31,12 +33,15 @@ type Engine struct {
 	Options        Options
 	Actions        map[string]Action
 	Events         map[string]Event
+	displays       map[string]Display
 	queue          []interface{}
 	actionHandlers []ActionHandler
 	eventHandlers  []EventHandler
 	servers        []Server
 	vars           map[string]interface{}
+	coroutines     *coroutine.Group
 	watchdog       chan struct{}
+	done           chan struct{}
 }
 
 func NewEngine(config Config, options Options) *Engine {
@@ -45,12 +50,15 @@ func NewEngine(config Config, options Options) *Engine {
 		Options:        options,
 		Actions:        make(map[string]Action),
 		Events:         make(map[string]Event),
+		displays:       make(map[string]Display),
 		queue:          make([]interface{}, 0),
 		actionHandlers: make([]ActionHandler, 0),
 		eventHandlers:  make([]EventHandler, 0),
 		servers:        make([]Server, 0),
 		vars:           make(map[string]interface{}),
+		coroutines:     coroutine.NewGroup(),
 		watchdog:       make(chan struct{}),
+		done:           make(chan struct{}),
 	}
 	eng.RegisterVars("config", config)
 	registerResourceSystem(eng)
@@ -58,6 +66,7 @@ func NewEngine(config Config, options Options) *Engine {
 	registerEvents(eng)
 	registerGameSystem(eng)
 	registerScriptSystem(eng)
+	RegisterTrackerSystem(eng)
 	return eng
 }
 
@@ -98,6 +107,10 @@ func (e *Engine) RegisterVars(name string, vars interface{}) {
 }
 
 func (e *Engine) Do(act Action) {
+	switch a := act.(type) {
+	case RegisterDisplay:
+		e.displays[a.ID] = a.Display
+	}
 	e.queue = append(e.queue, act)
 }
 
@@ -110,14 +123,41 @@ func (e *Engine) GetVars(name string) (interface{}, bool) {
 	return vars, ok
 }
 
+func (e *Engine) NewCoroutine(fn func(*ScriptEnv)) {
+	e.coroutines.NewCoroutine(func(co *coroutine.C) {
+		fn(NewScriptEnv(e, co))
+	})
+}
+
+func (e *Engine) Display(id string) Display {
+	d, ok := e.displays[id]
+	if !ok {
+		log.Panicf("no such display: %v", id)
+	}
+	return d
+}
+
 func (e *Engine) Run() {
 	ticker := time.NewTicker(16670 * time.Microsecond)
-	go watchdog(e.watchdog)
+	watchdog := coroutine.NewWatchdog(2 * time.Second)
+
+	defer func() {
+		watchdog.Stop()
+		e.coroutines.Stop()
+	}()
+
 	for {
-		e.watchdog <- struct{}{}
-		<-ticker.C
+		watchdog.Reset()
+
+		select {
+		case <-e.done:
+			return
+		case <-ticker.C:
+		}
+
 		for _, s := range e.servers {
 			s.Service()
+			e.coroutines.Tick()
 		}
 
 		for len(e.queue) > 0 {
@@ -132,20 +172,12 @@ func (e *Engine) Run() {
 				for _, h := range e.eventHandlers {
 					h.HandleEvent(i)
 				}
+				e.coroutines.Post(i)
 			}
 		}
 	}
 }
 
-func watchdog(watchdog chan struct{}) {
-	for {
-		select {
-		case <-watchdog:
-			// tickle
-		case <-time.After(2 * time.Second):
-			Error("deadlock detected")
-			debugStackTrace()
-			log.Panicf("stopping on deadlock")
-		}
-	}
+func (e *Engine) Stop() {
+	e.done <- struct{}{}
 }

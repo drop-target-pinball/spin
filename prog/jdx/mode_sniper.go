@@ -23,7 +23,7 @@ func sniperModeScript(e *spin.ScriptEnv) {
 
 		s.DoFunc(func() {
 			e.NewCoroutine(func(e *spin.ScriptEnv) {
-				if done := spin.ScoreHurryUpScript(e,
+				if done := spin.ScoreHurryUpLoop(e,
 					&vars.SniperScore,
 					160, // tick ms
 					ScoreSniperDec,
@@ -59,7 +59,7 @@ func sniperModeScript(e *spin.ScriptEnv) {
 		if done := ModeIntroScript(e, "SNIPER", "SHOOT", "SNIPER TOWER"); done {
 			return
 		}
-		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			ModeAndScorePanel(e, r, "SNIPER", vars.SniperScore)
 		})
 	})
@@ -133,9 +133,9 @@ func sniperMode2Script(e *spin.ScriptEnv) {
 			return
 		}
 		e.NewCoroutine(func(e *spin.ScriptEnv) {
-			spin.CountdownScript(e, &vars.Timer, 1500, spin.TimeoutEvent{})
+			spin.CountdownLoop(e, &vars.Timer, 1500, spin.TimeoutEvent{})
 		})
-		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			TimerAndScorePanel(e, r, "SNIPER", vars.Timer, vars.SniperScore, "")
 		})
 	})

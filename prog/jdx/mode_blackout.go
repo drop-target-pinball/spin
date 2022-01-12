@@ -28,7 +28,7 @@ func blackoutModeScript(e *spin.ScriptEnv) {
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		ModeIntroScript(e, "BLACKOUT", "EVERYTHING", "2X")
-		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			ModeAndScorePanel(e, r, "BLACKOUT", player.Score)
 		})
 	})

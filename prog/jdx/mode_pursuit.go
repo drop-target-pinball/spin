@@ -68,14 +68,14 @@ func pursuitModeScript(e *spin.ScriptEnv) {
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+		spin.CountdownLoop(e, &vars.Timer, 1000, spin.TimeoutEvent{})
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		if done := ModeIntroScript(e, "PURSUIT", "SHOOT", "FLASHING RAMP"); done {
 			return
 		}
-		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			TimerAndScorePanel(e, r, "PURSUIT", vars.Timer, player.Score, "SHOOT FLASHING RAMP")
 		})
 	})

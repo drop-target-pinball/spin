@@ -35,7 +35,7 @@ func plungeModeScript(e *spin.ScriptEnv) {
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		spin.RenderFrameScript(e, spin.ScorePanel)
+		spin.RenderFrameLoop(e, spin.ScorePanel)
 	})
 
 	if game.Player == 1 && game.Ball == 1 && !game.IsExtraBall {

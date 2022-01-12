@@ -25,7 +25,7 @@ func safecrackerModeScript(e *spin.ScriptEnv) {
 
 		s.DoFunc(func() {
 			e.NewCoroutine(func(e *spin.ScriptEnv) {
-				if done := spin.ScoreHurryUpScript(e,
+				if done := spin.ScoreHurryUpLoop(e,
 					&vars.SafecrackerScore,
 					250, // tick ms
 					ScoreSafecrackerDec,
@@ -47,7 +47,7 @@ func safecrackerModeScript(e *spin.ScriptEnv) {
 		if done := ModeIntroScript(e, "SAFECRACKER", "SHOOT", "SUBWAY"); done {
 			return
 		}
-		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			ModeAndScorePanel(e, r, "SAFECRACKER", vars.SafecrackerScore)
 		})
 	})
@@ -81,9 +81,9 @@ func safecrackerMode2Script(e *spin.ScriptEnv) {
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		e.NewCoroutine(func(e *spin.ScriptEnv) {
-			spin.CountdownScript(e, &vars.Timer, 1500, spin.TimeoutEvent{})
+			spin.CountdownLoop(e, &vars.Timer, 1500, spin.TimeoutEvent{})
 		})
-		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			safecrackerMode2Panel(e)
 		})
 	})

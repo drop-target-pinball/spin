@@ -34,13 +34,13 @@ func impersonatorModeScript(e *spin.ScriptEnv) {
 		if done := ModeIntroScript(e, "BAD IMPERSONATOR", "SHOOT LIT", "DROP TARGETS"); done {
 			return
 		}
-		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			TimerAndScorePanel(e, r, "BAD IMPERSONATOR", vars.Timer, player.Score, "SHOOT LIT DROP TARGETS")
 		})
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+		spin.CountdownLoop(e, &vars.Timer, 1000, spin.TimeoutEvent{})
 	})
 
 	e.NewCoroutine(impersonatorLightDropTargets)

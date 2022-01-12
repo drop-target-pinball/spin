@@ -51,20 +51,20 @@ func meltdownModeScript(e *spin.ScriptEnv) {
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+		spin.CountdownLoop(e, &vars.Timer, 1000, spin.TimeoutEvent{})
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		if done := ModeIntroScript(e, "MELTDOWN", "SHOOT", "CAPTIVE BALLS"); done {
 			return
 		}
-		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			TimerAndScorePanel(e, r, "MELTDOWN", vars.Timer, player.Score, "SHOOT CAPTIVE BALLS")
 		})
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		spin.WatchTimerScript(e, &vars.Timer, func(timer int) {
+		spin.WatcherTimerLoop(e, &vars.Timer, func(timer int) {
 			if timer < 27 && timer > 0 {
 				vol := 0
 				if timer == 20 || timer == 10 {

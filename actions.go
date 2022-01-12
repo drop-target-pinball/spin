@@ -4,7 +4,9 @@ type Action interface {
 	action()
 }
 
-type AddBall struct{}
+type AddBall struct {
+	N int
+}
 
 type AddPlayer struct{}
 

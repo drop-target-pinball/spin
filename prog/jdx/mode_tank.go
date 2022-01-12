@@ -37,13 +37,13 @@ func tankModeScript(e *spin.ScriptEnv) {
 		if done := ModeIntroScript(e, "BATTLE TANK", "SHOOT", "GREEN ARROWS"); done {
 			return
 		}
-		spin.RenderFrameScript(e, func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			TimerAndScorePanel(e, r, "BATTLE TANK", vars.Timer, player.Score, "SHOOT GREEN ARROWS")
 		})
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		spin.CountdownScript(e, &vars.Timer, 1000, spin.TimeoutEvent{})
+		spin.CountdownLoop(e, &vars.Timer, 1000, spin.TimeoutEvent{})
 	})
 
 	e.NewCoroutine(tankSequenceScript)
