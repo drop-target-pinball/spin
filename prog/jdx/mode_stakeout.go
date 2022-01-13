@@ -41,7 +41,7 @@ func stakeoutModeScript(e *spin.ScriptEnv) {
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
-		s.WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampExit})
 		s.Do(spin.PlayScript{ID: ScriptStakeoutInteresting})
 		s.Loop()
 

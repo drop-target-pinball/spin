@@ -36,9 +36,9 @@ func (s *Sequencer) DoFunc(fn func()) {
 	s.seq.Do(fn)
 }
 
-// func (s *Sequencer) DoRun(fn func() bool) {
-// 	s.seq.DoRun(fn)
-// }
+func (s *Sequencer) DoRun(fn func() bool) {
+	s.seq.DoRun(fn)
+}
 
 func (s *Sequencer) Loop() {
 	s.seq.Loop()

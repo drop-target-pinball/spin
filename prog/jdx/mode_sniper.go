@@ -67,7 +67,7 @@ func sniperModeScript(e *spin.ScriptEnv) {
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
-		s.WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper})
+		s.DoRun(spin.WaitForBallArrivalFunc(e, jd.SwitchRightPopper, 500))
 		s.Post(spin.AdvanceEvent{})
 
 		s.Run()
@@ -122,7 +122,7 @@ func sniperMode2Script(e *spin.ScriptEnv) {
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
-		s.WaitFor(spin.ShotEvent{ID: jd.ShotRightPopper})
+		s.DoRun(spin.WaitForBallArrivalFunc(e, jd.SwitchRightPopper, 500))
 		s.Post(spin.AdvanceEvent{})
 
 		s.Run()

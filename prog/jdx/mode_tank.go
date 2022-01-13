@@ -67,28 +67,29 @@ func tankModeScript(e *spin.ScriptEnv) {
 func tankSequenceScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 
-	shots := map[interface{}]bool{
-		spin.ShotEvent{ID: jd.ShotLeftRamp}:        false,
-		spin.ShotEvent{ID: jd.ShotTopLeftRamp}:     false,
-		spin.SwitchEvent{ID: jd.SwitchBankTargets}: false,
+	shots := map[string]bool{
+		jd.SwitchLeftRampExit:  false,
+		jd.SwitchRightRampExit: false,
+		jd.SwitchBankTargets:   false,
 	}
 
 	vars.TankBonus = ScoreTank0
 	hits := 0
 	for hits < 3 {
 		evt, done := e.WaitFor(
-			spin.ShotEvent{ID: jd.ShotLeftRamp},
-			spin.ShotEvent{ID: jd.ShotTopLeftRamp},
+			spin.SwitchEvent{ID: jd.SwitchLeftRampExit},
+			spin.SwitchEvent{ID: jd.SwitchRightRampExit},
 			spin.SwitchEvent{ID: jd.SwitchBankTargets},
 		)
 		if done {
 			return
 		}
-		if shots[evt] {
+		id := evt.(spin.SwitchEvent).ID
+		if shots[id] {
 			continue
 		}
 		hits += 1
-		shots[evt] = true
+		shots[id] = true
 		e.Do(spin.PlayScript{ID: ScriptTankHit})
 	}
 	vars.TankBonus = ScoreTank3

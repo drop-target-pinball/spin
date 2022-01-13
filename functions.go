@@ -1,9 +1,5 @@
 package spin
 
-import (
-	"time"
-)
-
 func RenderFrameLoop(e *ScriptEnv, fn func(*ScriptEnv)) bool {
 	for {
 		fn(e)
@@ -56,7 +52,7 @@ func WaitForBallArrival(e *ScriptEnv, sw string, timeMs int) bool {
 		if _, done := e.WaitFor(SwitchEvent{ID: sw}); done {
 			return true
 		}
-		evt, done := e.WaitForUntil(500*time.Millisecond, SwitchEvent{ID: sw, Released: true})
+		evt, done := e.WaitForUntil(500, SwitchEvent{ID: sw, Released: true})
 		if done {
 			return true
 		}
@@ -66,17 +62,45 @@ func WaitForBallArrival(e *ScriptEnv, sw string, timeMs int) bool {
 	}
 }
 
+func WaitForBallArrivalFunc(e *ScriptEnv, sw string, timeMs int) func() bool {
+	return func() bool {
+		return WaitForBallArrival(e, sw, timeMs)
+	}
+}
+
 func WaitForBallDeparture(e *ScriptEnv, sw string, timeMs int) bool {
 	for {
 		if _, done := e.WaitFor(SwitchEvent{ID: sw, Released: true}); done {
 			return true
 		}
-		evt, done := e.WaitForUntil(500*time.Millisecond, SwitchEvent{ID: sw})
+		evt, done := e.WaitForUntil(500, SwitchEvent{ID: sw})
 		if done {
 			return true
 		}
 		if evt == nil {
 			return false
+		}
+	}
+}
+
+func ShotSequenceLoop(e *ScriptEnv, shot string, timeMs int, switches ...string) {
+	for {
+		if _, done := e.WaitFor(SwitchEvent{ID: switches[0]}); done {
+			return
+		}
+		shotMade := true
+		for _, sw := range switches[1:] {
+			evt, done := e.WaitForUntil(timeMs, SwitchEvent{ID: sw})
+			if done {
+				return
+			}
+			if evt == nil {
+				shotMade = false
+				break
+			}
+		}
+		if shotMade {
+			e.Post(ShotEvent{ID: shot})
 		}
 	}
 }

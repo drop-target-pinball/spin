@@ -36,7 +36,7 @@ func blackoutModeScript(e *spin.ScriptEnv) {
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
-		s.WaitFor(spin.ShotEvent{ID: jd.ShotTopLeftRamp})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchTopLeftRampExit})
 		s.Do(spin.PlayScript{ID: ScriptBlackoutJackpot})
 		s.Loop()
 

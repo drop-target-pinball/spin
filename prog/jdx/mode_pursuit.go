@@ -52,15 +52,15 @@ func pursuitModeScript(e *spin.ScriptEnv) {
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
-		s.WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightRampExit})
 		s.Do(spin.PlaySound{ID: SoundPursuitMissile})
 		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit1 })
 
-		s.WaitFor(spin.ShotEvent{ID: jd.ShotLeftRamp})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchTopLeftRampExit})
 		s.Do(spin.PlaySound{ID: SoundPursuitMissile})
 		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit2 })
 
-		s.WaitFor(spin.ShotEvent{ID: jd.ShotRightRamp})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightRampExit})
 		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit3 })
 		s.Post(spin.AdvanceEvent{})
 

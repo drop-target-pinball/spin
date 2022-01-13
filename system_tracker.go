@@ -43,7 +43,15 @@ func (s *trackerSystem) addBall(act AddBall) {
 }
 
 func (s *trackerSystem) launchBall(e *ScriptEnv) {
-	e.NewCoroutine(s.clearJam)
+	e.NewCoroutine(func(e *ScriptEnv) {
+		for {
+			if done := WaitForBallArrival(e, s.eng.Config.SwitchTroughJam, 1000); done {
+				return
+			}
+			s.eng.Do(DriverPulse{ID: s.eng.Config.CoilTrough})
+		}
+	})
+
 	for s.queued > 0 {
 		s.eng.Do(DriverPulse{ID: s.eng.Config.CoilTrough})
 		if done := WaitForBallArrival(e, s.eng.Config.SwitchShooterLane, 500); done {
@@ -55,13 +63,4 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 		s.queued -= 1
 	}
 	s.processing = false
-}
-
-func (s *trackerSystem) clearJam(e *ScriptEnv) {
-	for {
-		if done := WaitForBallArrival(e, s.eng.Config.SwitchTroughJam, 1000); done {
-			return
-		}
-		s.eng.Do(DriverPulse{ID: s.eng.Config.CoilTrough})
-	}
 }

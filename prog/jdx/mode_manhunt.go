@@ -61,7 +61,7 @@ func manhuntModeScript(e *spin.ScriptEnv) {
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
-		s.WaitFor(spin.ShotEvent{ID: jd.ShotLeftRamp})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchTopLeftRampExit})
 		s.DoFunc(func() { vars.ManhuntBonus += ScoreManhuntN })
 		s.Do(spin.PlaySound{ID: SoundManhuntAutoFire})
 		s.Loop()

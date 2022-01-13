@@ -34,8 +34,8 @@ func (e *ScriptEnv) WaitFor(events ...coroutine.Event) (coroutine.Event, bool) {
 	return e.co.WaitFor(events...)
 }
 
-func (e *ScriptEnv) WaitForUntil(d time.Duration, s ...coroutine.Event) (coroutine.Event, bool) {
-	return e.co.WaitForUntil(d, s...)
+func (e *ScriptEnv) WaitForUntil(ms int, s ...coroutine.Event) (coroutine.Event, bool) {
+	return e.co.WaitForUntil(time.Duration(ms)*time.Millisecond, s...)
 }
 
 func (e *ScriptEnv) Display(id string) Display {

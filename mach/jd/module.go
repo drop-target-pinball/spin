@@ -10,6 +10,6 @@ func Load(eng *spin.Engine) {
 	RegisterLamps(eng)
 	RegisterMagnets(eng)
 	RegisterMotors(eng)
-	//RegisterScripts(eng)
+	RegisterScripts(eng)
 	RegisterSwitches(eng)
 }
