@@ -125,7 +125,7 @@ func (e *Engine) GetVars(name string) (interface{}, bool) {
 
 func (e *Engine) NewCoroutine(fn func(*ScriptEnv)) {
 	e.coroutines.NewCoroutine(func(co *coroutine.C) {
-		fn(NewScriptEnv(e, co))
+		fn(newScriptEnv(e, co))
 	})
 }
 

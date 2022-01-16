@@ -65,7 +65,7 @@ func (s *scriptSystem) playScript(a PlayScript) {
 		script.cancel()
 	}
 	script.cancel = s.eng.coroutines.NewCoroutine(func(co *coroutine.C) {
-		script.fn(NewScriptEnv(s.eng, co))
+		script.fn(newScriptEnv(s.eng, co))
 		script.cancel = nil
 	})
 }

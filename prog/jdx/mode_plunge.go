@@ -8,6 +8,10 @@ import (
 
 func plungeModeScript(e *spin.ScriptEnv) {
 	game := spin.GetGameVars(e)
+	vars := GetVars(e)
+
+	vars.Mode = ModePlunge
+	defer func() { vars.Mode = ModeNone }()
 
 	e.Do(spin.PlayScript{ID: builtin.ScriptScore})
 	e.Do(spin.PlayMusic{ID: MusicPlungeLoop})

@@ -101,11 +101,10 @@ func RegisterScripts(eng *spin.Engine) {
 	// 	Script: bonusModeScript,
 	// 	Scope:  spin.ScopeGame,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptChain,
-	// 	Script: chainScript,
-	// 	Scope:  spin.ScopeBall,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptChain,
+		Script: chainScript,
+	})
 	// eng.Do(spin.RegisterScript{
 	// 	ID:     ScriptDefaultLeftShooterLane,
 	// 	Script: defaultLeftShooterLaneScript,

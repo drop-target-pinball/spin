@@ -11,7 +11,7 @@ type ScriptEnv struct {
 	co  *coroutine.C
 }
 
-func NewScriptEnv(eng *Engine, co *coroutine.C) *ScriptEnv {
+func newScriptEnv(eng *Engine, co *coroutine.C) *ScriptEnv {
 	return &ScriptEnv{
 		eng: eng,
 		co:  co,
@@ -44,7 +44,7 @@ func (e *ScriptEnv) Display(id string) Display {
 
 func (e *ScriptEnv) NewCoroutine(fn ScriptFn) {
 	e.co.New(func(co *coroutine.C) {
-		fn(NewScriptEnv(e.eng, co))
+		fn(newScriptEnv(e.eng, co))
 	})
 }
 

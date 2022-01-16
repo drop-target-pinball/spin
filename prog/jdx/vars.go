@@ -54,13 +54,16 @@ const (
 	ModeSafeCracker
 	ModeManhunt
 	ModeStakeout
+	ModePlunge
+	ModeAirRaid
+	ModeNone
 )
 
 const (
-	AllModes   = ModePursuit | ModeBlackout | ModeSniper | ModeBattleTank | ModeBadImpersonator | ModeMeltdown | ModeSafeCracker | ModeManhunt | ModeStakeout
-	MinMode    = ModePursuit
-	MaxMode    = ModeStakeout
-	MaxPlayers = 4
+	AllChainModes = ModePursuit | ModeBlackout | ModeSniper | ModeBattleTank | ModeBadImpersonator | ModeMeltdown | ModeSafeCracker | ModeManhunt | ModeStakeout
+	MinChainMode  = ModePursuit
+	MaxChainMode  = ModeStakeout
+	MaxPlayers    = 4
 )
 
 var (
@@ -108,6 +111,7 @@ type Vars struct {
 	CrimeScenes            int
 	ManhuntBonus           int
 	MeltdownBonus          int
+	Mode                   int
 	Multiplier             int
 	PursuitBonus           int
 	SafecrackerAttempts    int
@@ -118,12 +122,11 @@ type Vars struct {
 	SniperScore            int
 	StakeoutBonus          int
 	StakeoutCallout        int
+	StartModeLeft          bool
 	TankBonus              int
 	TankHits               int
 	Timer                  int
 }
-
-const ScopeModeEnd = "spin.program.game.ball.mode_end"
 
 func startOfBallReset(store spin.Store) {
 	vars := GetVars(store)
