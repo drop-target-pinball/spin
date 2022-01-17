@@ -139,7 +139,7 @@ func (e *Engine) Display(id string) Display {
 
 func (e *Engine) Run() {
 	ticker := time.NewTicker(16670 * time.Microsecond)
-	watchdog := coroutine.NewWatchdog(2 * time.Second)
+	watchdog := coroutine.NewWatchdog(5 * time.Second)
 
 	defer func() {
 		watchdog.Stop()
