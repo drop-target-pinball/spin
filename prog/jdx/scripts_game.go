@@ -2,7 +2,6 @@ package jdx
 
 import (
 	"github.com/drop-target-pinball/spin"
-	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 func gameScript(e *spin.ScriptEnv) {
@@ -11,7 +10,7 @@ func gameScript(e *spin.ScriptEnv) {
 	}
 	e.Do(spin.AddPlayer{})
 	e.NewCoroutine(playerAnnounceScript)
-	e.Do(spin.PlayScript{ID: builtin.ScriptGameStartButton})
+	//e.Do(spin.PlayScript{ID: builtin.ScriptGameStartButton})
 
 	for {
 		e.Do(spin.AdvanceGame{})

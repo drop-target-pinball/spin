@@ -3,7 +3,6 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
-	"github.com/drop-target-pinball/spin/prog/builtin"
 )
 
 func plungeModeScript(e *spin.ScriptEnv) {
@@ -13,7 +12,9 @@ func plungeModeScript(e *spin.ScriptEnv) {
 	vars.Mode = ModePlunge
 	defer func() { vars.Mode = ModeNone }()
 
-	e.Do(spin.PlayScript{ID: builtin.ScriptScore})
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, spin.ScorePanel)
+	})
 	e.Do(spin.PlayMusic{ID: MusicPlungeLoop})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
