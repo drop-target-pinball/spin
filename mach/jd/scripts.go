@@ -5,11 +5,31 @@ import (
 )
 
 const (
+	ScriptBallSearch                  = "jd.ScriptBallSearch"
 	ScriptInactiveGlobe               = "jd.ScriptInactiveGlobe"
 	ScriptLeftRampShot                = "jd.ScriptLeftRampShot"
 	ScriptRaiseDropTargets            = "jd.ScriptRaiseDropTargets"
 	ScriptRaiseDropTargetsWhenAllDown = "jd.ScriptRaiseDropTargetsWhenAllDown"
 )
+
+func ballSearchScript(e *spin.ScriptEnv) {
+	s := spin.NewSequencer(e)
+	wait := 250
+
+	s.Do(spin.DriverPulse{ID: CoilRightShooterLane})
+	s.Sleep(wait)
+	s.Do(spin.DriverPulse{ID: CoilLeftSling})
+	s.Sleep(wait)
+	s.Do(spin.DriverPulse{ID: CoilRightSling})
+	s.Sleep(wait)
+	s.Do(spin.DriverPulse{ID: CoilLeftShooterLane})
+	s.Sleep(wait)
+	s.Do(spin.DriverPulse{ID: CoilRightPopper})
+	s.Sleep(wait)
+	s.Do(spin.DriverPulse{ID: CoilLeftPopper})
+
+	s.Run()
+}
 
 func inactiveGlobeScript(e *spin.ScriptEnv) {
 	rotations := 0
@@ -107,6 +127,10 @@ func raiseDropTargetsWhenAllDownScript(e *spin.ScriptEnv) {
 }
 
 func RegisterScripts(eng *spin.Engine) {
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBallSearch,
+		Script: ballSearchScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptInactiveGlobe,
 		Script: inactiveGlobeScript,

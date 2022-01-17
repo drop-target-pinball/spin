@@ -8,6 +8,7 @@ SwitchEvent ID=jd.SwitchRightShooterLane Released=true
 
 type trackerSystem struct {
 	eng        *Engine
+	active     int
 	queued     int
 	processing bool
 }
@@ -17,6 +18,7 @@ func RegisterTrackerSystem(eng *Engine) {
 		eng: eng,
 	}
 	eng.RegisterActionHandler(sys)
+	eng.NewCoroutine(sys.watchDrain)
 }
 
 func (s *trackerSystem) HandleAction(action Action) {
@@ -60,7 +62,22 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 		if done := WaitForBallDepartureLoop(e, s.eng.Config.SwitchShooterLane, 1000); done {
 			return
 		}
+		s.active += 1
 		s.queued -= 1
 	}
 	s.processing = false
+}
+
+func (s *trackerSystem) watchDrain(e *ScriptEnv) {
+	for {
+		if done := WaitForBallArrivalLoop(e, s.eng.Config.SwitchDrain, 500); done {
+			return
+		}
+		s.active -= 1
+		if s.active < 0 {
+			Warn("ball drained when no balls were active")
+			s.active = 0
+		}
+		s.eng.Post(BallDrainEvent{BallsInPlay: s.active})
+	}
 }
