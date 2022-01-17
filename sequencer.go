@@ -40,6 +40,10 @@ func (s *Sequencer) DoRun(fn func() bool) {
 	s.seq.DoRun(fn)
 }
 
+func (s *Sequencer) DoScript(fn func(*ScriptEnv)) {
+	s.seq.Do(func() { fn(s.env) })
+}
+
 func (s *Sequencer) Loop() {
 	s.seq.Loop()
 }

@@ -5,6 +5,10 @@ import (
 	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
+/*
+SwitchEvent ID=jd.SwitchRightFireButton
+*/
+
 func plungeModeScript(e *spin.ScriptEnv) {
 	game := spin.GetGameVars(e)
 	vars := GetVars(e)
@@ -16,19 +20,13 @@ func plungeModeScript(e *spin.ScriptEnv) {
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
-
 		s.Sleep(7_000)
-		s.Do(spin.PlaySpeech{ID: SpeechUseFireButtonToLaunchBall})
-		s.WaitFor(spin.SpeechFinishedEvent{})
-
+		s.DoScript(useFireButtonScript)
 		s.Run()
-	})
 
-	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		s := spin.NewSequencer(e)
-		s.Sleep(7_000)
-		s.Do(spin.PlayScript{ID: ScriptUseFireButton})
+		s = spin.NewSequencer(e)
 		s.Sleep(13_000)
+		s.DoScript(useFireButtonSilentScript)
 		s.Loop()
 		s.Run()
 	})
@@ -80,7 +78,7 @@ func useFireButtonPanel(e *spin.ScriptEnv, n int) {
 	r.Print(g, chevronsR[n])
 }
 
-func useFireButtonScript(e *spin.ScriptEnv) {
+func useFireButtonAnimScript(e *spin.ScriptEnv) {
 	r, _ := e.Display("").Renderer(spin.LayerPriority)
 	defer r.Clear()
 
@@ -93,4 +91,13 @@ func useFireButtonScript(e *spin.ScriptEnv) {
 	s.Sleep(100)
 	s.LoopN(7 * 4)
 	s.Run()
+}
+
+func useFireButtonScript(e *spin.ScriptEnv) {
+	e.Do(spin.PlaySpeech{ID: SpeechUseFireButtonToLaunchBall})
+	useFireButtonAnimScript(e)
+}
+
+func useFireButtonSilentScript(e *spin.ScriptEnv) {
+	useFireButtonAnimScript(e)
 }
