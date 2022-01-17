@@ -31,6 +31,7 @@ func ballScript(e *spin.ScriptEnv) {
 	e.NewCoroutine(debugExtraBallScript)
 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
 	e.Do(spin.PlayScript{ID: ScriptChain})
+	e.Do(spin.PlayScript{ID: ScriptPlungeMode})
 
 	for {
 		evt, done := e.WaitFor(spin.BallDrainEvent{})
