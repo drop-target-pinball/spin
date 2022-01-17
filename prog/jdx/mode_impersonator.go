@@ -18,6 +18,9 @@ func impersonatorModeScript(e *spin.ScriptEnv) {
 
 	vars := GetVars(e)
 	player := spin.GetPlayerVars(e)
+
+	vars.Mode = ModeBadImpersonator
+	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 30
 	vars.BadImpersonatorBonus = ScoreBadImpersonator0
 

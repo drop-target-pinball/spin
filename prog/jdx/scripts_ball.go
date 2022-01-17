@@ -1,104 +1,146 @@
 package jdx
 
-// func ballScript(e spin.Env) {
-// 	startOfBallReset(e)
+import (
+	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
+)
 
-// 	e.Do(spin.FlippersOn{})
-// 	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingLeft})
-// 	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingRight})
+func ballScript(e *spin.ScriptEnv) {
 
-// 	e.Do(spin.PlayScript{ID: builtin.ScriptBallTracker})
-// 	e.Do(spin.PlayScript{ID: ScriptSling})
-// 	e.Do(spin.PlayScript{ID: ScriptOutlane})
-// 	e.Do(spin.PlayScript{ID: ScriptReturnLane})
-// 	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
-// 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
-// 	e.Do(spin.PlayScript{ID: ScriptDebugExtraBall})
-// 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
-// 	e.Do(spin.PlayScript{ID: ScriptChain})
+	vars := GetVars(e)
+	vars.PursuitBonus = 0
+	vars.SniperBonus = 0
+	vars.SniperScore = 0
+	if vars.SelectedMode == 0 {
+		vars.SelectedMode = ModePursuit // FIXME
+	}
 
-// 	ctx, cancel := e.Derive()
-// 	defer cancel()
-// 	e.NewCoroutine(ctx, modeScript)
+	e.Do(spin.FlippersOn{})
+	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingLeft})
+	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingRight})
 
-// 	for {
-// 		evt, done := e.WaitFor(spin.BallDrainEvent{})
-// 		if done {
-// 			return
-// 		}
-// 		e := evt.(spin.BallDrainEvent)
-// 		if e.BallsInPlay == 0 {
-// 			break
-// 		}
-// 	}
-// 	e.Do(spin.AdvanceGame{})
-// }
+	e.NewCoroutine(defaultSlingLoop)
+	e.NewCoroutine(defaultOutlaneLoop)
+	e.NewCoroutine(defaultReturnLaneLoop)
+	e.NewCoroutine(defaultLeftShooterLaneLoop)
+	e.NewCoroutine(defaultLeftPopperLoop)
+	e.NewCoroutine(defaultRightPopperLoop)
 
-// func modeScript(e spin.Env) {
-// 	e.Do(spin.PlayScript{ID: ScriptPlungeMode})
-// 	if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: ScriptPlungeMode}); done {
-// 		return
-// 	}
-// 	e.Do(spin.StopScope{ID: spin.ScopeMode})
-// 	e.Do(spin.PlayScript{ID: ScriptBasicMode})
+	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
+	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
+	e.NewCoroutine(debugExtraBallScript)
+	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
+	e.Do(spin.PlayScript{ID: ScriptChain})
 
-// 	for {
-// 		if _, done := e.WaitFor(spin.Done{}); done {
-// 			return
-// 		}
-// 	}
-// }
+	for {
+		evt, done := e.WaitFor(spin.BallDrainEvent{})
+		if done {
+			return
+		}
+		e := evt.(spin.BallDrainEvent)
+		if e.BallsInPlay == 0 {
+			break
+		}
+	}
+	e.Do(spin.AdvanceGame{})
+}
 
-// func debugExtraBallScript(e spin.Env) {
-// 	e.Do(spin.DriverOn{ID: jd.LampBuyInButton})
-// 	for {
-// 		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchBuyInButton}); done {
-// 			return
-// 		}
-// 		e.Do(spin.DriverPulse{ID: jd.CoilTrough})
-// 		if done := e.Sleep(1 * time.Second); done {
-// 			return
-// 		}
-// 		e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
-// 	}
-// }
+func debugExtraBallScript(e *spin.ScriptEnv) {
+	e.Do(spin.DriverOn{ID: jd.LampBuyInButton})
+	for {
+		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchBuyInButton}); done {
+			return
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilTrough})
+		if done := e.Sleep(1000); done {
+			return
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
+	}
+}
 
-// func outlaneScript(e spin.Env) {
-// 	for {
-// 		if _, done := e.WaitFor(
-// 			spin.SwitchEvent{ID: jd.SwitchLeftOutlane},
-// 			spin.SwitchEvent{ID: jd.SwitchRightOutlane},
-// 		); done {
-// 			return
-// 		}
-// 		e.Do(spin.PlaySound{ID: SoundBallLost})
-// 		e.Do(spin.AwardScore{Val: ScoreOutlane * Multiplier(e)})
-// 	}
-// }
+func defaultOutlaneLoop(e *spin.ScriptEnv) {
+	for {
+		if _, done := e.WaitFor(
+			spin.SwitchEvent{ID: jd.SwitchLeftOutlane},
+			spin.SwitchEvent{ID: jd.SwitchRightOutlane},
+		); done {
+			return
+		}
+		e.Do(spin.PlaySound{ID: SoundBallLost})
+		e.Do(spin.AwardScore{Val: ScoreOutlane * Multiplier(e)})
+	}
+}
 
-// func returnLaneScript(e spin.Env) {
-// 	for {
-// 		if _, done := e.WaitFor(
-// 			spin.SwitchEvent{ID: jd.SwitchLeftReturnLane},
-// 			spin.SwitchEvent{ID: jd.SwitchInnerRightReturnLane},
-// 			spin.SwitchEvent{ID: jd.SwitchOuterRightReturnLane},
-// 		); done {
-// 			return
-// 		}
-// 		e.Do(spin.PlaySound{ID: SoundReturnLane})
-// 		e.Do(spin.AwardScore{Val: ScoreReturnLane * Multiplier(e)})
-// 	}
-// }
+func defaultReturnLaneLoop(e *spin.ScriptEnv) {
+	for {
+		if _, done := e.WaitFor(
+			spin.SwitchEvent{ID: jd.SwitchLeftReturnLane},
+			spin.SwitchEvent{ID: jd.SwitchInnerRightReturnLane},
+			spin.SwitchEvent{ID: jd.SwitchOuterRightReturnLane},
+		); done {
+			return
+		}
+		e.Do(spin.PlaySound{ID: SoundReturnLane})
+		e.Do(spin.AwardScore{Val: ScoreReturnLane * Multiplier(e)})
+	}
+}
 
-// func slingScript(e spin.Env) {
-// 	for {
-// 		if _, done := e.WaitFor(
-// 			spin.SwitchEvent{ID: jd.SwitchLeftSling},
-// 			spin.SwitchEvent{ID: jd.SwitchRightSling},
-// 		); done {
-// 			return
-// 		}
-// 		e.Do(spin.PlaySound{ID: SoundSling})
-// 		e.Do(spin.AwardScore{Val: ScoreSling * Multiplier(e)})
-// 	}
-// }
+func defaultSlingLoop(e *spin.ScriptEnv) {
+	for {
+		if _, done := e.WaitFor(
+			spin.SwitchEvent{ID: jd.SwitchLeftSling},
+			spin.SwitchEvent{ID: jd.SwitchRightSling},
+		); done {
+			return
+		}
+		e.Do(spin.PlaySound{ID: SoundSling})
+		e.Do(spin.AwardScore{Val: ScoreSling * Multiplier(e)})
+	}
+}
+
+func defaultLeftShooterLaneLoop(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	for {
+		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchLeftShooterLane, 1000); done {
+			return
+		}
+		if vars.Mode == ModeAirRaid {
+			continue
+		}
+
+		e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
+		if done := e.Sleep(500); done {
+			return
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilLeftShooterLane})
+	}
+}
+
+func defaultLeftPopperLoop(e *spin.ScriptEnv) {
+	for {
+		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchLeftPopper, 500); done {
+			return
+		}
+		for i := 0; i < 3; i++ {
+			e.Do(spin.DriverPulse{ID: jd.FlasherSubwayExit})
+			if done := e.Sleep(200); done {
+				return
+			}
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilLeftPopper})
+	}
+}
+
+func defaultRightPopperLoop(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	for {
+		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchRightPopper, 500); done {
+			return
+		}
+		if vars.Mode == ModeSniper {
+			continue
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
+	}
+}

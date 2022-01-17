@@ -91,3 +91,6 @@ func ScoreAndLabelPanel(e *spin.ScriptEnv, r spin.Renderer, score int, label str
 	g.Font = spin.FontPfArmaFive8
 	r.Print(g, label)
 }
+
+func GameOverPanel(e *spin.ScriptEnv) {
+}

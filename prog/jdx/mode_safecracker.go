@@ -11,6 +11,8 @@ func safecrackerModeScript(e *spin.ScriptEnv) {
 	e.Do(spin.PlayMusic{ID: MusicMode2})
 
 	vars := GetVars(e)
+	vars.Mode = ModeSafeCracker
+	defer func() { vars.Mode = ModeNone }()
 	vars.SafecrackerScore = ScoreSafecrackerStart
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {

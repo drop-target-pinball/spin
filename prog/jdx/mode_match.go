@@ -1,21 +1,26 @@
 package jdx
 
-// func matchModeScript(e spin.Env) {
-// 	r, g := e.Display("").Renderer("")
+import "github.com/drop-target-pinball/spin"
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.AnchorY = spin.AnchorMiddle
-// 	g.Y = r.Height() / 2
-// 	g.Font = builtin.FontPfRondaSevenBold8
-// 	r.Print(g, "GAME OVER")
+/*
+PlayScript ID=jdx.ScriptMatchMode
+*/
+func matchModeScript(e *spin.ScriptEnv) {
+	r, g := e.Display("").Renderer("")
 
-// 	e.Do(spin.PlayMusic{ID: MusicMatch, Loops: 1, Notify: true})
-// 	if _, done := e.WaitFor(spin.MusicFinishedEvent{}); done {
-// 		return
-// 	}
-// 	e.Do(spin.PlayMusic{ID: MusicMatchHit, Loops: 1, Notify: true})
-// 	if _, done := e.WaitFor(spin.MusicFinishedEvent{}); done {
-// 		return
-// 	}
-// 	e.Post(spin.ScriptFinishedEvent{ID: ScriptMatchMode})
-// }
+	r.Fill(spin.ColorBlack)
+	g.AnchorY = spin.AnchorMiddle
+	g.Y = r.Height() / 2
+	g.Font = spin.FontPfRondaSevenBold8
+	r.Print(g, "GAME OVER")
+
+	e.Do(spin.PlayMusic{ID: MusicMatch, Loops: 1, Notify: true})
+	if _, done := e.WaitFor(spin.MusicFinishedEvent{}); done {
+		return
+	}
+	e.Do(spin.PlayMusic{ID: MusicMatchHit, Loops: 1, Notify: true})
+	if _, done := e.WaitFor(spin.MusicFinishedEvent{}); done {
+		return
+	}
+	e.Post(spin.ScriptFinishedEvent{ID: ScriptMatchMode})
+}

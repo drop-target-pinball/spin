@@ -11,6 +11,8 @@ func sniperModeScript(e *spin.ScriptEnv) {
 	e.Do(spin.PlayMusic{ID: MusicMode1})
 
 	vars := GetVars(e)
+	vars.Mode = ModeSniper
+	defer func() { vars.Mode = ModeNone }()
 	vars.SniperScore = ScoreSniperStart
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {

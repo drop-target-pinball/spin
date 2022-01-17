@@ -12,6 +12,9 @@ func pursuitModeScript(e *spin.ScriptEnv) {
 
 	vars := GetVars(e)
 	player := spin.GetPlayerVars(e)
+
+	vars.Mode = ModePursuit
+	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 30
 	vars.PursuitBonus = ScorePursuit0
 

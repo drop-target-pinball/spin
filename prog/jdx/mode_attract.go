@@ -1,152 +1,131 @@
 package jdx
 
-// const (
-// 	MessageAttractAdvance = "jdx.MessageAttractAdvance"
-// 	MessageAttractDone    = "jdx.MessageAttractDone"
-// )
+import (
+	"github.com/drop-target-pinball/spin"
+)
 
-// var attractScripts = []spin.ScriptFn{
-// 	gameOverScript,
-// 	dropTargetPinballScript,
-// 	superPinballSystemScript,
-// 	freePlayScript,
-// }
+func attractModeScript(e *spin.ScriptEnv) {
 
-// func gameOverFrame(e spin.Env) {
-// 	r, g := e.Display("").Renderer("")
+	e.Do(spin.DriverBlink{ID: e.Config.LampStartButton})
+	for {
+		e.Do(spin.PlayScript{ID: ScriptAttractModeSlide})
+		evt, done := e.WaitFor(
+			spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},
+			spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton},
+			spin.SwitchEvent{ID: e.Config.SwitchStartButton},
+		)
+		if done {
+			e.Do(spin.StopScript{ID: ScriptAttractModeSlide})
+			return
+		}
+		switch evt {
+		case spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton}:
+			attractPreviousSlide(e)
+		case spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton}:
+			attractNextSlide(e)
+		case spin.SwitchEvent{ID: e.Config.SwitchStartButton}:
+			e.Do(spin.StopScript{ID: ScriptAttractModeSlide})
+			e.Post(spin.ScriptFinishedEvent{ID: ScriptAttractMode})
+			return
+		}
+	}
+}
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 2
-// 	g.AnchorY = spin.AnchorMiddle
-// 	g.Font = builtin.FontPfRondaSevenBold8
-// 	r.Print(g, "GAME OVER")
-// }
+var attractSlides = []func(*spin.ScriptEnv) bool{
+	attractGameOver,
+	attractDropTargetPinball,
+	attractJudgeDreddRemix,
+	attractFreePlay,
+}
 
-// func gameOverScript(e spin.Env) {
-// 	gameOverFrame(e)
-// 	if done := e.Sleep(4000 * time.Millisecond); done {
-// 		return
-// 	}
-// 	e.Post(spin.Message{ID: MessageAttractAdvance})
-// }
+func attractGameOver(e *spin.ScriptEnv) bool {
+	r, g := e.Display("").Renderer("")
 
-// func dropTargetPinballFrame(e spin.Env) {
-// 	r, g := e.Display("").Renderer("")
+	r.Fill(spin.ColorBlack)
+	g.AnchorY = spin.AnchorMiddle
+	g.Font = spin.FontPfRondaSevenBold8
+	r.Print(g, "GAME OVER")
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 7
-// 	g.Font = builtin.FontPfArmaFive8
-// 	r.Print(g, "DROP TARGET PINBALL")
-// 	g.Y = 18
-// 	g.Font = builtin.FontPfRondaSevenBold8
-// 	r.Print(g, "PRESENTS")
-// }
+	return e.Sleep(4000)
+}
 
-// func dropTargetPinballScript(e spin.Env) {
-// 	dropTargetPinballFrame(e)
-// 	if done := e.Sleep(4000 * time.Millisecond); done {
-// 		return
-// 	}
-// 	e.Post(spin.Message{ID: MessageAttractAdvance})
-// }
+func attractDropTargetPinball(e *spin.ScriptEnv) bool {
+	r, g := e.Display("").Renderer("")
 
-// func superPinballSystemFrame(e spin.Env) {
-// 	r, g := e.Display("").Renderer("")
+	r.Fill(spin.ColorBlack)
+	g.Y = 7
+	g.Font = spin.FontPfArmaFive8
+	r.Print(g, "DROP TARGET PINBALL")
+	g.Y = 18
+	g.Font = spin.FontPfRondaSevenBold8
+	r.Print(g, "PRESENTS")
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 7
-// 	g.Font = builtin.FontPfRondaSevenBold8
-// 	r.Print(g, "JUDGE DREDD")
-// 	g.Y = 18
-// 	r.Print(g, "REMIX")
-// }
+	return e.Sleep(4000)
+}
 
-// func superPinballSystemScript(e spin.Env) {
-// 	superPinballSystemFrame(e)
-// 	if done := e.Sleep(4000 * time.Millisecond); done {
-// 		return
-// 	}
-// 	e.Post(spin.Message{ID: MessageAttractAdvance})
-// }
+func attractJudgeDreddRemix(e *spin.ScriptEnv) bool {
+	r, g := e.Display("").Renderer("")
 
-// func freePlayFrame(e spin.Env, blinkOn bool) {
-// 	r, g := e.Display("").Renderer("")
+	r.Fill(spin.ColorBlack)
+	g.Y = 7
+	g.Font = spin.FontPfRondaSevenBold8
+	r.Print(g, "JUDGE DREDD")
+	g.Y = 18
+	r.Print(g, "REMIX")
 
-// 	r.Fill(spin.ColorBlack)
-// 	g.Y = 7
-// 	g.Font = builtin.FontPfRondaSevenBold8
-// 	if blinkOn {
-// 		r.Print(g, "PRESS START")
-// 	}
-// 	g.Y = 18
-// 	r.Print(g, "FREE PLAY")
-// }
+	return e.Sleep(4000)
+}
 
-// func freePlayScript(e spin.Env) {
-// 	for i := 0; i < 5; i++ {
-// 		freePlayFrame(e, true)
-// 		if done := e.Sleep(200 * time.Millisecond); done {
-// 			return
-// 		}
+func freePlayPanel(e *spin.ScriptEnv, blinkOn bool) {
+	r, g := e.Display("").Renderer("")
 
-// 		freePlayFrame(e, false)
-// 		if done := e.Sleep(100 * time.Millisecond); done {
-// 			return
-// 		}
-// 	}
-// 	freePlayFrame(e, true)
-// 	if done := e.Sleep(2500 * time.Millisecond); done {
-// 		return
-// 	}
-// 	e.Post(spin.Message{ID: MessageAttractAdvance})
-// }
+	r.Fill(spin.ColorBlack)
+	g.Y = 7
+	g.Font = spin.FontPfRondaSevenBold8
+	if blinkOn {
+		r.Print(g, "PRESS START")
+	}
+	g.Y = 18
+	r.Print(g, "FREE PLAY")
+}
 
-// func attractModeScript(e spin.Env) {
-// 	script := 0
-// 	var ctx context.Context
-// 	var cancel context.CancelFunc
+func attractFreePlay(e *spin.ScriptEnv) bool {
+	s := spin.NewSequencer(e)
 
-// 	next := func() {
-// 		script += 1
-// 		if script >= len(attractScripts) {
-// 			script = 0
-// 		}
-// 	}
+	s.DoFunc(func() { freePlayPanel(e, true) })
+	s.Sleep(200)
+	s.DoFunc(func() { freePlayPanel(e, false) })
+	s.Sleep(100)
+	s.LoopN(5)
+	s.Run()
 
-// 	prev := func() {
-// 		script -= 1
-// 		if script < 0 {
-// 			script = len(attractScripts) - 1
-// 		}
-// 	}
+	freePlayPanel(e, true)
+	return e.Sleep(2500)
+}
 
-// 	e.Do(spin.DriverBlink{ID: e.Config.LampStartButton})
-// 	for {
-// 		ctx, cancel = e.Derive()
-// 		e.NewCoroutine(ctx, attractScripts[script])
-// 		evt, done := e.WaitFor(
-// 			spin.Message{ID: MessageAttractAdvance},
-// 			spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton},
-// 			spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton},
-// 			spin.SwitchEvent{ID: e.Config.SwitchStartButton},
-// 		)
-// 		if done {
-// 			cancel()
-// 			return
-// 		}
-// 		switch evt {
-// 		case spin.Message{ID: MessageAttractAdvance}:
-// 			next()
-// 		case spin.SwitchEvent{ID: e.Config.SwitchLeftFlipperButton}:
-// 			cancel()
-// 			prev()
-// 		case spin.SwitchEvent{ID: e.Config.SwitchRightFlipperButton}:
-// 			cancel()
-// 			next()
-// 		case spin.SwitchEvent{ID: e.Config.SwitchStartButton}:
-// 			cancel()
-// 			e.Post(spin.Message{ID: MessageAttractDone})
-// 			return
-// 		}
-// 	}
-// }
+func attractModeSlideScript(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	for {
+		fn := attractSlides[vars.AttractModeSlide]
+		if done := fn(e); done {
+			return
+		}
+		attractNextSlide(e)
+	}
+}
+
+func attractNextSlide(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	vars.AttractModeSlide += 1
+	if vars.AttractModeSlide >= len(attractSlides) {
+		vars.AttractModeSlide = 0
+	}
+}
+
+func attractPreviousSlide(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	vars.AttractModeSlide -= 1
+	if vars.AttractModeSlide < 0 {
+		vars.AttractModeSlide = len(attractSlides) - 1
+	}
+}

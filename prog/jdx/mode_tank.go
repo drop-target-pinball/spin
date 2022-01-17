@@ -12,6 +12,9 @@ func tankModeScript(e *spin.ScriptEnv) {
 
 	vars := GetVars(e)
 	player := spin.GetPlayerVars(e)
+
+	vars.Mode = ModeBattleTank
+	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 30
 	vars.TankBonus = ScoreTank0
 

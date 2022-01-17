@@ -6,20 +6,16 @@ import (
 
 const (
 	ScriptAttractMode             = "jdx.ScriptAttractMode"
+	ScriptAttractModeSlide        = "jdx.ScriptAttractModeSlide"
 	ScriptBadImpersonatorComplete = "jdx.ScriptBadImpersonatorComplete"
 	ScriptBadImpersonatorCrowd    = "jdx.ScriptBadImpersonatorCrowd"
 	ScriptBadImpersonatorHit      = "jdx.ScriptBadImpersonatorHit"
 	ScriptBadImpersonatorMode     = "jdx.ScriptBadImpersonatorMode"
 	ScriptBall                    = "jdx.ScriptBall"
-	ScriptBasicMode               = "jdx.ScriptBasicMode"
 	ScriptBlackoutJackpot         = "jdx.ScriptBlackoutJackpot"
 	ScriptBlackoutMode            = "jdx.ScriptBlackoutMode"
 	ScriptBonusMode               = "jdx.ScriptBonusMode"
 	ScriptChain                   = "jdx.ScriptChain"
-	ScriptDefaultLeftShooterLane  = "jdx.ScriptDefaultLeftShooterLane"
-	ScriptDefaultLeftPopper       = "jdx.ScriptDefaultLeftPopper"
-	ScriptDefaultRightPopper      = "jdx.ScriptDefaultRightPopper"
-	ScriptDebugExtraBall          = "jdx.ScriptDebugExtraBall"
 	ScriptDemo                    = "jdx.ScriptDemo"
 	ScriptGame                    = "jdx.ScriptGame"
 	ScriptManhuntComplete         = "jdx.ScriptManhuntComplete"
@@ -28,20 +24,16 @@ const (
 	ScriptMeltdownIncomplete      = "jdx.ScriptMeltdownIncomplete"
 	ScriptMeltdownMode            = "jdx.ScriptMeltdownMode"
 	ScriptMatchMode               = "jdx.ScriptMatchMode"
-	ScriptOutlane                 = "jdx.ScriptOutlane"
-	ScriptPlayerAnnounce          = "jdx.ScriptPlayerAnnounce"
 	ScriptPlungeMode              = "jdx.ScriptPlungeMode"
 	ScriptProgram                 = "jdx.ScriptProgram"
 	ScriptPursuitComplete         = "jdx.ScriptPursuitComplete"
 	ScriptPursuitIncomplete       = "jdx.ScriptPursuitIncomplete"
 	ScriptPursuitMode             = "jdx.ScriptPursuitMode"
-	ScriptReturnLane              = "jdx.ScriptReturnLane"
 	ScriptSafecrackerComplete     = "jdx.ScriptSafecrackerComplete"
 	ScriptSafecrackerIncomplete   = "jdx.ScriptSafecrackerIncomplete"
 	ScriptSafecrackerMode         = "jdx.ScriptSafecrackerMode"
 	ScriptSafecrackerMode2        = "jdx.ScriptSafecrackerMode2"
 	ScriptSafecrackerOpenThatSafe = "jdx.ScriptSafecrackerOpenThatSafe"
-	ScriptSling                   = "jdx.ScriptSling"
 	ScriptSniperComplete          = "jdx.ScriptSniperComplete"
 	ScriptSniperIncomplete        = "jdx.ScriptSniperIncomplete"
 	ScriptSniperMode              = "jdx.ScriptSniperMode"
@@ -57,11 +49,14 @@ const (
 )
 
 func RegisterScripts(eng *spin.Engine) {
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptAttractMode,
-	// 	Script: attractModeScript,
-	// 	Scope:  spin.ScopeProgram,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptAttractMode,
+		Script: attractModeScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptAttractModeSlide,
+		Script: attractModeSlideScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBadImpersonatorComplete,
 		Script: impersonatorCompleteScript,
@@ -78,16 +73,10 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptBadImpersonatorMode,
 		Script: impersonatorModeScript,
 	})
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptBall,
-	// 	Script: ballScript,
-	// 	Scope:  spin.ScopeBall,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptBasicMode,
-	// 	Script: basicModeScript,
-	// 	Scope:  spin.ScopeBall,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBall,
+		Script: ballScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBlackoutJackpot,
 		Script: blackoutJackpotScript,
@@ -96,45 +85,23 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptBlackoutMode,
 		Script: blackoutModeScript,
 	})
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptBonusMode,
-	// 	Script: bonusModeScript,
-	// 	Scope:  spin.ScopeGame,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBonusMode,
+		Script: bonusModeScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptChain,
 		Script: chainScript,
 	})
 	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptDefaultLeftShooterLane,
-	// 	Script: defaultLeftShooterLaneScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptDefaultLeftPopper,
-	// 	Script: defaultLeftPopperScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptDefaultRightPopper,
-	// 	Script: defaultRightPopperScript,
-	// 	Scope:  spin.ScopeMode,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptDebugExtraBall,
-	// 	Script: debugExtraBallScript,
-	// 	Scope:  spin.ScopeBall,
-	// })
-	// eng.Do(spin.RegisterScript{
 	// 	ID:     ScriptDemo,
 	// 	Script: demoScript,
 	// 	Scope:  spin.ScopeInit,
 	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptGame,
-	// 	Script: gameScript,
-	// 	Scope:  spin.ScopeGame,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptGame,
+		Script: gameScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptManhuntComplete,
 		Script: manhuntCompleteScript,
@@ -159,30 +126,18 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptMeltdownMode,
 		Script: meltdownModeScript,
 	})
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptMatchMode,
-	// 	Script: matchModeScript,
-	// 	Scope:  spin.ScopeGame,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptOutlane,
-	// 	Script: outlaneScript,
-	// 	Scope:  spin.ScopeBall,
-	// })
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptPlayerAnnounce,
-	// 	Script: playerAnnounceScript,
-	// 	Scope:  spin.ScopeGame,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMatchMode,
+		Script: matchModeScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptPlungeMode,
 		Script: plungeModeScript,
 	})
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptProgram,
-	// 	Script: programScript,
-	// 	Scope:  spin.ScopeProgram,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptProgram,
+		Script: programScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptPursuitComplete,
 		Script: pursuitCompleteScript,
@@ -195,11 +150,6 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptPursuitMode,
 		Script: pursuitModeScript,
 	})
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptReturnLane,
-	// 	Script: returnLaneScript,
-	// 	Scope:  spin.ScopeBall,
-	// })
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSafecrackerComplete,
 		Script: safecrackerCompleteScript,
@@ -220,11 +170,6 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptSafecrackerOpenThatSafe,
 		Script: safecrackerOpenThatSafeScript,
 	})
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptSling,
-	// 	Script: slingScript,
-	// 	Scope:  spin.ScopeBall,
-	// })
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperComplete,
 		Script: sniperCompleteScript,

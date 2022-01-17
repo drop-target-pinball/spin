@@ -105,6 +105,7 @@ var (
 )
 
 type Vars struct {
+	AttractModeSlide       int
 	AwardedModes           int
 	BadImpersonatorBonus   int
 	BadImpersonatorTargets int
@@ -126,16 +127,6 @@ type Vars struct {
 	TankBonus              int
 	TankHits               int
 	Timer                  int
-}
-
-func startOfBallReset(store spin.Store) {
-	vars := GetVars(store)
-	vars.PursuitBonus = 0
-	vars.SniperBonus = 0
-	vars.SniperScore = 0
-	if vars.SelectedMode == 0 {
-		vars.SelectedMode = ModePursuit // FIXME
-	}
 }
 
 func GetVars(store spin.Store) *Vars {

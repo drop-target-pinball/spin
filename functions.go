@@ -47,7 +47,7 @@ func ScoreHurryUpLoop(e *ScriptEnv, score *int, tickMs int, decScore int, endSco
 	return false
 }
 
-func WaitForBallArrival(e *ScriptEnv, sw string, timeMs int) bool {
+func WaitForBallArrivalLoop(e *ScriptEnv, sw string, timeMs int) bool {
 	for {
 		if _, done := e.WaitFor(SwitchEvent{ID: sw}); done {
 			return true
@@ -64,11 +64,11 @@ func WaitForBallArrival(e *ScriptEnv, sw string, timeMs int) bool {
 
 func WaitForBallArrivalFunc(e *ScriptEnv, sw string, timeMs int) func() bool {
 	return func() bool {
-		return WaitForBallArrival(e, sw, timeMs)
+		return WaitForBallArrivalLoop(e, sw, timeMs)
 	}
 }
 
-func WaitForBallDeparture(e *ScriptEnv, sw string, timeMs int) bool {
+func WaitForBallDepartureLoop(e *ScriptEnv, sw string, timeMs int) bool {
 	for {
 		if _, done := e.WaitFor(SwitchEvent{ID: sw, Released: true}); done {
 			return true

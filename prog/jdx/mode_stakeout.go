@@ -12,6 +12,9 @@ func stakeoutModeScript(e *spin.ScriptEnv) {
 
 	vars := GetVars(e)
 	player := spin.GetPlayerVars(e)
+
+	vars.Mode = ModeStakeout
+	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 30
 	vars.ManhuntBonus = ScoreStakeout0
 

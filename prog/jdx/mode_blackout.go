@@ -12,6 +12,9 @@ func blackoutModeScript(e *spin.ScriptEnv) {
 
 	vars := GetVars(e)
 	player := spin.GetPlayerVars(e)
+
+	vars.Mode = ModeBlackout
+	defer func() { vars.Mode = ModeNone }()
 	vars.Multiplier = 2
 	defer func() { vars.Multiplier = 1 }()
 

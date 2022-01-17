@@ -12,6 +12,9 @@ func manhuntModeScript(e *spin.ScriptEnv) {
 
 	vars := GetVars(e)
 	player := spin.GetPlayerVars(e)
+
+	vars.Mode = ModeManhunt
+	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 30
 	vars.ManhuntBonus = ScoreManhunt0
 

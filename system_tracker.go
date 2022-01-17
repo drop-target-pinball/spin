@@ -45,7 +45,7 @@ func (s *trackerSystem) addBall(act AddBall) {
 func (s *trackerSystem) launchBall(e *ScriptEnv) {
 	e.NewCoroutine(func(e *ScriptEnv) {
 		for {
-			if done := WaitForBallArrival(e, s.eng.Config.SwitchTroughJam, 1000); done {
+			if done := WaitForBallArrivalLoop(e, s.eng.Config.SwitchTroughJam, 1000); done {
 				return
 			}
 			s.eng.Do(DriverPulse{ID: s.eng.Config.CoilTrough})
@@ -54,10 +54,10 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 
 	for s.queued > 0 {
 		s.eng.Do(DriverPulse{ID: s.eng.Config.CoilTrough})
-		if done := WaitForBallArrival(e, s.eng.Config.SwitchShooterLane, 500); done {
+		if done := WaitForBallArrivalLoop(e, s.eng.Config.SwitchShooterLane, 500); done {
 			return
 		}
-		if done := WaitForBallDeparture(e, s.eng.Config.SwitchShooterLane, 1000); done {
+		if done := WaitForBallDepartureLoop(e, s.eng.Config.SwitchShooterLane, 1000); done {
 			return
 		}
 		s.queued -= 1

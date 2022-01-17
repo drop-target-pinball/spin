@@ -7,14 +7,16 @@ import (
 )
 
 type ScriptEnv struct {
-	eng *Engine
-	co  *coroutine.C
+	Config Config
+	eng    *Engine
+	co     *coroutine.C
 }
 
 func newScriptEnv(eng *Engine, co *coroutine.C) *ScriptEnv {
 	return &ScriptEnv{
-		eng: eng,
-		co:  co,
+		Config: eng.Config,
+		eng:    eng,
+		co:     co,
 	}
 }
 
