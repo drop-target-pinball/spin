@@ -6,11 +6,18 @@ import (
 )
 
 func ballScript(e *spin.ScriptEnv) {
-
 	vars := GetVars(e)
+
+	vars.BadImpersonatorBonus = 0
+	vars.ManhuntBonus = 0
+	vars.MeltdownBonus = 0
 	vars.PursuitBonus = 0
+	vars.SafecrackerBonus = 0
 	vars.SniperBonus = 0
 	vars.SniperScore = 0
+	vars.StakeoutBonus = 0
+	vars.TankBonus = 0
+
 	if vars.SelectedMode == 0 {
 		vars.SelectedMode = ModePursuit // FIXME
 	}
@@ -22,6 +29,7 @@ func ballScript(e *spin.ScriptEnv) {
 	e.NewCoroutine(defaultSlingLoop)
 	e.NewCoroutine(defaultOutlaneLoop)
 	e.NewCoroutine(defaultReturnLaneLoop)
+	e.NewCoroutine(defaultScoreLoop)
 	e.NewCoroutine(defaultLeftShooterLaneLoop)
 	e.NewCoroutine(defaultLeftPopperLoop)
 	e.NewCoroutine(defaultRightPopperLoop)
@@ -85,6 +93,16 @@ func defaultReturnLaneLoop(e *spin.ScriptEnv) {
 		e.Do(spin.PlaySound{ID: SoundReturnLane})
 		e.Do(spin.AwardScore{Val: ScoreReturnLane * Multiplier(e)})
 	}
+}
+
+func defaultScoreLoop(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
+		render := vars.Mode == ModeNone || vars.Mode == ModePlunge
+		if render {
+			spin.ScorePanel(e)
+		}
+	})
 }
 
 func defaultSlingLoop(e *spin.ScriptEnv) {

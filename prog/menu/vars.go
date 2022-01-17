@@ -1,4 +1,4 @@
-package system
+package menu
 
 import "github.com/drop-target-pinball/spin"
 
@@ -8,15 +8,17 @@ const (
 	GameDrMario
 	GamePinGolf
 	GamePractice
+	GameNone
 )
 
 type Vars struct {
-	Game  int
-	Games []string
+	AttractModeSlide int
+	Game             int
+	Games            []string
 }
 
 func GetVars(store spin.Store) *Vars {
-	v, ok := store.GetVars("system")
+	v, ok := store.GetVars("menu")
 	var vars *Vars
 	if ok {
 		vars = v.(*Vars)
@@ -30,7 +32,7 @@ func GetVars(store spin.Store) *Vars {
 				"PRACTICE",
 			},
 		}
-		store.RegisterVars("system", vars)
+		store.RegisterVars("menu", vars)
 	}
 	return vars
 }

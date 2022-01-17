@@ -44,7 +44,7 @@ func stakeoutModeScript(e *spin.ScriptEnv) {
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
-		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampExit})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightRampExit})
 		s.Do(spin.PlayScript{ID: ScriptStakeoutInteresting})
 		s.Loop()
 
@@ -92,6 +92,9 @@ func stakeoutCompleteScript(e *spin.ScriptEnv) {
 	e.Do(spin.PlayMusic{ID: MusicMain})
 
 	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
+
+	TimerAndScorePanel(e, r, "STAKEOUT", vars.Timer, player.Score, "SHOOT RIGHT RAMP")
 
 	s := spin.NewSequencer(e)
 	s.Sleep(1_000)

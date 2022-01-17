@@ -12,9 +12,6 @@ func plungeModeScript(e *spin.ScriptEnv) {
 	vars.Mode = ModePlunge
 	defer func() { vars.Mode = ModeNone }()
 
-	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		spin.RenderFrameLoop(e, spin.ScorePanel)
-	})
 	e.Do(spin.PlayMusic{ID: MusicPlungeLoop})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
@@ -28,19 +25,12 @@ func plungeModeScript(e *spin.ScriptEnv) {
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		if done := e.Sleep(7_000); done {
-			return
-		}
-
 		s := spin.NewSequencer(e)
+		s.Sleep(7_000)
 		s.Do(spin.PlayScript{ID: ScriptUseFireButton})
 		s.Sleep(13_000)
 		s.Loop()
 		s.Run()
-	})
-
-	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		spin.RenderFrameLoop(e, spin.ScorePanel)
 	})
 
 	if game.Player == 1 && game.Ball == 1 && !game.IsExtraBall {

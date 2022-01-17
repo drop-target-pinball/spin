@@ -59,7 +59,7 @@ func pursuitModeScript(e *spin.ScriptEnv) {
 		s.Do(spin.PlaySound{ID: SoundPursuitMissile})
 		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit1 })
 
-		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchTopLeftRampExit})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampExit})
 		s.Do(spin.PlaySound{ID: SoundPursuitMissile})
 		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit2 })
 

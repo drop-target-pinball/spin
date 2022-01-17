@@ -52,7 +52,7 @@ const (
 	SpeechTwentyFivePercent                             = "jdx.SpeechTwentyFivePercent"
 	SpeechTwo                                           = "jdx.SpeechTwo"
 	SpeechUseFireButtonToLaunchBall                     = "jdx.SpeechUseFireButtonToLaunchBall"
-	SpeechWakeUpYouGeezer                               = "jdx.SpeechWakUpYouGeezer"
+	SpeechWakeUpYouGeezer                               = "jdx.SpeechWakeUpYouGeezer"
 	SpeechYourDrivingDaysAreOverPunk                    = "jdx.SpeechYourDrivingDaysAreOverPunk"
 	SpeechYouSuck                                       = "jdx.SpeechYouSuck"
 )

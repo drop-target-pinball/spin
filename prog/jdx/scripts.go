@@ -93,11 +93,10 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptChain,
 		Script: chainScript,
 	})
-	// eng.Do(spin.RegisterScript{
-	// 	ID:     ScriptDemo,
-	// 	Script: demoScript,
-	// 	Scope:  spin.ScopeInit,
-	// })
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptDemo,
+		Script: demoScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptGame,
 		Script: gameScript,

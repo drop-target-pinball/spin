@@ -94,6 +94,8 @@ func sniperMode2Script(e *spin.ScriptEnv) {
 	r, _ := e.Display("").Renderer("")
 
 	vars := GetVars(e)
+	vars.Mode = ModeSniper
+	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 10
 	vars.SniperBonus = vars.SniperScore
 

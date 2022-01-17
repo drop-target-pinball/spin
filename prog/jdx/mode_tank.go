@@ -71,17 +71,17 @@ func tankSequenceScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 
 	shots := map[string]bool{
-		jd.SwitchLeftRampExit:  false,
-		jd.SwitchRightRampExit: false,
-		jd.SwitchBankTargets:   false,
+		jd.SwitchOuterLoopLeft:   false,
+		jd.SwitchTopLeftRampExit: false,
+		jd.SwitchBankTargets:     false,
 	}
 
 	vars.TankBonus = ScoreTank0
 	hits := 0
 	for hits < 3 {
 		evt, done := e.WaitFor(
-			spin.SwitchEvent{ID: jd.SwitchLeftRampExit},
-			spin.SwitchEvent{ID: jd.SwitchRightRampExit},
+			spin.SwitchEvent{ID: jd.SwitchOuterLoopLeft},
+			spin.SwitchEvent{ID: jd.SwitchTopLeftRampExit},
 			spin.SwitchEvent{ID: jd.SwitchBankTargets},
 		)
 		if done {
@@ -142,7 +142,6 @@ func tankCompleteScript(e *spin.ScriptEnv) {
 
 	vars := GetVars(e)
 	vars.TankHits = 0
-	vars.TankBonus = ScoreTank0
 
 	e.Do(spin.PlayMusic{ID: MusicMain})
 	ModeAndScorePanel(e, r, "BATTLE TANK TOTAL", vars.TankBonus)

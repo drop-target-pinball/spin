@@ -79,6 +79,8 @@ func safecrackerModeScript(e *spin.ScriptEnv) {
 
 func safecrackerMode2Script(e *spin.ScriptEnv) {
 	vars := GetVars(e)
+	vars.Mode = ModeSafeCracker
+	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 30
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {

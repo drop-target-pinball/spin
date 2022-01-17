@@ -64,7 +64,7 @@ func manhuntModeScript(e *spin.ScriptEnv) {
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
-		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchTopLeftRampExit})
+		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampExit})
 		s.DoFunc(func() { vars.ManhuntBonus += ScoreManhuntN })
 		s.Do(spin.PlaySound{ID: SoundManhuntAutoFire})
 		s.Loop()
@@ -86,8 +86,10 @@ func manhuntCompleteScript(e *spin.ScriptEnv) {
 	e.Do(spin.PlayMusic{ID: MusicMain})
 
 	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
 
 	s := spin.NewSequencer(e)
+	s.DoFunc(func() { TimerAndScorePanel(e, r, "MANHUNT", vars.Timer, player.Score, "SHOOT LEFT RAMP") })
 	s.Sleep(1_000)
 	s.DoFunc(func() { ModeAndScorePanel(e, r, "MANHUNT TOTAL", vars.ManhuntBonus) })
 	s.Do(spin.PlaySound{ID: SoundSuccess, Duck: 0.5})

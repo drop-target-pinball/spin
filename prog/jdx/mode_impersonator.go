@@ -58,9 +58,10 @@ func impersonatorModeScript(e *spin.ScriptEnv) {
 }
 
 func impersonatorCrowdScript(e *spin.ScriptEnv) {
+	e.Do(spin.PlayMusic{ID: MusicBadImpersonator})
+
 	s := spin.NewSequencer(e)
 
-	s.Do(spin.PlayMusic{ID: MusicBadImpersonator})
 	s.Sleep(4_000)
 	s.Do(spin.PlaySpeech{ID: SpeechBoo})
 	s.Sleep(4_000)

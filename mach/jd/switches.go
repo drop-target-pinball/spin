@@ -42,8 +42,8 @@ const (
 	SwitchLeftSling               = "jd.SwitchLeftSling"
 	SwitchMysteryTarget           = "jd.SwitchMysteryTarget"
 	SwitchNextServiceButton       = "jd.SwitchNextServiceButton"
-	SwitchOuterLeftLoop           = "jd.SwitchOuterLeftLoop"
-	SwitchOuterRightLoop          = "jd.SwitchOuterRightLoop"
+	SwitchOuterLoopLeft           = "jd.SwitchOuterLoopLeft"
+	SwitchOuterLoopRight          = "jd.SwitchOuterLoopRight"
 	SwitchOuterRightReturnLane    = "jd.SwitchOuterRightReturnLane"
 	SwitchPreviousServiceButton   = "jd.SwitchPreviousServiceButton"
 	SwitchRightCoinSlot           = "jd.SwitchRightCoinSlot"
@@ -128,8 +128,8 @@ func RegisterSwitches(eng *spin.Engine) {
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S51, ID: SwitchLeftSling})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S27, ID: SwitchMysteryTarget})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SD7, ID: SwitchNextServiceButton})
-	eng.Do(spin.RegisterSwitch{Addr: wpc.S33, ID: SwitchOuterLeftLoop})
-	eng.Do(spin.RegisterSwitch{Addr: wpc.S72, ID: SwitchOuterRightLoop, NC: true})
+	eng.Do(spin.RegisterSwitch{Addr: wpc.S33, ID: SwitchOuterLoopLeft})
+	eng.Do(spin.RegisterSwitch{Addr: wpc.S72, ID: SwitchOuterLoopRight, NC: true})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S43, ID: SwitchOuterRightReturnLane})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SD6, ID: SwitchPreviousServiceButton})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.SD3, ID: SwitchRightCoinSlot})
