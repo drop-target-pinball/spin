@@ -76,7 +76,6 @@ func manhuntModeScript(e *spin.ScriptEnv) {
 		return
 	}
 	e.Do(spin.PlayScript{ID: ScriptManhuntComplete})
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptManhuntMode})
 }
 
 func manhuntCompleteScript(e *spin.ScriptEnv) {

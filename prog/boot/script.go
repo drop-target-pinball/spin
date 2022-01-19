@@ -30,7 +30,6 @@ func splashScreenScript(e *spin.ScriptEnv) {
 	if evt != nil {
 		e.Do(spin.StopMusic{ID: MusicSplashScreen})
 	}
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptSplashScreen})
 }
 
 func splashScreenPanel(e *spin.ScriptEnv) {

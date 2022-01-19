@@ -60,7 +60,6 @@ func blackoutModeScript(e *spin.ScriptEnv) {
 		return
 	}
 	e.Do(spin.PlayMusic{ID: MusicMain})
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptBlackoutMode})
 }
 
 func blackoutJackpotScript(e *spin.ScriptEnv) {

@@ -55,7 +55,6 @@ func stakeoutModeScript(e *spin.ScriptEnv) {
 		return
 	}
 	e.Do(spin.PlayScript{ID: ScriptStakeoutComplete})
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptStakeoutMode})
 }
 
 func stakeoutInterestingScript(e *spin.ScriptEnv) {

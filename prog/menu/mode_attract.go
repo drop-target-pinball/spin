@@ -24,7 +24,6 @@ func attractModeScript(e *spin.ScriptEnv) {
 			attractNextSlide(e)
 		case spin.SwitchEvent{ID: e.Config.SwitchStartButton}:
 			e.Do(spin.StopScript{ID: ScriptAttractModeSlide})
-			e.Post(spin.ScriptFinishedEvent{ID: ScriptAttractMode})
 			return
 		}
 	}

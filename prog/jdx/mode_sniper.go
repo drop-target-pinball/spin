@@ -6,6 +6,24 @@ import (
 )
 
 func sniperModeScript(e *spin.ScriptEnv) {
+	e.Do(spin.PlayScript{ID: ScriptSniperMode1})
+
+	evt, done := e.WaitFor(
+		spin.AdvanceEvent{},
+		spin.TimeoutEvent{},
+	)
+	if done {
+		return
+	}
+	if evt == (spin.TimeoutEvent{}) {
+		e.Do(spin.PlayMusic{ID: MusicMain})
+		return
+	}
+	e.Do(spin.PlayScript{ID: ScriptSniperMode2})
+	e.WaitFor(spin.ScriptFinishedEvent{ID: ScriptSniperMode2})
+}
+
+func sniperMode1Script(e *spin.ScriptEnv) {
 	r, _ := e.Display("").Renderer("")
 
 	e.Do(spin.PlayMusic{ID: MusicMode1})
@@ -75,19 +93,7 @@ func sniperModeScript(e *spin.ScriptEnv) {
 		s.Run()
 	})
 
-	evt, done := e.WaitFor(
-		spin.AdvanceEvent{},
-		spin.TimeoutEvent{},
-	)
-	if done {
-		return
-	}
-	if evt == (spin.TimeoutEvent{}) {
-		e.Do(spin.PlayMusic{ID: MusicMain})
-		e.Post(spin.ScriptFinishedEvent{ID: ScriptSniperMode})
-		return
-	}
-	e.Do(spin.PlayScript{ID: ScriptSniperMode2})
+	e.WaitFor(spin.AdvanceEvent{}, spin.TimeoutEvent{})
 }
 
 func sniperMode2Script(e *spin.ScriptEnv) {
@@ -156,7 +162,6 @@ func sniperMode2Script(e *spin.ScriptEnv) {
 	} else {
 		e.Do(spin.PlayScript{ID: ScriptSniperComplete})
 	}
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptSniperMode})
 }
 
 func sniperIncompleteScript(e *spin.ScriptEnv) {

@@ -63,8 +63,6 @@ func tankModeScript(e *spin.ScriptEnv) {
 	} else {
 		e.Do(spin.PlayScript{ID: ScriptTankComplete})
 	}
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptTankMode})
-
 }
 
 func tankSequenceScript(e *spin.ScriptEnv) {

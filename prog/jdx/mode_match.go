@@ -22,5 +22,4 @@ func matchModeScript(e *spin.ScriptEnv) {
 	if _, done := e.WaitFor(spin.MusicFinishedEvent{}); done {
 		return
 	}
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptMatchMode})
 }

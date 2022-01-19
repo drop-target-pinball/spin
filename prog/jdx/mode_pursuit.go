@@ -95,7 +95,6 @@ func pursuitModeScript(e *spin.ScriptEnv) {
 	} else {
 		e.Do(spin.PlayScript{ID: ScriptPursuitComplete})
 	}
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptPursuitMode})
 }
 
 func pursuitIncompleteScript(e *spin.ScriptEnv) {

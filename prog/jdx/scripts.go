@@ -32,11 +32,13 @@ const (
 	ScriptSafecrackerComplete     = "jdx.ScriptSafecrackerComplete"
 	ScriptSafecrackerIncomplete   = "jdx.ScriptSafecrackerIncomplete"
 	ScriptSafecrackerMode         = "jdx.ScriptSafecrackerMode"
+	ScriptSafecrackerMode1        = "jdx.ScriptSafecrackerMode1"
 	ScriptSafecrackerMode2        = "jdx.ScriptSafecrackerMode2"
 	ScriptSafecrackerOpenThatSafe = "jdx.ScriptSafecrackerOpenThatSafe"
 	ScriptSniperComplete          = "jdx.ScriptSniperComplete"
 	ScriptSniperIncomplete        = "jdx.ScriptSniperIncomplete"
 	ScriptSniperMode              = "jdx.ScriptSniperMode"
+	ScriptSniperMode1             = "jdx.ScriptSniperMode1"
 	ScriptSniperMode2             = "jdx.ScriptSniperMode2"
 	ScriptStakeoutComplete        = "jdx.ScriptStakeoutComplete"
 	ScriptStakeoutMode            = "jdx.ScriptStakeoutMode"
@@ -162,6 +164,10 @@ func RegisterScripts(eng *spin.Engine) {
 		Script: safecrackerModeScript,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptSafecrackerMode1,
+		Script: safecrackerMode1Script,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptSafecrackerMode2,
 		Script: safecrackerMode2Script,
 	})
@@ -180,6 +186,10 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperMode,
 		Script: sniperModeScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptSniperMode1,
+		Script: sniperMode1Script,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperMode2,

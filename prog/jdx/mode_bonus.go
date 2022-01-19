@@ -49,7 +49,6 @@ func bonusModeScript(e *spin.ScriptEnv) {
 	if done := e.Sleep(2000); done {
 		return
 	}
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptBonusMode})
 }
 
 func bonusPanel(e *spin.ScriptEnv, header string, score int) {

@@ -43,7 +43,6 @@ func plungeModeScript(e *spin.ScriptEnv) {
 	e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
 	e.Do(spin.PlayMusic{ID: MusicMain})
 	e.Do(spin.PlaySound{ID: SoundMotorcycleStart})
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptPlungeMode})
 }
 
 func useFireButtonPanel(e *spin.ScriptEnv, n int) {

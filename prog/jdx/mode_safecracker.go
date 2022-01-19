@@ -6,6 +6,27 @@ import (
 )
 
 func safecrackerModeScript(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+
+	e.Do(spin.PlayScript{ID: ScriptSafecrackerMode1})
+
+	evt, done := e.WaitFor(
+		spin.AdvanceEvent{},
+		spin.TimeoutEvent{},
+	)
+	if done {
+		return
+	}
+	if evt == (spin.TimeoutEvent{}) {
+		vars.SafecrackerBonus = vars.SafecrackerScore
+		e.Do(spin.PlayScript{ID: ScriptSafecrackerIncomplete})
+		return
+	}
+	e.Do(spin.PlayScript{ID: ScriptSafecrackerMode2})
+	e.WaitFor(spin.ScriptFinishedEvent{ID: ScriptSafecrackerMode2})
+}
+
+func safecrackerMode1Script(e *spin.ScriptEnv) {
 	r, _ := e.Display("").Renderer("")
 
 	e.Do(spin.PlayMusic{ID: MusicMode2})
@@ -61,20 +82,7 @@ func safecrackerModeScript(e *spin.ScriptEnv) {
 		s.Run()
 	})
 
-	evt, done := e.WaitFor(
-		spin.AdvanceEvent{},
-		spin.TimeoutEvent{},
-	)
-	if done {
-		return
-	}
-	if evt == (spin.TimeoutEvent{}) {
-		vars.SafecrackerBonus = vars.SafecrackerScore
-		e.Do(spin.PlayScript{ID: ScriptSafecrackerIncomplete})
-		e.Post(spin.ScriptFinishedEvent{ID: ScriptSafecrackerMode})
-	} else {
-		e.Do(spin.PlayScript{ID: ScriptSafecrackerMode2})
-	}
+	e.WaitFor(spin.AdvanceEvent{}, spin.TimeoutEvent{})
 }
 
 func safecrackerMode2Script(e *spin.ScriptEnv) {
@@ -119,7 +127,6 @@ func safecrackerMode2Script(e *spin.ScriptEnv) {
 	} else {
 		e.Do(spin.PlayScript{ID: ScriptSafecrackerComplete})
 	}
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptSafecrackerMode})
 }
 
 func safecrackerOpenThatSafeScript(e *spin.ScriptEnv) {

@@ -105,7 +105,6 @@ func meltdownModeScript(e *spin.ScriptEnv) {
 	} else {
 		e.Do(spin.PlayScript{ID: ScriptMeltdownComplete})
 	}
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptMeltdownMode})
 }
 
 func meltdownIncompleteScript(e *spin.ScriptEnv) {

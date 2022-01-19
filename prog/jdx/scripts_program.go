@@ -23,5 +23,4 @@ func programScript(e *spin.ScriptEnv) {
 			return
 		}
 	}
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptProgram})
 }

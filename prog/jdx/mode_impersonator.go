@@ -54,7 +54,6 @@ func impersonatorModeScript(e *spin.ScriptEnv) {
 	}
 	e.Do(spin.StopScript{ID: ScriptBadImpersonatorCrowd})
 	e.Do(spin.PlayScript{ID: ScriptBadImpersonatorComplete})
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptBadImpersonatorMode})
 }
 
 func impersonatorCrowdScript(e *spin.ScriptEnv) {

@@ -22,7 +22,6 @@ func demoScript(e *spin.ScriptEnv) {
 	demoDrain3(e, false)
 
 	//demoStakeout(e, true)
-	e.Post(spin.ScriptFinishedEvent{ID: ScriptDemo})
 }
 
 func demoIntro(e *spin.ScriptEnv) {

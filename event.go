@@ -77,6 +77,14 @@ func (e PlayerAddedEvent) Key() interface{} {
 	return PlayerAddedEvent{}
 }
 
+type ScriptStartedEvent struct {
+	ID string
+}
+
+func (e ScriptStartedEvent) Key() interface{} {
+	return ScriptStartedEvent{ID: e.ID}
+}
+
 type ScriptFinishedEvent struct {
 	ID string
 }
