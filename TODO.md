@@ -1,0 +1,4 @@
+- Put scopes back in. This makes end-of-ball so much easier if all of the ball running scripts can be canceled together.
+- Mode tracking. Watching for start/end events is too loose. Explicit variable handling works but is tedious.
+- Lock DMD display. Grab token with priority?
+- Blinking. Maybe make a PROC specific action for schedule.
