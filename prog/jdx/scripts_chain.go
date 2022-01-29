@@ -63,7 +63,7 @@ func chainScript(e *spin.ScriptEnv) {
 		if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: ModeScripts[vars.SelectedMode]}); done {
 			return
 		}
-
+		e.Do(spin.StopScriptGroup{ID: spin.ScriptGroupMode})
 		if vars.AwardedModes == AllChainModes {
 			break
 		}

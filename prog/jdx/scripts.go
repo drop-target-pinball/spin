@@ -62,30 +62,37 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBadImpersonatorComplete,
 		Script: impersonatorCompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBadImpersonatorCrowd,
 		Script: impersonatorCrowdScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBadImpersonatorHit,
 		Script: impersonatorHitScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBadImpersonatorMode,
 		Script: impersonatorModeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBall,
 		Script: ballScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBlackoutJackpot,
 		Script: blackoutJackpotScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBlackoutMode,
 		Script: blackoutModeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBonusMode,
@@ -94,6 +101,7 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptChain,
 		Script: chainScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptDemo,
@@ -106,26 +114,27 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptManhuntComplete,
 		Script: manhuntCompleteScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptManhuntMode,
 		Script: manhuntModeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptMeltdownComplete,
 		Script: meltdownCompleteScript,
-	})
-	eng.Do(spin.RegisterScript{
-		ID:     ScriptMeltdownComplete,
-		Script: meltdownCompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptMeltdownIncomplete,
 		Script: meltdownIncompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptMeltdownMode,
 		Script: meltdownModeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptMatchMode,
@@ -134,6 +143,7 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptPlungeMode,
 		Script: plungeModeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptProgram,
@@ -142,89 +152,111 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptPursuitComplete,
 		Script: pursuitCompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptPursuitIncomplete,
 		Script: pursuitIncompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptPursuitMode,
 		Script: pursuitModeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSafecrackerComplete,
 		Script: safecrackerCompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSafecrackerIncomplete,
 		Script: safecrackerIncompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSafecrackerMode,
 		Script: safecrackerModeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSafecrackerMode1,
 		Script: safecrackerMode1Script,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSafecrackerMode2,
 		Script: safecrackerMode2Script,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSafecrackerOpenThatSafe,
 		Script: safecrackerOpenThatSafeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperComplete,
 		Script: sniperCompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperIncomplete,
 		Script: sniperIncompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperMode,
 		Script: sniperModeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperMode1,
 		Script: sniperMode1Script,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptSniperMode2,
 		Script: sniperMode2Script,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptStakeoutComplete,
 		Script: stakeoutCompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptStakeoutMode,
 		Script: stakeoutModeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptStakeoutInteresting,
 		Script: stakeoutInterestingScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptTankComplete,
 		Script: tankCompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptTankHit,
 		Script: tankHitScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptTankIncomplete,
 		Script: tankIncompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptTankMode,
 		Script: tankModeScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptUseFireButton,
 		Script: useFireButtonScript,
+		Group:  spin.ScriptGroupMode,
 	})
 }

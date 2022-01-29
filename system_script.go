@@ -6,11 +6,17 @@ import (
 	"github.com/drop-target-pinball/coroutine"
 )
 
+const (
+	ScriptGroupMode = "GroupMode"
+	ScriptGroupBall = "GroupBall"
+)
+
 type ScriptFn func(*ScriptEnv)
 
 type script struct {
 	id     string
 	fn     ScriptFn
+	group  string
 	cancel coroutine.CancelFunc
 }
 
@@ -41,6 +47,8 @@ func (s *scriptSystem) HandleAction(action Action) {
 		s.playScript(act)
 	case StopScript:
 		s.stopScript(act)
+	case StopScriptGroup:
+		s.stopScriptGroup(act)
 	}
 }
 
@@ -50,8 +58,9 @@ func (s *scriptSystem) HandleAction(action Action) {
 
 func (s *scriptSystem) registerScript(a RegisterScript) {
 	s.scripts[a.ID] = &script{
-		id: a.ID,
-		fn: a.Script,
+		id:    a.ID,
+		group: a.Group,
+		fn:    a.Script,
 	}
 }
 
@@ -80,6 +89,14 @@ func (s *scriptSystem) stopScript(act StopScript) {
 	}
 	if script.cancel != nil {
 		script.cancel()
+	}
+}
+
+func (s *scriptSystem) stopScriptGroup(act StopScriptGroup) {
+	for _, script := range s.scripts {
+		if script.group == act.ID && script.cancel != nil {
+			script.cancel()
+		}
 	}
 }
 

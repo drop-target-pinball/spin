@@ -162,6 +162,7 @@ type RegisterMusic struct {
 type RegisterScript struct {
 	ID     string
 	Script ScriptFn
+	Group  string
 }
 
 type RegisterSound struct {
@@ -199,6 +200,10 @@ type StopMusic struct {
 }
 
 type StopScript struct {
+	ID string
+}
+
+type StopScriptGroup struct {
 	ID string
 }
 
@@ -250,6 +255,7 @@ func (SetVar) action()            {}
 func (StopAudio) action()         {}
 func (StopMusic) action()         {}
 func (StopScript) action()        {}
+func (StopScriptGroup) action()   {}
 func (StopSound) action()         {}
 func (StopSpeech) action()        {}
 
@@ -280,6 +286,7 @@ func registerActions(e *Engine) {
 	e.RegisterAction(StopAudio{})
 	e.RegisterAction(StopMusic{})
 	e.RegisterAction(StopScript{})
+	e.RegisterAction(StopScriptGroup{})
 	e.RegisterAction(StopSound{})
 	e.RegisterAction(StopSpeech{})
 }
