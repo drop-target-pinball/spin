@@ -2,10 +2,12 @@ package menu
 
 import (
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 func attractModeScript(e *spin.ScriptEnv) {
-	e.Do(spin.DriverBlink{ID: e.Config.LampStartButton})
+	e.Do(proc.DriverSchedule{ID: jd.LampStartButton, Schedule: proc.Blink})
 	for {
 		e.Do(spin.PlayScript{ID: ScriptAttractModeSlide})
 		evt, done := e.WaitFor(

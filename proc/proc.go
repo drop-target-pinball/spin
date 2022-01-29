@@ -8,16 +8,6 @@ import (
 	"github.com/drop-target-pinball/spin"
 )
 
-const (
-	BlinkStyleRegular = ""
-)
-
-var (
-	blinkStyles = map[string]uint32{
-		BlinkStyleRegular: 0xff00ff00,
-	}
-)
-
 type Options struct {
 	ID                      string
 	MachType                pinproc.MachType
@@ -62,6 +52,7 @@ func RegisterSystem(eng *spin.Engine, opts Options) {
 	}
 	eng.RegisterActionHandler(s)
 	eng.RegisterServer(s)
+	registerActions(eng)
 
 	s.proc.Reset(pinproc.ResetFlagUpdateDevice)
 	if err := s.proc.SwitchUpdateConfig(opts.SwitchConfig); err != nil {
@@ -83,8 +74,6 @@ func (s *procSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
 	case spin.AutoPulseOn:
 		s.autoPulseOn(act)
-	case spin.DriverBlink:
-		s.driverBlink(act)
 	case spin.DriverOff:
 		s.driverOff(act)
 	case spin.DriverOn:
@@ -93,6 +82,8 @@ func (s *procSystem) HandleAction(action spin.Action) {
 		s.driverPulse(act)
 	case spin.DriverPWM:
 		s.driverPWM(act)
+	case DriverSchedule:
+		s.driverSchedule(act)
 	case spin.FlippersOn:
 		s.flippersOn(act)
 	case spin.FlippersOff:
@@ -261,19 +252,14 @@ func (s *procSystem) driverPWM(act spin.DriverPWM) {
 	s.proc.DriverPatter(addr, timeOn, timeOff, 0, false)
 }
 
-func (s *procSystem) driverBlink(act spin.DriverBlink) {
+func (s *procSystem) driverSchedule(act DriverSchedule) {
 	driver, ok := s.drivers[act.ID]
 	if !ok {
 		spin.Warn("no such driver: %v", act.ID)
 		return
 	}
-	schedule, ok := blinkStyles[act.Style]
-	if !ok {
-		spin.Warn("no such blink style: %v", act.Style)
-		return
-	}
 	addr := driver.Addr.(uint8)
-	if err := s.proc.DriverSchedule(addr, schedule, 0, false); err != nil {
+	if err := s.proc.DriverSchedule(addr, act.Schedule, 0, false); err != nil {
 		log.Fatal(err)
 	}
 }

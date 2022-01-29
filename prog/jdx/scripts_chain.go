@@ -3,6 +3,7 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 const (
@@ -19,7 +20,7 @@ func chainScript(e *spin.ScriptEnv) {
 			e.Do(spin.DriverOn{ID: ModeLamps[mode]})
 		}
 		if vars.SelectedMode == mode {
-			e.Do(spin.DriverBlink{ID: ModeLamps[mode]})
+			e.Do(proc.DriverSchedule{ID: ModeLamps[mode], Schedule: proc.Blink})
 		}
 	}
 
@@ -33,7 +34,7 @@ func chainScript(e *spin.ScriptEnv) {
 		if vars.StartModeLeft {
 			modeStartLamp = jd.LampLeftModeStart
 		}
-		e.Do(spin.DriverBlink{ID: modeStartLamp})
+		e.Do(proc.DriverSchedule{ID: modeStartLamp, Schedule: proc.Blink})
 
 		for {
 			evt, done := e.WaitFor(
@@ -113,7 +114,7 @@ func nextChain(e *spin.ScriptEnv) {
 		}
 	}
 	e.Do(spin.DriverOff{ID: ModeLamps[previous]})
-	e.Do(spin.DriverBlink{ID: ModeLamps[next]})
+	e.Do(proc.DriverSchedule{ID: ModeLamps[next], Schedule: proc.Blink})
 	vars.SelectedMode = next
 }
 
@@ -131,6 +132,6 @@ func prevChain(e *spin.ScriptEnv) {
 		}
 	}
 	e.Do(spin.DriverOff{ID: ModeLamps[previous]})
-	e.Do(spin.DriverBlink{ID: ModeLamps[next]})
+	e.Do(proc.DriverSchedule{ID: ModeLamps[next], Schedule: proc.Blink})
 	vars.SelectedMode = next
 }

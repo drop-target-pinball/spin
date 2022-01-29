@@ -3,6 +3,7 @@ package menu
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 const (
@@ -11,7 +12,7 @@ const (
 )
 
 func selectGameScript(e *spin.ScriptEnv) {
-	e.Do(spin.DriverBlink{ID: jd.LampSuperGameButton})
+	e.Do(proc.DriverSchedule{ID: jd.LampSuperGameButton, Schedule: proc.Blink})
 	defer e.Do(spin.DriverOff{ID: jd.LampSuperGameButton})
 
 	vars := GetVars(e)

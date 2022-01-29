@@ -51,6 +51,7 @@ func ballScript(e *spin.ScriptEnv) {
 			break
 		}
 	}
+	e.Do(spin.StopScriptGroup{ID: spin.ScriptGroupMode})
 	e.Do(spin.StopScriptGroup{ID: spin.ScriptGroupBall})
 	e.Do(spin.AdvanceGame{})
 }
