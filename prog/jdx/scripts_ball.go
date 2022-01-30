@@ -22,22 +22,7 @@ func ballScript(e *spin.ScriptEnv) {
 		vars.SelectedMode = ModePursuit // FIXME
 	}
 
-	e.Do(spin.FlippersOn{})
-	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingLeft})
-	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingRight})
-
-	e.NewCoroutine(defaultSlingLoop)
-	e.NewCoroutine(defaultOutlaneLoop)
-	e.NewCoroutine(defaultReturnLaneLoop)
-	e.NewCoroutine(defaultScoreLoop)
-	e.NewCoroutine(defaultLeftShooterLaneLoop)
-	e.NewCoroutine(defaultLeftPopperLoop)
-	e.NewCoroutine(defaultRightPopperLoop)
-
-	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
-	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
-	e.NewCoroutine(debugExtraBallScript)
-	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
+	startBase(e)
 	e.Do(spin.PlayScript{ID: ScriptChain})
 	e.Do(spin.PlayScript{ID: ScriptPlungeMode})
 
@@ -51,23 +36,56 @@ func ballScript(e *spin.ScriptEnv) {
 			break
 		}
 	}
+
+	stopBase(e)
 	e.Do(spin.StopScriptGroup{ID: spin.ScriptGroupMode})
 	e.Do(spin.StopScriptGroup{ID: spin.ScriptGroupBall})
 	e.Do(spin.AdvanceGame{})
 }
 
-func debugExtraBallScript(e *spin.ScriptEnv) {
-	e.Do(spin.DriverOn{ID: jd.LampBuyInButton})
+func startBase(e *spin.ScriptEnv) {
+	e.Do(spin.PlayScript{ID: jd.ScriptGIOn})
+	e.Do(spin.FlippersOn{})
+	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingLeft})
+	e.Do(spin.AutoPulseOn{ID: jd.AutoSlingRight})
+	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
+
+	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
+	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
+	e.NewCoroutine(defaultSlingLoop)
+	e.NewCoroutine(defaultOutlaneLoop)
+	e.NewCoroutine(defaultReturnLaneLoop)
+	e.NewCoroutine(defaultScoreLoop)
+	e.NewCoroutine(defaultLeftShooterLaneLoop)
+	e.NewCoroutine(defaultRightShooterLaneLoop)
+	e.NewCoroutine(defaultLeftPopperLoop)
+	e.NewCoroutine(defaultRightPopperLoop)
+}
+
+func stopBase(e *spin.ScriptEnv) {
+	e.Do(spin.FlippersOff{})
+	e.Do(spin.AutoPulseOff{ID: jd.AutoSlingLeft})
+	e.Do(spin.AutoPulseOff{ID: jd.AutoSlingRight})
+
+	e.Do(spin.StopScript{ID: jd.ScriptInactiveGlobe})
+	e.Do(spin.StopScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
+}
+
+func baseScript(e *spin.ScriptEnv) {
+	startBase(e)
+	e.Do(spin.AddBall{})
 	for {
-		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchBuyInButton}); done {
+		evt, done := e.WaitFor(spin.BallDrainEvent{})
+		if done {
 			return
 		}
-		e.Do(spin.DriverPulse{ID: jd.CoilTrough})
-		if done := e.Sleep(1000); done {
-			return
+		e := evt.(spin.BallDrainEvent)
+		if e.BallsInPlay == 0 {
+			break
 		}
-		e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
 	}
+	stopBase(e)
+	e.Do(spin.PlayScript{ID: jd.ScriptGIOff})
 }
 
 func defaultOutlaneLoop(e *spin.ScriptEnv) {
@@ -135,6 +153,19 @@ func defaultLeftShooterLaneLoop(e *spin.ScriptEnv) {
 			return
 		}
 		e.Do(spin.DriverPulse{ID: jd.CoilLeftShooterLane})
+	}
+}
+
+func defaultRightShooterLaneLoop(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	for {
+		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchRightShooterLane, 1000); done {
+			return
+		}
+		if vars.Mode == ModePlunge {
+			continue
+		}
+		e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
 	}
 }
 

@@ -54,7 +54,7 @@ func scriptInit(e *spin.ScriptEnv) {
 			if evt == (spin.Message{ID: menu.MessageExit}) {
 				break
 			}
-			e.Do(spin.PlayScript{ID: jdx.ScriptGame})
+			e.Do(spin.PlayScript{ID: jdx.ScriptProgram})
 			if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: jdx.ScriptProgram}); done {
 				return
 			}

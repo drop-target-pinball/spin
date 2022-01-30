@@ -52,7 +52,7 @@ func WaitForBallArrivalLoop(e *ScriptEnv, sw string, timeMs int) bool {
 		if _, done := e.WaitFor(SwitchEvent{ID: sw}); done {
 			return true
 		}
-		evt, done := e.WaitForUntil(500, SwitchEvent{ID: sw, Released: true})
+		evt, done := e.WaitForUntil(timeMs, SwitchEvent{ID: sw, Released: true})
 		if done {
 			return true
 		}

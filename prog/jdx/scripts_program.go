@@ -7,6 +7,10 @@ import (
 
 func programScript(e *spin.ScriptEnv) {
 	for {
+		e.Do(spin.PlayScript{ID: ScriptGame})
+		if _, done := e.WaitFor(spin.GameOverEvent{}); done {
+			return
+		}
 		e.Do(spin.PlayScript{ID: ScriptAttractMode})
 		evt, done := e.WaitFor(
 			spin.SwitchEvent{ID: jd.SwitchStartButton},
@@ -17,10 +21,6 @@ func programScript(e *spin.ScriptEnv) {
 		}
 		if evt == (spin.SwitchEvent{ID: jd.SwitchSuperGameButton}) {
 			break
-		}
-		e.Do(spin.PlayScript{ID: ScriptGame})
-		if _, done := e.WaitFor(spin.GameOverEvent{}); done {
-			return
 		}
 	}
 }

@@ -70,7 +70,7 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 
 func (s *trackerSystem) watchDrain(e *ScriptEnv) {
 	for {
-		if done := WaitForBallArrivalLoop(e, s.eng.Config.SwitchDrain, 500); done {
+		if done := WaitForBallArrivalLoop(e, s.eng.Config.SwitchDrain, 25); done {
 			return
 		}
 		s.active -= 1

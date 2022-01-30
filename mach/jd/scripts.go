@@ -7,6 +7,8 @@ import (
 const (
 	ScriptBallCollect                 = "jd.ScriptBallCollect"
 	ScriptBallSearch                  = "jd.ScriptBallSearch"
+	ScriptGIOn                        = "jd.ScriptGIOn"
+	ScriptGIOff                       = "jd.ScriptGIOff"
 	ScriptInactiveGlobe               = "jd.ScriptInactiveGlobe"
 	ScriptLeftRampShot                = "jd.ScriptLeftRampShot"
 	ScriptRaiseDropTargets            = "jd.ScriptRaiseDropTargets"
@@ -146,6 +148,22 @@ func raiseDropTargetsWhenAllDownScript(e *spin.ScriptEnv) {
 
 }
 
+func giOnScript(e *spin.ScriptEnv) {
+	e.Do(spin.DriverOn{ID: GI1})
+	e.Do(spin.DriverOn{ID: GI2})
+	e.Do(spin.DriverOn{ID: GI3})
+	e.Do(spin.DriverOn{ID: GI4})
+	e.Do(spin.DriverOn{ID: GI5})
+}
+
+func giOffScript(e *spin.ScriptEnv) {
+	e.Do(spin.DriverOff{ID: GI1})
+	e.Do(spin.DriverOff{ID: GI2})
+	e.Do(spin.DriverOff{ID: GI3})
+	e.Do(spin.DriverOff{ID: GI4})
+	e.Do(spin.DriverOff{ID: GI5})
+}
+
 func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBallCollect,
@@ -154,6 +172,14 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBallSearch,
 		Script: ballSearchScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptGIOff,
+		Script: giOffScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptGIOn,
+		Script: giOnScript,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptInactiveGlobe,
