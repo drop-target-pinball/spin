@@ -5,6 +5,7 @@ import (
 )
 
 const (
+	ScriptBallCollect                 = "jd.ScriptBallCollect"
 	ScriptBallSearch                  = "jd.ScriptBallSearch"
 	ScriptInactiveGlobe               = "jd.ScriptInactiveGlobe"
 	ScriptLeftRampShot                = "jd.ScriptLeftRampShot"
@@ -12,9 +13,28 @@ const (
 	ScriptRaiseDropTargetsWhenAllDown = "jd.ScriptRaiseDropTargetsWhenAllDown"
 )
 
+func ballCollectScript(e *spin.ScriptEnv) {
+	rsrc := spin.GetResourceVars(e)
+	holds := []spin.BallHold{
+		{Switch: SwitchRightShooterLane, Coil: CoilRightShooterLane},
+		{Switch: SwitchLeftShooterLane, Coil: CoilLeftShooterLane},
+		{Switch: SwitchRightPopper, Coil: CoilRightPopper},
+		{Switch: SwitchLeftPopper, Coil: CoilLeftPopper},
+	}
+	for _, hold := range holds {
+		sw := rsrc.Switches[hold.Switch]
+		if sw.Active {
+			e.Do(spin.DriverPulse{ID: hold.Coil})
+			if done := e.Sleep(175); done {
+				return
+			}
+		}
+	}
+}
+
 func ballSearchScript(e *spin.ScriptEnv) {
 	s := spin.NewSequencer(e)
-	wait := 250
+	wait := 175
 
 	s.Do(spin.DriverPulse{ID: CoilRightShooterLane})
 	s.Sleep(wait)
@@ -127,6 +147,10 @@ func raiseDropTargetsWhenAllDownScript(e *spin.ScriptEnv) {
 }
 
 func RegisterScripts(eng *spin.Engine) {
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBallCollect,
+		Script: ballCollectScript,
+	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBallSearch,
 		Script: ballSearchScript,

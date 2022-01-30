@@ -1,6 +1,7 @@
 package sdl
 
 import (
+	"log"
 	"os"
 
 	"github.com/drop-target-pinball/spin"
@@ -12,19 +13,29 @@ type key struct {
 	mod uint16
 }
 
-type keyHandler struct {
-	eventDown spin.Event
+type handler struct {
+	eventDown  spin.Event
+	actionDown spin.Action
 }
 
 type inputSystem struct {
-	eng  *spin.Engine
-	keys map[key]keyHandler
+	eng     *spin.Engine
+	keys    map[key]handler
+	buttons map[sdl.GameControllerButton]handler
 }
 
 func RegisterInputSystem(eng *spin.Engine) {
+	if err := sdl.InitSubSystem(sdl.INIT_JOYSTICK); err != nil {
+		log.Fatalf("unable to initialize joystick subsystem: %v", err)
+	}
+	if err := sdl.InitSubSystem(sdl.INIT_GAMECONTROLLER); err != nil {
+		log.Fatalf("unable to initialize game controller subsystem: %v", err)
+	}
+
 	s := &inputSystem{
-		eng:  eng,
-		keys: make(map[key]keyHandler),
+		eng:     eng,
+		keys:    make(map[key]handler),
+		buttons: make(map[sdl.GameControllerButton]handler),
 	}
 	eng.RegisterServer(s)
 	eng.RegisterActionHandler(s)
@@ -32,12 +43,14 @@ func RegisterInputSystem(eng *spin.Engine) {
 
 func (s *inputSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
-	case spin.RegisterKey:
+	case RegisterButton:
+		s.registerButton(act)
+	case RegisterKey:
 		s.registerKey(act)
 	}
 }
 
-func (s *inputSystem) registerKey(act spin.RegisterKey) {
+func (s *inputSystem) registerKey(act RegisterKey) {
 	keycode := sdl.GetKeyFromName(act.Key)
 	modcode, ok := uint16(0), false
 	if keycode == 0 {
@@ -52,8 +65,18 @@ func (s *inputSystem) registerKey(act spin.RegisterKey) {
 		}
 	}
 	k := key{key: keycode, mod: modcode}
-	v := keyHandler{eventDown: act.EventDown}
+	v := handler{eventDown: act.EventDown}
 	s.keys[k] = v
+}
+
+func (s *inputSystem) registerButton(act RegisterButton) {
+	button := sdl.GameControllerGetButtonFromString(act.Button)
+	if button == sdl.CONTROLLER_BUTTON_INVALID {
+		spin.Warn("unrecognized button: %v", act.Button)
+		return
+	}
+	v := handler{actionDown: act.ActionDown}
+	s.buttons[button] = v
 }
 
 func (s *inputSystem) Service() {
@@ -61,6 +84,10 @@ func (s *inputSystem) Service() {
 		switch event := e.(type) {
 		case *sdl.KeyboardEvent:
 			s.handleKey(event)
+		case *sdl.ControllerButtonEvent:
+			s.handleControllerButton(event)
+		case *sdl.ControllerDeviceEvent:
+			s.handleControllerDevice(event)
 		case *sdl.QuitEvent:
 			os.Exit(0)
 		}
@@ -78,6 +105,30 @@ func (s *inputSystem) handleKey(kbe *sdl.KeyboardEvent) {
 	}
 	if kbe.Type == sdl.KEYDOWN && handlers.eventDown != nil {
 		s.eng.Post(handlers.eventDown)
+	}
+}
+
+func (s *inputSystem) handleControllerButton(evt *sdl.ControllerButtonEvent) {
+	handler, ok := s.buttons[sdl.GameControllerButton(evt.Button)]
+	if !ok {
+		return
+	}
+	if evt.Type == sdl.CONTROLLERBUTTONDOWN {
+		if handler.actionDown != nil {
+			s.eng.Do(handler.actionDown)
+		}
+	}
+}
+
+func (s *inputSystem) handleControllerDevice(evt *sdl.ControllerDeviceEvent) {
+	if evt.Type == sdl.CONTROLLERDEVICEADDED {
+		if evt.Which == 0 {
+			gc := sdl.GameControllerOpen(0)
+			if gc == nil {
+				spin.Error("unable to open game controller")
+			}
+			spin.Log("added controller: %v", gc.Name())
+		}
 	}
 }
 

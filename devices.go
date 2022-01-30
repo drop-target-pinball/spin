@@ -22,6 +22,11 @@ type Switch struct {
 	Active bool
 }
 
+type BallHold struct {
+	Switch string
+	Coil   string
+}
+
 type Flipper struct {
 	ID            string
 	SwitchAddr    interface{}

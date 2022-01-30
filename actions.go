@@ -143,12 +143,6 @@ type RegisterMotor struct {
 	Addr interface{}
 }
 
-type RegisterKey struct {
-	Key       string
-	Mod       string
-	EventDown Event
-}
-
 type RegisterMusic struct {
 	ID   string
 	Path string
@@ -235,7 +229,6 @@ func (RegisterDisplay) action()   {}
 func (RegisterFlasher) action()   {}
 func (RegisterFlipper) action()   {}
 func (RegisterFont) action()      {}
-func (RegisterKey) action()       {}
 func (RegisterLamp) action()      {}
 func (RegisterMagnet) action()    {}
 func (RegisterMotor) action()     {}
