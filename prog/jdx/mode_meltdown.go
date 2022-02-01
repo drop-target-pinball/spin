@@ -3,6 +3,7 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 func meltdownModeScript(e *spin.ScriptEnv) {
@@ -17,6 +18,9 @@ func meltdownModeScript(e *spin.ScriptEnv) {
 	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 30
 	vars.MeltdownBonus = ScoreMeltdown0
+
+	e.Do(proc.DriverSchedule{ID: jd.LampAwardMeltdown, Schedule: proc.BlinkSchedule})
+	defer e.Do(spin.DriverOff{ID: jd.LampAwardMeltdown})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
@@ -118,7 +122,10 @@ func meltdownIncompleteScript(e *spin.ScriptEnv) {
 	s := spin.NewSequencer(e)
 
 	s.Do(spin.PlaySound{ID: SoundMeltdownExplosion})
-	s.Sleep(2_000)
+	s.Do(spin.PlayScript{ID: jd.ScriptGIOff})
+	s.Sleep(1_000)
+	s.Do(spin.PlayScript{ID: jd.ScriptGIOn})
+	s.Sleep(1_000)
 
 	s.DoFunc(func() { ModeAndScorePanel(e, r, "MELTDOWN TOTAL", vars.MeltdownBonus) })
 	s.Do(spin.PlaySound{ID: SoundSuccess})

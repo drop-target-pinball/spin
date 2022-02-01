@@ -3,6 +3,7 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 func pursuitModeScript(e *spin.ScriptEnv) {
@@ -55,17 +56,25 @@ func pursuitModeScript(e *spin.ScriptEnv) {
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
+		s.Do(proc.DriverSchedule{ID: jd.FlasherRightPursuit, Schedule: proc.FlasherBlinkSchedule})
 		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightRampExit})
 		s.Do(spin.PlaySound{ID: SoundPursuitMissile})
 		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit1 })
 
+		s.Do(spin.DriverOff{ID: jd.FlasherRightPursuit})
+		s.Do(proc.DriverSchedule{ID: jd.FlasherLeftPursuit, Schedule: proc.FlasherBlinkSchedule})
 		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampExit})
 		s.Do(spin.PlaySound{ID: SoundPursuitMissile})
 		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit2 })
 
+		s.Do(spin.DriverOff{ID: jd.FlasherLeftPursuit})
+		s.Do(proc.DriverSchedule{ID: jd.FlasherRightPursuit, Schedule: proc.FlasherBlinkSchedule})
 		s.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightRampExit})
 		s.DoFunc(func() { vars.PursuitBonus = ScorePursuit3 })
 		s.Post(spin.AdvanceEvent{})
+
+		s.Defer(spin.DriverOff{ID: jd.FlasherLeftPursuit})
+		s.Defer(spin.DriverOff{ID: jd.FlasherRightPursuit})
 
 		s.Run()
 	})

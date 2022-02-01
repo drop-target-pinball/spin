@@ -107,7 +107,7 @@ func RegisterLamps(eng *spin.Engine) {
 	eng.Do(spin.RegisterLamp{Addr: wpc.L85, ID: LampAdvanceCrimeLevel})
 	eng.Do(spin.RegisterLamp{Addr: wpc.L65, ID: LampAirRaid})
 	eng.Do(spin.RegisterLamp{Addr: wpc.L78, ID: LampAwardBadImpersonator})
-	eng.Do(spin.RegisterLamp{Addr: wpc.L85, ID: LampAwardMeltdown})
+	eng.Do(spin.RegisterLamp{Addr: wpc.L48, ID: LampAwardMeltdown})
 	eng.Do(spin.RegisterLamp{Addr: wpc.L76, ID: LampAwardSafeCracker})
 	eng.Do(spin.RegisterLamp{Addr: wpc.L64, ID: LampAwardSniper})
 	eng.Do(spin.RegisterLamp{Addr: wpc.L81, ID: LampAwardStakeout})

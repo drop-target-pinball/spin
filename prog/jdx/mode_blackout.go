@@ -3,6 +3,7 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 func blackoutModeScript(e *spin.ScriptEnv) {
@@ -18,6 +19,9 @@ func blackoutModeScript(e *spin.ScriptEnv) {
 	vars.Multiplier = 2
 	defer func() { vars.Multiplier = 1 }()
 
+	e.Do(proc.DriverSchedule{ID: jd.FlasherBlackout, Schedule: proc.FlasherBlinkSchedule})
+	defer e.Do(spin.DriverOff{ID: jd.FlasherBlackout})
+
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
@@ -28,6 +32,24 @@ func blackoutModeScript(e *spin.ScriptEnv) {
 
 		s.Run()
 	})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
+
+		s.Do(spin.DriverOff{ID: jd.GI1})
+		s.Sleep(200)
+		s.Do(spin.DriverOff{ID: jd.GI2})
+		s.Sleep(300)
+		s.Do(spin.DriverOff{ID: jd.GI3})
+		s.Sleep(100)
+		s.Do(spin.DriverOff{ID: jd.GI4})
+		s.Sleep(300)
+		s.Do(spin.DriverOff{ID: jd.GI5})
+		s.Sleep(200)
+
+		s.Run()
+	})
+	defer e.Do(spin.PlayScript{ID: jd.ScriptGIOn})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		ModeIntroScript(e, "BLACKOUT", "EVERYTHING", "2X")

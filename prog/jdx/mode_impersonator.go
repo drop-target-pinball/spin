@@ -5,6 +5,7 @@ import (
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 var hitSounds = []string{
@@ -23,6 +24,18 @@ func impersonatorModeScript(e *spin.ScriptEnv) {
 	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 30
 	vars.BadImpersonatorBonus = ScoreBadImpersonator0
+
+	e.Do(proc.DriverSchedule{ID: jd.LampAwardBadImpersonator, Schedule: proc.BlinkSchedule})
+	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
+
+	defer func() {
+		e.Do(spin.DriverOff{ID: jd.LampAwardBadImpersonator})
+		e.Do(spin.DriverOff{ID: jd.LampDropTargetJ})
+		e.Do(spin.DriverOff{ID: jd.LampDropTargetU})
+		e.Do(spin.DriverOff{ID: jd.LampDropTargetD})
+		e.Do(spin.DriverOff{ID: jd.LampDropTargetG})
+		e.Do(spin.DriverOff{ID: jd.LampDropTargetE})
+	}()
 
 	e.Do(spin.PlayScript{ID: ScriptBadImpersonatorCrowd})
 
@@ -126,6 +139,10 @@ func impersonatorWatchDropTargets(e *spin.ScriptEnv) {
 		if vars.BadImpersonatorTargets&(1<<idx) != 0 {
 			e.Do(spin.PlayScript{ID: ScriptBadImpersonatorHit})
 		}
+		if done := e.Sleep(500); done {
+			return
+		}
+		e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
 	}
 }
 
@@ -140,6 +157,7 @@ func impersonatorHitScript(e *spin.ScriptEnv) {
 	s.Do(spin.StopScript{ID: ScriptBadImpersonatorCrowd})
 	s.Do(spin.PlaySound{ID: hitSounds[sound]})
 	s.Sleep(1000)
+	s.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
 	s.Do(spin.PlayMusic{ID: MusicBadImpersonator})
 	s.Do(spin.PlayScript{ID: ScriptBadImpersonatorCrowd})
 	s.Run()

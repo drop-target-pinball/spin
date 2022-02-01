@@ -40,6 +40,7 @@ func gameScript(e *spin.ScriptEnv) {
 		if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: ScriptBonusMode}); done {
 			return
 		}
+		e.Do(spin.AllLampsOff{})
 	}
 
 	e.Do(spin.PlayScript{ID: ScriptMatchMode})

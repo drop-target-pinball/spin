@@ -119,6 +119,13 @@ func (r *REPL) Eval(line string) error {
 				return fmt.Errorf("not an integer: %v", val)
 			}
 			v.FieldByName(key).SetInt(int64(iVal))
+		case reflect.Uint32:
+			iVal, err := strconv.ParseUint(val, 0, 64)
+			if err != nil {
+				return fmt.Errorf("not an integer: %v", val)
+			}
+			v.FieldByName(key).SetUint(uint64(iVal))
+
 		case reflect.Float64:
 			fVal, err := strconv.ParseFloat(val, 64)
 			if err != nil {

@@ -45,6 +45,8 @@ func (s *trackerSystem) addBall(act AddBall) {
 }
 
 func (s *trackerSystem) launchBall(e *ScriptEnv) {
+	switches := GetResourceVars(e).Switches
+
 	e.NewCoroutine(func(e *ScriptEnv) {
 		for {
 			if done := WaitForBallArrivalLoop(e, s.eng.Config.SwitchTroughJam, 1000); done {
@@ -55,9 +57,11 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 	})
 
 	for s.queued > 0 {
-		s.eng.Do(DriverPulse{ID: s.eng.Config.CoilTrough})
-		if done := WaitForBallArrivalLoop(e, s.eng.Config.SwitchShooterLane, 500); done {
-			return
+		if !switches[s.eng.Config.SwitchShooterLane].Active {
+			s.eng.Do(DriverPulse{ID: s.eng.Config.CoilTrough})
+			if done := WaitForBallArrivalLoop(e, s.eng.Config.SwitchShooterLane, 500); done {
+				return
+			}
 		}
 		if done := WaitForBallDepartureLoop(e, s.eng.Config.SwitchShooterLane, 1000); done {
 			return
@@ -70,8 +74,11 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 
 func (s *trackerSystem) watchDrain(e *ScriptEnv) {
 	for {
-		if done := WaitForBallArrivalLoop(e, s.eng.Config.SwitchDrain, 25); done {
+		if _, done := e.WaitFor(SwitchEvent{ID: s.eng.Config.SwitchDrain}); done {
 			return
+		}
+		if s.active == 0 {
+			continue
 		}
 		s.active -= 1
 		if s.active < 0 {

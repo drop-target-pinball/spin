@@ -12,7 +12,7 @@ const (
 )
 
 func selectGameScript(e *spin.ScriptEnv) {
-	e.Do(proc.DriverSchedule{ID: jd.LampSuperGameButton, Schedule: proc.Blink})
+	e.Do(proc.DriverSchedule{ID: jd.LampSuperGameButton, Schedule: proc.BlinkSchedule})
 	defer e.Do(spin.DriverOff{ID: jd.LampSuperGameButton})
 
 	vars := GetVars(e)

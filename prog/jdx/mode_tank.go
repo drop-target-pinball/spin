@@ -3,6 +3,7 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 func tankModeScript(e *spin.ScriptEnv) {
@@ -17,6 +18,15 @@ func tankModeScript(e *spin.ScriptEnv) {
 	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 30
 	vars.TankBonus = ScoreTank0
+
+	e.Do(proc.DriverSchedule{ID: jd.LampLeftTank, Schedule: proc.BlinkSchedule})
+	e.Do(proc.DriverSchedule{ID: jd.LampRightTank, Schedule: proc.BlinkSchedule})
+	e.Do(proc.DriverSchedule{ID: jd.LampCenterTank, Schedule: proc.BlinkSchedule})
+	defer func() {
+		e.Do(spin.DriverOff{ID: jd.LampLeftTank})
+		e.Do(spin.DriverOff{ID: jd.LampRightTank})
+		e.Do(spin.DriverOff{ID: jd.LampCenterTank})
+	}()
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
@@ -73,6 +83,11 @@ func tankSequenceScript(e *spin.ScriptEnv) {
 		jd.SwitchTopLeftRampExit: false,
 		jd.SwitchBankTargets:     false,
 	}
+	lamps := map[string]string{
+		jd.SwitchOuterLoopLeft:   jd.LampLeftTank,
+		jd.SwitchTopLeftRampExit: jd.LampCenterTank,
+		jd.SwitchBankTargets:     jd.LampRightTank,
+	}
 
 	vars.TankBonus = ScoreTank0
 	hits := 0
@@ -91,6 +106,7 @@ func tankSequenceScript(e *spin.ScriptEnv) {
 		}
 		hits += 1
 		shots[id] = true
+		e.Do(spin.DriverOff{ID: lamps[id]})
 		e.Do(spin.PlayScript{ID: ScriptTankHit})
 	}
 	vars.TankBonus = ScoreTank3

@@ -14,13 +14,14 @@ func chainScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 
 	e.NewCoroutine(selectModeScript)
+	nextChain(e)
 
 	for _, mode := range Modes {
 		if vars.AwardedModes&mode != 0 {
 			e.Do(spin.DriverOn{ID: ModeLamps[mode]})
 		}
 		if vars.SelectedMode == mode {
-			e.Do(proc.DriverSchedule{ID: ModeLamps[mode], Schedule: proc.Blink})
+			e.Do(proc.DriverSchedule{ID: ModeLamps[mode], Schedule: proc.BlinkSchedule})
 		}
 	}
 
@@ -34,7 +35,7 @@ func chainScript(e *spin.ScriptEnv) {
 		if vars.StartModeLeft {
 			modeStartLamp = jd.LampLeftModeStart
 		}
-		e.Do(proc.DriverSchedule{ID: modeStartLamp, Schedule: proc.Blink})
+		e.Do(proc.DriverSchedule{ID: modeStartLamp, Schedule: proc.BlinkSchedule})
 
 		for {
 			evt, done := e.WaitFor(
@@ -113,8 +114,10 @@ func nextChain(e *spin.ScriptEnv) {
 			break
 		}
 	}
-	e.Do(spin.DriverOff{ID: ModeLamps[previous]})
-	e.Do(proc.DriverSchedule{ID: ModeLamps[next], Schedule: proc.Blink})
+	if previous&vars.AwardedModes == 0 {
+		e.Do(spin.DriverOff{ID: ModeLamps[previous]})
+	}
+	e.Do(proc.DriverSchedule{ID: ModeLamps[next], Schedule: proc.BlinkSchedule})
 	vars.SelectedMode = next
 }
 
@@ -131,7 +134,9 @@ func prevChain(e *spin.ScriptEnv) {
 			break
 		}
 	}
-	e.Do(spin.DriverOff{ID: ModeLamps[previous]})
-	e.Do(proc.DriverSchedule{ID: ModeLamps[next], Schedule: proc.Blink})
+	if previous&vars.AwardedModes == 0 {
+		e.Do(spin.DriverOff{ID: ModeLamps[previous]})
+	}
+	e.Do(proc.DriverSchedule{ID: ModeLamps[next], Schedule: proc.BlinkSchedule})
 	vars.SelectedMode = next
 }

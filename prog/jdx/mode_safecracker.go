@@ -3,12 +3,17 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 func safecrackerModeScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 
+	e.Do(proc.DriverSchedule{ID: jd.LampAwardSafeCracker, Schedule: proc.BlinkSchedule})
+	defer e.Do(spin.DriverOff{ID: jd.LampAwardSafeCracker})
+
 	e.Do(spin.PlayScript{ID: ScriptSafecrackerMode1})
+	e.NewCoroutine(watchCenterDropTargetLoop)
 
 	evt, done := e.WaitFor(
 		spin.AdvanceEvent{},
@@ -126,6 +131,21 @@ func safecrackerMode2Script(e *spin.ScriptEnv) {
 		e.Do(spin.PlayScript{ID: ScriptSafecrackerIncomplete})
 	} else {
 		e.Do(spin.PlayScript{ID: ScriptSafecrackerComplete})
+	}
+}
+
+func watchCenterDropTargetLoop(e *spin.ScriptEnv) {
+	switches := spin.GetResourceVars(e).Switches
+	for {
+		if !switches[jd.SwitchDropTargetD].Active {
+			if done := e.Sleep(500); done {
+				return
+			}
+			e.Do(spin.DriverPulse{ID: jd.CoilDropTargetTrip})
+		}
+		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchDropTargetD, Released: true}); done {
+			return
+		}
 	}
 }
 

@@ -3,7 +3,8 @@ package proc
 import "github.com/drop-target-pinball/spin"
 
 const (
-	Blink = 0xf0f0f0f0
+	FlasherBlinkSchedule = uint32(0b10000000_00000000_10000000_00000000)
+	BlinkSchedule        = 0xf0f0f0f0
 )
 
 type DriverSchedule struct {

@@ -34,7 +34,7 @@ type procSystem struct {
 }
 
 func RegisterSystem(eng *spin.Engine, opts Options) {
-	pc, err := pinproc.New(wpc.MachType)
+	pc, err := pinproc.New(wpc.MachType) // FIXME: hard-coded to WPC
 	if err != nil {
 		log.Fatalf("unable to connect to P-ROC: %v", err)
 	}
@@ -72,6 +72,8 @@ func RegisterSystem(eng *spin.Engine, opts Options) {
 
 func (s *procSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
+	case spin.AllLampsOff:
+		s.allLampsOff(act)
 	case spin.AutoPulseOn:
 		s.autoPulseOn(act)
 	case spin.DriverOff:
@@ -162,6 +164,16 @@ func (s *procSystem) Service() {
 	}
 	if err := s.proc.FlushWriteData(); err != nil {
 		log.Fatalf("unable to flush data: %v", err)
+	}
+}
+
+func (s *procSystem) allLampsOff(act spin.AllLampsOff) {
+	for id, driver := range wpc.Devices { // FIXME: hard-coded to WPC
+		if pinproc.IsLamp(id) {
+			if err := s.proc.DriverDisable(driver); err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
 }
 

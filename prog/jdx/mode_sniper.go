@@ -3,10 +3,13 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 func sniperModeScript(e *spin.ScriptEnv) {
 	e.Do(spin.PlayScript{ID: ScriptSniperMode1})
+	e.Do(proc.DriverSchedule{ID: jd.LampAwardSniper, Schedule: proc.BlinkSchedule})
+	defer e.Do(spin.DriverOff{ID: jd.LampAwardSniper})
 
 	evt, done := e.WaitFor(
 		spin.AdvanceEvent{},
@@ -25,6 +28,7 @@ func sniperModeScript(e *spin.ScriptEnv) {
 
 func sniperMode1Script(e *spin.ScriptEnv) {
 	r, _ := e.Display("").Renderer("")
+	switches := spin.GetResourceVars(e).Switches
 
 	e.Do(spin.PlayMusic{ID: MusicMode1})
 
@@ -40,6 +44,11 @@ func sniperMode1Script(e *spin.ScriptEnv) {
 		s.Sleep(4_000)
 		s.Do(spin.PlaySpeech{ID: SpeechShootSniperTower})
 		s.Sleep(1_000)
+		s.DoFunc(func() {
+			if switches[jd.SwitchRightPopper].Active {
+				e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
+			}
+		})
 
 		s.DoFunc(func() {
 			e.NewCoroutine(func(e *spin.ScriptEnv) {
@@ -197,6 +206,8 @@ func sniperCompleteScript(e *spin.ScriptEnv) {
 	s.Sleep(1_000)
 	s.Do(spin.PlaySpeech{ID: SpeechSniperEliminated, Notify: true})
 	s.Sleep(2_000)
+	s.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
+
 	if done := s.Run(); done {
 		return
 	}

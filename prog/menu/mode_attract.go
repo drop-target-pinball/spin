@@ -7,7 +7,7 @@ import (
 )
 
 func attractModeScript(e *spin.ScriptEnv) {
-	e.Do(proc.DriverSchedule{ID: jd.LampStartButton, Schedule: proc.Blink})
+	e.Do(proc.DriverSchedule{ID: jd.LampStartButton, Schedule: proc.BlinkSchedule})
 	for {
 		e.Do(spin.PlayScript{ID: ScriptAttractModeSlide})
 		evt, done := e.WaitFor(

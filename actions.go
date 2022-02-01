@@ -12,6 +12,8 @@ type AddPlayer struct{}
 
 type AdvanceGame struct{}
 
+type AllLampsOff struct{}
+
 type AutoPulseOn struct {
 	ID string
 }
@@ -206,6 +208,7 @@ type StopSpeech struct {
 
 func (AddBall) action()           {}
 func (AddPlayer) action()         {}
+func (AllLampsOff) action()       {}
 func (AdvanceGame) action()       {}
 func (AutoPulseOn) action()       {}
 func (AutoPulseOff) action()      {}

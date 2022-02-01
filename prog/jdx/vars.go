@@ -138,7 +138,9 @@ func GetVars(store spin.Store) *Vars {
 	if ok {
 		vars = v.(*Vars)
 	} else {
-		vars = &Vars{}
+		vars = &Vars{
+			SelectedMode: ModeSafeCracker,
+		}
 		store.RegisterVars(name, vars)
 	}
 	return vars

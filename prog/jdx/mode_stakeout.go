@@ -3,6 +3,7 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 func stakeoutModeScript(e *spin.ScriptEnv) {
@@ -17,6 +18,9 @@ func stakeoutModeScript(e *spin.ScriptEnv) {
 	defer func() { vars.Mode = ModeNone }()
 	vars.Timer = 30
 	vars.ManhuntBonus = ScoreStakeout0
+
+	e.Do(proc.DriverSchedule{ID: jd.FlasherRightPursuit, Schedule: proc.FlasherBlinkSchedule})
+	defer e.Do(spin.DriverOff{ID: jd.FlasherRightPursuit})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
