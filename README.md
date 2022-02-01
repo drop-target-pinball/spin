@@ -26,9 +26,9 @@ I would like to do the following:
 
 A work in progress. Judge Dredd Remix is first.
 
-Version alpha-v6 was for getting the first pass of all the chain modes done.
-Version alpha-v7 will be for getting lamps, flashers, and mechs working
-properly with the chain modes.
+Version alpha-v7 was for getting the chain modes playable on the actual
+machine. The next version will be for polishing up the base mode, adding
+multiball, drain shield, crime scenes, etc.
 
 ## Demo
 
