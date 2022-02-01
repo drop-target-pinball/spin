@@ -126,9 +126,10 @@ func prevChain(e *spin.ScriptEnv) {
 	previous := vars.SelectedMode
 	next := 0
 	for {
-		next = previous >> 1
-		if next < MinChainMode {
+		if previous == MinChainMode {
 			next = MaxChainMode
+		} else {
+			next = previous >> 1
 		}
 		if next&vars.AwardedModes == 0 {
 			break

@@ -11,6 +11,7 @@ type DriverSchedule struct {
 	spin.Action
 	ID       string
 	Schedule uint32
+	Now      bool
 }
 
 func registerActions(e *spin.Engine) {

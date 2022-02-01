@@ -43,6 +43,7 @@ func multiPlayerPanel(e *ScriptEnv) {
 	}
 
 	g.X, g.Y = 0, 0
+	g.AnchorX = AnchorLeft
 	score := GetPlayerVarsFor(e, 1).Score
 	g.Font = sizedFont(game.Player == 1, score)
 	r.Print(g, FormatScore("%d", score))

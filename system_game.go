@@ -17,8 +17,8 @@ func registerGameSystem(eng *Engine) {
 
 func (s gameSystem) HandleAction(action Action) {
 	switch act := action.(type) {
-	case AddBall:
-		s.addBall(act)
+	// case AddBall:
+	// 	s.addBall(act)
 	case AddPlayer:
 		s.addPlayer(act)
 	case AdvanceGame:
@@ -30,13 +30,13 @@ func (s gameSystem) HandleAction(action Action) {
 	}
 }
 
-func (s gameSystem) addBall(act AddBall) {
-	if s.game.BallsInPlay >= s.config.NumBalls {
-		return
-	}
-	s.game.BallsInPlay += 1
-	s.eng.Post(BallAddedEvent{BallsInPlay: s.game.BallsInPlay})
-}
+// func (s gameSystem) addBall(act AddBall) {
+// 	if s.game.BallsInPlay >= s.config.NumBalls {
+// 		return
+// 	}
+// 	s.game.BallsInPlay += 1
+// 	s.eng.Post(BallAddedEvent{BallsInPlay: s.game.BallsInPlay})
+// }
 
 func (s *gameSystem) addPlayer(act AddPlayer) {
 	game := s.game

@@ -68,6 +68,7 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 		}
 		s.active += 1
 		s.queued -= 1
+		e.Post(BallAddedEvent{BallsInPlay: s.active})
 	}
 	s.processing = false
 }
@@ -81,10 +82,6 @@ func (s *trackerSystem) watchDrain(e *ScriptEnv) {
 			continue
 		}
 		s.active -= 1
-		if s.active < 0 {
-			Warn("ball drained when no balls were active")
-			s.active = 0
-		}
 		s.eng.Post(BallDrainEvent{BallsInPlay: s.active})
 	}
 }

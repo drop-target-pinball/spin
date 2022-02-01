@@ -2,6 +2,7 @@ package jdx
 
 import (
 	"fmt"
+	"math/rand"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
@@ -139,7 +140,7 @@ func GetVars(store spin.Store) *Vars {
 		vars = v.(*Vars)
 	} else {
 		vars = &Vars{
-			SelectedMode: ModeSafeCracker,
+			SelectedMode: Modes[rand.Intn(9)],
 		}
 		store.RegisterVars(name, vars)
 	}

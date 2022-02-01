@@ -271,7 +271,7 @@ func (s *procSystem) driverSchedule(act DriverSchedule) {
 		return
 	}
 	addr := driver.Addr.(uint8)
-	if err := s.proc.DriverSchedule(addr, act.Schedule, 0, false); err != nil {
+	if err := s.proc.DriverSchedule(addr, act.Schedule, 0, act.Now); err != nil {
 		log.Fatal(err)
 	}
 }
