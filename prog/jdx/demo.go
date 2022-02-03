@@ -47,6 +47,9 @@ func demoPlunge(e *spin.ScriptEnv, single bool) {
 	s.Do(spin.AwardScore{Val: 13_374_210})
 	s.Sleep(9_000)
 	s.Run()
+
+	vars := GetVars(e)
+	vars.SelectedMode = ModePursuit
 }
 
 func demoPursuit(e *spin.ScriptEnv, single bool) {

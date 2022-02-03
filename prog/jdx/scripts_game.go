@@ -1,6 +1,8 @@
 package jdx
 
 import (
+	"math/rand"
+
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
 )
@@ -11,8 +13,13 @@ func gameScript(e *spin.ScriptEnv) {
 	}
 
 	for i := 1; i < 4; i++ {
-		vars := spin.GetPlayerVarsFor(e, i)
-		vars.Score = 0
+		player := spin.GetPlayerVarsFor(e, i)
+		player.Score = 0
+
+		vars := GetVarsFor(e, i)
+		vars.AwardedModes = 0
+		vars.CrimeScenes = 0
+		vars.SelectedMode = Modes[rand.Intn(9)]
 	}
 
 	e.Do(spin.AddPlayer{})

@@ -18,10 +18,6 @@ func ballScript(e *spin.ScriptEnv) {
 	vars.StakeoutBonus = 0
 	vars.TankBonus = 0
 
-	if vars.SelectedMode == 0 {
-		vars.SelectedMode = ModePursuit // FIXME
-	}
-
 	startBase(e)
 	e.Do(spin.PlayScript{ID: ScriptChain})
 	e.Do(spin.PlayScript{ID: ScriptPlungeMode})

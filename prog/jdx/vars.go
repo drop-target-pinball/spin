@@ -2,7 +2,6 @@ package jdx
 
 import (
 	"fmt"
-	"math/rand"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
@@ -130,21 +129,23 @@ type Vars struct {
 	Timer                  int
 }
 
-func GetVars(store spin.Store) *Vars {
-	game := spin.GetGameVars(store)
-	name := fmt.Sprintf("jdx.%v", game.Player)
+func GetVarsFor(store spin.Store, player int) *Vars {
+	name := fmt.Sprintf("jdx.%v", player)
 	var vars *Vars
 
 	v, ok := store.GetVars(name)
 	if ok {
 		vars = v.(*Vars)
 	} else {
-		vars = &Vars{
-			SelectedMode: Modes[rand.Intn(9)],
-		}
+		vars = &Vars{}
 		store.RegisterVars(name, vars)
 	}
 	return vars
+}
+
+func GetVars(store spin.Store) *Vars {
+	game := spin.GetGameVars(store)
+	return GetVarsFor(store, game.Player)
 }
 
 func Multiplier(store spin.Store) int {

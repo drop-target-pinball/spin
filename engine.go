@@ -2,12 +2,17 @@ package spin
 
 import (
 	"log"
+	"math/rand"
 	"os"
 	"reflect"
 	"time"
 
 	"github.com/drop-target-pinball/coroutine"
 )
+
+func init() {
+	rand.Seed(time.Now().Unix())
+}
 
 var AssetDir = os.Getenv("SPIN_ASSET_DIR")
 
