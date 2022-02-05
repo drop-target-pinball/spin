@@ -6,11 +6,21 @@ import (
 	"os"
 	"runtime/pprof"
 	"time"
+
+	"github.com/drop-target-pinball/spin/rlog"
 )
 
 const (
 	DebugStackTrace = "StackTrace"
 )
+
+var (
+	logger *rlog.Logger // FIXME: This should be in the Engine
+)
+
+func init() {
+	logger = rlog.New(60*time.Second, log.Default())
+}
 
 type loggingSystem struct {
 	startTime time.Time
@@ -33,7 +43,15 @@ func (s *loggingSystem) HandleAction(action Action) {
 }
 
 func (s *loggingSystem) HandleEvent(evt Event) {
-	log.Printf("[%v] %v", s.elapsedTime(), FormatEvent(evt))
+	logger.Printf("[%v] %v", s.elapsedTime(), FormatEvent(evt))
+
+	// FIXME: this is a hack
+	sw, ok := evt.(SwitchEvent)
+	if ok {
+		if sw.ID == "jd.SwitchBuyInButton" {
+			dumpLog()
+		}
+	}
 }
 
 func (s *loggingSystem) debug(act Debug) {
@@ -51,24 +69,45 @@ func (s *loggingSystem) elapsedTime() string {
 
 func Error(format string, a ...interface{}) {
 	format = "(*) " + format
-	log.Printf(format, a...)
+	logger.Printf(format, a...)
 }
 
 func Warn(format string, a ...interface{}) {
 	format = "(!) " + format
-	log.Printf(format, a...)
+	logger.Printf(format, a...)
 }
 
 func Info(format string, a ...interface{}) {
 	format = "(?) " + format
-	log.Printf(format, a...)
+	logger.Printf(format, a...)
 }
 
 func Log(format string, a ...interface{}) {
-	log.Printf(format, a...)
+	logger.Printf(format, a...)
 }
 
 func debugStackTrace() {
 	profile := pprof.Lookup("goroutine")
 	profile.WriteTo(os.Stdout, 1)
+}
+
+func dumpLog() {
+	timestamp := time.Now().Format("060102-130405")
+	dir := os.Getenv("SPIN_DIR") + "/log"
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		Error("unable to create directory %v: %v", dir, err)
+	}
+	file := dir + "/spin-" + timestamp + ".log"
+	Log("writing log to file %v", file)
+	f, err := os.Create(file)
+	if err != nil {
+		Error("unable to create file %v: %v", file, err)
+	}
+	defer f.Close()
+
+	for _, message := range logger.Messages() {
+		f.WriteString(message + "\n")
+	}
+	profile := pprof.Lookup("goroutine")
+	profile.WriteTo(f, 1)
 }

@@ -139,11 +139,15 @@ func impersonatorWatchDropTargets(e *spin.ScriptEnv) {
 		if vars.BadImpersonatorTargets&(1<<idx) != 0 {
 			e.Do(spin.PlayScript{ID: ScriptBadImpersonatorHit})
 		}
-		if done := e.Sleep(500); done {
-			return
-		}
-		e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
+		e.NewCoroutine(impersonatorRaiseDropTargets)
 	}
+}
+
+func impersonatorRaiseDropTargets(e *spin.ScriptEnv) {
+	if done := e.Sleep(500); done {
+		return
+	}
+	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
 }
 
 func impersonatorHitScript(e *spin.ScriptEnv) {

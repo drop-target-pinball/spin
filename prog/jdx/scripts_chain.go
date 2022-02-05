@@ -104,9 +104,9 @@ func selectModeScript(e *spin.ScriptEnv) {
 func nextChain(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	previous := vars.SelectedMode
-	next := 0
+	next := previous
 	for {
-		next = previous << 1
+		next = next << 1
 		if next > MaxChainMode {
 			next = MinChainMode
 		}
@@ -124,12 +124,11 @@ func nextChain(e *spin.ScriptEnv) {
 func prevChain(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	previous := vars.SelectedMode
-	next := 0
+	next := previous
 	for {
-		if previous == MinChainMode {
+		next = next >> 1
+		if next < MinChainMode {
 			next = MaxChainMode
-		} else {
-			next = previous >> 1
 		}
 		if next&vars.AwardedModes == 0 {
 			break

@@ -32,6 +32,8 @@ multiball, drain shield, crime scenes, etc.
 
 ## Demo
 
+[![Super Pinball System: alpha-v7](https://img.youtube.com/vi/LSEnGz4i4sg/0.jpg)](https://youtu.be/LSEnGz4i4sg "Super Pinball System: alpha-v7")
+
 [![Super Pinball System: alpha-v6](https://img.youtube.com/vi/3ZsQgoLa-z0/0.jpg)](https://youtu.be/3ZsQgoLa-z0 "Super Pinball System: alpha-v6")
 
 ## License

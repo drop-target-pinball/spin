@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"reflect"
+	"runtime/pprof"
 	"time"
 
 	"github.com/drop-target-pinball/coroutine"
@@ -14,7 +15,7 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
-var AssetDir = os.Getenv("SPIN_ASSET_DIR")
+var AssetDir = os.Getenv("SPIN_DIR")
 
 type ActionHandler interface {
 	HandleAction(Action)
@@ -144,7 +145,7 @@ func (e *Engine) Display(id string) Display {
 
 func (e *Engine) Run() {
 	ticker := time.NewTicker(16670 * time.Microsecond)
-	watchdog := coroutine.NewWatchdog(5 * time.Second)
+	watchdog := newWatchdog(1 * time.Second)
 
 	defer func() {
 		watchdog.Stop()
@@ -166,6 +167,7 @@ func (e *Engine) Run() {
 		}
 
 		for len(e.queue) > 0 {
+			watchdog.Reset()
 			var item interface{}
 			item, e.queue = e.queue[0], e.queue[1:]
 			switch i := item.(type) {
@@ -185,4 +187,42 @@ func (e *Engine) Run() {
 
 func (e *Engine) Stop() {
 	e.done <- struct{}{}
+}
+
+// FIXME: maybe allow the coroutine watchdog to have a function handler?
+
+type watchdog struct {
+	reset chan struct{}
+	done  chan struct{}
+}
+
+func newWatchdog(timeout time.Duration) *watchdog {
+	w := &watchdog{
+		reset: make(chan struct{}, 1),
+		done:  make(chan struct{}, 1),
+	}
+	go func() {
+		for {
+			select {
+			case <-w.reset:
+			case <-w.done:
+				return
+			case <-time.After(timeout):
+				println("watchdog timer expired")
+				profile := pprof.Lookup("goroutine")
+				profile.WriteTo(os.Stdout, 1)
+				dumpLog()
+				log.Panicf("watchdog panic")
+			}
+		}
+	}()
+	return w
+}
+
+func (w *watchdog) Reset() {
+	w.reset <- struct{}{}
+}
+
+func (w *watchdog) Stop() {
+	w.done <- struct{}{}
 }

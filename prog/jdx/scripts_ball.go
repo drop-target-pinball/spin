@@ -137,7 +137,7 @@ func defaultSlingLoop(e *spin.ScriptEnv) {
 func defaultLeftShooterLaneLoop(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	for {
-		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchLeftShooterLane, 1000); done {
+		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchLeftShooterLane, 500); done {
 			return
 		}
 		if vars.Mode == ModeAirRaid {
@@ -145,7 +145,7 @@ func defaultLeftShooterLaneLoop(e *spin.ScriptEnv) {
 		}
 
 		e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargets})
-		if done := e.Sleep(500); done {
+		if done := e.Sleep(250); done {
 			return
 		}
 		e.Do(spin.DriverPulse{ID: jd.CoilLeftShooterLane})

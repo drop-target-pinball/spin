@@ -3,6 +3,7 @@ module github.com/drop-target-pinball/spin
 go 1.16
 
 require (
+	github.com/benbjohnson/clock v1.3.0
 	github.com/chzyer/logex v1.2.0 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/chzyer/test v0.0.0-20210722231415-061457976a23 // indirect
