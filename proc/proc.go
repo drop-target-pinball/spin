@@ -342,7 +342,7 @@ func (s *procSystem) flippersOff(act spin.FlippersOff) {
 			pinproc.SwitchRule{},
 			[]pinproc.DriverState{},
 			true); err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 		if err := s.proc.SwitchUpdateRule(
 			flipper.SwitchAddr.(uint8),
@@ -350,8 +350,10 @@ func (s *procSystem) flippersOff(act spin.FlippersOff) {
 			pinproc.SwitchRule{},
 			[]pinproc.DriverState{},
 			true); err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
+		s.proc.DriverDisable(flipper.PowerCoilAddr.(uint8))
+		s.proc.DriverDisable(flipper.HoldCoilAddr.(uint8))
 	}
 }
 
