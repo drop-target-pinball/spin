@@ -31,7 +31,7 @@ func (e BallDrainEvent) Key() interface{} {
 type BallWillDrainEvent struct{}
 
 func (e BallWillDrainEvent) Key() interface{} {
-	return BallDrainEvent{}
+	return BallWillDrainEvent{}
 }
 
 type EndOfBallEvent struct {

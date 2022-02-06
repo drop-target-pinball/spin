@@ -14,6 +14,8 @@ const (
 	SpeechContainmentFailureAtThreeMeterIsland          = "jdx.SpeechContainmentFailureAtThreeMetereIsland"
 	SpeechControlToDredd                                = "jdx.SpeechControlToDredd"
 	SpeechDinnerTime                                    = "jdx.SpeechDinnerTime"
+	SpeechDontMove                                      = "jdx.SpeechDontMove"
+	SpeechDrainShieldDeactivated                        = "jdx.SpeechDrainShieldDeactivated"
 	SpeechDreddToControl                                = "jdx.SpeechDreddToControl"
 	SpeechFour                                          = "jdx.SpeechFour"
 	SpeechFreeze                                        = "jdx.SpeechFreeze"
@@ -101,6 +103,14 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechDinnerTime,
 		Path: "jd-pinsound/voice/000208-aah_diner_time/aah_dine__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechDontMove,
+		Path: "jd-pinsound/voice/000217-don_t_move/don_t_mo__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechDrainShieldDeactivated,
+		Path: "jd-pinsound/voice/000355-drain_shield_deactivated/drain_sh__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechDreddToControl,

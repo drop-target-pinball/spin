@@ -10,6 +10,7 @@ type GameVars struct {
 	BallActive   bool
 	BallsInPlay  int
 	BallsPerGame int
+	BallSave     bool
 	Player       int
 	Ball         int
 	MaxPlayers   int

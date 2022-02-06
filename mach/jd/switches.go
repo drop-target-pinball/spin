@@ -93,6 +93,41 @@ var SwitchAnyDropTarget = []coroutine.Event{
 	spin.SwitchEvent{ID: SwitchDropTargetE},
 }
 
+var PlayfieldSwitches = []coroutine.Event{
+	spin.SwitchEvent{ID: SwitchBankTargets},
+	spin.SwitchEvent{ID: SwitchCaptiveBall1},
+	spin.SwitchEvent{ID: SwitchCaptiveBall2},
+	spin.SwitchEvent{ID: SwitchCaptiveBall3},
+	spin.SwitchEvent{ID: SwitchDropTargetJ},
+	spin.SwitchEvent{ID: SwitchDropTargetU},
+	spin.SwitchEvent{ID: SwitchDropTargetD},
+	spin.SwitchEvent{ID: SwitchDropTargetG},
+	spin.SwitchEvent{ID: SwitchDropTargetE},
+	spin.SwitchEvent{ID: SwitchInnerLoop},
+	spin.SwitchEvent{ID: SwitchInnerRightReturnLane},
+	spin.SwitchEvent{ID: SwitchLeftOutlane},
+	spin.SwitchEvent{ID: SwitchLeftPopper},
+	spin.SwitchEvent{ID: SwitchLeftPost},
+	spin.SwitchEvent{ID: SwitchLeftRampEnter},
+	spin.SwitchEvent{ID: SwitchLeftRampExit},
+	spin.SwitchEvent{ID: SwitchLeftRampToLock},
+	spin.SwitchEvent{ID: SwitchLeftShooterLane},
+	spin.SwitchEvent{ID: SwitchLeftSling},
+	spin.SwitchEvent{ID: SwitchMysteryTarget},
+	spin.SwitchEvent{ID: SwitchOuterLoopLeft},
+	spin.SwitchEvent{ID: SwitchOuterLoopRight},
+	spin.SwitchEvent{ID: SwitchOuterRightReturnLane},
+	spin.SwitchEvent{ID: SwitchRightOutlane},
+	spin.SwitchEvent{ID: SwitchRightPopper},
+	spin.SwitchEvent{ID: SwitchRightPost},
+	spin.SwitchEvent{ID: SwitchRightRampExit},
+	spin.SwitchEvent{ID: SwitchRightSling},
+	spin.SwitchEvent{ID: SwitchSubwayEnter1},
+	spin.SwitchEvent{ID: SwitchSubwayEnter2},
+	spin.SwitchEvent{ID: SwitchTopLeftRampExit},
+	spin.SwitchEvent{ID: SwitchTopRightRampExit},
+}
+
 func RegisterSwitches(eng *spin.Engine) {
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S71, ID: SwitchArmFarRight})
 	eng.Do(spin.RegisterSwitch{Addr: wpc.S18, ID: SwitchBankTargets})

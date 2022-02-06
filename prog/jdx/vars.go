@@ -109,7 +109,10 @@ type Vars struct {
 	AwardedModes           int
 	BadImpersonatorBonus   int
 	BadImpersonatorTargets int
+	BallsLocked            int
 	CrimeScenes            int
+	LitDropTarget          int
+	LocksReady             int
 	ManhuntBonus           int
 	MeltdownBonus          int
 	Mode                   int

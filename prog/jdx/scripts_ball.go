@@ -3,6 +3,7 @@ package jdx
 import (
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
+	"github.com/drop-target-pinball/spin/proc"
 )
 
 func ballScript(e *spin.ScriptEnv) {
@@ -48,6 +49,7 @@ func startBase(e *spin.ScriptEnv) {
 
 	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
+	e.Do(spin.PlayScript{ID: ScriptBallSaver})
 	e.NewCoroutine(defaultSlingLoop)
 	e.NewCoroutine(defaultOutlaneLoop)
 	e.NewCoroutine(defaultReturnLaneLoop)
@@ -56,6 +58,7 @@ func startBase(e *spin.ScriptEnv) {
 	e.NewCoroutine(defaultRightShooterLaneLoop)
 	e.NewCoroutine(defaultLeftPopperLoop)
 	e.NewCoroutine(defaultRightPopperLoop)
+
 }
 
 func stopBase(e *spin.ScriptEnv) {
@@ -191,4 +194,39 @@ func defaultRightPopperLoop(e *spin.ScriptEnv) {
 		}
 		e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
 	}
+}
+
+func ballSaverScript(e *spin.ScriptEnv) {
+	vars := spin.GetGameVars(e)
+	vars.BallSave = true
+	defer func() { vars.BallSave = false }()
+
+	e.Do(spin.DriverOn{ID: jd.LampDrainShield})
+	if _, done := e.WaitFor(jd.PlayfieldSwitches...); done {
+		return
+	}
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		s := spin.NewSequencer(e)
+
+		s.Do(proc.DriverSchedule{ID: jd.LampDrainShield, Schedule: proc.BlinkSchedule, Now: true})
+		s.Sleep(5_000)
+		s.Do(proc.DriverSchedule{ID: jd.LampDrainShield, Schedule: proc.HurryUpBlinkSchedule, Now: true})
+		s.Sleep(2_000)
+		s.Do(spin.DriverOff{ID: jd.LampDrainShield})
+		s.Do(spin.PlaySpeech{ID: SpeechDrainShieldDeactivated})
+		s.WaitFor(spin.SpeechFinishedEvent{})
+
+		s.Run()
+	})
+
+	evt, done := e.WaitForUntil(10_000, spin.BallDrainEvent{}, spin.BallWillDrainEvent{})
+	if done {
+		return
+	}
+	e.Do(spin.DriverOff{ID: jd.LampDrainShield})
+	if evt == nil {
+		return
+	}
+	e.Do(spin.PlaySpeech{ID: SpeechDontMove})
 }
