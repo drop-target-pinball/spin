@@ -12,6 +12,7 @@ const (
 	ScriptBadImpersonatorHit      = "jdx.ScriptBadImpersonatorHit"
 	ScriptBadImpersonatorMode     = "jdx.ScriptBadImpersonatorMode"
 	ScriptBall                    = "jdx.ScriptBall"
+	ScriptBallLock                = "jdx.ScriptBallLock"
 	ScriptBallSaver               = "jdx.ScriptBallSaver"
 	ScriptBase                    = "jdx.ScriptBase"
 	ScriptBlackoutJackpot         = "jdx.ScriptBlackoutJackpot"
@@ -89,6 +90,11 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptBall,
 		Script: ballScript,
+		Group:  spin.ScriptGroupBall,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptBallLock,
+		Script: ballLockScript,
 		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{

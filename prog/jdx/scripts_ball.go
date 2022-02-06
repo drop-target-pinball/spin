@@ -49,6 +49,7 @@ func startBase(e *spin.ScriptEnv) {
 
 	e.Do(spin.PlayScript{ID: jd.ScriptInactiveGlobe})
 	e.Do(spin.PlayScript{ID: jd.ScriptRaiseDropTargetsWhenAllDown})
+	e.Do(spin.PlayScript{ID: ScriptBallLock})
 	e.Do(spin.PlayScript{ID: ScriptBallSaver})
 	e.NewCoroutine(defaultSlingLoop)
 	e.NewCoroutine(defaultOutlaneLoop)

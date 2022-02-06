@@ -6,6 +6,9 @@ const (
 	DropTargetD
 	DropTargetG
 	DropTargetE
+
+	MinDropTarget = 0
+	MaxDropTarget = 4
 )
 
 var (

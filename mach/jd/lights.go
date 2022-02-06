@@ -103,6 +103,13 @@ var DropTargetLamps = []string{
 	LampDropTargetE,
 }
 
+var LockLamps = []string{
+	"",
+	LampLock1,
+	LampLock2,
+	LampLock3,
+}
+
 func RegisterLamps(eng *spin.Engine) {
 	eng.Do(spin.RegisterLamp{Addr: wpc.L85, ID: LampAdvanceCrimeLevel})
 	eng.Do(spin.RegisterLamp{Addr: wpc.L65, ID: LampAirRaid})
