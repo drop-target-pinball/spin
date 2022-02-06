@@ -10,9 +10,10 @@ const (
 
 type DriverSchedule struct {
 	spin.Action
-	ID       string
-	Schedule uint32
-	Now      bool
+	ID           string
+	Schedule     uint32
+	CycleSeconds uint8
+	Now          bool
 }
 
 func registerActions(e *spin.Engine) {

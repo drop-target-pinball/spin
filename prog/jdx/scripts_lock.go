@@ -75,7 +75,8 @@ func ballLockRampRoutine(e *spin.ScriptEnv) {
 		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampEnter}); done {
 			return
 		}
-		// Diverter on?
+		// From: https://github.com/preble/JD-pyprocgame/blob/master/multiball.py#L56
+		e.Do(proc.DriverSchedule{ID: jd.CoilDiverter, Schedule: 0xfff, CycleSeconds: 1, Now: true})
 		evt, done := e.WaitFor(
 			spin.SwitchEvent{ID: jd.SwitchLeftRampEnter},
 			spin.SwitchEvent{ID: jd.SwitchLeftRampToLock},
@@ -83,7 +84,6 @@ func ballLockRampRoutine(e *spin.ScriptEnv) {
 		if done {
 			return
 		}
-		// Diverter off?
 		if evt == (spin.SwitchEvent{ID: jd.SwitchLeftRampToLock}) {
 			break
 		}
