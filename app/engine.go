@@ -9,15 +9,18 @@ import (
 )
 
 type Options struct {
-	WithPROC       bool
-	WithLogging    bool
 	WithAudio      bool
-	WithVirtualDMD bool
+	WithConsole    bool
 	WithEOS        bool
+	WithLogging    bool
+	WithMonitor    bool
+	WithPROC       bool
+	WithVirtualDMD bool
 }
 
 func DefaultOptions() Options {
 	return Options{
+		WithConsole:    true,
 		WithLogging:    true,
 		WithAudio:      true,
 		WithVirtualDMD: true,
@@ -31,6 +34,9 @@ func NewEngine(appOptions Options, spinOptions spin.Options) *spin.Engine {
 	}
 	if appOptions.WithAudio {
 		sdl.RegisterAudioSystem(eng)
+	}
+	if appOptions.WithConsole {
+		sdl.RegisterConsoleSystem(eng)
 	}
 	if appOptions.WithVirtualDMD {
 		opts := sdl.DefaultOptionsDotMatrix()

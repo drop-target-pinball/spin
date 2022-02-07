@@ -107,14 +107,20 @@ type RegisterCoil struct {
 	Addr interface{}
 }
 
+type RegisterConsole struct {
+	ID    string
+	Image string
+}
+
 type RegisterDisplay struct {
 	ID      string
 	Display Display
 }
 
 type RegisterFlasher struct {
-	ID   string
-	Addr interface{}
+	ID     string
+	Addr   interface{}
+	Layout LayoutShape
 }
 
 type RegisterFlipper struct {
@@ -131,8 +137,9 @@ type RegisterFont struct {
 }
 
 type RegisterLamp struct {
-	ID   string
-	Addr interface{}
+	ID     string
+	Addr   interface{}
+	Layout LayoutShape
 }
 
 type RegisterMagnet struct {
@@ -228,6 +235,7 @@ func (PlaySound) action()         {}
 func (PlaySpeech) action()        {}
 func (RegisterAutoPulse) action() {}
 func (RegisterCoil) action()      {}
+func (RegisterConsole) action()   {}
 func (RegisterDisplay) action()   {}
 func (RegisterFlasher) action()   {}
 func (RegisterFlipper) action()   {}

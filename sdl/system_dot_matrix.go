@@ -3,6 +3,7 @@ package sdl
 import (
 	"image/color"
 	"log"
+	"time"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/veandco/go-sdl2/sdl"
@@ -139,7 +140,7 @@ func (s *dotMatrixSystem) registerDisplay(act spin.RegisterDisplay) {
 	sdl.PumpEvents()
 }
 
-func (s *dotMatrixSystem) Service() {
+func (s *dotMatrixSystem) Service(_ time.Time) {
 	if s.target == nil {
 		return
 	}

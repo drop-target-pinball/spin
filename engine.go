@@ -26,7 +26,7 @@ type EventHandler interface {
 }
 
 type Server interface {
-	Service()
+	Service(time.Time)
 }
 
 type Store interface {
@@ -154,15 +154,16 @@ func (e *Engine) Run() {
 
 	for {
 		watchdog.Reset()
+		var t time.Time
 
 		select {
 		case <-e.done:
 			return
-		case <-ticker.C:
+		case t = <-ticker.C:
 		}
 
 		for _, s := range e.servers {
-			s.Service()
+			s.Service(t)
 			e.coroutines.Tick()
 		}
 

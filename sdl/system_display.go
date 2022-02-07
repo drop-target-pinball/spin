@@ -11,6 +11,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/veandco/go-sdl2/sdl"
@@ -114,7 +115,7 @@ func (s *displaySystem) HandleAction(action spin.Action) {
 	}
 }
 
-func (s *displaySystem) Service() {
+func (s *displaySystem) Service(_ time.Time) {
 	rect := sdl.Rect{X: 0, Y: 0, W: s.surf.W, H: s.surf.H}
 	if err := s.surf.FillRect(&rect, 0); err != nil {
 		log.Panic(err)

@@ -3,6 +3,7 @@ package sdl
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/drop-target-pinball/spin"
 	"github.com/veandco/go-sdl2/sdl"
@@ -79,7 +80,7 @@ func (s *inputSystem) registerButton(act RegisterButton) {
 	s.buttons[button] = v
 }
 
-func (s *inputSystem) Service() {
+func (s *inputSystem) Service(_ time.Time) {
 	for e := sdl.PollEvent(); e != nil; e = sdl.PollEvent() {
 		switch event := e.(type) {
 		case *sdl.KeyboardEvent:

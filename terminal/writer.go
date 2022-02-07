@@ -31,6 +31,7 @@ func NewWriter(w io.Writer) *Writer {
 		backlogInterval: time.Millisecond * 100,
 		maxUpdate:       2000,
 	}
+
 	return cw
 }
 

@@ -2,6 +2,7 @@ package proc
 
 import (
 	"log"
+	"time"
 
 	"github.com/drop-target-pinball/go-pinproc"
 	"github.com/drop-target-pinball/go-pinproc/wpc"
@@ -111,7 +112,7 @@ func (s *procSystem) HandleAction(action spin.Action) {
 	}
 }
 
-func (s *procSystem) Service() {
+func (s *procSystem) Service(_ time.Time) {
 	n, err := s.proc.GetEvents(s.events)
 	if err != nil {
 		log.Fatal(err)
