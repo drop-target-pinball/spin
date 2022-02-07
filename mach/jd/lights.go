@@ -1,14 +1,8 @@
 package jd
 
 import (
-	"image/color"
-
 	"github.com/drop-target-pinball/go-pinproc/wpc"
 	"github.com/drop-target-pinball/spin"
-)
-
-var (
-	LampYellow = color.RGBA{R: 0xff, G: 0xff, B: 0x00, A: 0xa0}
 )
 
 const (
