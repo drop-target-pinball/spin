@@ -7,15 +7,29 @@ import (
 	"time"
 
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/proc"
 	"github.com/veandco/go-sdl2/gfx"
 	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+type driverState struct {
+	on               bool
+	lastUpdate       time.Time
+	procSchedule     uint32
+	procCycleSeconds uint8
+	procNow          bool
+
+	//pulse            int
+	//onPWM            int
+	//offPWM           int
+}
+
 type console struct {
 	background *sdl.Texture
 	r          *sdl.Renderer
 	devices    map[string]spin.LayoutShape
+	states     map[string]*driverState
 }
 
 type consoleSystem struct {
@@ -32,12 +46,20 @@ func RegisterConsoleSystem(eng *spin.Engine) {
 	}
 
 	eng.RegisterActionHandler(sys)
-	eng.RegisterEventHandler(sys)
+	//eng.RegisterEventHandler(sys)
 	eng.RegisterServer(sys)
 }
 
 func (s *consoleSystem) HandleAction(action spin.Action) {
 	switch act := action.(type) {
+	case spin.AllLampsOff:
+		s.allLampsOff()
+	case spin.DriverOn:
+		s.updateState(act.ID, driverState{on: true})
+	case spin.DriverOff:
+		s.updateState(act.ID, driverState{})
+	case proc.DriverSchedule:
+		s.updateState(act.ID, driverState{on: true, procSchedule: act.Schedule, procNow: act.Now, procCycleSeconds: act.CycleSeconds})
 	case spin.RegisterConsole:
 		s.registerConsole(act)
 	case spin.RegisterFlasher:
@@ -47,13 +69,27 @@ func (s *consoleSystem) HandleAction(action spin.Action) {
 	}
 }
 
-func (s *consoleSystem) HandleEvent(event spin.Event) {
+func (s *consoleSystem) allLampsOff() {
+	cons := s.consoles[""]
+	for id := range cons.devices {
+		cons.states[id] = &driverState{}
+	}
+}
+
+func (s *consoleSystem) updateState(id string, state driverState) {
+	cons := s.consoles[""]
+	if _, ok := cons.states[id]; !ok {
+		return
+	}
+	state.lastUpdate = time.Now()
+	cons.states[id] = &state
 }
 
 func (s *consoleSystem) registerConsole(act spin.RegisterConsole) {
 	file := path.Join(os.Getenv("SPIN_DIR"), act.Image)
 	c := &console{
 		devices: make(map[string]spin.LayoutShape),
+		states:  make(map[string]*driverState),
 	}
 	image, err := img.Load(file)
 	if err != nil {
@@ -98,6 +134,7 @@ func (s *consoleSystem) registerConsoleDevice(id string, layout spin.LayoutShape
 		spin.Warn("no such console")
 	}
 	c.devices[id] = layout
+	c.states[id] = &driverState{}
 }
 
 func (s *consoleSystem) Service(t time.Time) {
@@ -107,15 +144,24 @@ func (s *consoleSystem) Service(t time.Time) {
 	}
 	r := c.r
 
-	t0 := t.UnixMilli()
-
 	r.Copy(c.background, nil, nil)
-
 	r.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
-	if t0%1000 < 500 {
-		for _, shape := range c.devices {
-			renderShape(r, shape)
+
+	mt := t.UnixMicro()
+	for id, layout := range c.devices {
+		state := c.states[id]
+		if !state.on {
+			continue
 		}
+		if state.procSchedule != 0 {
+			micros := mt % 1e+6      // second remainder
+			period := micros / 31250 // every 1/32 of a second
+			bit := uint32(1 << period)
+			if state.procSchedule&bit == 0 {
+				continue
+			}
+		}
+		renderShape(r, layout)
 	}
 	r.Present()
 }
