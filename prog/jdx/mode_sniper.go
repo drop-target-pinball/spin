@@ -27,7 +27,7 @@ func sniperModeScript(e *spin.ScriptEnv) {
 }
 
 func sniperMode1Script(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	switches := spin.GetResourceVars(e).Switches
@@ -108,7 +108,7 @@ func sniperMode1Script(e *spin.ScriptEnv) {
 }
 
 func sniperMode2Script(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	vars := GetVars(e)
@@ -177,7 +177,7 @@ func sniperMode2Script(e *spin.ScriptEnv) {
 }
 
 func sniperIncompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	vars := GetVars(e)
@@ -195,7 +195,7 @@ func sniperIncompleteScript(e *spin.ScriptEnv) {
 }
 
 func sniperCompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	vars := GetVars(e)

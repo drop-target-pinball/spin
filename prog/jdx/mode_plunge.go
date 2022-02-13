@@ -78,7 +78,7 @@ func useFireButtonPanel(e *spin.ScriptEnv, r spin.Renderer, n int) {
 }
 
 func useFireButtonAnimScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityAnnounce)
+	r := e.Display("").Open(spin.PriorityAnnounce)
 	defer r.Close()
 
 	i := 0

@@ -11,7 +11,7 @@ PlayScript ID=jdx.ScriptBonusMode
 */
 
 func bonusModeScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	vars := GetVars(e)

@@ -6,7 +6,7 @@ import "github.com/drop-target-pinball/spin"
 PlayScript ID=jdx.ScriptMatchMode
 */
 func matchModeScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	g := r.Graphics()

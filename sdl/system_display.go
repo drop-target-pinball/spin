@@ -62,7 +62,7 @@ func (d *displaySystem) At(x, y int) color.Color {
 	return d.surf.At(x, y)
 }
 
-func (s *displaySystem) OpenPriority(priority int) spin.Renderer {
+func (s *displaySystem) Open(priority int) spin.Renderer {
 	var layer *layer
 	for _, layer = range s.layers {
 		if !layer.active {
@@ -86,10 +86,6 @@ func (s *displaySystem) OpenPriority(priority int) spin.Renderer {
 	}
 	r.Fill(spin.ColorBlack)
 	return r
-}
-
-func (s *displaySystem) Open() spin.Renderer {
-	return s.OpenPriority(0)
 }
 
 func RegisterDisplaySystem(eng *spin.Engine, opts spin.DisplayOptions) {

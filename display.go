@@ -55,8 +55,7 @@ type Renderer interface {
 }
 
 type Display interface {
-	Open() Renderer
-	OpenPriority(int) Renderer
+	Open(int) Renderer
 	Width() int
 	Height() int
 	At(int, int) color.Color

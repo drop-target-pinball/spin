@@ -7,7 +7,7 @@ import (
 )
 
 func tankModeScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode2})
@@ -142,7 +142,7 @@ func tankHitScript(e *spin.ScriptEnv) {
 }
 
 func tankIncompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	vars := GetVars(e)
@@ -152,7 +152,7 @@ func tankIncompleteScript(e *spin.ScriptEnv) {
 }
 
 func tankCompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	vars := GetVars(e)

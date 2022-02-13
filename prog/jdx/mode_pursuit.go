@@ -7,7 +7,7 @@ import (
 )
 
 func pursuitModeScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode2})
@@ -108,7 +108,7 @@ func pursuitModeScript(e *spin.ScriptEnv) {
 }
 
 func pursuitIncompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})
@@ -128,7 +128,7 @@ func pursuitIncompleteScript(e *spin.ScriptEnv) {
 }
 
 func pursuitCompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})

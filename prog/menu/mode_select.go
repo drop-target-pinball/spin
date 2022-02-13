@@ -12,7 +12,7 @@ const (
 )
 
 func selectGameScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(proc.DriverSchedule{ID: jd.LampSuperGameButton, Schedule: proc.BlinkSchedule})
@@ -88,7 +88,7 @@ func selectGameScript(e *spin.ScriptEnv) {
 }
 
 func gameSelectedScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	selectGameMenuPanel(e, r, false)

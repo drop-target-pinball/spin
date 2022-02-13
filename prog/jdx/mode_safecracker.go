@@ -32,7 +32,7 @@ func safecrackerModeScript(e *spin.ScriptEnv) {
 }
 
 func safecrackerMode1Script(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode2})
@@ -92,7 +92,7 @@ func safecrackerMode1Script(e *spin.ScriptEnv) {
 }
 
 func safecrackerMode2Script(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	vars := GetVars(e)
@@ -154,7 +154,7 @@ func watchCenterDropTargetLoop(e *spin.ScriptEnv) {
 }
 
 func safecrackerOpenThatSafeScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityAnnounce)
+	r := e.Display("").Open(spin.PriorityAnnounce)
 	defer r.Close()
 
 	vars := GetVars(e)
@@ -231,7 +231,7 @@ func safecrackerMode2Panel(e *spin.ScriptEnv, r spin.Renderer) {
 }
 
 func safecrackerIncompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})
@@ -242,7 +242,7 @@ func safecrackerIncompleteScript(e *spin.ScriptEnv) {
 }
 
 func safecrackerCompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})

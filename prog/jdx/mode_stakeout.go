@@ -7,7 +7,7 @@ import (
 )
 
 func stakeoutModeScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode2})
@@ -63,7 +63,7 @@ func stakeoutModeScript(e *spin.ScriptEnv) {
 }
 
 func stakeoutInterestingScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityAnnounce)
+	r := e.Display("").Open(spin.PriorityAnnounce)
 	defer r.Close()
 
 	vars := GetVars(e)
@@ -90,7 +90,7 @@ func stakeoutInterestingScript(e *spin.ScriptEnv) {
 }
 
 func stakeoutCompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})

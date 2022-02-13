@@ -7,7 +7,7 @@ import (
 )
 
 func blackoutModeScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode1})
@@ -86,7 +86,7 @@ func blackoutModeScript(e *spin.ScriptEnv) {
 }
 
 func blackoutJackpotScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityAnnounce)
+	r := e.Display("").Open(spin.PriorityAnnounce)
 	defer r.Close()
 
 	ScoreAndLabelPanel(e, r, ScoreBlackoutJackpot, "JACKPOT")

@@ -10,7 +10,7 @@ const (
 )
 
 func splashScreenScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.StopAudio{})

@@ -15,7 +15,7 @@ var hitSounds = []string{
 }
 
 func impersonatorModeScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	vars := GetVars(e)
@@ -169,7 +169,7 @@ func impersonatorHitScript(e *spin.ScriptEnv) {
 }
 
 func impersonatorCompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").Open()
+	r := e.Display("").Open(0)
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})
