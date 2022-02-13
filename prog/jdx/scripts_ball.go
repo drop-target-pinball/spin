@@ -59,7 +59,8 @@ func startBase(e *spin.ScriptEnv) {
 	e.NewCoroutine(defaultRightShooterLaneLoop)
 	e.NewCoroutine(defaultLeftPopperLoop)
 	e.NewCoroutine(defaultRightPopperLoop)
-
+	e.NewCoroutine(defaultPostLoop)
+	e.NewCoroutine(defaultMysteryLoop)
 }
 
 func stopBase(e *spin.ScriptEnv) {
@@ -196,6 +197,35 @@ func defaultRightPopperLoop(e *spin.ScriptEnv) {
 			continue
 		}
 		e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
+	}
+}
+
+func defaultPostLoop(e *spin.ScriptEnv) {
+	sounds := map[spin.SwitchEvent]string{
+		{ID: jd.SwitchLeftPost}:  SoundLeftPost,
+		{ID: jd.SwitchRightPost}: SoundRightPost,
+	}
+
+	for {
+		evt, done := e.WaitFor(
+			spin.SwitchEvent{ID: jd.SwitchLeftPost},
+			spin.SwitchEvent{ID: jd.SwitchRightPost})
+		if done {
+			return
+		}
+		sound := sounds[evt.(spin.SwitchEvent)]
+		e.Do(spin.AwardScore{Val: ScorePost})
+		e.Do(spin.PlaySound{ID: sound})
+	}
+}
+
+func defaultMysteryLoop(e *spin.ScriptEnv) {
+	for {
+		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchMysteryTarget}); done {
+			return
+		}
+		e.Do(spin.AwardScore{Val: ScoreMystery})
+		e.Do(spin.PlaySound{ID: SoundMystery})
 	}
 }
 

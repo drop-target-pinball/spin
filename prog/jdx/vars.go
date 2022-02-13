@@ -9,11 +9,6 @@ import (
 
 // Scores
 const (
-	ScoreReturnLane = 50_000
-	ScoreSling      = 1_930
-	ScoreOutlane    = 100_000
-	ScorePost       = 5_210
-
 	ScoreBadImpersonator0 = 3_000_000
 	ScoreBadImpersonatorN = 5_000_000
 	ScoreBlackoutJackpot  = 10_000_000
@@ -24,13 +19,18 @@ const (
 	ScoreMeltdown1        = 13_000_000
 	ScoreMeltdown2        = 23_000_000
 	ScoreMeltdown3        = 33_000_000
+	ScoreMystery          = 50_000
+	ScoreOutlane          = 100_000
+	ScorePost             = 5_210
 	ScorePursuit0         = 3_000_000
 	ScorePursuit1         = 6_000_000
 	ScorePursuit2         = 12_000_000
 	ScorePursuit3         = 36_000_000
+	ScoreReturnLane       = 50_000
 	ScoreSafecrackerStart = 8_000_000
 	ScoreSafecrackerEnd   = 3_000_000
 	ScoreSafecrackerDec   = 75_400
+	ScoreSling            = 1_930
 	ScoreSniperStart      = 20_000_000
 	ScoreSniperEnd        = 5_000_000
 	ScoreSniperDec        = 78_330
