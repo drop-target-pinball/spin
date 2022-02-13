@@ -22,6 +22,7 @@ import (
 type layer struct {
 	id       int
 	active   bool
+	removed  bool
 	priority int
 	time     time.Time
 	surf     *sdl.Surface
@@ -93,6 +94,7 @@ func (s *displaySystem) OpenPriority(priority int) spin.Renderer {
 		log.Panicf("no available layers")
 	}
 	layer.active = true
+	layer.removed = false
 	layer.priority = priority
 	layer.time = time.Now()
 	sort.Sort(layerByPriority(s.layers))
@@ -193,8 +195,11 @@ func (s *displaySystem) Service(_ time.Time) {
 	// 	}
 	// }
 	for _, layer := range s.layers {
-		if !layer.active {
+		if !layer.active && layer.removed {
 			continue
+		}
+		if !layer.active && !layer.removed {
+			layer.removed = true
 		}
 		if err := layer.surf.Blit(&rect, s.surf, &rect); err != nil {
 			log.Panic(err)

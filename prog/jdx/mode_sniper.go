@@ -27,7 +27,7 @@ func sniperModeScript(e *spin.ScriptEnv) {
 }
 
 func sniperMode1Script(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").Open()
 	defer r.Close()
 
 	switches := spin.GetResourceVars(e).Switches
@@ -108,7 +108,7 @@ func sniperMode1Script(e *spin.ScriptEnv) {
 }
 
 func sniperMode2Script(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").Open()
 	defer r.Close()
 
 	vars := GetVars(e)

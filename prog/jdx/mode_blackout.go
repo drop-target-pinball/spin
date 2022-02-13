@@ -7,7 +7,7 @@ import (
 )
 
 func blackoutModeScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").Open()
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode1})

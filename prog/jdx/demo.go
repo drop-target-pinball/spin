@@ -1,27 +1,31 @@
 package jdx
 
 import (
+	"os"
+
 	"github.com/drop-target-pinball/spin"
 	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
 func demoScript(e *spin.ScriptEnv) {
-	// demoIntro(e)
-	// demoPlunge(e, false)
-	// demoPursuit(e, false)
-	// demoBlackout(e, false)
-	// demoSniper(e, false)
-	// demoDrain1(e, false)
-	// demoBattleTank(e, false)
-	// demoBadImpersonator(e, false)
-	// demoMeltdown(e, false)
-	// demoDrain2(e, false)
-	// demoSafecracker(e, false)
-	// demoManhunt(e, false)
-	// demoStakeout(e, false)
-	// demoDrain3(e, false)
+	os.Setenv("NO_RANDOM", "true")
 
-	demoSniper(e, true)
+	demoIntro(e)
+	demoPlunge(e, false)
+	demoPursuit(e, false)
+	demoBlackout(e, false)
+	demoSniper(e, false)
+	demoDrain1(e, false)
+	demoBattleTank(e, false)
+	demoBadImpersonator(e, false)
+	demoMeltdown(e, false)
+	demoDrain2(e, false)
+	demoSafecracker(e, false)
+	demoManhunt(e, false)
+	demoStakeout(e, false)
+	demoDrain3(e, false)
+
+	//demoSniper(e, true)
 }
 
 func demoIntro(e *spin.ScriptEnv) {
@@ -44,8 +48,13 @@ func demoPlunge(e *spin.ScriptEnv, single bool) {
 	s := spin.NewSequencer(e)
 	s.Sleep(13_000)
 	s.Post(spin.SwitchEvent{ID: jd.SwitchRightFireButton})
-	s.Do(spin.AwardScore{Val: 13_374_210})
-	s.Sleep(9_000)
+	s.Sleep(1_000)
+	s.Post(spin.SwitchEvent{ID: jd.SwitchLeftSling})
+	s.Sleep(500)
+	s.Post(spin.SwitchEvent{ID: jd.SwitchRightSling})
+	s.Sleep(750)
+	s.Post(spin.SwitchEvent{ID: jd.SwitchLeftSling})
+	s.Sleep(8_000)
 	s.Run()
 
 	vars := GetVars(e)
@@ -134,6 +143,7 @@ func demoDrain1(e *spin.ScriptEnv, single bool) {
 	s.Post(spin.BallDrainEvent{BallsInPlay: 0})
 	s.Sleep(10_000)
 	s.Post(spin.SwitchEvent{ID: jd.SwitchRightFireButton})
+	s.Post(spin.SwitchEvent{ID: jd.SwitchLeftFireButton})
 	s.Sleep(9_000)
 
 	s.Run()
@@ -230,6 +240,7 @@ func demoDrain2(e *spin.ScriptEnv, single bool) {
 	s.Post(spin.BallDrainEvent{BallsInPlay: 0})
 	s.Sleep(10_000)
 	s.Post(spin.SwitchEvent{ID: jd.SwitchRightFireButton})
+	s.Post(spin.SwitchEvent{ID: jd.SwitchLeftFireButton})
 	s.Sleep(9_000)
 
 	s.Run()

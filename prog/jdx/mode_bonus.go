@@ -11,6 +11,9 @@ PlayScript ID=jdx.ScriptBonusMode
 */
 
 func bonusModeScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open()
+	defer r.Close()
+
 	vars := GetVars(e)
 
 	bonuses := []struct {
@@ -31,7 +34,7 @@ func bonusModeScript(e *spin.ScriptEnv) {
 	totalBonus := 0
 	for _, bonus := range bonuses {
 		if bonus.score > 0 {
-			bonusPanel(e, bonus.name, bonus.score)
+			bonusPanel(e, r, bonus.name, bonus.score)
 			e.Do(spin.PlaySound{ID: SoundBonus})
 			totalBonus += bonus.score
 			if done := e.Sleep(1300); done {
@@ -42,17 +45,15 @@ func bonusModeScript(e *spin.ScriptEnv) {
 	if totalBonus == 0 {
 		totalBonus = ScoreMinimumBonus
 	}
-	bonusPanel(e, "TOTAL BONUS", totalBonus)
+	bonusPanel(e, r, "TOTAL BONUS", totalBonus)
 	e.Do(spin.PlaySound{ID: SoundBonus})
 	e.Do(spin.AwardScore{Val: totalBonus})
 
-	if done := e.Sleep(2000); done {
-		return
-	}
+	e.Sleep(2000)
 }
 
-func bonusPanel(e *spin.ScriptEnv, header string, score int) {
-	r, g := e.Display("").Renderer("")
+func bonusPanel(e *spin.ScriptEnv, r spin.Renderer, header string, score int) {
+	g := r.Graphics()
 
 	r.Fill(spin.ColorBlack)
 	g.Font = spin.FontPfArmaFive8
