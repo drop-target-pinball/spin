@@ -7,7 +7,8 @@ import (
 )
 
 func meltdownModeScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer("")
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode1})
 
@@ -62,7 +63,7 @@ func meltdownModeScript(e *spin.ScriptEnv) {
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		if done := ModeIntroScript(e, "MELTDOWN", "SHOOT", "CAPTIVE BALLS"); done {
+		if done := ModeIntroScript(e, r, "MELTDOWN", "SHOOT", "CAPTIVE BALLS"); done {
 			return
 		}
 		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
@@ -112,8 +113,8 @@ func meltdownModeScript(e *spin.ScriptEnv) {
 }
 
 func meltdownIncompleteScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})
 
@@ -135,8 +136,8 @@ func meltdownIncompleteScript(e *spin.ScriptEnv) {
 }
 
 func meltdownCompleteScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})
 

@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"sort"
 	"strings"
 	"time"
 
@@ -18,12 +19,36 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
+type layer struct {
+	id       int
+	active   bool
+	priority int
+	time     time.Time
+	surf     *sdl.Surface
+}
+
+type layerByPriority []*layer
+
+func (b layerByPriority) Len() int      { return len(b) }
+func (b layerByPriority) Swap(i, j int) { b[i], b[j] = b[j], b[i] }
+
+func (b layerByPriority) Less(i, j int) bool {
+	if b[i].priority < b[j].priority {
+		return true
+	}
+	if b[i].priority == b[j].priority {
+		return b[i].time.Before(b[j].time)
+	}
+	return false
+}
+
 type displaySystem struct {
-	id           string
-	surf         *sdl.Surface
-	layers       []*sdl.Surface
-	layersByName map[string]*sdl.Surface
-	fonts        map[string]font
+	id              string
+	surf            *sdl.Surface
+	layers          []*layer
+	layersOLD       []*sdl.Surface
+	layersByNameOLD map[string]*sdl.Surface
+	fonts           map[string]font
 }
 
 func (d *displaySystem) Width() int {
@@ -39,7 +64,7 @@ func (d *displaySystem) At(x, y int) color.Color {
 }
 
 func (d *displaySystem) Renderer(layer string) (spin.Renderer, *spin.Graphics) {
-	surf, ok := d.layersByName[layer]
+	surf, ok := d.layersByNameOLD[layer]
 	if !ok {
 		log.Panicf("no such layer: %v", layer)
 	}
@@ -57,8 +82,37 @@ func (d *displaySystem) Renderer(layer string) (spin.Renderer, *spin.Graphics) {
 	return renderer, graphics
 }
 
+func (s *displaySystem) OpenPriority(priority int) spin.Renderer {
+	var layer *layer
+	for _, layer = range s.layers {
+		if !layer.active {
+			break
+		}
+	}
+	if layer.active {
+		log.Panicf("no available layers")
+	}
+	layer.active = true
+	layer.priority = priority
+	layer.time = time.Now()
+	sort.Sort(layerByPriority(s.layers))
+
+	r := &rendererSDL{
+		id:     layer.id,
+		active: &layer.active,
+		surf:   layer.surf,
+		fonts:  s.fonts,
+	}
+	r.Fill(spin.ColorBlack)
+	return r
+}
+
+func (s *displaySystem) Open() spin.Renderer {
+	return s.OpenPriority(0)
+}
+
 func (d *displaySystem) Clear(layer string) {
-	surf, ok := d.layersByName[layer]
+	surf, ok := d.layersByNameOLD[layer]
 	if !ok {
 		log.Panicf("no such layer: %v", layer)
 	}
@@ -83,11 +137,24 @@ func RegisterDisplaySystem(eng *spin.Engine, opts spin.DisplayOptions) {
 	}
 
 	s := &displaySystem{
-		id:           opts.ID,
-		surf:         surf,
-		fonts:        make(map[string]font),
-		layers:       make([]*sdl.Surface, len(opts.Layers)),
-		layersByName: make(map[string]*sdl.Surface),
+		id:              opts.ID,
+		surf:            surf,
+		fonts:           make(map[string]font),
+		layers:          make([]*layer, 10),
+		layersOLD:       make([]*sdl.Surface, len(opts.Layers)),
+		layersByNameOLD: make(map[string]*sdl.Surface),
+	}
+
+	for i := 0; i < len(s.layers); i++ {
+		layer := &layer{id: i}
+		layer.id = i
+		surf, err := sdl.CreateRGBSurfaceWithFormat(0, int32(opts.Width), int32(opts.Height),
+			32, sdl.PIXELFORMAT_RGBA8888)
+		if err != nil {
+			log.Panicf("unable to create SDL surface: %v", err)
+		}
+		layer.surf = surf
+		s.layers[i] = layer
 	}
 
 	for i, name := range opts.Layers {
@@ -96,8 +163,8 @@ func RegisterDisplaySystem(eng *spin.Engine, opts spin.DisplayOptions) {
 		if err != nil {
 			log.Fatalf("unable to create SDL surface: %v", err)
 		}
-		s.layers[i] = surf
-		s.layersByName[name] = surf
+		s.layersOLD[i] = surf
+		s.layersByNameOLD[name] = surf
 	}
 
 	eng.Do(spin.RegisterDisplay{
@@ -117,11 +184,19 @@ func (s *displaySystem) HandleAction(action spin.Action) {
 
 func (s *displaySystem) Service(_ time.Time) {
 	rect := sdl.Rect{X: 0, Y: 0, W: s.surf.W, H: s.surf.H}
-	if err := s.surf.FillRect(&rect, 0); err != nil {
-		log.Panic(err)
-	}
+	// if err := s.surf.FillRect(&rect, 0); err != nil {
+	// 	log.Panic(err)
+	// }
+	// for _, layer := range s.layersOLD {
+	// 	if err := layer.Blit(&rect, s.surf, &rect); err != nil {
+	// 		log.Panic(err)
+	// 	}
+	// }
 	for _, layer := range s.layers {
-		if err := layer.Blit(&rect, s.surf, &rect); err != nil {
+		if !layer.active {
+			continue
+		}
+		if err := layer.surf.Blit(&rect, s.surf, &rect); err != nil {
 			log.Panic(err)
 		}
 	}
@@ -130,8 +205,14 @@ func (s *displaySystem) Service(_ time.Time) {
 // ----------------------------------------------------------------------------
 
 type rendererSDL struct {
-	surf  *sdl.Surface
-	fonts map[string]font
+	active *bool
+	id     int
+	surf   *sdl.Surface
+	fonts  map[string]font
+}
+
+func (r rendererSDL) Close() {
+	*r.active = false
 }
 
 func (r *rendererSDL) Graphics() *spin.Graphics {

@@ -3,8 +3,8 @@ package spin
 // Sizing from
 // https://github.com/preble/pyprocgame/blob/master/procgame/modes/scoredisplay.py#L104
 
-func singlePlayerPanel(e *ScriptEnv) {
-	r, g := e.Display("").Renderer("")
+func singlePlayerPanel(e *ScriptEnv, r Renderer) {
+	g := r.Graphics()
 	player := GetPlayerVars(e)
 
 	switch {
@@ -19,8 +19,8 @@ func singlePlayerPanel(e *ScriptEnv) {
 	r.Print(g, FormatScore("%d", player.Score))
 }
 
-func multiPlayerPanel(e *ScriptEnv) {
-	r, g := e.Display("").Renderer("")
+func multiPlayerPanel(e *ScriptEnv, r Renderer) {
+	g := r.Graphics()
 	game := GetGameVars(e)
 
 	sizedFont := func(active bool, score int) string {
@@ -74,15 +74,15 @@ func multiPlayerPanel(e *ScriptEnv) {
 	}
 }
 
-func ScorePanel(e *ScriptEnv) {
-	r, g := e.Display("").Renderer("")
+func ScorePanel(e *ScriptEnv, r Renderer) {
+	g := r.Graphics()
 	game := GetGameVars(e)
 
 	r.Fill(ColorBlack)
 	if game.NumPlayers <= 1 {
-		singlePlayerPanel(e)
+		singlePlayerPanel(e, r)
 	} else if game.NumPlayers > 1 {
-		multiPlayerPanel(e)
+		multiPlayerPanel(e, r)
 	}
 
 	g.Font = Font04B_03_7px

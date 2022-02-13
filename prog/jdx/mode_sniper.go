@@ -27,7 +27,9 @@ func sniperModeScript(e *spin.ScriptEnv) {
 }
 
 func sniperMode1Script(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer("")
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
+
 	switches := spin.GetResourceVars(e).Switches
 
 	e.Do(spin.PlayMusic{ID: MusicMode1})
@@ -85,7 +87,7 @@ func sniperMode1Script(e *spin.ScriptEnv) {
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		if done := ModeIntroScript(e, "SNIPER", "SHOOT", "SNIPER TOWER"); done {
+		if done := ModeIntroScript(e, r, "SNIPER", "SHOOT", "SNIPER TOWER"); done {
 			return
 		}
 		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
@@ -106,7 +108,8 @@ func sniperMode1Script(e *spin.ScriptEnv) {
 }
 
 func sniperMode2Script(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer("")
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	vars := GetVars(e)
 	vars.Mode = ModeSniper
@@ -174,8 +177,8 @@ func sniperMode2Script(e *spin.ScriptEnv) {
 }
 
 func sniperIncompleteScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	vars := GetVars(e)
 	e.Do(spin.PlayMusic{ID: MusicMain})
@@ -192,8 +195,8 @@ func sniperIncompleteScript(e *spin.ScriptEnv) {
 }
 
 func sniperCompleteScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	vars := GetVars(e)
 	vars.SniperBonus += vars.SniperScore

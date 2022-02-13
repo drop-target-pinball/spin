@@ -116,11 +116,13 @@ func defaultReturnLaneLoop(e *spin.ScriptEnv) {
 }
 
 func defaultScoreLoop(e *spin.ScriptEnv) {
+	r := e.Display("").Open()
+
 	vars := GetVars(e)
 	spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 		render := vars.Mode == ModeNone || vars.Mode == ModePlunge
 		if render {
-			spin.ScorePanel(e)
+			spin.ScorePanel(e, r)
 		}
 	})
 }

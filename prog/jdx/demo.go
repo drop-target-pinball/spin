@@ -6,22 +6,22 @@ import (
 )
 
 func demoScript(e *spin.ScriptEnv) {
-	demoIntro(e)
-	demoPlunge(e, false)
-	demoPursuit(e, false)
-	demoBlackout(e, false)
-	demoSniper(e, false)
-	demoDrain1(e, false)
-	demoBattleTank(e, false)
-	demoBadImpersonator(e, false)
-	demoMeltdown(e, false)
-	demoDrain2(e, false)
-	demoSafecracker(e, false)
-	demoManhunt(e, false)
-	demoStakeout(e, false)
-	demoDrain3(e, false)
+	// demoIntro(e)
+	// demoPlunge(e, false)
+	// demoPursuit(e, false)
+	// demoBlackout(e, false)
+	// demoSniper(e, false)
+	// demoDrain1(e, false)
+	// demoBattleTank(e, false)
+	// demoBadImpersonator(e, false)
+	// demoMeltdown(e, false)
+	// demoDrain2(e, false)
+	// demoSafecracker(e, false)
+	// demoManhunt(e, false)
+	// demoStakeout(e, false)
+	// demoDrain3(e, false)
 
-	//demoStakeout(e, true)
+	demoSniper(e, true)
 }
 
 func demoIntro(e *spin.ScriptEnv) {

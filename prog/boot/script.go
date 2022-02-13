@@ -10,13 +10,16 @@ const (
 )
 
 func splashScreenScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open()
+	defer r.Close()
+
 	e.Do(spin.StopAudio{})
 
 	for _, gi := range e.Config.GI {
 		e.Do(spin.DriverOn{ID: gi})
 	}
 
-	splashScreenPanel(e)
+	splashScreenPanel(e, r)
 	e.Do(spin.PlayMusic{ID: MusicSplashScreen, Loops: 1})
 	e.Do(spin.DriverPWM{ID: e.Config.LampStartButton, On: 127, Off: 127})
 	evt, done := e.WaitForUntil(8000,
@@ -32,8 +35,8 @@ func splashScreenScript(e *spin.ScriptEnv) {
 	}
 }
 
-func splashScreenPanel(e *spin.ScriptEnv) {
-	r, g := e.Display("").Renderer("")
+func splashScreenPanel(e *spin.ScriptEnv, r spin.Renderer) {
+	g := r.Graphics()
 	g.Font = spin.FontPfTempestaFiveCompressedBold8
 	g.Y = 4
 	r.Print(g, "SUPER PINBALL SYSTEM")

@@ -7,7 +7,8 @@ import (
 )
 
 func stakeoutModeScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer("")
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode2})
 
@@ -35,7 +36,7 @@ func stakeoutModeScript(e *spin.ScriptEnv) {
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		ModeIntroScript(e, "STAKEOUT", "SHOOT", "RIGHT RAMP")
+		ModeIntroScript(e, r, "STAKEOUT", "SHOOT", "RIGHT RAMP")
 		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			TimerAndScorePanel(e, r, "STAKEOUT", vars.Timer, player.Score, "SHOOT RIGHT RAMP")
 		})

@@ -15,4 +15,4 @@ require (
 )
 
 // replace github.com/drop-target-pinball/go-pinproc => /Users/mcgann/Code/drop-target-pinball/go-pinproc
-// replace github.com/drop-target-pinball/coroutine => /Users/mcgann/Code/drop-target-pinball/coroutine
+replace github.com/drop-target-pinball/coroutine => /Users/mcgann/Code/drop-target-pinball/coroutine

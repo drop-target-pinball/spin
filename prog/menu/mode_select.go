@@ -12,6 +12,9 @@ const (
 )
 
 func selectGameScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open()
+	defer r.Close()
+
 	e.Do(proc.DriverSchedule{ID: jd.LampSuperGameButton, Schedule: proc.BlinkSchedule})
 	defer e.Do(spin.DriverOff{ID: jd.LampSuperGameButton})
 
@@ -35,7 +38,7 @@ func selectGameScript(e *spin.ScriptEnv) {
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
-			selectGameMenuPanel(e, blink)
+			selectGameMenuPanel(e, r, blink)
 		})
 	})
 
@@ -85,7 +88,10 @@ func selectGameScript(e *spin.ScriptEnv) {
 }
 
 func gameSelectedScript(e *spin.ScriptEnv) {
-	selectGameMenuPanel(e, false)
+	r := e.Display("").Open()
+	defer r.Close()
+
+	selectGameMenuPanel(e, r, false)
 	e.Do(spin.DriverOn{ID: e.Config.LampStartButton})
 	e.Do(spin.PlaySound{ID: SoundSelect})
 	e.Do(spin.FadeOutMusic{Time: 1500})
@@ -94,17 +100,16 @@ func gameSelectedScript(e *spin.ScriptEnv) {
 		return
 	}
 
-	e.Display("").Clear("")
+	r.Fill(spin.ColorBlack)
 	if done := e.Sleep(1000); done {
 		return
 	}
 
 	e.Post(spin.Message{ID: MessageGameSelected})
-
 }
 
-func selectGameMenuPanel(e *spin.ScriptEnv, blinkOn bool) {
-	r, g := e.Display("").Renderer("")
+func selectGameMenuPanel(e *spin.ScriptEnv, r spin.Renderer, blinkOn bool) {
+	g := r.Graphics()
 	vars := GetVars(e)
 
 	r.Fill(spin.ColorBlack)

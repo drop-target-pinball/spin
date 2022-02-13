@@ -4,8 +4,8 @@ import (
 	"github.com/drop-target-pinball/spin"
 )
 
-func ModeIntroPanel(e *spin.ScriptEnv, blinkOn bool, text [3]string) {
-	r, g := e.Display("").Renderer("")
+func ModeIntroPanel(e *spin.ScriptEnv, r spin.Renderer, blinkOn bool, text [3]string) {
+	g := r.Graphics()
 
 	r.Fill(spin.ColorBlack)
 	g.Y = 2

@@ -2,14 +2,14 @@ package jdx
 
 import "github.com/drop-target-pinball/spin"
 
-func ModeIntroScript(e *spin.ScriptEnv, line1 string, line2 string, line3 string) bool {
+func ModeIntroScript(e *spin.ScriptEnv, r spin.Renderer, line1 string, line2 string, line3 string) bool {
 	text := [3]string{line1, line2, line3}
 
 	s := spin.NewSequencer(e)
 
-	s.DoFunc(func() { ModeIntroPanel(e, true, text) })
+	s.DoFunc(func() { ModeIntroPanel(e, r, true, text) })
 	s.Sleep(250)
-	s.DoFunc(func() { ModeIntroPanel(e, false, text) })
+	s.DoFunc(func() { ModeIntroPanel(e, r, false, text) })
 	s.Sleep(100)
 	s.LoopN(9)
 

@@ -7,7 +7,8 @@ import (
 )
 
 func manhuntModeScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer("")
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode1})
 
@@ -55,7 +56,7 @@ func manhuntModeScript(e *spin.ScriptEnv) {
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		ModeIntroScript(e, "MANHUNT", "SHOOT", "LEFT RAMP")
+		ModeIntroScript(e, r, "MANHUNT", "SHOOT", "LEFT RAMP")
 		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			TimerAndScorePanel(e, r, "MANHUNT", vars.Timer, player.Score, "SHOOT LEFT RAMP")
 		})
@@ -83,8 +84,8 @@ func manhuntModeScript(e *spin.ScriptEnv) {
 }
 
 func manhuntCompleteScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})
 

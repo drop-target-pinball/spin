@@ -45,8 +45,8 @@ func plungeModeScript(e *spin.ScriptEnv) {
 	e.Do(spin.PlaySound{ID: SoundMotorcycleStart})
 }
 
-func useFireButtonPanel(e *spin.ScriptEnv, n int) {
-	r, g := e.Display("").Renderer(spin.LayerPriority)
+func useFireButtonPanel(e *spin.ScriptEnv, r spin.Renderer, n int) {
+	g := r.Graphics()
 
 	// chevronsL := []string{
 	// 	"   ",
@@ -78,13 +78,13 @@ func useFireButtonPanel(e *spin.ScriptEnv, n int) {
 }
 
 func useFireButtonAnimScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityAnnounce)
+	defer r.Close()
 
 	i := 0
 	s := spin.NewSequencer(e)
 	s.DoFunc(func() {
-		useFireButtonPanel(e, i%4)
+		useFireButtonPanel(e, r, i%4)
 		i += 1
 	})
 	s.Sleep(100)

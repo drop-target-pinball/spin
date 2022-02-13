@@ -31,26 +31,26 @@ func attractModeScript(e *spin.ScriptEnv) {
 	}
 }
 
-var attractSlides = []func(*spin.ScriptEnv) bool{
+var attractSlides = []func(*spin.ScriptEnv, spin.Renderer) bool{
 	attractGameOver,
 	attractDropTargetPinball,
 	attractSuperPinballSystem,
 	attractFreePlay,
 }
 
-func attractGameOver(e *spin.ScriptEnv) bool {
-	r, g := e.Display("").Renderer("")
+func attractGameOver(e *spin.ScriptEnv, r spin.Renderer) bool {
+	g := r.Graphics()
 
 	r.Fill(spin.ColorBlack)
 	g.AnchorY = spin.AnchorMiddle
 	g.Font = spin.FontPfRondaSevenBold8
 	r.Print(g, "GAME OVER")
 
-	return e.Sleep(4000)
+	return e.Sleep(4_000)
 }
 
-func attractDropTargetPinball(e *spin.ScriptEnv) bool {
-	r, g := e.Display("").Renderer("")
+func attractDropTargetPinball(e *spin.ScriptEnv, r spin.Renderer) bool {
+	g := r.Graphics()
 
 	r.Fill(spin.ColorBlack)
 	g.Y = 7
@@ -60,11 +60,11 @@ func attractDropTargetPinball(e *spin.ScriptEnv) bool {
 	g.Font = spin.FontPfRondaSevenBold8
 	r.Print(g, "PRESENTS")
 
-	return e.Sleep(4000)
+	return e.Sleep(4_000)
 }
 
-func attractSuperPinballSystem(e *spin.ScriptEnv) bool {
-	r, g := e.Display("").Renderer("")
+func attractSuperPinballSystem(e *spin.ScriptEnv, r spin.Renderer) bool {
+	g := r.Graphics()
 
 	r.Fill(spin.ColorBlack)
 	g.Y = 7
@@ -73,11 +73,11 @@ func attractSuperPinballSystem(e *spin.ScriptEnv) bool {
 	g.Y = 18
 	r.Print(g, "PINBALL SYSTEM")
 
-	return e.Sleep(4000)
+	return e.Sleep(4_000)
 }
 
-func freePlayPanel(e *spin.ScriptEnv, blinkOn bool) {
-	r, g := e.Display("").Renderer("")
+func freePlayPanel(e *spin.ScriptEnv, r spin.Renderer, blinkOn bool) {
+	g := r.Graphics()
 
 	r.Fill(spin.ColorBlack)
 	g.Y = 7
@@ -89,25 +89,28 @@ func freePlayPanel(e *spin.ScriptEnv, blinkOn bool) {
 	r.Print(g, "FREE PLAY")
 }
 
-func attractFreePlay(e *spin.ScriptEnv) bool {
+func attractFreePlay(e *spin.ScriptEnv, r spin.Renderer) bool {
 	s := spin.NewSequencer(e)
 
-	s.DoFunc(func() { freePlayPanel(e, true) })
+	s.DoFunc(func() { freePlayPanel(e, r, true) })
 	s.Sleep(200)
-	s.DoFunc(func() { freePlayPanel(e, false) })
+	s.DoFunc(func() { freePlayPanel(e, r, false) })
 	s.Sleep(100)
 	s.LoopN(5)
-	s.Run()
+	s.DoFunc(func() { freePlayPanel(e, r, true) })
+	s.Sleep(2_500)
 
-	freePlayPanel(e, true)
-	return e.Sleep(2500)
+	return s.Run()
 }
 
 func attractModeSlideScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open()
+	defer r.Close()
+
 	vars := GetVars(e)
 	for {
 		fn := attractSlides[vars.AttractModeSlide]
-		if done := fn(e); done {
+		if done := fn(e, r); done {
 			return
 		}
 		attractNextSlide(e)

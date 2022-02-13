@@ -7,7 +7,8 @@ import (
 )
 
 func pursuitModeScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer("")
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode2})
 
@@ -84,7 +85,7 @@ func pursuitModeScript(e *spin.ScriptEnv) {
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		if done := ModeIntroScript(e, "PURSUIT", "SHOOT", "FLASHING RAMP"); done {
+		if done := ModeIntroScript(e, r, "PURSUIT", "SHOOT", "FLASHING RAMP"); done {
 			return
 		}
 		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
@@ -107,8 +108,8 @@ func pursuitModeScript(e *spin.ScriptEnv) {
 }
 
 func pursuitIncompleteScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})
 
@@ -127,8 +128,8 @@ func pursuitIncompleteScript(e *spin.ScriptEnv) {
 }
 
 func pursuitCompleteScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})
 

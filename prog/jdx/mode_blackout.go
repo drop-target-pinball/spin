@@ -7,7 +7,8 @@ import (
 )
 
 func blackoutModeScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer("")
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode1})
 
@@ -52,7 +53,7 @@ func blackoutModeScript(e *spin.ScriptEnv) {
 	defer e.Do(spin.PlayScript{ID: jd.ScriptGIOn})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		ModeIntroScript(e, "BLACKOUT", "EVERYTHING", "2X")
+		ModeIntroScript(e, r, "BLACKOUT", "EVERYTHING", "2X")
 		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
 			ModeAndScorePanel(e, r, "BLACKOUT", player.Score)
 		})
@@ -85,8 +86,8 @@ func blackoutModeScript(e *spin.ScriptEnv) {
 }
 
 func blackoutJackpotScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	ScoreAndLabelPanel(e, r, ScoreBlackoutJackpot, "JACKPOT")
 

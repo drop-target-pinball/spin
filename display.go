@@ -13,6 +13,11 @@ const (
 	LayerPriority = "LayerPriority"
 )
 
+const (
+	PriorityMode     = 1
+	PriorityAnnounce = 2
+)
+
 type AnchorX int
 
 const (
@@ -41,18 +46,21 @@ type Graphics struct {
 }
 
 type Renderer interface {
-	Graphics() *Graphics
+	Graphics() *Graphics // TODO: Make this not a pointer
 	Fill(color.RGBA)
 	FillRect(*Graphics)
 	Height() int32
 	Print(*Graphics, string, ...interface{})
 	Width() int32
 	Clear()
+	Close()
 }
 
 type Display interface {
 	Clear(string)
 	Renderer(string) (Renderer, *Graphics)
+	Open() Renderer
+	OpenPriority(int) Renderer
 	Width() int
 	Height() int
 	At(int, int) color.Color

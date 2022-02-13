@@ -7,7 +7,8 @@ import (
 )
 
 func tankModeScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer("")
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode2})
 
@@ -47,7 +48,7 @@ func tankModeScript(e *spin.ScriptEnv) {
 	})
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
-		if done := ModeIntroScript(e, "BATTLE TANK", "SHOOT", "GREEN ARROWS"); done {
+		if done := ModeIntroScript(e, r, "BATTLE TANK", "SHOOT", "GREEN ARROWS"); done {
 			return
 		}
 		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
@@ -141,8 +142,8 @@ func tankHitScript(e *spin.ScriptEnv) {
 }
 
 func tankIncompleteScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	vars := GetVars(e)
 	e.Do(spin.PlayMusic{ID: MusicMain})
@@ -151,8 +152,8 @@ func tankIncompleteScript(e *spin.ScriptEnv) {
 }
 
 func tankCompleteScript(e *spin.ScriptEnv) {
-	r, _ := e.Display("").Renderer(spin.LayerPriority)
-	defer r.Clear()
+	r := e.Display("").OpenPriority(spin.PriorityMode)
+	defer r.Close()
 
 	vars := GetVars(e)
 	vars.TankHits = 0
