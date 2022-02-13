@@ -92,6 +92,9 @@ func safecrackerMode1Script(e *spin.ScriptEnv) {
 }
 
 func safecrackerMode2Script(e *spin.ScriptEnv) {
+	r := e.Display("").Open()
+	defer r.Close()
+
 	vars := GetVars(e)
 	vars.Mode = ModeSafeCracker
 	defer func() { vars.Mode = ModeNone }()
@@ -102,7 +105,7 @@ func safecrackerMode2Script(e *spin.ScriptEnv) {
 			spin.CountdownLoop(e, &vars.Timer, 1500, spin.TimeoutEvent{})
 		})
 		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
-			safecrackerMode2Panel(e)
+			safecrackerMode2Panel(e, r)
 		})
 	})
 
@@ -200,9 +203,9 @@ func safecrackerOpenThatSafeScript(e *spin.ScriptEnv) {
 	s.Run()
 }
 
-func safecrackerMode2Panel(e *spin.ScriptEnv) {
+func safecrackerMode2Panel(e *spin.ScriptEnv, r spin.Renderer) {
 	vars := GetVars(e)
-	r, g := e.Display("").Renderer("")
+	g := r.Graphics()
 
 	r.Fill(spin.ColorBlack)
 	g.Y = 2

@@ -51,13 +51,10 @@ type Renderer interface {
 	Height() int32
 	Print(*Graphics, string, ...interface{})
 	Width() int32
-	Clear()
 	Close()
 }
 
 type Display interface {
-	Clear(string)
-	Renderer(string) (Renderer, *Graphics)
 	Open() Renderer
 	OpenPriority(int) Renderer
 	Width() int

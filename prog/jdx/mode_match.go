@@ -6,8 +6,10 @@ import "github.com/drop-target-pinball/spin"
 PlayScript ID=jdx.ScriptMatchMode
 */
 func matchModeScript(e *spin.ScriptEnv) {
-	r, g := e.Display("").Renderer("")
+	r := e.Display("").Open()
+	defer r.Close()
 
+	g := r.Graphics()
 	r.Fill(spin.ColorBlack)
 	g.AnchorY = spin.AnchorMiddle
 	g.Y = r.Height() / 2

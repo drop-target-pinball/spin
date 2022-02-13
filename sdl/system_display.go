@@ -44,12 +44,10 @@ func (b layerByPriority) Less(i, j int) bool {
 }
 
 type displaySystem struct {
-	id              string
-	surf            *sdl.Surface
-	layers          []*layer
-	layersOLD       []*sdl.Surface
-	layersByNameOLD map[string]*sdl.Surface
-	fonts           map[string]font
+	id     string
+	surf   *sdl.Surface
+	layers []*layer
+	fonts  map[string]font
 }
 
 func (d *displaySystem) Width() int {
@@ -62,25 +60,6 @@ func (d *displaySystem) Height() int {
 
 func (d *displaySystem) At(x, y int) color.Color {
 	return d.surf.At(x, y)
-}
-
-func (d *displaySystem) Renderer(layer string) (spin.Renderer, *spin.Graphics) {
-	surf, ok := d.layersByNameOLD[layer]
-	if !ok {
-		log.Panicf("no such layer: %v", layer)
-	}
-
-	graphics := &spin.Graphics{
-		X:       d.surf.W / 2,
-		Y:       d.surf.H / 2,
-		AnchorX: spin.AnchorCenter,
-		AnchorY: spin.AnchorTop,
-	}
-	renderer := &rendererSDL{
-		surf:  surf,
-		fonts: d.fonts,
-	}
-	return renderer, graphics
 }
 
 func (s *displaySystem) OpenPriority(priority int) spin.Renderer {
@@ -113,17 +92,6 @@ func (s *displaySystem) Open() spin.Renderer {
 	return s.OpenPriority(0)
 }
 
-func (d *displaySystem) Clear(layer string) {
-	surf, ok := d.layersByNameOLD[layer]
-	if !ok {
-		log.Panicf("no such layer: %v", layer)
-	}
-	rect := sdl.Rect{X: 0, Y: 0, W: surf.W, H: surf.H}
-	if err := surf.FillRect(&rect, 0); err != nil {
-		log.Panic(err)
-	}
-}
-
 func RegisterDisplaySystem(eng *spin.Engine, opts spin.DisplayOptions) {
 	if err := ttf.Init(); err != nil {
 		log.Fatalf("unable to initialize ttf: %v", err)
@@ -139,12 +107,10 @@ func RegisterDisplaySystem(eng *spin.Engine, opts spin.DisplayOptions) {
 	}
 
 	s := &displaySystem{
-		id:              opts.ID,
-		surf:            surf,
-		fonts:           make(map[string]font),
-		layers:          make([]*layer, 10),
-		layersOLD:       make([]*sdl.Surface, len(opts.Layers)),
-		layersByNameOLD: make(map[string]*sdl.Surface),
+		id:     opts.ID,
+		surf:   surf,
+		fonts:  make(map[string]font),
+		layers: make([]*layer, 10),
 	}
 
 	for i := 0; i < len(s.layers); i++ {
@@ -157,16 +123,6 @@ func RegisterDisplaySystem(eng *spin.Engine, opts spin.DisplayOptions) {
 		}
 		layer.surf = surf
 		s.layers[i] = layer
-	}
-
-	for i, name := range opts.Layers {
-		surf, err := sdl.CreateRGBSurfaceWithFormat(0, int32(opts.Width), int32(opts.Height),
-			32, sdl.PIXELFORMAT_RGBA8888)
-		if err != nil {
-			log.Fatalf("unable to create SDL surface: %v", err)
-		}
-		s.layersOLD[i] = surf
-		s.layersByNameOLD[name] = surf
 	}
 
 	eng.Do(spin.RegisterDisplay{
