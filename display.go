@@ -6,6 +6,7 @@ import (
 
 var (
 	ColorBlack = color.RGBA{0x00, 0x00, 0x00, 0xff}
+	ColorGray8 = color.RGBA{0x88, 0x88, 0x88, 0xff}
 	ColorWhite = color.RGBA{0xff, 0xff, 0xff, 0xff}
 )
 
@@ -38,7 +39,7 @@ type Graphics struct {
 	Y       int32
 	W       int32
 	H       int32
-	Color   uint32
+	Color   color.RGBA
 	Font    string
 	AnchorX AnchorX
 	AnchorY AnchorY

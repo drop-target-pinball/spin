@@ -15,6 +15,7 @@ const (
 	FontPfArmaFive8                   = "FontPfArmaFive8"
 	FontPfRondaSeven8                 = "FontPfRondaSeven8"
 	FontPfRondaSevenBold8             = "FontPfRondaSevenBold8"
+	FontPfRondaSevenBold16            = "FontPfRondaSevenBold16"
 	FontPfTempestaFive8               = "FontPfTempestaFive8"
 	FontPfTempestaFiveBold8           = "FontPfTempestaFiveBold8"
 	FontPfTempestaFiveCompressed8     = "FontPfTempestaFiveCompressed8"
@@ -80,6 +81,11 @@ func RegisterFonts(eng *Engine) {
 	eng.Do(RegisterFont{
 		ID:   FontPfRondaSevenBold8,
 		Size: 8,
+		Path: "pf-fonts/pf_ronda_seven_bold.ttf",
+	})
+	eng.Do(RegisterFont{
+		ID:   FontPfRondaSevenBold16,
+		Size: 16,
 		Path: "pf-fonts/pf_ronda_seven_bold.ttf",
 	})
 	eng.Do(RegisterFont{

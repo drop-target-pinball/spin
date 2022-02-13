@@ -6,8 +6,27 @@ import (
 	"github.com/drop-target-pinball/spin/proc"
 )
 
+/*
+SwitchEvent ID=jd.SwitchRightFireButton
+
+SwitchEvent ID=jd.SwitchDropTargetJ
+SwitchEvent ID=jd.SwitchDropTargetU
+SwitchEvent ID=jd.SwitchDropTargetD
+SwitchEvent ID=jd.SwitchDropTargetG
+SwitchEvent ID=jd.SwitchDropTargetE
+
+SwitchEvent ID=jd.SwitchLeftRampExit
+*/
+
 func ballLockScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
+
+	dropTargetSounds := []string{
+		SoundDropTargetLitHit1,
+		SoundDropTargetLitHit2,
+		SoundDropTargetLitHit3,
+		SoundDropTargetLitHit4,
+	}
 
 	e.NewCoroutine(ballLockRampRoutine)
 	for i := jd.MinDropTarget; i <= jd.MaxDropTarget; i++ {
@@ -35,21 +54,49 @@ func ballLockScript(e *spin.ScriptEnv) {
 			return
 		}
 
+		e.Do(spin.AwardScore{Val: ScoreDropTargetLit})
 		if lit == jd.MaxDropTarget {
 			vars.LitDropTarget = jd.MinDropTarget
+			e.Do(spin.PlaySound{ID: SoundDropTargetLitHit5})
 			e.Do(proc.DriverSchedule{ID: jd.LampDropTargetJ, Schedule: proc.BlinkSchedule})
 			e.Do(spin.DriverOff{ID: jd.LampDropTargetU})
 			e.Do(spin.DriverOff{ID: jd.LampDropTargetD})
 			e.Do(spin.DriverOff{ID: jd.LampDropTargetG})
 			e.Do(spin.DriverOff{ID: jd.LampDropTargetE})
+			if vars.LocksReady == 0 {
+				e.NewCoroutine(func(e *spin.ScriptEnv) {
+					s := spin.NewSequencer(e)
+
+					s.Sleep(1_250)
+					s.Do(spin.PlaySpeech{ID: SpeechDimensionalGlobeActivated})
+
+					s.Run()
+				})
+
+				if vars.Mode == ModeNone && vars.StartModeLeft {
+					vars.StartModeLeft = false
+					e.Do(spin.DriverOff{ID: jd.LampLeftModeStart})
+					e.Do(proc.DriverSchedule{ID: jd.LampRightModeStart, Schedule: proc.BlinkSchedule})
+				}
+			}
 			if vars.LocksReady < 3 {
-				vars.LocksReady += 1
-				e.Do(proc.DriverSchedule{ID: jd.LockLamps[vars.LocksReady], Schedule: proc.BlinkSchedule})
+				if vars.MultiballAttempted {
+					vars.LocksReady += 1
+					e.Do(proc.DriverSchedule{ID: jd.LockLamps[vars.LocksReady], Schedule: proc.BlinkSchedule})
+				} else {
+					vars.LocksReady = 3
+					e.Do(proc.DriverSchedule{ID: jd.LockLamps[1], Schedule: proc.BlinkSchedule})
+					e.Do(proc.DriverSchedule{ID: jd.LockLamps[2], Schedule: proc.BlinkSchedule})
+					e.Do(proc.DriverSchedule{ID: jd.LockLamps[3], Schedule: proc.BlinkSchedule})
+				}
 			}
 		} else {
 			e.Do(spin.DriverOn{ID: jd.DropTargetLamps[lit]})
+			e.Do(spin.PlaySound{ID: dropTargetSounds[lit]})
 			vars.LitDropTarget += 1
 		}
+
+		e.Do(spin.PlayScript{ID: ScriptDropTargetHit})
 	}
 }
 
@@ -65,6 +112,7 @@ func ballLockRampRoutine(e *spin.ScriptEnv) {
 			}
 			vars.BallsLocked += 1
 			e.Do(spin.DriverOn{ID: jd.LockLamps[vars.BallsLocked]})
+			e.Do(spin.PlayScript{ID: ScriptBallLocked})
 			if vars.BallsLocked == 2 {
 				break
 			}
@@ -88,4 +136,83 @@ func ballLockRampRoutine(e *spin.ScriptEnv) {
 			break
 		}
 	}
+}
+
+func dropTargetJudgePanel(e *spin.ScriptEnv, r spin.Renderer, blinkOn bool) {
+	g := r.Graphics()
+	vars := GetVars(e)
+
+	letters := []string{"J", "U", "D", "G", "E"}
+
+	g.Font = spin.FontPfRondaSevenBold16
+	g.Y = 0
+	g.X = 32
+	hit := vars.LitDropTarget - 1
+	if hit < 0 {
+		hit = jd.MaxDropTarget
+	}
+	for i, letter := range letters {
+		if i < hit {
+			g.Color = spin.ColorWhite
+		} else if i == hit {
+			if blinkOn {
+				g.Color = spin.ColorWhite
+			} else {
+				g.Color = spin.ColorGray8
+			}
+		} else {
+			g.Color = spin.ColorGray8
+		}
+		r.Print(g, letter)
+		g.X += 16
+	}
+
+	g.Color = spin.ColorWhite
+	g.Font = spin.FontPfArmaFive8
+	g.Y = 24
+	g.X = r.Width() / 2
+	if hit < jd.MaxDropTarget {
+		r.Print(g, spin.FormatScore("%v", ScoreDropTargetLit))
+	} else {
+		r.Print(g, "LOCK LIT")
+	}
+}
+
+func dropTargetHitScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(spin.PriorityAnnounce)
+	defer r.Close()
+
+	s := spin.NewSequencer(e)
+
+	s.DoFunc(func() { dropTargetJudgePanel(e, r, true) })
+	s.Sleep(100)
+	s.DoFunc(func() { dropTargetJudgePanel(e, r, false) })
+	s.Sleep(100)
+	s.LoopN(10)
+
+	s.Run()
+}
+
+/*
+SetVar Vars=jdx.1 ID=BallsLocked Val=1
+PlayScript ID=jdx.ScriptBallLocked
+*/
+
+func ballLockedScript(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+
+	lockSpeech := []string{
+		"",
+		SpeechDimensionalLockOne,
+		SpeechDimensionalLockTwo,
+	}
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlaySound{ID: SoundBallLock, Duck: 0.25})
+	s.Sleep(500)
+	s.Do(spin.PlaySpeech{ID: lockSpeech[vars.BallsLocked]})
+	s.WaitFor(spin.SoundFinishedEvent{ID: SoundBallLock})
+
+	s.Run()
 }

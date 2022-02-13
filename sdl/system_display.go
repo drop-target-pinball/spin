@@ -178,6 +178,7 @@ func (r *rendererSDL) Graphics() *spin.Graphics {
 		Y:       r.surf.H / 2,
 		AnchorX: spin.AnchorCenter,
 		AnchorY: spin.AnchorTop,
+		Color:   spin.ColorWhite,
 	}
 }
 
@@ -201,7 +202,7 @@ func (r *rendererSDL) Height() int32 {
 
 func (r *rendererSDL) FillRect(g *spin.Graphics) {
 	rect := sdl.Rect{X: g.X, Y: g.Y, W: g.W, H: g.H}
-	if err := r.surf.FillRect(&rect, g.Color); err != nil {
+	if err := r.surf.FillRect(&rect, colorToUint32(g.Color)); err != nil {
 		log.Panic(err)
 	}
 }
@@ -231,7 +232,7 @@ func (r *rendererSDL) Print(g *spin.Graphics, format string, a ...interface{}) {
 	if g.AnchorY == spin.AnchorBottom {
 		y -= h
 	}
-	font.render(r.surf, x, y, text)
+	font.render(r.surf, x, y, g.Color, text)
 }
 
 func (r *rendererSDL) getFont(g *spin.Graphics) font {
@@ -247,10 +248,14 @@ func (r *rendererSDL) getFont(g *spin.Graphics) font {
 	return font
 }
 
+func colorToUint32(c color.RGBA) uint32 {
+	return uint32(c.R) << 24 & uint32(c.G) << 16 & uint32(c.B) << 8 & uint32(c.A)
+}
+
 // ----------------------------------------------------------------------------
 
 type font interface {
-	render(s *sdl.Surface, x int32, y int32, text string)
+	render(s *sdl.Surface, x int32, y int32, color color.RGBA, text string)
 	size(string) (int32, int32)
 }
 
@@ -263,12 +268,11 @@ type fontTTF struct {
 	info infoTTF
 }
 
-func (f *fontTTF) render(target *sdl.Surface, x int32, y int32, text string) {
+func (f *fontTTF) render(target *sdl.Surface, x int32, y int32, color color.RGBA, text string) {
 	if text == "" {
 		return
 	}
-	surf, err := f.font.RenderUTF8Solid(text,
-		sdl.Color{R: 0xff, G: 0xff, B: 0xff, A: 0xff})
+	surf, err := f.font.RenderUTF8Solid(text, sdl.Color(color))
 	if err != nil {
 		panic(err)
 	}
@@ -382,7 +386,7 @@ type fontBitmap struct {
 	tracking int32
 }
 
-func (f *fontBitmap) render(target *sdl.Surface, x int32, y int32, text string) {
+func (f *fontBitmap) render(target *sdl.Surface, x int32, y int32, _ color.RGBA, text string) {
 	for _, ch := range text {
 		t, ok := f.tileMap[string(ch)]
 		if !ok {

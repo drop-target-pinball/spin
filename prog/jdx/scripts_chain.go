@@ -28,7 +28,12 @@ func chainScript(e *spin.ScriptEnv) {
 	if vars.AwardedModes == AllChainModes {
 		return
 	}
-	vars.StartModeLeft = true
+
+	if vars.LocksReady > vars.BallsLocked {
+		vars.StartModeLeft = false
+	} else {
+		vars.StartModeLeft = true
+	}
 
 	for {
 		modeStartLamp := jd.LampRightModeStart
@@ -71,6 +76,9 @@ func chainScript(e *spin.ScriptEnv) {
 		}
 		nextChain(e)
 		vars.StartModeLeft = !vars.StartModeLeft
+		if vars.LocksReady > vars.BallsLocked {
+			vars.StartModeLeft = false
+		}
 	}
 }
 

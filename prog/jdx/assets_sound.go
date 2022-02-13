@@ -5,10 +5,16 @@ import "github.com/drop-target-pinball/spin"
 const (
 	SoundBadImpersonatorGunFire = "jdx.SoundBadImpersonatorGunFire"
 	SoundBadImpersonatorThrow   = "jdx.SoundBadImpersonatorThrow"
+	SoundBallLock               = "jdx.SoundBallLock"
 	SoundBallLost               = "jdx.SoundBallLost"
 	SoundBlackoutJackpot        = "jdx.SoundBlackoutJackpot"
 	SoundBonus                  = "jdx.SoundBonus"
 	SoundDing                   = "jdx.SoundDing"
+	SoundDropTargetLitHit1      = "jdx.SoundDropTargetLitHit1"
+	SoundDropTargetLitHit2      = "jdx.SoundDropTargetLitHit2"
+	SoundDropTargetLitHit3      = "jdx.SoundDropTargetLitHit3"
+	SoundDropTargetLitHit4      = "jdx.SoundDropTargetLitHit4"
+	SoundDropTargetLitHit5      = "jdx.SoundDropTargetLitHit5"
 	SoundGunLoadSniper          = "jdx.SoundGunLoadSniper"
 	SoundGunFire                = "jdx.SoundGunFire"
 	SoundManhuntAutoFire        = "jdx.SoundManhuntAutoFire"
@@ -51,6 +57,10 @@ func RegisterSounds(eng *spin.Engine) {
 		Path: "jd-pinsound/sfx/000052-bad_inpersonator/bad_inpe__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
+		ID:   SoundBallLock,
+		Path: "jd-pinsound/sfx/000159-option_1/option_1__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
 		ID:   SoundBallLost,
 		Path: "jd-pinsound/sfx/000112-ball_lost/ball_los__LEGACY_AUD.wav",
 	})
@@ -65,6 +75,26 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundDing,
 		Path: "jd-pinsound/sfx/000101-dring/dring__L__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundDropTargetLitHit1,
+		Path: "jd-pinsound/sfx/000096-laser_3/laser_3___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundDropTargetLitHit2,
+		Path: "jd-pinsound/sfx/000097-laser_4/laser_4___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundDropTargetLitHit3,
+		Path: "jd-pinsound/sfx/000098-laser_4/laser_4__2_LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundDropTargetLitHit4,
+		Path: "jd-pinsound/sfx/000099-laser_5/laser_5___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundDropTargetLitHit5,
+		Path: "jd-pinsound/sfx/000100-flash_2/flash_2___LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundGunLoadSniper,

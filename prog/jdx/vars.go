@@ -17,6 +17,7 @@ const (
 	ScoreBadImpersonator0 = 3_000_000
 	ScoreBadImpersonatorN = 5_000_000
 	ScoreBlackoutJackpot  = 10_000_000
+	ScoreDropTargetLit    = 500_000
 	ScoreManhunt0         = 3_000_000
 	ScoreManhuntN         = 6_000_000
 	ScoreMeltdown0        = 3_000_000
@@ -117,6 +118,7 @@ type Vars struct {
 	MeltdownBonus          int
 	Mode                   int
 	Multiplier             int
+	MultiballAttempted     bool
 	PursuitBonus           int
 	SafecrackerAttempts    int
 	SafecrackerBonus       int

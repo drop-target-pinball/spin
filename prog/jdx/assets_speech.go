@@ -13,6 +13,9 @@ const (
 	SpeechCivilDisorderHasEruptedInHeitschMusicHall     = "jdx.SpeechCivilDisorderHasEruptedInHeitschMusicHall"
 	SpeechContainmentFailureAtThreeMeterIsland          = "jdx.SpeechContainmentFailureAtThreeMetereIsland"
 	SpeechControlToDredd                                = "jdx.SpeechControlToDredd"
+	SpeechDimensionalGlobeActivated                     = "jdx.SpeechDimensionalGlobeActivated"
+	SpeechDimensionalLockOne                            = "jdx.SpeechDimensionalLockOne"
+	SpeechDimensionalLockTwo                            = "jdx.SpeechDimensionalLockTwo"
 	SpeechDinnerTime                                    = "jdx.SpeechDinnerTime"
 	SpeechDontMove                                      = "jdx.SpeechDontMove"
 	SpeechDrainShieldDeactivated                        = "jdx.SpeechDrainShieldDeactivated"
@@ -99,6 +102,18 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechControlToDredd,
 		Path: "jd-pinsound/voice/000342-control_to_dredd/control___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechDimensionalGlobeActivated,
+		Path: "jd-pinsound/voice/000321-dimensional_globe_activated/dimensio__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechDimensionalLockOne,
+		Path: "jd-pinsound/voice/000331-dimensional_lock_one/dimensio__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechDimensionalLockTwo,
+		Path: "jd-pinsound/voice/000332-dimensional_lock_two/dimensio__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechDinnerTime,

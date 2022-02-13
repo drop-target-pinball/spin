@@ -13,6 +13,7 @@ const (
 	ScriptBadImpersonatorMode     = "jdx.ScriptBadImpersonatorMode"
 	ScriptBall                    = "jdx.ScriptBall"
 	ScriptBallLock                = "jdx.ScriptBallLock"
+	ScriptBallLocked              = "jdx.ScriptBallLocked"
 	ScriptBallSaver               = "jdx.ScriptBallSaver"
 	ScriptBase                    = "jdx.ScriptBase"
 	ScriptBlackoutJackpot         = "jdx.ScriptBlackoutJackpot"
@@ -20,6 +21,7 @@ const (
 	ScriptBonusMode               = "jdx.ScriptBonusMode"
 	ScriptChain                   = "jdx.ScriptChain"
 	ScriptDemo                    = "jdx.ScriptDemo"
+	ScriptDropTargetHit           = "jdx.ScriptDropTargetHit"
 	ScriptGame                    = "jdx.ScriptGame"
 	ScriptManhuntComplete         = "jdx.ScriptManhuntComplete"
 	ScriptManhuntMode             = "jdx.ScriptManhuntMode"
@@ -98,6 +100,11 @@ func RegisterScripts(eng *spin.Engine) {
 		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptBallLocked,
+		Script: ballLockedScript,
+		Group:  spin.ScriptGroupBall,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptBallSaver,
 		Script: ballSaverScript,
 		Group:  spin.ScriptGroupBall,
@@ -124,6 +131,11 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptDemo,
 		Script: demoScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptDropTargetHit,
+		Script: dropTargetHitScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptGame,
