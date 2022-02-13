@@ -177,7 +177,7 @@ func sniperMode2Script(e *spin.ScriptEnv) {
 }
 
 func sniperIncompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").Open()
 	defer r.Close()
 
 	vars := GetVars(e)
@@ -195,7 +195,7 @@ func sniperIncompleteScript(e *spin.ScriptEnv) {
 }
 
 func sniperCompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").Open()
 	defer r.Close()
 
 	vars := GetVars(e)

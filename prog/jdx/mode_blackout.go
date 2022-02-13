@@ -86,7 +86,7 @@ func blackoutModeScript(e *spin.ScriptEnv) {
 }
 
 func blackoutJackpotScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").OpenPriority(spin.PriorityAnnounce)
 	defer r.Close()
 
 	ScoreAndLabelPanel(e, r, ScoreBlackoutJackpot, "JACKPOT")

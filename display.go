@@ -14,8 +14,7 @@ const (
 )
 
 const (
-	PriorityMode     = 1
-	PriorityAnnounce = 2
+	PriorityAnnounce = 1
 )
 
 type AnchorX int

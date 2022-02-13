@@ -7,7 +7,7 @@ import (
 )
 
 func meltdownModeScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").Open()
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode1})
@@ -113,7 +113,7 @@ func meltdownModeScript(e *spin.ScriptEnv) {
 }
 
 func meltdownIncompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").Open()
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})
@@ -136,7 +136,7 @@ func meltdownIncompleteScript(e *spin.ScriptEnv) {
 }
 
 func meltdownCompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").Open()
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})

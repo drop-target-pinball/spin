@@ -7,7 +7,7 @@ import (
 )
 
 func manhuntModeScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").Open()
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMode1})
@@ -84,7 +84,7 @@ func manhuntModeScript(e *spin.ScriptEnv) {
 }
 
 func manhuntCompleteScript(e *spin.ScriptEnv) {
-	r := e.Display("").OpenPriority(spin.PriorityMode)
+	r := e.Display("").Open()
 	defer r.Close()
 
 	e.Do(spin.PlayMusic{ID: MusicMain})

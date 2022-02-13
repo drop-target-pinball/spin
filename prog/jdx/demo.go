@@ -25,7 +25,7 @@ func demoScript(e *spin.ScriptEnv) {
 	demoStakeout(e, false)
 	demoDrain3(e, false)
 
-	//demoSniper(e, true)
+	//demoBlackout(e, true)
 }
 
 func demoIntro(e *spin.ScriptEnv) {
