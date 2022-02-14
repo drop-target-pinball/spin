@@ -23,6 +23,7 @@ const (
 	ScriptDemo                    = "jdx.ScriptDemo"
 	ScriptDropTargetHit           = "jdx.ScriptDropTargetHit"
 	ScriptGame                    = "jdx.ScriptGame"
+	ScriptLeftRampAward           = "jdx.ScriptLeftRampAward"
 	ScriptManhuntComplete         = "jdx.ScriptManhuntComplete"
 	ScriptManhuntMode             = "jdx.ScriptManhuntMode"
 	ScriptMeltdownComplete        = "jdx.ScriptMeltdownComplete"
@@ -34,6 +35,7 @@ const (
 	ScriptPursuitComplete         = "jdx.ScriptPursuitComplete"
 	ScriptPursuitIncomplete       = "jdx.ScriptPursuitIncomplete"
 	ScriptPursuitMode             = "jdx.ScriptPursuitMode"
+	ScriptRightRampAward          = "jdx.ScriptRightRampAward"
 	ScriptSafecrackerComplete     = "jdx.ScriptSafecrackerComplete"
 	ScriptSafecrackerIncomplete   = "jdx.ScriptSafecrackerIncomplete"
 	ScriptSafecrackerMode         = "jdx.ScriptSafecrackerMode"
@@ -52,6 +54,7 @@ const (
 	ScriptTankComplete            = "jdx.ScriptTakComplete"
 	ScriptTankIncomplete          = "jdx.ScriptTankIncomplete"
 	ScriptTankMode                = "jdx.ScriptTankMode"
+	ScriptTopLeftRampAward        = "jdx.ScriptTopLeftRampAward"
 	ScriptUseFireButton           = "jdx.ScriptUseFireButton"
 )
 
@@ -142,6 +145,11 @@ func RegisterScripts(eng *spin.Engine) {
 		Script: gameScript,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptLeftRampAward,
+		Script: leftRampAwardScript,
+		Group:  spin.ScriptGroupBall,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptManhuntComplete,
 		Script: manhuntCompleteScript,
 		Group:  spin.ScriptGroupMode,
@@ -192,6 +200,11 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptPursuitMode,
 		Script: pursuitModeScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptRightRampAward,
+		Script: rightRampAwardScript,
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
@@ -283,6 +296,11 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptTankMode,
 		Script: tankModeScript,
 		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptTopLeftRampAward,
+		Script: topLeftRampAwardScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptUseFireButton,

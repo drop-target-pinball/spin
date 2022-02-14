@@ -23,6 +23,7 @@ const (
 	SoundMeltdownCracking       = "jdx.SoundMeltdownCracking"
 	SoundMeltdownExplosion      = "jdx.SoundMeltdownExplosion"
 	SoundMeltdownKlaxon         = "jdx.SoundMeltdownKlaxon"
+	SoundMotorcycleRamp         = "jdx.SoundMotorcycleRamp"
 	SoundMotorcycleStart        = "jdx.SoundMotorcycleStart"
 	SoundMotorRev               = "jdx.SoundMotorRev"
 	SoundMystery                = "jdx.SoundMystery"
@@ -130,6 +131,10 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundMeltdownKlaxon,
 		Path: "jd-pinsound/sfx/000134-alarm/alarm__L__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundMotorcycleRamp,
+		Path: "jd-pinsound/sfx/000102-motorcycle_noise_2/motorcyc__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundMotorcycleStart,

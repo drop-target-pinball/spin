@@ -13,6 +13,7 @@ const (
 	ScoreBadImpersonatorN = 5_000_000
 	ScoreBlackoutJackpot  = 10_000_000
 	ScoreDropTargetLit    = 500_000
+	ScoreLeftRampN        = 500_000
 	ScoreManhunt0         = 3_000_000
 	ScoreManhuntN         = 6_000_000
 	ScoreMeltdown0        = 3_000_000
@@ -27,6 +28,7 @@ const (
 	ScorePursuit2         = 12_000_000
 	ScorePursuit3         = 36_000_000
 	ScoreReturnLane       = 50_000
+	ScoreRightRampN       = 500_000
 	ScoreSafecrackerStart = 8_000_000
 	ScoreSafecrackerEnd   = 3_000_000
 	ScoreSafecrackerDec   = 75_400
@@ -40,9 +42,11 @@ const (
 	ScoreTank1            = 12_000_000
 	ScoreTank2            = 24_000_000
 	ScoreTank3            = 36_000_000
+	ScoreTopLeftRampN     = 1_000_000
 
 	ScoreMinimumBonus    = 1_000_000
 	ScoreCrimeSceneBonus = 1_000_000
+	MaxRampScore         = 5_000_000
 )
 
 const (
@@ -112,6 +116,7 @@ type Vars struct {
 	BadImpersonatorTargets int
 	BallsLocked            int
 	CrimeScenes            int
+	LeftRampsMade          int
 	LitDropTarget          int
 	LocksReady             int
 	ManhuntBonus           int
@@ -120,6 +125,7 @@ type Vars struct {
 	Multiplier             int
 	MultiballAttempted     bool
 	PursuitBonus           int
+	RightRampsMade         int
 	SafecrackerAttempts    int
 	SafecrackerBonus       int
 	SafecrackerScore       int
@@ -132,6 +138,7 @@ type Vars struct {
 	TankBonus              int
 	TankHits               int
 	Timer                  int
+	TopLeftRampsMade       int
 }
 
 func GetVarsFor(store spin.Store, player int) *Vars {

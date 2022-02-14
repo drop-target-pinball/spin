@@ -18,6 +18,9 @@ func ballScript(e *spin.ScriptEnv) {
 	vars.SniperScore = 0
 	vars.StakeoutBonus = 0
 	vars.TankBonus = 0
+	vars.LeftRampsMade = 0
+	vars.RightRampsMade = 0
+	vars.TopLeftRampsMade = 0
 
 	startBase(e)
 	e.Do(spin.PlayScript{ID: ScriptChain})
@@ -61,6 +64,9 @@ func startBase(e *spin.ScriptEnv) {
 	e.NewCoroutine(defaultRightPopperLoop)
 	e.NewCoroutine(defaultPostLoop)
 	e.NewCoroutine(defaultMysteryLoop)
+	e.NewCoroutine(defaultLeftRampLoop)
+	e.NewCoroutine(defaultRightRampLoop)
+	e.NewCoroutine(defaultTopLeftRampLoop)
 }
 
 func stopBase(e *spin.ScriptEnv) {
@@ -229,6 +235,61 @@ func defaultMysteryLoop(e *spin.ScriptEnv) {
 	}
 }
 
+func defaultLeftRampLoop(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	for {
+		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampExit}); done {
+			return
+		}
+		vars.LeftRampsMade += 1
+		score := vars.LeftRampsMade * ScoreLeftRampN
+		if score > MaxRampScore {
+			score = MaxRampScore
+		}
+		e.Do(spin.AwardScore{Val: score})
+
+		if vars.Mode == ModeNone && vars.StartModeLeft {
+			continue
+		}
+		if vars.LocksReady > vars.BallsLocked {
+			continue
+		}
+		e.Do(spin.PlayScript{ID: ScriptLeftRampAward})
+	}
+}
+
+func defaultRightRampLoop(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	for {
+		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightRampExit}); done {
+			return
+		}
+		vars.RightRampsMade += 1
+		score := vars.RightRampsMade * ScoreRightRampN
+		if score > MaxRampScore {
+			score = MaxRampScore
+		}
+		e.Do(spin.AwardScore{Val: score})
+		e.Do(spin.PlayScript{ID: ScriptRightRampAward})
+	}
+}
+
+func defaultTopLeftRampLoop(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	for {
+		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchTopLeftRampExit}); done {
+			return
+		}
+		vars.TopLeftRampsMade += 1
+		score := vars.TopLeftRampsMade * ScoreTopLeftRampN
+		if score > MaxRampScore {
+			score = MaxRampScore
+		}
+		e.Do(spin.AwardScore{Val: score})
+		e.Do(spin.PlayScript{ID: ScriptTopLeftRampAward})
+	}
+}
+
 func ballSaverScript(e *spin.ScriptEnv) {
 	vars := spin.GetGameVars(e)
 	vars.BallSave = true
@@ -262,4 +323,64 @@ func ballSaverScript(e *spin.ScriptEnv) {
 		return
 	}
 	e.Do(spin.PlaySpeech{ID: SpeechDontMove})
+}
+
+func leftRampAwardScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(spin.PriorityAnnounce)
+	defer r.Close()
+
+	vars := GetVars(e)
+	score := vars.LeftRampsMade * ScoreLeftRampN
+	if score > MaxRampScore {
+		score = MaxRampScore
+	}
+
+	ScoreAndLabelPanel(e, r, score, "RAMP AWARD")
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlaySound{ID: SoundMotorcycleRamp})
+	s.Sleep(2_000)
+
+	s.Run()
+}
+
+func rightRampAwardScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(spin.PriorityAnnounce)
+	defer r.Close()
+
+	vars := GetVars(e)
+	score := vars.RightRampsMade * ScoreRightRampN
+	if score > MaxRampScore {
+		score = MaxRampScore
+	}
+
+	ScoreAndLabelPanel(e, r, score, "RAMP AWARD")
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlaySound{ID: SoundMotorcycleRamp})
+	s.Sleep(2_000)
+
+	s.Run()
+}
+
+func topLeftRampAwardScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(spin.PriorityAnnounce)
+	defer r.Close()
+
+	vars := GetVars(e)
+	score := vars.TopLeftRampsMade * ScoreTopLeftRampN
+	if score > MaxRampScore {
+		score = MaxRampScore
+	}
+
+	ScoreAndLabelPanel(e, r, score, "RAMP AWARD")
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlaySound{ID: SoundMotorcycleRamp})
+	s.Sleep(2_000)
+
+	s.Run()
 }
