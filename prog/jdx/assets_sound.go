@@ -33,6 +33,7 @@ const (
 	SoundPursuitMissile         = "jdx.SoundPursuitMissile"
 	SoundReturnLane             = "jdx.SoundReturnLane"
 	SoundRightPost              = "jdx.SoundRightPost"
+	SoundRightRamp              = "jdx.SoundRightRamp"
 	SoundShock                  = "jdx.SoundShock"
 	SoundSling                  = "jdx.SoundSling"
 	SoundSafecrackerExplosion   = "jdx.SoundSafecrackerExplosion"
@@ -48,6 +49,7 @@ const (
 	SoundTankFire               = "jdx.SoundTankFire"
 	SoundTireSqueal1            = "jdx.SoundTireSqueal1"
 	SoundTireSqueal2            = "jdx.SoundTireSqueal2"
+	SoundTopLeftRamp            = "jdx.SoundTopLeftRamp"
 	SoundWalking                = "jdx.SoundWalking"
 )
 
@@ -173,6 +175,10 @@ func RegisterSounds(eng *spin.Engine) {
 		Path: "jd-pinsound/sfx/000152-wrong_signal_1/wrong_si__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
+		ID:   SoundRightRamp,
+		Path: "jd-pinsound/sfx/000095-special_gun_fire/special___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
 		ID:   SoundShock,
 		Path: "jd-pinsound/sfx/000049-bad_inpersonator/bad_inpe__LEGACY_AUD.wav",
 	})
@@ -231,6 +237,10 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundTireSqueal2,
 		Path: "jd-pinsound/sfx/000073-rustling_tire_1/rustling_2_LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundTopLeftRamp,
+		Path: "jd-pinsound/sfx/000083-extra_sound/extra_so__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundWalking,

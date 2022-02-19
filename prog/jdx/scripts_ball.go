@@ -359,7 +359,7 @@ func rightRampAwardScript(e *spin.ScriptEnv) {
 
 	s := spin.NewSequencer(e)
 
-	s.Do(spin.PlaySound{ID: SoundMotorcycleRamp})
+	s.Do(spin.PlaySound{ID: SoundRightRamp})
 	s.Sleep(2_000)
 
 	s.Run()
@@ -379,7 +379,7 @@ func topLeftRampAwardScript(e *spin.ScriptEnv) {
 
 	s := spin.NewSequencer(e)
 
-	s.Do(spin.PlaySound{ID: SoundMotorcycleRamp})
+	s.Do(spin.PlaySound{ID: SoundTopLeftRamp})
 	s.Sleep(2_000)
 
 	s.Run()
