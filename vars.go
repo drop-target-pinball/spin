@@ -51,6 +51,14 @@ func GetPlayerVarsFor(store Store, player int) *PlayerVars {
 	return vars
 }
 
+func ResetPlayerVars(store Store) {
+	game := GetGameVars(store)
+	for i := 1; i < game.MaxPlayers; i++ {
+		name := fmt.Sprintf("player.%v", i)
+		store.RegisterVars(name, &PlayerVars{})
+	}
+}
+
 func GetPlayerVars(store Store) *PlayerVars {
 	game := GetGameVars(store)
 	return GetPlayerVarsFor(store, game.Player)

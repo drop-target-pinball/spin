@@ -124,6 +124,7 @@ func defaultReturnLaneLoop(e *spin.ScriptEnv) {
 
 func defaultScoreLoop(e *spin.ScriptEnv) {
 	r := e.Display("").Open(0)
+	defer r.Close()
 
 	vars := GetVars(e)
 	spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {

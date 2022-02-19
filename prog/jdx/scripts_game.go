@@ -13,13 +13,11 @@ func gameScript(e *spin.ScriptEnv) {
 		e.Do(spin.DriverOn{ID: gi})
 	}
 
-	for i := 1; i < 4; i++ {
-		player := spin.GetPlayerVarsFor(e, i)
-		player.Score = 0
+	spin.ResetPlayerVars(e)
+	ResetVars(e)
 
+	for i := 1; i < 4; i++ {
 		vars := GetVarsFor(e, i)
-		vars.AwardedModes = 0
-		vars.CrimeScenes = 0
 		if os.Getenv("NO_RANDOM") != "" {
 			vars.SelectedMode = ModeStakeout
 		} else {

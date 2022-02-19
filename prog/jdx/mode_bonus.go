@@ -55,7 +55,7 @@ func bonusModeScript(e *spin.ScriptEnv) {
 func bonusPanel(e *spin.ScriptEnv, r spin.Renderer, header string, score int) {
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Font = spin.FontPfArmaFive8
 	g.Y = 4
 	r.Print(g, header)

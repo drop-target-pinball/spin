@@ -100,7 +100,7 @@ func gameSelectedScript(e *spin.ScriptEnv) {
 		return
 	}
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	if done := e.Sleep(1000); done {
 		return
 	}
@@ -112,7 +112,7 @@ func selectGameMenuPanel(e *spin.ScriptEnv, r spin.Renderer, blinkOn bool) {
 	g := r.Graphics()
 	vars := GetVars(e)
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Y = 7
 	g.Font = spin.FontPfTempestaFiveExtendedBold8
 	r.Print(g, "GAME SELECT")

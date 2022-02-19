@@ -7,6 +7,7 @@ import (
 	"github.com/drop-target-pinball/spin/prog/boot"
 	"github.com/drop-target-pinball/spin/prog/jdx"
 	"github.com/drop-target-pinball/spin/prog/menu"
+	"github.com/drop-target-pinball/spin/prog/service"
 )
 
 const (
@@ -16,6 +17,7 @@ const (
 func Load(eng *spin.Engine) {
 	jd.Load(eng)
 	gamepad.Load(eng)
+	service.Load(eng)
 	boot.Load(eng)
 	menu.Load(eng)
 	jdx.Load(eng)

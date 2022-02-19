@@ -112,10 +112,10 @@ func ballLockRampRoutine(e *spin.ScriptEnv) {
 			}
 			vars.BallsLocked += 1
 			e.Do(spin.DriverOn{ID: jd.LockLamps[vars.BallsLocked]})
-			e.Do(spin.PlayScript{ID: ScriptBallLocked})
 			if vars.BallsLocked == 2 {
 				break
 			}
+			e.Do(spin.PlayScript{ID: ScriptBallLocked})
 		}
 	}
 
@@ -153,21 +153,21 @@ func dropTargetJudgePanel(e *spin.ScriptEnv, r spin.Renderer, blinkOn bool) {
 	}
 	for i, letter := range letters {
 		if i < hit {
-			g.Color = spin.ColorWhite
+			g.Color = spin.ColorOn
 		} else if i == hit {
 			if blinkOn {
-				g.Color = spin.ColorWhite
+				g.Color = spin.ColorOn
 			} else {
-				g.Color = spin.ColorGray8
+				g.Color = spin.ColorOn8
 			}
 		} else {
-			g.Color = spin.ColorGray8
+			g.Color = spin.ColorOn8
 		}
 		r.Print(g, letter)
 		g.X += 16
 	}
 
-	g.Color = spin.ColorWhite
+	g.Color = spin.ColorOn
 	g.Font = spin.FontPfArmaFive8
 	g.Y = 24
 	g.X = r.Width() / 2

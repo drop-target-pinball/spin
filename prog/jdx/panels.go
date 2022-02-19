@@ -7,7 +7,7 @@ import (
 func ModeIntroPanel(e *spin.ScriptEnv, r spin.Renderer, blinkOn bool, text [3]string) {
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Y = 2
 	g.Font = spin.FontPfArmaFive8
 	r.Print(g, text[0])
@@ -23,7 +23,7 @@ func ModeIntroPanel(e *spin.ScriptEnv, r spin.Renderer, blinkOn bool, text [3]st
 func TimerAndScorePanel(e *spin.ScriptEnv, r spin.Renderer, title string, timer int, score int, instruction string) {
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Y = 2
 	g.Font = spin.FontPfArmaFive8
 	r.Print(g, title)
@@ -53,7 +53,7 @@ func TimerAndScorePanel(e *spin.ScriptEnv, r spin.Renderer, title string, timer 
 func ModeAndScorePanel(e *spin.ScriptEnv, r spin.Renderer, title string, score int) {
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Y = 2
 	g.Font = spin.FontPfArmaFive8
 	r.Print(g, title)
@@ -66,7 +66,7 @@ func ModeAndScorePanel(e *spin.ScriptEnv, r spin.Renderer, title string, score i
 func ModeAndBlinkingScorePanel(e *spin.ScriptEnv, r spin.Renderer, title string, score int, blinkOn bool) {
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Y = 2
 	g.Font = spin.FontPfArmaFive8
 	r.Print(g, title)
@@ -82,7 +82,7 @@ func ModeAndBlinkingScorePanel(e *spin.ScriptEnv, r spin.Renderer, title string,
 func ScoreAndLabelPanel(e *spin.ScriptEnv, r spin.Renderer, score int, label string) {
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Y = 5
 	g.Font = spin.Font14x10
 	r.Print(g, spin.FormatScore("%v", score))

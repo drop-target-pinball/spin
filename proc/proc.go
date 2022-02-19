@@ -9,6 +9,9 @@ import (
 	"github.com/drop-target-pinball/spin"
 )
 
+// From https://github.com/preble/pypinproc/blob/master/dmd.c#L252
+var dmdColorMap = []uint8{0, 2, 8, 10, 1, 3, 9, 11, 4, 6, 12, 14, 5, 7, 13, 15}
+
 type Options struct {
 	ID                      string
 	MachType                pinproc.MachType
@@ -147,11 +150,17 @@ func (s *procSystem) Service(_ time.Time) {
 				gray := spin.RGBToGray(color)
 				i := (y*s.source.Width() + x) / 8
 				b := uint8(1 << ((y*s.source.Width() + x) % 8))
-				on := gray > 0
-				if on {
+				dotColor := dmdColorMap[gray&0xf]
+				if dotColor&0b0001 != 0 {
 					s.dots[(0*s.subFrameSize)+i] |= b
+				}
+				if dotColor&0b0010 != 0 {
 					s.dots[(1*s.subFrameSize)+i] |= b
+				}
+				if dotColor&0b0100 != 0 {
 					s.dots[(2*s.subFrameSize)+i] |= b
+				}
+				if dotColor&0b1000 != 0 {
 					s.dots[(3*s.subFrameSize)+i] |= b
 				}
 			}

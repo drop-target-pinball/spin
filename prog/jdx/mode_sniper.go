@@ -43,15 +43,15 @@ func sniperMode1Script(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
 		s.Do(spin.PlaySpeech{ID: SpeechSniperIsShootingIntoCrowdFromJohnsonTower, Duck: 0.5})
-		s.Sleep(4_000)
-		s.Do(spin.PlaySpeech{ID: SpeechShootSniperTower})
 		s.Sleep(1_000)
 		s.DoFunc(func() {
 			if switches[jd.SwitchRightPopper].Active {
 				e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
 			}
 		})
-
+		s.Sleep(3_000)
+		s.Do(spin.PlaySpeech{ID: SpeechShootSniperTower})
+		s.Sleep(1_000)
 		s.DoFunc(func() {
 			e.NewCoroutine(func(e *spin.ScriptEnv) {
 				if done := spin.ScoreHurryUpLoop(e,

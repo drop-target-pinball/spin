@@ -62,7 +62,7 @@ func useFireButtonPanel(e *spin.ScriptEnv, r spin.Renderer, n int) {
 		">>>",
 	}
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Font = spin.FontPfRondaSevenBold8
 	g.Y = 7
 	r.Print(g, "USE")

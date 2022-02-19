@@ -160,6 +160,14 @@ func GetVars(store spin.Store) *Vars {
 	return GetVarsFor(store, game.Player)
 }
 
+func ResetVars(store spin.Store) {
+	game := spin.GetGameVars(store)
+	for i := 1; i < game.MaxPlayers; i++ {
+		name := fmt.Sprintf("jdx.%v", i)
+		store.RegisterVars(name, &Vars{})
+	}
+}
+
 func Multiplier(store spin.Store) int {
 	vars := GetVars(store)
 	if vars.Multiplier > 0 {

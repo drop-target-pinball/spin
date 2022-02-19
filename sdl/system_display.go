@@ -84,7 +84,7 @@ func (s *displaySystem) Open(priority int) spin.Renderer {
 		surf:   layer.surf,
 		fonts:  s.fonts,
 	}
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	return r
 }
 
@@ -178,7 +178,7 @@ func (r *rendererSDL) Graphics() *spin.Graphics {
 		Y:       r.surf.H / 2,
 		AnchorX: spin.AnchorCenter,
 		AnchorY: spin.AnchorTop,
-		Color:   spin.ColorWhite,
+		Color:   spin.ColorOn,
 	}
 }
 
@@ -249,7 +249,7 @@ func (r *rendererSDL) getFont(g *spin.Graphics) font {
 }
 
 func colorToUint32(c color.RGBA) uint32 {
-	return uint32(c.R) << 24 & uint32(c.G) << 16 & uint32(c.B) << 8 & uint32(c.A)
+	return uint32(c.R)<<24 | uint32(c.G)<<16 | uint32(c.B)<<8 | uint32(c.A)
 }
 
 // ----------------------------------------------------------------------------

@@ -64,6 +64,11 @@ func chainScript(e *spin.ScriptEnv) {
 		e.Do(spin.DriverOff{ID: modeStartLamp})
 
 		vars.AwardedModes |= vars.SelectedMode
+
+		if vars.SelectedMode == ModeBadImpersonator {
+			e.Do(spin.StopScript{ID: ScriptBallLock})
+		}
+
 		e.Do(spin.DriverOn{ID: ModeLamps[vars.SelectedMode]})
 		e.Do(spin.PlayScript{ID: ModeScripts[vars.SelectedMode]})
 
@@ -71,6 +76,11 @@ func chainScript(e *spin.ScriptEnv) {
 			return
 		}
 		e.Do(spin.StopScriptGroup{ID: spin.ScriptGroupMode})
+
+		if vars.SelectedMode == ModeBadImpersonator {
+			e.Do(spin.PlayScript{ID: ScriptBallLock})
+		}
+
 		if vars.AwardedModes == AllChainModes {
 			break
 		}

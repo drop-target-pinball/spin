@@ -42,7 +42,7 @@ var attractSlides = []func(*spin.ScriptEnv, spin.Renderer) bool{
 func attractGameOver(e *spin.ScriptEnv, r spin.Renderer) bool {
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.AnchorY = spin.AnchorMiddle
 	g.Font = spin.FontPfRondaSevenBold8
 	r.Print(g, "GAME OVER")
@@ -53,7 +53,7 @@ func attractGameOver(e *spin.ScriptEnv, r spin.Renderer) bool {
 func attractDropTargetPinball(e *spin.ScriptEnv, r spin.Renderer) bool {
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Y = 7
 	g.Font = spin.FontPfArmaFive8
 	r.Print(g, "DROP TARGET PINBALL")
@@ -67,7 +67,7 @@ func attractDropTargetPinball(e *spin.ScriptEnv, r spin.Renderer) bool {
 func attractJudgeDreddRemix(e *spin.ScriptEnv, r spin.Renderer) bool {
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Y = 7
 	g.Font = spin.FontPfRondaSevenBold8
 	r.Print(g, "JUDGE DREDD")
@@ -80,7 +80,7 @@ func attractJudgeDreddRemix(e *spin.ScriptEnv, r spin.Renderer) bool {
 func freePlayPanel(e *spin.ScriptEnv, r spin.Renderer, blinkOn bool) {
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Y = 7
 	g.Font = spin.FontPfRondaSevenBold8
 	if blinkOn {

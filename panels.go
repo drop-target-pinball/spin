@@ -78,7 +78,7 @@ func ScorePanel(e *ScriptEnv, r Renderer) {
 	g := r.Graphics()
 	game := GetGameVars(e)
 
-	r.Fill(ColorBlack)
+	r.Fill(ColorOff)
 	if game.NumPlayers <= 1 {
 		singlePlayerPanel(e, r)
 	} else if game.NumPlayers > 1 {

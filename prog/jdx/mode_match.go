@@ -10,7 +10,7 @@ func matchModeScript(e *spin.ScriptEnv) {
 	defer r.Close()
 
 	g := r.Graphics()
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.AnchorY = spin.AnchorMiddle
 	g.Y = r.Height() / 2
 	g.Font = spin.FontPfRondaSevenBold8

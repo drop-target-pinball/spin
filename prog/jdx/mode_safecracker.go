@@ -207,7 +207,7 @@ func safecrackerMode2Panel(e *spin.ScriptEnv, r spin.Renderer) {
 	vars := GetVars(e)
 	g := r.Graphics()
 
-	r.Fill(spin.ColorBlack)
+	r.Fill(spin.ColorOff)
 	g.Y = 2
 	g.Font = spin.FontPfArmaFive8
 	r.Print(g, "SHOOT SAFECRACKER")
