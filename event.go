@@ -14,6 +14,7 @@ func (e AdvanceEvent) Key() interface{} {
 
 type BallAddedEvent struct {
 	BallsInPlay int
+	Queued      int
 }
 
 func (e BallAddedEvent) Key() interface{} {
@@ -26,6 +27,12 @@ type BallDrainEvent struct {
 
 func (e BallDrainEvent) Key() interface{} {
 	return BallDrainEvent{}
+}
+
+type BallLaunchReady struct{}
+
+func (e BallLaunchReady) Key() interface{} {
+	return BallLaunchReady{}
 }
 
 type BallWillDrainEvent struct{}

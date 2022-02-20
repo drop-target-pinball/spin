@@ -18,7 +18,7 @@ SwitchEvent ID=jd.SwitchDropTargetE
 SwitchEvent ID=jd.SwitchLeftRampExit
 */
 
-func ballLockScript(e *spin.ScriptEnv) {
+func lightBallLockScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 
 	dropTargetSounds := []string{
@@ -28,20 +28,11 @@ func ballLockScript(e *spin.ScriptEnv) {
 		SoundDropTargetLitHit4,
 	}
 
-	e.NewCoroutine(ballLockRampRoutine)
 	for i := jd.MinDropTarget; i <= jd.MaxDropTarget; i++ {
 		if i < vars.LitDropTarget {
 			e.Do(spin.DriverOn{ID: jd.DropTargetLamps[i]})
 		} else if i == vars.LitDropTarget {
 			e.Do(proc.DriverSchedule{ID: jd.DropTargetLamps[i], Schedule: proc.BlinkSchedule})
-		}
-	}
-
-	for i := 1; i <= 3; i++ {
-		if i <= vars.BallsLocked {
-			e.Do(spin.DriverOn{ID: jd.LockLamps[i]})
-		} else if i <= vars.LocksReady {
-			e.Do(proc.DriverSchedule{ID: jd.LockLamps[i], Schedule: proc.BlinkSchedule})
 		}
 	}
 
@@ -100,8 +91,25 @@ func ballLockScript(e *spin.ScriptEnv) {
 	}
 }
 
-func ballLockRampRoutine(e *spin.ScriptEnv) {
+func ballLockScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
+
+	for i := 1; i <= 3; i++ {
+		if i <= vars.BallsLocked {
+			e.Do(spin.DriverOn{ID: jd.LockLamps[i]})
+		} else if i <= vars.LocksReady {
+			e.Do(proc.DriverSchedule{ID: jd.LockLamps[i], Schedule: proc.BlinkSchedule})
+		}
+	}
+
+	defer func() {
+		for i := 1; i <= 3; i++ {
+			if i > vars.BallsLocked && i <= vars.LocksReady {
+				e.Do(spin.DriverOff{ID: jd.LockLamps[i]})
+			}
+		}
+	}()
+
 	if vars.BallsLocked <= 2 {
 		for {
 			if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampExit}); done {

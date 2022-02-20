@@ -7,16 +7,17 @@ const (
 )
 
 type GameVars struct {
-	BallActive   bool
-	BallsInPlay  int
-	BallsPerGame int
-	BallSave     bool
-	Player       int
-	Ball         int
-	MaxPlayers   int
-	NumPlayers   int
-	ExtraBalls   int
-	IsExtraBall  bool
+	BallActive      bool
+	BallsInPlay     int
+	BallsPerGame    int
+	BallSave        bool
+	BallLaunchReady bool
+	Player          int
+	Ball            int
+	MaxPlayers      int
+	NumPlayers      int
+	ExtraBalls      int
+	IsExtraBall     bool
 }
 
 type PlayerVars struct {

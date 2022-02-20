@@ -24,6 +24,7 @@ const (
 	ScriptDropTargetHit           = "jdx.ScriptDropTargetHit"
 	ScriptGame                    = "jdx.ScriptGame"
 	ScriptLeftRampAward           = "jdx.ScriptLeftRampAward"
+	ScriptLightBallLock           = "jdx.ScriptLightBalLock"
 	ScriptManhuntComplete         = "jdx.ScriptManhuntComplete"
 	ScriptManhuntMode             = "jdx.ScriptManhuntMode"
 	ScriptMeltdownComplete        = "jdx.ScriptMeltdownComplete"
@@ -147,6 +148,11 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptLeftRampAward,
 		Script: leftRampAwardScript,
+		Group:  spin.ScriptGroupBall,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptLightBallLock,
+		Script: lightBallLockScript,
 		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{

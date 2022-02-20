@@ -66,6 +66,9 @@ func chainScript(e *spin.ScriptEnv) {
 		vars.AwardedModes |= vars.SelectedMode
 
 		if vars.SelectedMode == ModeBadImpersonator {
+			e.Do(spin.StopScript{ID: ScriptLightBallLock})
+		}
+		if vars.SelectedMode == ModeBlackout {
 			e.Do(spin.StopScript{ID: ScriptBallLock})
 		}
 
@@ -78,6 +81,9 @@ func chainScript(e *spin.ScriptEnv) {
 		e.Do(spin.StopScriptGroup{ID: spin.ScriptGroupMode})
 
 		if vars.SelectedMode == ModeBadImpersonator {
+			e.Do(spin.PlayScript{ID: ScriptLightBallLock})
+		}
+		if vars.SelectedMode == ModeBlackout {
 			e.Do(spin.PlayScript{ID: ScriptBallLock})
 		}
 
