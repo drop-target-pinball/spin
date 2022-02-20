@@ -21,6 +21,14 @@ SwitchEvent ID=jd.SwitchLeftRampExit
 func lightBallLockScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 
+	defer func() {
+		e.Do(spin.DriverOff{ID: jd.LampDropTargetJ})
+		e.Do(spin.DriverOff{ID: jd.LampDropTargetU})
+		e.Do(spin.DriverOff{ID: jd.LampDropTargetD})
+		e.Do(spin.DriverOff{ID: jd.LampDropTargetG})
+		e.Do(spin.DriverOff{ID: jd.LampDropTargetE})
+	}()
+
 	dropTargetSounds := []string{
 		SoundDropTargetLitHit1,
 		SoundDropTargetLitHit2,
@@ -120,7 +128,7 @@ func ballLockScript(e *spin.ScriptEnv) {
 			}
 			vars.BallsLocked += 1
 			e.Do(spin.DriverOn{ID: jd.LockLamps[vars.BallsLocked]})
-			if vars.BallsLocked == 2 {
+			if vars.BallsLocked == 3 {
 				break
 			}
 			e.Do(spin.PlayScript{ID: ScriptBallLocked})
@@ -144,6 +152,7 @@ func ballLockScript(e *spin.ScriptEnv) {
 			break
 		}
 	}
+	e.Do(spin.PlayScript{ID: ScriptMultiball})
 }
 
 func dropTargetJudgePanel(e *spin.ScriptEnv, r spin.Renderer, blinkOn bool) {

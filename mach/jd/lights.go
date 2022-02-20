@@ -110,6 +110,20 @@ var LockLamps = []string{
 	LampLock3,
 }
 
+const (
+	DarkJudgeMortis = iota
+	DarkJudgeFire
+	DarkJudgeFear
+	DarkJudgeDeath
+)
+
+var DarkJudgeFlashers = []string{
+	FlasherJudgeMortis,
+	FlasherJudgeFire,
+	FlasherJudgeFear,
+	FlasherJudgeDeath,
+}
+
 func RegisterLamps(eng *spin.Engine) {
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L85,

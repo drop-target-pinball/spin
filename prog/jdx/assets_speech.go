@@ -11,6 +11,7 @@ const (
 	SpeechBattleTankSightedInSectorSix                  = "jdx.SpeechBattleTankSightedInSectorSix"
 	SpeechBoo                                           = "jdx.SpeechBoo"
 	SpeechCivilDisorderHasEruptedInHeitschMusicHall     = "jdx.SpeechCivilDisorderHasEruptedInHeitschMusicHall"
+	SpeechContained                                     = "jdx.SpeechContained"
 	SpeechContainmentFailureAtThreeMeterIsland          = "jdx.SpeechContainmentFailureAtThreeMetereIsland"
 	SpeechControlToDredd                                = "jdx.SpeechControlToDredd"
 	SpeechDimensionalGlobeActivated                     = "jdx.SpeechDimensionalGlobeActivated"
@@ -31,6 +32,10 @@ const (
 	SpeechItsALongWayDown                               = "jdx.SpeechItsALongWayDown"
 	SpeechIWonderWhatsDownThere                         = "jdx.SpeechIWonderWhatsDownThere"
 	SpeechIWonderWhatsOverThere                         = "jdx.SpeechIWonderWhatsOverThere"
+	SpeechJackpotIsLit                                  = "jdx.SpeechJackpotIsLit"
+	SpeechJudgeFear                                     = "jdx.SpeechJudgeFear"
+	SpeechJudgeFire                                     = "jdx.SpeechJudgeFire"
+	SpeechJudgeMortis                                   = "jdx.SpeechJudgeMortis"
 	SpeechLawMasterComputerOnlineWelcomeAboard          = "jdx.SpeechLawMasterComputerOnlineWelcomeAboard"
 	SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters = "jdx.SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters"
 	SpeechMeltdownIsImminent                            = "jdx.SpeechMeltdownIsImminent"
@@ -94,6 +99,10 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechCivilDisorderHasEruptedInHeitschMusicHall,
 		Path: "jd-pinsound/voice/000347-several_disorder_has_urepted_in_hight_school_musical/several___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechContained,
+		Path: "jd-pinsound/voice/000339-contained/containe__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechContainmentFailureAtThreeMeterIsland,
@@ -174,6 +183,22 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechIWonderWhatsOverThere,
 		Path: "jd-pinsound/voice/000220-i_wonder_whats_over_there/000220-I_wonder_whats_over_there_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechJackpotIsLit,
+		Path: "jd-pinsound/voice/000328-jackpot_is_lite/jackpot___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechJudgeFear,
+		Path: "jd-pinsound/voice/000337-judge_fear/judge_fe__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechJudgeFire,
+		Path: "jd-pinsound/voice/000336-judge_fire/judge_fi__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechJudgeMortis,
+		Path: "jd-pinsound/voice/000338-judge_mortis/judge_mo__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechLawMasterComputerOnlineWelcomeAboard,

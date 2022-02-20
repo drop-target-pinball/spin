@@ -13,6 +13,13 @@ const (
 func chainScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 
+	defer func() {
+		if vars.SelectedMode == ModeNone {
+			return
+		}
+		e.Do(spin.DriverOff{ID: ModeLamps[vars.SelectedMode]})
+	}()
+
 	e.NewCoroutine(selectModeScript)
 	nextChain(e)
 

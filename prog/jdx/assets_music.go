@@ -7,7 +7,8 @@ const (
 	MusicMain            = "jdx.MusicMain"
 	MusicMatch           = "jdx.MusicMatch"
 	MusicMatchHit        = "jdx.MusicMatchHit"
-	MusicMultiball       = "jdx.MusicMultiball"
+	MusicMultiballIntro  = "jdx.MusicMultiballIntro"
+	MusicMultiballLoop   = "jdx.MusicMultiballLoop"
 	MusicMode1           = "jdx.MusicMode1"
 	MusicMode2           = "jdx.MusicMode2"
 	MusicPlungeLoop      = "jdx.MusicPlungeLoop"
@@ -39,8 +40,12 @@ func RegisterMusic(eng *spin.Engine) {
 		Path: "jd-pinsound/music/000003-waiting_sound/waiting___LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterMusic{
-		ID:   MusicMultiball,
-		Path: "jd-pinsound/music/000009-multi_ball/multi_ba__LEGACY_AUD.wav",
+		ID:   MusicMultiballIntro,
+		Path: "jd-pinsound/music/000009-multi_ball/multi_ba__LEGACY_AUD-intro.wav",
+	})
+	eng.Do(spin.RegisterMusic{
+		ID:   MusicMultiballLoop,
+		Path: "jd-pinsound/music/000009-multi_ball/multi_ba__LEGACY_AUD-loop.wav",
 	})
 	eng.Do(spin.RegisterMusic{
 		ID:   MusicPlungeLoop,

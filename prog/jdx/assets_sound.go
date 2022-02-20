@@ -3,6 +3,7 @@ package jdx
 import "github.com/drop-target-pinball/spin"
 
 const (
+	SoundAnnounce               = "jdx.SoundAnnounce"
 	SoundBadImpersonatorGunFire = "jdx.SoundBadImpersonatorGunFire"
 	SoundBadImpersonatorThrow   = "jdx.SoundBadImpersonatorThrow"
 	SoundBallLock               = "jdx.SoundBallLock"
@@ -54,6 +55,10 @@ const (
 )
 
 func RegisterSounds(eng *spin.Engine) {
+	eng.Do(spin.RegisterSound{
+		ID:   SoundAnnounce,
+		Path: "jd-pinsound/sfx/000157-wrong/wrong__L__LEGACY_AUD.wav",
+	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundBadImpersonatorGunFire,
 		Path: "jd-pinsound/sfx/000045-sniper/sniper_2___LEGACY_AUD.wav",

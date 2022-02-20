@@ -20,10 +20,13 @@ const (
 	ScriptBlackoutMode            = "jdx.ScriptBlackoutMode"
 	ScriptBonusMode               = "jdx.ScriptBonusMode"
 	ScriptChain                   = "jdx.ScriptChain"
+	ScriptDarkJudgeContained      = "jdx.ScriptDarkJudgeContained"
 	ScriptDemo                    = "jdx.ScriptDemo"
 	ScriptDropTargetHit           = "jdx.ScriptDropTargetHit"
 	ScriptGame                    = "jdx.ScriptGame"
+	ScriptJackpotRunway           = "jdx.ScriptJackpotRunway"
 	ScriptLeftRampAward           = "jdx.ScriptLeftRampAward"
+	ScriptLeftRampRunway          = "jdx.ScriptLeftRampRunway"
 	ScriptLightBallLock           = "jdx.ScriptLightBalLock"
 	ScriptManhuntComplete         = "jdx.ScriptManhuntComplete"
 	ScriptManhuntMode             = "jdx.ScriptManhuntMode"
@@ -31,12 +34,17 @@ const (
 	ScriptMeltdownIncomplete      = "jdx.ScriptMeltdownIncomplete"
 	ScriptMeltdownMode            = "jdx.ScriptMeltdownMode"
 	ScriptMatchMode               = "jdx.ScriptMatchMode"
+	ScriptMultiball               = "jdx.ScriptMultiball"
+	ScriptMultiballJackpot        = "jdx.ScriptMultiballJackpot"
+	ScriptMultiballLightJackpot   = "jdx.ScriptMultiballLightJackpot"
 	ScriptPlungeMode              = "jdx.ScriptPlungeMode"
 	ScriptProgram                 = "jdx.ScriptProgram"
 	ScriptPursuitComplete         = "jdx.ScriptPursuitComplete"
 	ScriptPursuitIncomplete       = "jdx.ScriptPursuitIncomplete"
 	ScriptPursuitMode             = "jdx.ScriptPursuitMode"
+	ScriptRightPopperRunway       = "jdx.ScriptRightPopperRunway"
 	ScriptRightRampAward          = "jdx.ScriptRightRampAward"
+	ScriptRightRampRunway         = "jdx.ScriptRightRampRunway"
 	ScriptSafecrackerComplete     = "jdx.ScriptSafecrackerComplete"
 	ScriptSafecrackerIncomplete   = "jdx.ScriptSafecrackerIncomplete"
 	ScriptSafecrackerMode         = "jdx.ScriptSafecrackerMode"
@@ -133,6 +141,11 @@ func RegisterScripts(eng *spin.Engine) {
 		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptDarkJudgeContained,
+		Script: darkJudgeContainedScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptDemo,
 		Script: demoScript,
 	})
@@ -146,9 +159,19 @@ func RegisterScripts(eng *spin.Engine) {
 		Script: gameScript,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptJackpotRunway,
+		Script: jackpotRunwayScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptLeftRampAward,
 		Script: leftRampAwardScript,
 		Group:  spin.ScriptGroupBall,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptLeftRampRunway,
+		Script: leftRampRunwayScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptLightBallLock,
@@ -166,6 +189,10 @@ func RegisterScripts(eng *spin.Engine) {
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptMatchMode,
+		Script: matchModeScript,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptMeltdownComplete,
 		Script: meltdownCompleteScript,
 		Group:  spin.ScriptGroupBall,
@@ -181,8 +208,19 @@ func RegisterScripts(eng *spin.Engine) {
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
-		ID:     ScriptMatchMode,
-		Script: matchModeScript,
+		ID:     ScriptMultiball,
+		Script: multiballScript,
+		Group:  spin.ScriptGroupBall,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMultiballJackpot,
+		Script: multiballJackpotScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMultiballLightJackpot,
+		Script: multiballLightJackpotScript,
+		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptPlungeMode,
@@ -209,8 +247,18 @@ func RegisterScripts(eng *spin.Engine) {
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptRightPopperRunway,
+		Script: rightPopperRunwayScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptRightRampAward,
 		Script: rightRampAwardScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptRightRampRunway,
+		Script: rightRampRunwayScript,
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
