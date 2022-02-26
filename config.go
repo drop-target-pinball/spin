@@ -1,5 +1,7 @@
 package spin
 
+import "github.com/drop-target-pinball/coroutine"
+
 type Config struct {
 	CoilTrough string
 
@@ -12,10 +14,11 @@ type Config struct {
 	SwitchRightFlipperButton    string
 	SwitchShooterLane           string
 	SwitchStartButton           string
+	SwitchTrough                []string
 	SwitchTroughJam             string
 	SwitchWillDrain             []string
-
-	LampStartButton string
+	PlayfieldSwitches           []coroutine.Event
+	LampStartButton             string
 
 	GI []string
 

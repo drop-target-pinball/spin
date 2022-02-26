@@ -13,6 +13,7 @@ type GameVars struct {
 	BallSave        bool
 	BallLaunchReady bool
 	Player          int
+	PlayfieldActive bool
 	Ball            int
 	MaxPlayers      int
 	NumPlayers      int

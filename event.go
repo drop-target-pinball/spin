@@ -151,6 +151,16 @@ func (e TimeoutEvent) Key() interface{} {
 	return e.ID
 }
 
+type TroughEvent struct {
+	Balls  int
+	Jam    bool
+	Change int
+}
+
+func (e TroughEvent) Key() interface{} {
+	return TroughEvent{}
+}
+
 type Done struct{}
 
 func (e Done) Key() interface{} {

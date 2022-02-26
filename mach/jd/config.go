@@ -16,8 +16,17 @@ var Config = spin.Config{
 	SwitchTroughJam:             SwitchTroughJam,
 	SwitchDrain:                 SwitchTrough1,
 	SwitchWillDrain:             []string{SwitchLeftOutlane, SwitchRightOutlane},
+	PlayfieldSwitches:           PlayfieldSwitches,
+	LampStartButton:             LampStartButton,
 
-	LampStartButton: LampStartButton,
+	SwitchTrough: []string{
+		SwitchTrough1,
+		SwitchTrough2,
+		SwitchTrough3,
+		SwitchTrough4,
+		SwitchTrough5,
+		SwitchTrough6,
+	},
 
 	GI: []string{
 		GI1,

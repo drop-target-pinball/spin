@@ -1,8 +1,6 @@
 package spin
 
 import (
-	"log"
-
 	"github.com/drop-target-pinball/coroutine"
 )
 
@@ -25,9 +23,11 @@ func RegisterTrackerSystem(eng *Engine) {
 		eng: eng,
 	}
 	eng.RegisterActionHandler(sys)
-	eng.NewCoroutine(sys.watchDrain)
+	//eng.NewCoroutine(sys.watchDrain)
 	eng.NewCoroutine(sys.watchOutLanes)
 	eng.NewCoroutine(sys.watchShooterLane)
+	eng.NewCoroutine(sys.watchTrough)
+	eng.NewCoroutine(sys.watchPlayfield)
 }
 
 func (s *trackerSystem) HandleAction(action Action) {
@@ -69,7 +69,7 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 	// })
 
 	for s.queued > 0 {
-		log.Printf("launching ball")
+		Log("launching ball")
 		if !switches[s.eng.Config.SwitchShooterLane].Active {
 			retries := 0
 			for {
@@ -84,17 +84,17 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 				}
 				retries += 1
 				if retries > 5 {
-					log.Printf("(*) ball eject failed")
+					Log("(*) ball eject failed")
 					break
 				}
-				log.Printf("(!) retry ball eject")
+				Log("(!) retry ball eject")
 			}
 			if retries > 5 {
 				break
 			}
 		}
 
-		log.Printf("ball ready for launch")
+		Log("ball ready for launch")
 		if done := WaitForBallDepartureLoop(e, s.eng.Config.SwitchShooterLane, 250); done {
 			return
 		}
@@ -105,28 +105,28 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 	s.processing = false
 }
 
-func (s *trackerSystem) watchDrain(e *ScriptEnv) {
-	game := GetGameVars(e)
+// func (s *trackerSystem) watchDrain(e *ScriptEnv) {
+// 	game := GetGameVars(e)
 
-	for {
-		if _, done := e.WaitFor(SwitchEvent{ID: s.eng.Config.SwitchDrain}); done {
-			return
-		}
-		if s.active == 0 {
-			log.Print("(!) no balls were active when drained")
-			continue
-		}
-		s.active -= 1
-		game.BallsInPlay -= 1
+// 	for {
+// 		if _, done := e.WaitFor(SwitchEvent{ID: s.eng.Config.SwitchDrain}); done {
+// 			return
+// 		}
+// 		if s.active == 0 {
+// 			log.Print("(!) no balls were active when drained")
+// 			continue
+// 		}
+// 		s.active -= 1
+// 		game.BallsInPlay -= 1
 
-		if s.draining > 0 {
-			s.draining -= 1
-		} else if game.BallSave {
-			s.addBall(AddBall{})
-		}
-		e.Post(BallDrainEvent{BallsInPlay: game.BallsInPlay})
-	}
-}
+// 		if s.draining > 0 {
+// 			s.draining -= 1
+// 		} else if game.BallSave {
+// 			s.addBall(AddBall{})
+// 		}
+// 		e.Post(BallDrainEvent{BallsInPlay: game.BallsInPlay})
+// 	}
+// }
 
 func (s *trackerSystem) watchOutLanes(e *ScriptEnv) {
 	game := GetGameVars(e)
@@ -168,14 +168,110 @@ func (s *trackerSystem) watchShooterLane(e *ScriptEnv) {
 				return
 			}
 			game.BallLaunchReady = false
-			log.Printf("ball departed")
+			Log("ball departed")
 		} else {
 			if done := WaitForBallArrivalLoop(e, e.Config.SwitchShooterLane, 150); done {
 				return
 			}
 			game.BallLaunchReady = true
 			e.Post(BallLaunchReady{})
-			log.Printf("ball arrived")
+			Log("ball arrived")
+		}
+	}
+}
+
+func (s *trackerSystem) countBallsInTrough(e *ScriptEnv) (int, bool) {
+
+	switches := GetResourceVars(e).Switches
+	balls := 0
+	for _, name := range s.eng.Config.SwitchTrough {
+		sw, ok := switches[name]
+		if !ok {
+			// FIXME: same issue as above
+			if done := e.Sleep(100); done {
+				return 0, false
+			}
+
+		} else {
+			if sw.Active {
+				balls += 1
+			}
+		}
+	}
+	jam := switches[e.Config.SwitchTroughJam].Active
+	return balls, jam
+}
+
+func (s *trackerSystem) watchTrough(e *ScriptEnv) {
+	balls, jam := s.countBallsInTrough(e)
+
+	// FIXME: Is there a better way?
+	troughEvents := make([]coroutine.Event, 0)
+	for _, name := range e.Config.SwitchTrough {
+		troughEvents = append(troughEvents, SwitchEvent{ID: name})
+	}
+	troughEvents = append(troughEvents, SwitchEvent{ID: e.Config.SwitchTroughJam})
+
+	for {
+		// Wait for initial change in the trough
+		if _, done := e.WaitFor(troughEvents...); done {
+			return
+		}
+		// Now wait for things to settle a bit. If we get another trough
+		// switch change in this time, restart the timer.
+		for {
+			evt, done := e.WaitForUntil(150, troughEvents...)
+			if done {
+				return
+			}
+			// If we timed out, check the status of the trough
+			if evt == nil {
+				break
+			}
+			// If we saw another switch event, the balls are still bouncing
+			// around in the trough
+		}
+		newBalls, newJam := s.countBallsInTrough(e)
+		if balls != newBalls || jam != newJam {
+			change := newBalls - balls
+			e.Post(TroughEvent{Balls: newBalls, Jam: newJam, Change: change})
+			balls, jam = newBalls, newJam
+		}
+	}
+}
+
+func (s *trackerSystem) watchPlayfield(e *ScriptEnv) {
+	game := GetGameVars(e)
+
+	for {
+		if !game.PlayfieldActive {
+			for {
+				if _, done := e.WaitFor(e.Config.PlayfieldSwitches...); done {
+					return
+				}
+				count, _ := s.countBallsInTrough(e)
+				if count != e.Config.NumBalls {
+					game.PlayfieldActive = true
+					break
+				}
+			}
+		} else { // playfield is active
+			for {
+				evt, done := e.WaitFor(TroughEvent{})
+				if done {
+					return
+				}
+				event := evt.(TroughEvent)
+
+				if event.Change > 0 {
+					e.Post(BallDrainEvent{BallsInPlay: e.Config.NumBalls - event.Balls})
+				}
+
+				if event.Balls == e.Config.NumBalls {
+					game.PlayfieldActive = false
+					break
+				}
+			}
 		}
 	}
 }
