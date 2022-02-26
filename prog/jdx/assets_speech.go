@@ -25,6 +25,7 @@ const (
 	SpeechFreeze                                        = "jdx.SpeechFreeze"
 	SpeechGoHome                                        = "jdx.SpeechGoHome"
 	SpeechICanSeeMyHouseFromHere                        = "jdx.SpeechICanSeeMyHouseFromHere"
+	SpeechIfYouDoTheCrimeYouDoTheTime                   = "jdx.SpeechIfYouDoTheCrimeYouDoTheTime"
 	SpeechIllBeBack                                     = "jdx.SpeechIllBeBack"
 	SpeechImInPursuitOfAStolenVehicle                   = "jdx.SpeechImInPursuitOfAStolenVehicle"
 	SpeechImStakingOutACrackHouseInSectorTwentyThree    = "jdx.SpeechImStakingOutACrackHouseInSectorTwentyThree"
@@ -65,6 +66,35 @@ const (
 	SpeechWakeUpYouGeezer                               = "jdx.SpeechWakeUpYouGeezer"
 	SpeechYourDrivingDaysAreOverPunk                    = "jdx.SpeechYourDrivingDaysAreOverPunk"
 	SpeechYouSuck                                       = "jdx.SpeechYouSuck"
+)
+
+const (
+	// Warnings
+	SpeechWarningForJaywalking = "jdx.SpeechWarningForJaywalking"
+	SpeechWarningForLittering  = "jdx.SpeechWarningForLittering"
+	SpeechWarningForSmoking    = "jdx.SpeechWarningForSmoking"
+	SpeechWarningForSpitting   = "jdx.SpeechWarningForSpitting"
+
+	// Misdemeanors
+	SpeechOneYearForFlatulism          = "jdx.SpeechOneYearForFlatulism"
+	SpeechTwoYearsForSpeeding          = "jdx.SpeechTwoYearsForSpeeding"
+	SpeechThreeYearsForVandalism       = "jdx.SpeechThreeYearsForVandalism"
+	SpeechTenYearsForSolicitation      = "jdx.SpeechTenYearsForSolicitation"
+	SpeechFifteenYearsForExhibitionism = "jdx.SpeechFifteenYearsForExhibitionism"
+
+	// Felonies
+	SpeechFifteenYearsForArson         = "jdx.SpeechFifteenYearsForArson"
+	SpeechEighteenYearsForAssault      = "jdx.SpeechEighteenYearsForAssault"
+	SpeechTwentyYearsForStalking       = "jdx.SpeechTwentyYearsForStalking"
+	SpeechTwentyThreeYearsForExtortion = "jdx.SpeechTwentyThreeYearsForExtortion"
+	SpeechTwentyFiveYearsForAutoTheft  = "jdx.SpeechTwentyFiveYearsForAutoTheft"
+
+	// Class X Felonies
+	SpeechThirtyFiveYearsForArmsDealing = "jdx.SpeechThirtyFiveYearsForArmsDealing"
+	SpeechEightyFiveYearsForTreason     = "jdx.SpeechEightyFiveYearsForTreason"
+	SpeechNinetyYearsForKidnapping      = "jdx.SpeechNinetyYearsForKidnapping"
+	SpeechLifeForCannibalism            = "jdx.SpeechLifeForCannibalism"
+	SpeechLifeForTerrorism              = "jdx.SpeechLifeForTerrorism"
 )
 
 func RegisterSpeech(eng *spin.Engine) {
@@ -155,6 +185,10 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechICanSeeMyHouseFromHere,
 		Path: "jd-pinsound/voice/000284-i_can_see_my_house_from_here/i_can_se__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechIfYouDoTheCrimeYouDoTheTime,
+		Path: "jd-pinsound/voice/000229-if_you_do_the_crime_you_do_the_time/if_you_d__LEGACY.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechIllBeBack,
@@ -315,5 +349,89 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechYouSuck,
 		Path: "jd-pinsound/voice/000358-you_suck/you_suck__LEGACY_AUD.wav",
+	})
+
+	// Warnings
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechWarningForJaywalking,
+		Path: "jd-pinsound/voice/000234-warning_for_jaywalking/warning___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechWarningForLittering,
+		Path: "jd-pinsound/voice/000233-warning_for_littering/warning___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechWarningForSmoking,
+		Path: "jd-pinsound/voice/000236-warning_for_smoking/warning___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechWarningForSpitting,
+		Path: "jd-pinsound/voice/000235-warning_for_spitting/warning___LEGACY_AUD.wav",
+	})
+
+	// Misdemeanors
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechOneYearForFlatulism,
+		Path: "jd-pinsound/voice/000237-one_year_for_flatulism/one_year__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechTwoYearsForSpeeding,
+		Path: "jd-pinsound/voice/000239-two_years_for_speeding/two_year__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechThreeYearsForVandalism,
+		Path: "jd-pinsound/voice/000238-three_years_for_vandalism/three_ye__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechTenYearsForSolicitation,
+		Path: "jd-pinsound/voice/000240-ten_years_for_solicitation/ten_year__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechFifteenYearsForExhibitionism,
+		Path: "jd-pinsound/voice/000242-fifteen_years_for_exibitionism/fifteen___LEGACY_AUD.wav",
+	})
+
+	// Felonies
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechFifteenYearsForArson,
+		Path: "jd-pinsound/voice/000244-fifteen_years_for_arsen/fifteen___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechEighteenYearsForAssault,
+		Path: "jd-pinsound/voice/000243-eighteen_years_for_assault/eighteen__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechTwentyYearsForStalking,
+		Path: "jd-pinsound/voice/000241-twenty_years_for_stalking/twenty_y__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechTwentyThreeYearsForExtortion,
+		Path: "jd-pinsound/voice/000246-twenty_three_years_for_extortion/twenty_t__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechTwentyFiveYearsForAutoTheft,
+		Path: "jd-pinsound/voice/000245-twenty_five_years_for_auto_theft/twenty_f__LEGACY_AUD.wav",
+	})
+
+	// Class X Felonies
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechThirtyFiveYearsForArmsDealing,
+		Path: "jd-pinsound/voice/000247-thirty_five_years_for_arms_dealing/thirty_f__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechEightyFiveYearsForTreason,
+		Path: "jd-pinsound/voice/000286-eighty_five_years_for_treason/eighty_f__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechNinetyYearsForKidnapping,
+		Path: "jd-pinsound/voice/000287-ninety_years_for_kidnaping/ninety_y__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechLifeForCannibalism,
+		Path: "jd-pinsound/voice/000285-life_for_cannibalism/life_for__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechLifeForTerrorism,
+		Path: "jd-pinsound/voice/000258-life_for_terrorism/life_for__LEGACY_AUD.wav",
 	})
 }

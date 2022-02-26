@@ -12,6 +12,7 @@ func ballScript(e *spin.ScriptEnv) {
 	vars.BadImpersonatorBonus = 0
 	vars.ManhuntBonus = 0
 	vars.MeltdownBonus = 0
+	vars.Multiplier = 1
 	vars.PursuitBonus = 0
 	vars.SafecrackerBonus = 0
 	vars.SniperBonus = 0
@@ -55,6 +56,7 @@ func startBase(e *spin.ScriptEnv) {
 	e.Do(spin.PlayScript{ID: ScriptLightBallLock})
 	e.Do(spin.PlayScript{ID: ScriptBallLock})
 	e.Do(spin.PlayScript{ID: ScriptBallSaver})
+	e.Do(spin.PlayScript{ID: ScriptCrimeScenes})
 	e.NewCoroutine(defaultSlingLoop)
 	e.NewCoroutine(defaultOutlaneLoop)
 	e.NewCoroutine(defaultReturnLaneLoop)

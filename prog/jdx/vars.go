@@ -11,6 +11,10 @@ import (
 const (
 	ScoreBadImpersonator0 = 3_000_000
 	ScoreBadImpersonatorN = 5_000_000
+	ScoreCrimeScene1      = 1_000_000
+	ScoreCrimeScene2      = 2_000_000
+	ScoreCrimeScene3      = 3_000_000
+	ScoreCrimeScene4      = 5_000_000
 	ScoreBlackoutJackpot  = 10_000_000
 	ScoreDropTargetLit    = 500_000
 	ScoreLeftRampN        = 500_000
@@ -48,6 +52,14 @@ const (
 	ScoreCrimeSceneBonus = 1_000_000
 	MaxRampScore         = 5_000_000
 )
+
+var CrimeLevelScores = []int{
+	0,
+	ScoreCrimeScene1,
+	ScoreCrimeScene2,
+	ScoreCrimeScene3,
+	ScoreCrimeScene4,
+}
 
 const (
 	ModePursuit = 1 << iota
@@ -112,38 +124,43 @@ var (
 )
 
 type Vars struct {
-	AttractModeSlide       int
-	AwardedModes           int
-	BadImpersonatorBonus   int
-	BadImpersonatorTargets int
-	BallsLocked            int
-	CrimeScenes            int
-	DarkJudgeSelected      int
-	LeftRampsMade          int
-	LitDropTarget          int
-	LocksReady             int
-	ManhuntBonus           int
-	MeltdownBonus          int
-	Mode                   int
-	Multiplier             int
-	MultiballAttempted     bool
-	MultiballJackpotLit    bool
-	MultiballShotsMade     int
-	PursuitBonus           int
-	RightRampsMade         int
-	SafecrackerAttempts    int
-	SafecrackerBonus       int
-	SafecrackerScore       int
-	SelectedMode           int
-	SniperBonus            int
-	SniperScore            int
-	StakeoutBonus          int
-	StakeoutCallout        int
-	StartModeLeft          bool
-	TankBonus              int
-	TankHits               int
-	Timer                  int
-	TopLeftRampsMade       int
+	AdvanceCrimeSceneLit    bool
+	AttractModeSlide        int
+	AwardedModes            int
+	BadImpersonatorBonus    int
+	BadImpersonatorTargets  int
+	BallsLocked             int
+	CrimeScenesCollected    int
+	CrimeSceneLastCollected int
+	CrimeScenesLit          int
+	CrimeLevel              int
+	CrimeLevelLast          int
+	DarkJudgeSelected       int
+	LeftRampsMade           int
+	LitDropTarget           int
+	LocksReady              int
+	ManhuntBonus            int
+	MeltdownBonus           int
+	Mode                    int
+	Multiplier              int
+	MultiballAttempted      bool
+	MultiballJackpotLit     bool
+	MultiballShotsMade      int
+	PursuitBonus            int
+	RightRampsMade          int
+	SafecrackerAttempts     int
+	SafecrackerBonus        int
+	SafecrackerScore        int
+	SelectedMode            int
+	SniperBonus             int
+	SniperScore             int
+	StakeoutBonus           int
+	StakeoutCallout         int
+	StartModeLeft           bool
+	TankBonus               int
+	TankHits                int
+	Timer                   int
+	TopLeftRampsMade        int
 }
 
 func GetVarsFor(store spin.Store, player int) *Vars {
@@ -167,7 +184,7 @@ func GetVars(store spin.Store) *Vars {
 
 func ResetVars(store spin.Store) {
 	game := spin.GetGameVars(store)
-	for i := 1; i < game.MaxPlayers; i++ {
+	for i := 0; i < game.MaxPlayers; i++ {
 		name := fmt.Sprintf("jdx.%v", i)
 		store.RegisterVars(name, &Vars{})
 	}

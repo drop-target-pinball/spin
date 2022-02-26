@@ -20,6 +20,9 @@ const (
 	ScriptBlackoutMode            = "jdx.ScriptBlackoutMode"
 	ScriptBonusMode               = "jdx.ScriptBonusMode"
 	ScriptChain                   = "jdx.ScriptChain"
+	ScriptCrimeLevelAdvance       = "jdx.ScriptCrimeLevelAdvance"
+	ScriptCrimeScenes             = "jdx.ScriptCrimeScenes"
+	ScriptCrimeSceneCollect       = "jdx.ScriptCrimeSceneCollect"
 	ScriptDarkJudgeContained      = "jdx.ScriptDarkJudgeContained"
 	ScriptDemo                    = "jdx.ScriptDemo"
 	ScriptDropTargetHit           = "jdx.ScriptDropTargetHit"
@@ -138,6 +141,21 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptChain,
 		Script: chainScript,
+		Group:  spin.ScriptGroupBall,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptCrimeLevelAdvance,
+		Script: crimeLevelAdvanceScript,
+		Group:  spin.ScriptGroupBall,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptCrimeScenes,
+		Script: crimeScenesScript,
+		Group:  spin.ScriptGroupBall,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptCrimeSceneCollect,
+		Script: crimeSceneCollectScript,
 		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
