@@ -53,7 +53,7 @@ func lightBallLockScript(e *spin.ScriptEnv) {
 			return
 		}
 
-		e.Do(spin.AwardScore{Val: ScoreDropTargetLit})
+		e.Do(spin.AwardScore{Val: ScoreDropTargetLit * vars.Multiplier})
 		if lit == jd.MaxDropTarget {
 			vars.LitDropTarget = jd.MinDropTarget
 			e.Do(spin.PlaySound{ID: SoundDropTargetLitHit5})
