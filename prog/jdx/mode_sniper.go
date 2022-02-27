@@ -99,6 +99,7 @@ func sniperMode1Script(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
 		s.DoRun(spin.WaitForBallArrivalFunc(e, jd.SwitchRightPopper, 500))
+		s.Do(spin.AwardScore{Val: ScoreSniperTower * vars.Multiplier})
 		s.Post(spin.AdvanceEvent{})
 
 		s.Run()
@@ -145,6 +146,7 @@ func sniperMode2Script(e *spin.ScriptEnv) {
 		s := spin.NewSequencer(e)
 
 		s.DoRun(spin.WaitForBallArrivalFunc(e, jd.SwitchRightPopper, 500))
+		s.Do(spin.AwardScore{Val: ScoreSniperTower * vars.Multiplier})
 		s.Post(spin.AdvanceEvent{})
 
 		s.Run()

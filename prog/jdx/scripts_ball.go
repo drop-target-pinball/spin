@@ -57,19 +57,21 @@ func startBase(e *spin.ScriptEnv) {
 	e.Do(spin.PlayScript{ID: ScriptBallLock})
 	e.Do(spin.PlayScript{ID: ScriptBallSaver})
 	e.Do(spin.PlayScript{ID: ScriptCrimeScenes})
-	e.NewCoroutine(defaultSlingLoop)
-	e.NewCoroutine(defaultOutlaneLoop)
-	e.NewCoroutine(defaultReturnLaneLoop)
-	e.NewCoroutine(defaultScoreLoop)
-	e.NewCoroutine(defaultLeftShooterLaneLoop)
-	e.NewCoroutine(defaultRightShooterLaneLoop)
-	e.NewCoroutine(defaultLeftPopperLoop)
-	e.NewCoroutine(defaultRightPopperLoop)
-	e.NewCoroutine(defaultPostLoop)
-	e.NewCoroutine(defaultMysteryLoop)
-	e.NewCoroutine(defaultLeftRampLoop)
-	e.NewCoroutine(defaultRightRampLoop)
-	e.NewCoroutine(defaultTopLeftRampLoop)
+	e.NewCoroutine(defaultSlingRoutine)
+	e.NewCoroutine(defaultOutlaneRoutine)
+	e.NewCoroutine(defaultReturnLaneRoutine)
+	e.NewCoroutine(defaultScoreRoutine)
+	e.NewCoroutine(defaultLeftShooterLaneRoutine)
+	e.NewCoroutine(defaultRightShooterLaneRoutine)
+	e.NewCoroutine(defaultLeftPopperRoutine)
+	e.NewCoroutine(defaultRightPopperRoutine)
+	e.NewCoroutine(defaultPostRoutine)
+	e.NewCoroutine(defaultMysteryRoutine)
+	e.NewCoroutine(defaultLeftRampRoutine)
+	e.NewCoroutine(defaultRightRampRoutine)
+	e.NewCoroutine(defaultTopLeftRampRoutine)
+	e.NewCoroutine(defaultDropTargetRoutine)
+	e.NewCoroutine(defaultAdvanceCrimeLevelRoutine)
 }
 
 func stopBase(e *spin.ScriptEnv) {
@@ -98,7 +100,22 @@ func baseScript(e *spin.ScriptEnv) {
 	e.Do(spin.PlayScript{ID: jd.ScriptGIOff})
 }
 
-func defaultOutlaneLoop(e *spin.ScriptEnv) {
+func defaultAdvanceCrimeLevelRoutine(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	for {
+		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchBankTargets}); done {
+			return
+		}
+		if vars.AdvanceCrimeSceneLit {
+			continue
+		}
+		e.Do(spin.AwardScore{Val: ScoreAdvanceCrimeLevelUnlit * vars.Multiplier})
+		e.Do(spin.PlaySound{ID: SoundPoint})
+	}
+}
+
+func defaultOutlaneRoutine(e *spin.ScriptEnv) {
+	vars := GetVars(e)
 	for {
 		if _, done := e.WaitFor(
 			spin.SwitchEvent{ID: jd.SwitchLeftOutlane},
@@ -107,11 +124,12 @@ func defaultOutlaneLoop(e *spin.ScriptEnv) {
 			return
 		}
 		e.Do(spin.PlaySound{ID: SoundBallLost})
-		e.Do(spin.AwardScore{Val: ScoreOutlane * Multiplier(e)})
+		e.Do(spin.AwardScore{Val: ScoreOutlane * vars.Multiplier})
 	}
 }
 
-func defaultReturnLaneLoop(e *spin.ScriptEnv) {
+func defaultReturnLaneRoutine(e *spin.ScriptEnv) {
+	vars := GetVars(e)
 	for {
 		if _, done := e.WaitFor(
 			spin.SwitchEvent{ID: jd.SwitchLeftReturnLane},
@@ -121,11 +139,11 @@ func defaultReturnLaneLoop(e *spin.ScriptEnv) {
 			return
 		}
 		e.Do(spin.PlaySound{ID: SoundReturnLane})
-		e.Do(spin.AwardScore{Val: ScoreReturnLane * Multiplier(e)})
+		e.Do(spin.AwardScore{Val: ScoreReturnLane * vars.Multiplier})
 	}
 }
 
-func defaultScoreLoop(e *spin.ScriptEnv) {
+func defaultScoreRoutine(e *spin.ScriptEnv) {
 	r := e.Display("").Open(0)
 	defer r.Close()
 
@@ -138,7 +156,8 @@ func defaultScoreLoop(e *spin.ScriptEnv) {
 	})
 }
 
-func defaultSlingLoop(e *spin.ScriptEnv) {
+func defaultSlingRoutine(e *spin.ScriptEnv) {
+	vars := GetVars(e)
 	for {
 		if _, done := e.WaitFor(
 			spin.SwitchEvent{ID: jd.SwitchLeftSling},
@@ -147,11 +166,11 @@ func defaultSlingLoop(e *spin.ScriptEnv) {
 			return
 		}
 		e.Do(spin.PlaySound{ID: SoundSling})
-		e.Do(spin.AwardScore{Val: ScoreSling * Multiplier(e)})
+		e.Do(spin.AwardScore{Val: ScoreSling * vars.Multiplier})
 	}
 }
 
-func defaultLeftShooterLaneLoop(e *spin.ScriptEnv) {
+func defaultLeftShooterLaneRoutine(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	for {
 		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchLeftShooterLane, 500); done {
@@ -165,11 +184,13 @@ func defaultLeftShooterLaneLoop(e *spin.ScriptEnv) {
 		if done := e.Sleep(250); done {
 			return
 		}
+		e.Do(spin.AwardScore{Val: ScoreLeftShooterLane * vars.Multiplier})
+		e.Do(spin.PlaySound{ID: SoundLeftShooterLaneFire})
 		e.Do(spin.DriverPulse{ID: jd.CoilLeftShooterLane})
 	}
 }
 
-func defaultRightShooterLaneLoop(e *spin.ScriptEnv) {
+func defaultRightShooterLaneRoutine(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	for {
 		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchRightShooterLane, 1000); done {
@@ -182,22 +203,27 @@ func defaultRightShooterLaneLoop(e *spin.ScriptEnv) {
 	}
 }
 
-func defaultLeftPopperLoop(e *spin.ScriptEnv) {
+func defaultLeftPopperRoutine(e *spin.ScriptEnv) {
+	vars := GetVars(e)
 	for {
 		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchLeftPopper, 500); done {
 			return
 		}
+		e.Do(spin.AwardScore{Val: ScoreSubwayEnter * vars.Multiplier})
+		e.Do(spin.PlaySound{ID: SoundDropTargetLitHit3})
 		for i := 0; i < 3; i++ {
 			e.Do(spin.DriverPulse{ID: jd.FlasherSubwayExit})
 			if done := e.Sleep(200); done {
 				return
 			}
 		}
+		e.Do(spin.AwardScore{Val: ScoreSubwayExit * vars.Multiplier})
+		e.Do(spin.PlaySound{ID: SoundLeftPopperLaser})
 		e.Do(spin.DriverPulse{ID: jd.CoilLeftPopper})
 	}
 }
 
-func defaultRightPopperLoop(e *spin.ScriptEnv) {
+func defaultRightPopperRoutine(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	for {
 		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchRightPopper, 500); done {
@@ -206,11 +232,15 @@ func defaultRightPopperLoop(e *spin.ScriptEnv) {
 		if vars.Mode == ModeSniper {
 			continue
 		}
+		e.Do(spin.AwardScore{Val: ScoreSniperTower * vars.Multiplier})
+		e.Do(spin.PlaySound{ID: SoundSniperTower})
 		e.Do(spin.DriverPulse{ID: jd.CoilRightPopper})
 	}
 }
 
-func defaultPostLoop(e *spin.ScriptEnv) {
+func defaultPostRoutine(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+
 	sounds := map[spin.SwitchEvent]string{
 		{ID: jd.SwitchLeftPost}:  SoundLeftPost,
 		{ID: jd.SwitchRightPost}: SoundRightPost,
@@ -224,22 +254,23 @@ func defaultPostLoop(e *spin.ScriptEnv) {
 			return
 		}
 		sound := sounds[evt.(spin.SwitchEvent)]
-		e.Do(spin.AwardScore{Val: ScorePost})
+		e.Do(spin.AwardScore{Val: ScorePost * vars.Multiplier})
 		e.Do(spin.PlaySound{ID: sound})
 	}
 }
 
-func defaultMysteryLoop(e *spin.ScriptEnv) {
+func defaultMysteryRoutine(e *spin.ScriptEnv) {
+	vars := GetVars(e)
 	for {
 		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchMysteryTarget}); done {
 			return
 		}
-		e.Do(spin.AwardScore{Val: ScoreMystery})
+		e.Do(spin.AwardScore{Val: ScoreMystery * vars.Multiplier})
 		e.Do(spin.PlaySound{ID: SoundMystery})
 	}
 }
 
-func defaultLeftRampLoop(e *spin.ScriptEnv) {
+func defaultLeftRampRoutine(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	for {
 		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampExit}); done {
@@ -250,7 +281,7 @@ func defaultLeftRampLoop(e *spin.ScriptEnv) {
 		if score > MaxRampScore {
 			score = MaxRampScore
 		}
-		e.Do(spin.AwardScore{Val: score})
+		e.Do(spin.AwardScore{Val: score * vars.Multiplier})
 
 		if vars.Mode == ModeNone && vars.StartModeLeft {
 			continue
@@ -262,7 +293,7 @@ func defaultLeftRampLoop(e *spin.ScriptEnv) {
 	}
 }
 
-func defaultRightRampLoop(e *spin.ScriptEnv) {
+func defaultRightRampRoutine(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	for {
 		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchRightRampExit}); done {
@@ -273,12 +304,12 @@ func defaultRightRampLoop(e *spin.ScriptEnv) {
 		if score > MaxRampScore {
 			score = MaxRampScore
 		}
-		e.Do(spin.AwardScore{Val: score})
+		e.Do(spin.AwardScore{Val: score * vars.Multiplier})
 		e.Do(spin.PlayScript{ID: ScriptRightRampAward})
 	}
 }
 
-func defaultTopLeftRampLoop(e *spin.ScriptEnv) {
+func defaultTopLeftRampRoutine(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	for {
 		if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchTopLeftRampExit}); done {
@@ -294,13 +325,30 @@ func defaultTopLeftRampLoop(e *spin.ScriptEnv) {
 	}
 }
 
+func defaultDropTargetRoutine(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	for {
+		evt, done := e.WaitFor(jd.DropTargetSwitchEvents...)
+		if done {
+			return
+		}
+		sw := evt.(spin.SwitchEvent).ID
+		i := jd.DropTargetIndexes[sw]
+		if vars.LitDropTarget == i {
+			continue
+		}
+		e.Do(spin.AwardScore{Val: ScoreDropTargetUnlit * vars.Multiplier})
+		e.Do(spin.PlaySound{ID: SoundPoint})
+	}
+}
+
 func ballSaverScript(e *spin.ScriptEnv) {
 	vars := spin.GetGameVars(e)
 	vars.BallSave = true
 	defer func() { vars.BallSave = false }()
 
 	e.Do(spin.DriverOn{ID: jd.LampDrainShield})
-	if _, done := e.WaitFor(jd.PlayfieldSwitches...); done {
+	if _, done := e.WaitFor(jd.PlayfieldSwitchEvents...); done {
 		return
 	}
 
@@ -338,6 +386,8 @@ func leftRampAwardScript(e *spin.ScriptEnv) {
 	if score > MaxRampScore {
 		score = MaxRampScore
 	}
+	score = score * vars.Multiplier
+	e.Do(spin.AwardScore{Val: score})
 
 	ScoreAndLabelPanel(e, r, score, "RAMP AWARD")
 
@@ -358,6 +408,8 @@ func rightRampAwardScript(e *spin.ScriptEnv) {
 	if score > MaxRampScore {
 		score = MaxRampScore
 	}
+	score = score * vars.Multiplier
+	e.Do(spin.AwardScore{Val: score})
 
 	ScoreAndLabelPanel(e, r, score, "RAMP AWARD")
 
@@ -378,6 +430,8 @@ func topLeftRampAwardScript(e *spin.ScriptEnv) {
 	if score > MaxRampScore {
 		score = MaxRampScore
 	}
+	score = score * vars.Multiplier
+	e.Do(spin.AwardScore{Val: score})
 
 	ScoreAndLabelPanel(e, r, score, "RAMP AWARD")
 

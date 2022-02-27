@@ -149,11 +149,15 @@ func crimeScenesScript(e *spin.ScriptEnv) {
 				if time.Since(lastCollect) < 1*time.Second {
 					continue
 				}
+
 				sw := evt.(spin.SwitchEvent).ID
 				scene := jd.CrimeSceneSwitches[sw]
 				if vars.CrimeScenesLit&scene != 0 {
 					vars.CrimeSceneLastCollected = scene
 					vars.CrimeScenesLit &^= scene
+					lastCollect = time.Now()
+					vars.CrimeScenesCollected++
+
 					e.Do(spin.DriverOff{ID: jd.CrimeSceneLamps[scene][vars.CrimeLevel]})
 					e.Do(spin.AwardScore{Val: CrimeLevelScores[vars.CrimeLevel] * vars.Multiplier})
 					e.Do(spin.PlayScript{ID: ScriptCrimeSceneCollect})

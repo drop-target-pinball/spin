@@ -131,7 +131,7 @@ func impersonatorLightDropTargets(e *spin.ScriptEnv) {
 func impersonatorWatchDropTargets(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	for {
-		evt, done := e.WaitFor(jd.SwitchAnyDropTarget...)
+		evt, done := e.WaitFor(jd.DropTargetSwitchEvents...)
 		if done {
 			return
 		}
