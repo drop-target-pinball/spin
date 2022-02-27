@@ -28,6 +28,7 @@ const (
 	ScriptDropTargetHit           = "jdx.ScriptDropTargetHit"
 	ScriptGame                    = "jdx.ScriptGame"
 	ScriptJackpotRunway           = "jdx.ScriptJackpotRunway"
+	ScriptJudgeDeath              = "jdx.ScriptJudgeDeath"
 	ScriptLeftRampAward           = "jdx.ScriptLeftRampAward"
 	ScriptLeftRampRunway          = "jdx.ScriptLeftRampRunway"
 	ScriptLightBallLock           = "jdx.ScriptLightBalLock"
@@ -38,7 +39,10 @@ const (
 	ScriptMeltdownMode            = "jdx.ScriptMeltdownMode"
 	ScriptMatchMode               = "jdx.ScriptMatchMode"
 	ScriptMultiball               = "jdx.ScriptMultiball"
+	ScriptMultiballAnnounce       = "jdx.ScriptMultiballAnnounce"
+	ScriptMultiballShotsToGo      = "jdx.ScriptMultiballShotsToGo"
 	ScriptMultiballJackpot        = "jdx.ScriptMultiballJackpot"
+	ScriptMultiballJackpotIsLit   = "jdx.ScriptMultiballJackpotIsLit"
 	ScriptMultiballLightJackpot   = "jdx.ScriptMultiballLightJackpot"
 	ScriptPlungeMode              = "jdx.ScriptPlungeMode"
 	ScriptProgram                 = "jdx.ScriptProgram"
@@ -182,6 +186,11 @@ func RegisterScripts(eng *spin.Engine) {
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptJudgeDeath,
+		Script: judgeDeathScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptLeftRampAward,
 		Script: leftRampAwardScript,
 		Group:  spin.ScriptGroupBall,
@@ -231,8 +240,23 @@ func RegisterScripts(eng *spin.Engine) {
 		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptMultiballAnnounce,
+		Script: multiballAnnounceScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMultiballShotsToGo,
+		Script: multiballShotsToGoScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptMultiballJackpot,
 		Script: multiballJackpotScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMultiballJackpotIsLit,
+		Script: multiballJackpotIsLitScript,
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{

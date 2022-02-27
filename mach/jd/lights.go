@@ -165,7 +165,8 @@ func RegisterLamps(eng *spin.Engine) {
 		Layout: spin.NewLayoutRect(304, 575, 26, 12, spin.ColorLampYellow),
 	})
 	eng.Do(spin.RegisterLamp{
-		Addr: wpc.L47, ID: LampBattleTank,
+		Addr:   wpc.L47,
+		ID:     LampBattleTank,
 		Layout: spin.NewLayoutRect(265, 573, 26, 12, spin.ColorLampYellow),
 	})
 	eng.Do(spin.RegisterLamp{
@@ -239,22 +240,22 @@ func RegisterLamps(eng *spin.Engine) {
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L18,
 		ID:     LampInnerLoopCrimeSceneGreen,
-		Layout: spin.NewLayoutRect(303, 168, 20, 33, spin.ColorLampGreen),
+		Layout: spin.NewLayoutRect(303, 192, 20, 8, spin.ColorLampGreen),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L16,
 		ID:     LampInnerLoopCrimeSceneRed,
-		Layout: spin.NewLayoutRect(303, 168, 20, 33, spin.ColorLampRed),
+		Layout: spin.NewLayoutRect(303, 176, 20, 8, spin.ColorLampRed),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L15,
 		ID:     LampInnerLoopCrimeSceneWhite,
-		Layout: spin.NewLayoutRect(303, 168, 20, 33, spin.ColorLampWhite),
+		Layout: spin.NewLayoutRect(303, 168, 20, 8, spin.ColorLampWhite),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L17,
 		ID:     LampInnerLoopCrimeSceneYellow,
-		Layout: spin.NewLayoutRect(303, 168, 20, 33, spin.ColorLampYellow),
+		Layout: spin.NewLayoutRect(303, 184, 20, 8, spin.ColorLampYellow),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L84,
@@ -264,22 +265,22 @@ func RegisterLamps(eng *spin.Engine) {
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L14,
 		ID:     LampLeftLoopCrimeSceneGreen,
-		Layout: spin.NewLayoutRect(166, 360, 19, 30, spin.ColorLampGreen),
+		Layout: spin.NewLayoutRect(166, 384, 19, 8, spin.ColorLampGreen),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L12,
 		ID:     LampLeftLoopCrimeSceneRed,
-		Layout: spin.NewLayoutRect(166, 360, 19, 30, spin.ColorLampRed),
+		Layout: spin.NewLayoutRect(166, 368, 19, 8, spin.ColorLampRed),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L11,
 		ID:     LampLeftLoopCrimeSceneWhite,
-		Layout: spin.NewLayoutRect(166, 360, 19, 30, spin.ColorLampWhite),
+		Layout: spin.NewLayoutRect(166, 360, 19, 8, spin.ColorLampWhite),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L13,
 		ID:     LampLeftLoopCrimeSceneYellow,
-		Layout: spin.NewLayoutRect(166, 360, 19, 30, spin.ColorLampYellow),
+		Layout: spin.NewLayoutRect(166, 376, 19, 8, spin.ColorLampYellow),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L66,
@@ -339,22 +340,22 @@ func RegisterLamps(eng *spin.Engine) {
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L24,
 		ID:     LampRightLoopCrimeSceneGreen,
-		Layout: spin.NewLayoutRect(394, 252, 34, 18, spin.ColorLampGreen),
+		Layout: spin.NewLayoutRect(394, 276, 34, 8, spin.ColorLampGreen),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L22,
 		ID:     LampRightLoopCrimeSceneRed,
-		Layout: spin.NewLayoutRect(394, 252, 34, 18, spin.ColorLampRed),
+		Layout: spin.NewLayoutRect(394, 260, 34, 8, spin.ColorLampRed),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L21,
 		ID:     LampRightLoopCrimeSceneWhite,
-		Layout: spin.NewLayoutRect(394, 252, 34, 18, spin.ColorLampWhite),
+		Layout: spin.NewLayoutRect(394, 252, 34, 8, spin.ColorLampWhite),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L23,
 		ID:     LampRightLoopCrimeSceneYellow,
-		Layout: spin.NewLayoutRect(394, 252, 34, 18, spin.ColorLampYellow),
+		Layout: spin.NewLayoutRect(394, 268, 34, 8, spin.ColorLampYellow),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L62,
@@ -364,42 +365,42 @@ func RegisterLamps(eng *spin.Engine) {
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L34,
 		ID:     LampRightPopperCrimeSceneGreen,
-		Layout: spin.NewLayoutRect(374, 159, 17, 31, spin.ColorLampGreen),
+		Layout: spin.NewLayoutRect(374, 183, 17, 8, spin.ColorLampGreen),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L32,
 		ID:     LampRightPopperCrimeSceneRed,
-		Layout: spin.NewLayoutRect(374, 159, 17, 31, spin.ColorLampRed),
+		Layout: spin.NewLayoutRect(374, 167, 17, 8, spin.ColorLampRed),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L31,
 		ID:     LampRightPopperCrimeSceneWhite,
-		Layout: spin.NewLayoutRect(374, 159, 17, 31, spin.ColorLampWhite),
+		Layout: spin.NewLayoutRect(374, 159, 17, 8, spin.ColorLampWhite),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L33,
 		ID:     LampRightPopperCrimeSceneYellow,
-		Layout: spin.NewLayoutRect(374, 159, 17, 31, spin.ColorLampYellow),
+		Layout: spin.NewLayoutRect(374, 175, 17, 8, spin.ColorLampYellow),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L28,
 		ID:     LampRightRampCrimeSceneGreen,
-		Layout: spin.NewLayoutRect(388, 427, 18, 39, spin.ColorLampGreen),
+		Layout: spin.NewLayoutRect(388, 451, 18, 8, spin.ColorLampGreen),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L26,
 		ID:     LampRightRampCrimeSceneRed,
-		Layout: spin.NewLayoutRect(388, 427, 18, 39, spin.ColorLampRed),
+		Layout: spin.NewLayoutRect(388, 435, 18, 8, spin.ColorLampRed),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L25,
 		ID:     LampRightRampCrimeSceneWhite,
-		Layout: spin.NewLayoutRect(388, 427, 18, 39, spin.ColorLampWhite),
+		Layout: spin.NewLayoutRect(388, 427, 18, 8, spin.ColorLampWhite),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L27,
 		ID:     LampRightRampCrimeSceneYellow,
-		Layout: spin.NewLayoutRect(388, 427, 18, 39, spin.ColorLampYellow),
+		Layout: spin.NewLayoutRect(388, 443, 18, 8, spin.ColorLampYellow),
 	})
 	eng.Do(spin.RegisterLamp{
 		Addr:   wpc.L86,

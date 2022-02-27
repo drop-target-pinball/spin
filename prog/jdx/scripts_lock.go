@@ -67,7 +67,8 @@ func lightBallLockScript(e *spin.ScriptEnv) {
 					s := spin.NewSequencer(e)
 
 					s.Sleep(1_250)
-					s.Do(spin.PlaySpeech{ID: SpeechDimensionalGlobeActivated})
+					// FIXME: Notify is required to duck -- should not be
+					s.Do(spin.PlaySpeech{ID: SpeechDimensionalGlobeActivated, Notify: true, Duck: 0.5})
 
 					s.Run()
 				})

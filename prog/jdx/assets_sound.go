@@ -27,6 +27,7 @@ const (
 	SoundMotorcycleRamp         = "jdx.SoundMotorcycleRamp"
 	SoundMotorcycleStart        = "jdx.SoundMotorcycleStart"
 	SoundMotorRev               = "jdx.SoundMotorRev"
+	SoundMultiballJackpot       = "jdx.SoundMultiballJackpot"
 	SoundMystery                = "jdx.SoundMystery"
 	SoundPoliceSiren            = "jdx.SoundPoliceSiren"
 	SoundPursuitEngine          = "jdx.SoundPursuitEngine"
@@ -150,6 +151,10 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundMotorRev,
 		Path: "jd-pinsound/sfx/000074-motor_noise/motor_no__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundMultiballJackpot,
+		Path: "jd-pinsound/jingle/000155-special_option/special___LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundMystery,

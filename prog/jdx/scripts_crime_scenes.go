@@ -103,6 +103,20 @@ func crimeScenesScript(e *spin.ScriptEnv) {
 		}
 	}
 
+	defer func() {
+		if vars.AdvanceCrimeSceneLit {
+			e.Do(spin.DriverOff{ID: jd.LampAdvanceCrimeLevel})
+		}
+		if vars.CrimeLevel != jd.CrimeLevelNone {
+			e.Do(spin.DriverOff{ID: jd.CrimeLevelLamps[vars.CrimeLevel]})
+		}
+		for _, cs := range jd.CrimeScenes {
+			if vars.CrimeScenesLit&cs != 0 {
+				e.Do(spin.DriverOff{ID: jd.CrimeSceneLamps[cs][vars.CrimeLevel]})
+			}
+		}
+	}()
+
 	var lastCollect time.Time
 
 	for {
