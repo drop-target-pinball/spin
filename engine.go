@@ -149,7 +149,7 @@ func (e *Engine) Run() {
 
 	defer func() {
 		watchdog.Stop()
-		e.coroutines.Stop()
+		//e.coroutines.Stop()
 	}()
 
 	for {

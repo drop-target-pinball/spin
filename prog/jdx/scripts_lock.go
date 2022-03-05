@@ -129,10 +129,10 @@ func ballLockScript(e *spin.ScriptEnv) {
 			}
 			vars.BallsLocked += 1
 			e.Do(spin.DriverOn{ID: jd.LockLamps[vars.BallsLocked]})
-			if vars.BallsLocked == 3 {
+			e.Do(spin.PlayScript{ID: ScriptBallLocked})
+			if vars.BallsLocked == 2 {
 				break
 			}
-			e.Do(spin.PlayScript{ID: ScriptBallLocked})
 		}
 	}
 
@@ -211,12 +211,35 @@ func dropTargetHitScript(e *spin.ScriptEnv) {
 	s.Run()
 }
 
+func ballLockedPanel(e *spin.ScriptEnv, r spin.Renderer) {
+	g := r.Graphics()
+	vars := GetVars(e)
+
+	g.Font = spin.FontPfRondaSevenBold8
+	g.X = (r.Width() / 2) - 8
+	g.Y = 8
+	g.AnchorX = spin.AnchorCenter
+	r.Print(g, "DIMENSIONAL")
+
+	g.Y = 18
+	r.Print(g, "LOCK")
+
+	g.Font = spin.FontPfRondaSevenBold16
+	g.X = 100
+	g.Y = 5
+	g.AnchorX = spin.AnchorLeft
+	r.Print(g, "%v", vars.BallsLocked)
+}
+
 /*
 SetVar Vars=jdx.1 ID=BallsLocked Val=1
 PlayScript ID=jdx.ScriptBallLocked
 */
 
 func ballLockedScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(spin.PriorityAnnounce)
+	defer r.Close()
+
 	vars := GetVars(e)
 
 	lockSpeech := []string{
@@ -225,11 +248,13 @@ func ballLockedScript(e *spin.ScriptEnv) {
 		SpeechDimensionalLockTwo,
 	}
 
+	ballLockedPanel(e, r)
+
 	s := spin.NewSequencer(e)
 
-	s.Do(spin.PlaySound{ID: SoundBallLock, Duck: 0.25})
+	s.Do(spin.PlaySound{ID: SoundBallLock, Notify: true, Duck: 0.25})
 	s.Sleep(500)
-	s.Do(spin.PlaySpeech{ID: lockSpeech[vars.BallsLocked]})
+	s.Do(spin.PlaySpeech{ID: lockSpeech[vars.BallsLocked], Notify: true})
 	s.WaitFor(spin.SoundFinishedEvent{ID: SoundBallLock})
 
 	s.Run()

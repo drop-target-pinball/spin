@@ -128,7 +128,7 @@ var (
 		ModeStakeout:        ScriptStakeoutMode,
 	}
 
-	MultiballShotsToLightJackpot = []int{3, 4, 5, 6}
+	MultiballShotsToLightJackpot = []int{0, 3, 4, 5, 6}
 )
 
 type Vars struct {
@@ -144,6 +144,7 @@ type Vars struct {
 	CrimeLevel              int
 	CrimeLevelLast          int
 	DarkJudgeSelected       int
+	LeftPopperManual        bool
 	LeftRampsMade           int
 	LitDropTarget           int
 	LocksReady              int
@@ -160,6 +161,7 @@ type Vars struct {
 	SafecrackerBonus        int
 	SafecrackerScore        int
 	SelectedMode            int
+	ShotsToLowerBarriers    int
 	SniperBonus             int
 	SniperScore             int
 	StakeoutBonus           int

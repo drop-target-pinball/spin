@@ -182,6 +182,10 @@ func (s *audioSystem) playSound(a spin.PlaySound) {
 	}
 	channel, err := sp.Play(-1, loops)
 	if err != nil {
+		if err.Error() == "No free channels available" {
+			spin.Warn("no free channels available")
+			return
+		}
 		log.Panic(err)
 	}
 	if a.Duck < 0 || a.Duck > 1 {

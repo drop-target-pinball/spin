@@ -12,6 +12,8 @@ const (
 	MusicMode1           = "jdx.MusicMode1"
 	MusicMode2           = "jdx.MusicMode2"
 	MusicPlungeLoop      = "jdx.MusicPlungeLoop"
+	MusicSuperGame       = "jdx.MusicSuperGame"
+	MusicSuperGame2      = "jdx.MusicSuperGame2"
 )
 
 func RegisterMusic(eng *spin.Engine) {
@@ -50,5 +52,13 @@ func RegisterMusic(eng *spin.Engine) {
 	eng.Do(spin.RegisterMusic{
 		ID:   MusicPlungeLoop,
 		Path: "jd-pinsound/music/000001-back_ground/back_gro__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterMusic{
+		ID:   MusicSuperGame,
+		Path: "jd-pinsound/music/000006-weappon_sound/weappon___LEGACY_AUD-loop1.wav",
+	})
+	eng.Do(spin.RegisterMusic{
+		ID:   MusicSuperGame2,
+		Path: "jd-pinsound/music/000006-weappon_sound/weappon___LEGACY_AUD-loop2.wav",
 	})
 }

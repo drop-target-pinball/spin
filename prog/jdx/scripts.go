@@ -5,73 +5,79 @@ import (
 )
 
 const (
-	ScriptAttractMode             = "jdx.ScriptAttractMode"
-	ScriptAttractModeSlide        = "jdx.ScriptAttractModeSlide"
-	ScriptBadImpersonatorComplete = "jdx.ScriptBadImpersonatorComplete"
-	ScriptBadImpersonatorCrowd    = "jdx.ScriptBadImpersonatorCrowd"
-	ScriptBadImpersonatorHit      = "jdx.ScriptBadImpersonatorHit"
-	ScriptBadImpersonatorMode     = "jdx.ScriptBadImpersonatorMode"
-	ScriptBall                    = "jdx.ScriptBall"
-	ScriptBallLock                = "jdx.ScriptBallLock"
-	ScriptBallLocked              = "jdx.ScriptBallLocked"
-	ScriptBallSaver               = "jdx.ScriptBallSaver"
-	ScriptBase                    = "jdx.ScriptBase"
-	ScriptBlackoutJackpot         = "jdx.ScriptBlackoutJackpot"
-	ScriptBlackoutMode            = "jdx.ScriptBlackoutMode"
-	ScriptBonusMode               = "jdx.ScriptBonusMode"
-	ScriptChain                   = "jdx.ScriptChain"
-	ScriptCrimeLevelAdvance       = "jdx.ScriptCrimeLevelAdvance"
-	ScriptCrimeScenes             = "jdx.ScriptCrimeScenes"
-	ScriptCrimeSceneCollect       = "jdx.ScriptCrimeSceneCollect"
-	ScriptDarkJudgeContained      = "jdx.ScriptDarkJudgeContained"
-	ScriptDemo                    = "jdx.ScriptDemo"
-	ScriptDropTargetHit           = "jdx.ScriptDropTargetHit"
-	ScriptGame                    = "jdx.ScriptGame"
-	ScriptJackpotRunway           = "jdx.ScriptJackpotRunway"
-	ScriptJudgeDeath              = "jdx.ScriptJudgeDeath"
-	ScriptLeftRampAward           = "jdx.ScriptLeftRampAward"
-	ScriptLeftRampRunway          = "jdx.ScriptLeftRampRunway"
-	ScriptLightBallLock           = "jdx.ScriptLightBalLock"
-	ScriptManhuntComplete         = "jdx.ScriptManhuntComplete"
-	ScriptManhuntMode             = "jdx.ScriptManhuntMode"
-	ScriptMeltdownComplete        = "jdx.ScriptMeltdownComplete"
-	ScriptMeltdownIncomplete      = "jdx.ScriptMeltdownIncomplete"
-	ScriptMeltdownMode            = "jdx.ScriptMeltdownMode"
-	ScriptMatchMode               = "jdx.ScriptMatchMode"
-	ScriptMultiball               = "jdx.ScriptMultiball"
-	ScriptMultiballAnnounce       = "jdx.ScriptMultiballAnnounce"
-	ScriptMultiballShotsToGo      = "jdx.ScriptMultiballShotsToGo"
-	ScriptMultiballJackpot        = "jdx.ScriptMultiballJackpot"
-	ScriptMultiballJackpotIsLit   = "jdx.ScriptMultiballJackpotIsLit"
-	ScriptMultiballLightJackpot   = "jdx.ScriptMultiballLightJackpot"
-	ScriptPlungeMode              = "jdx.ScriptPlungeMode"
-	ScriptProgram                 = "jdx.ScriptProgram"
-	ScriptPursuitComplete         = "jdx.ScriptPursuitComplete"
-	ScriptPursuitIncomplete       = "jdx.ScriptPursuitIncomplete"
-	ScriptPursuitMode             = "jdx.ScriptPursuitMode"
-	ScriptRightPopperRunway       = "jdx.ScriptRightPopperRunway"
-	ScriptRightRampAward          = "jdx.ScriptRightRampAward"
-	ScriptRightRampRunway         = "jdx.ScriptRightRampRunway"
-	ScriptSafecrackerComplete     = "jdx.ScriptSafecrackerComplete"
-	ScriptSafecrackerIncomplete   = "jdx.ScriptSafecrackerIncomplete"
-	ScriptSafecrackerMode         = "jdx.ScriptSafecrackerMode"
-	ScriptSafecrackerMode1        = "jdx.ScriptSafecrackerMode1"
-	ScriptSafecrackerMode2        = "jdx.ScriptSafecrackerMode2"
-	ScriptSafecrackerOpenThatSafe = "jdx.ScriptSafecrackerOpenThatSafe"
-	ScriptSniperComplete          = "jdx.ScriptSniperComplete"
-	ScriptSniperIncomplete        = "jdx.ScriptSniperIncomplete"
-	ScriptSniperMode              = "jdx.ScriptSniperMode"
-	ScriptSniperMode1             = "jdx.ScriptSniperMode1"
-	ScriptSniperMode2             = "jdx.ScriptSniperMode2"
-	ScriptStakeoutComplete        = "jdx.ScriptStakeoutComplete"
-	ScriptStakeoutMode            = "jdx.ScriptStakeoutMode"
-	ScriptStakeoutInteresting     = "jdx.ScriptStakeoutInteresting"
-	ScriptTankHit                 = "jdx.ScriptTankHit"
-	ScriptTankComplete            = "jdx.ScriptTakComplete"
-	ScriptTankIncomplete          = "jdx.ScriptTankIncomplete"
-	ScriptTankMode                = "jdx.ScriptTankMode"
-	ScriptTopLeftRampAward        = "jdx.ScriptTopLeftRampAward"
-	ScriptUseFireButton           = "jdx.ScriptUseFireButton"
+	ScriptAttractMode               = "jdx.ScriptAttractMode"
+	ScriptAttractModeSlide          = "jdx.ScriptAttractModeSlide"
+	ScriptBadImpersonatorComplete   = "jdx.ScriptBadImpersonatorComplete"
+	ScriptBadImpersonatorCrowd      = "jdx.ScriptBadImpersonatorCrowd"
+	ScriptBadImpersonatorHit        = "jdx.ScriptBadImpersonatorHit"
+	ScriptBadImpersonatorMode       = "jdx.ScriptBadImpersonatorMode"
+	ScriptBall                      = "jdx.ScriptBall"
+	ScriptBallLock                  = "jdx.ScriptBallLock"
+	ScriptBallLocked                = "jdx.ScriptBallLocked"
+	ScriptBallSaver                 = "jdx.ScriptBallSaver"
+	ScriptBase                      = "jdx.ScriptBase"
+	ScriptBlackoutJackpot           = "jdx.ScriptBlackoutJackpot"
+	ScriptBlackoutMode              = "jdx.ScriptBlackoutMode"
+	ScriptBonusMode                 = "jdx.ScriptBonusMode"
+	ScriptChain                     = "jdx.ScriptChain"
+	ScriptCrimeLevelAdvance         = "jdx.ScriptCrimeLevelAdvance"
+	ScriptCrimeScenes               = "jdx.ScriptCrimeScenes"
+	ScriptCrimeSceneCollect         = "jdx.ScriptCrimeSceneCollect"
+	ScriptDarkJudgeContained        = "jdx.ScriptDarkJudgeContained"
+	ScriptDeadworldBarrierShotsToGo = "jdx.ScriptDeadworldBarrierShotsToGo"
+	ScriptDeadworldIntro            = "jdx.ScriptDeadworldIntro"
+	ScriptDeadworldMode             = "jdx.ScriptDeadworldMode"
+	ScriptDemo                      = "jdx.ScriptDemo"
+	ScriptDropTargetHit             = "jdx.ScriptDropTargetHit"
+	ScriptGame                      = "jdx.ScriptGame"
+	ScriptJackpotRunway             = "jdx.ScriptJackpotRunway"
+	ScriptJudgeDeath                = "jdx.ScriptJudgeDeath"
+	ScriptLeftPopperEject           = "jdx.ScriptLeftPopperEject"
+	ScriptLeftRampAward             = "jdx.ScriptLeftRampAward"
+	ScriptLeftRampRunway            = "jdx.ScriptLeftRampRunway"
+	ScriptLightBallLock             = "jdx.ScriptLightBalLock"
+	ScriptManhuntComplete           = "jdx.ScriptManhuntComplete"
+	ScriptManhuntMode               = "jdx.ScriptManhuntMode"
+	ScriptMeltdownComplete          = "jdx.ScriptMeltdownComplete"
+	ScriptMeltdownIncomplete        = "jdx.ScriptMeltdownIncomplete"
+	ScriptMeltdownMode              = "jdx.ScriptMeltdownMode"
+	ScriptMatchMode                 = "jdx.ScriptMatchMode"
+	ScriptMultiball                 = "jdx.ScriptMultiball"
+	ScriptMultiballAnnounce         = "jdx.ScriptMultiballAnnounce"
+	ScriptMultiballJackpot          = "jdx.ScriptMultiballJackpot"
+	ScriptMultiballJackpotIsLit     = "jdx.ScriptMultiballJackpotIsLit"
+	ScriptMultiballJudgeDeath       = "jdx.ScriptMultiballJudgeDeath"
+	ScriptMultiballLightJackpot     = "jdx.ScriptMultiballLightJackpot"
+	ScriptMultiballShotsToGo        = "jdx.ScriptMultiballShotsToGo"
+	ScriptMultiballTransition       = "jdx.ScriptMultiballTransition"
+	ScriptPlungeMode                = "jdx.ScriptPlungeMode"
+	ScriptProgram                   = "jdx.ScriptProgram"
+	ScriptPursuitComplete           = "jdx.ScriptPursuitComplete"
+	ScriptPursuitIncomplete         = "jdx.ScriptPursuitIncomplete"
+	ScriptPursuitMode               = "jdx.ScriptPursuitMode"
+	ScriptRightPopperRunway         = "jdx.ScriptRightPopperRunway"
+	ScriptRightRampAward            = "jdx.ScriptRightRampAward"
+	ScriptRightRampRunway           = "jdx.ScriptRightRampRunway"
+	ScriptSafecrackerComplete       = "jdx.ScriptSafecrackerComplete"
+	ScriptSafecrackerIncomplete     = "jdx.ScriptSafecrackerIncomplete"
+	ScriptSafecrackerMode           = "jdx.ScriptSafecrackerMode"
+	ScriptSafecrackerMode1          = "jdx.ScriptSafecrackerMode1"
+	ScriptSafecrackerMode2          = "jdx.ScriptSafecrackerMode2"
+	ScriptSafecrackerOpenThatSafe   = "jdx.ScriptSafecrackerOpenThatSafe"
+	ScriptSniperComplete            = "jdx.ScriptSniperComplete"
+	ScriptSniperIncomplete          = "jdx.ScriptSniperIncomplete"
+	ScriptSniperMode                = "jdx.ScriptSniperMode"
+	ScriptSniperMode1               = "jdx.ScriptSniperMode1"
+	ScriptSniperMode2               = "jdx.ScriptSniperMode2"
+	ScriptStakeoutComplete          = "jdx.ScriptStakeoutComplete"
+	ScriptStakeoutMode              = "jdx.ScriptStakeoutMode"
+	ScriptStakeoutInteresting       = "jdx.ScriptStakeoutInteresting"
+	ScriptTankHit                   = "jdx.ScriptTankHit"
+	ScriptTankComplete              = "jdx.ScriptTakComplete"
+	ScriptTankIncomplete            = "jdx.ScriptTankIncomplete"
+	ScriptTankMode                  = "jdx.ScriptTankMode"
+	ScriptTopLeftRampAward          = "jdx.ScriptTopLeftRampAward"
+	ScriptUseFireButton             = "jdx.ScriptUseFireButton"
 )
 
 func RegisterScripts(eng *spin.Engine) {
@@ -168,6 +174,21 @@ func RegisterScripts(eng *spin.Engine) {
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptDeadworldBarrierShotsToGo,
+		Script: deadworldBarrierShotsToGoScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptDeadworldIntro,
+		Script: deadworldIntroScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptDeadworldMode,
+		Script: deadworldModeScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptDemo,
 		Script: demoScript,
 	})
@@ -189,6 +210,11 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptJudgeDeath,
 		Script: judgeDeathScript,
 		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptLeftPopperEject,
+		Script: leftPopperEjectScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptLeftRampAward,
@@ -245,8 +271,18 @@ func RegisterScripts(eng *spin.Engine) {
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptMultiballJudgeDeath,
+		Script: multiballJudgeDeathScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptMultiballShotsToGo,
 		Script: multiballShotsToGoScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMultiballTransition,
+		Script: multiballTransitionScript,
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{

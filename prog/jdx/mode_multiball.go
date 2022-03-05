@@ -7,6 +7,7 @@ import (
 )
 
 var speechJudges = []string{
+	"",
 	SpeechJudgeMortis,
 	SpeechJudgeFire,
 	SpeechJudgeFear,
@@ -31,6 +32,11 @@ func multiballScript(e *spin.ScriptEnv) {
 	}()
 
 	e.Do(spin.AddBall{N: 3})
+
+	if vars.DarkJudgeSelected == jd.DarkJudgeNone {
+		vars.DarkJudgeSelected = jd.DarkJudgeMortis
+	}
+	vars.MultiballShotsLeft = MultiballShotsToLightJackpot[vars.DarkJudgeSelected]
 
 	if switches[jd.SwitchRightShooterLane].Active {
 		e.Do(spin.DriverPulse{ID: jd.CoilRightShooterLane})
@@ -193,22 +199,17 @@ func multiballLightJackpotScript(e *spin.ScriptEnv) {
 }
 
 func multiballJackpotScript(e *spin.ScriptEnv) {
-	vars := GetVars(e)
-
 	e.Do(spin.PlayScript{ID: ScriptMultiballJackpotIsLit})
 	e.Do(spin.PlayScript{ID: ScriptJackpotRunway})
 	defer e.Do(spin.StopScript{ID: ScriptJackpotRunway})
 
-	e.NewCoroutine(watchCenterDropTargetLoop) // FIXME: This should be shared somewhere
+	e.NewCoroutine(watchCenterDropTargetRoutine) // FIXME: This should be shared somewhere
 
 	if _, done := e.WaitFor(
 		spin.SwitchEvent{ID: jd.SwitchSubwayEnter1},
 		spin.SwitchEvent{ID: jd.SwitchSubwayEnter2}); done {
 		return
 	}
-	vars.DarkJudgeSelected += 1
-	vars.MultiballShotsLeft = MultiballShotsToLightJackpot[vars.DarkJudgeSelected]
-	e.Do(spin.PlayScript{ID: ScriptMultiballLightJackpot})
 	e.Do(spin.PlayScript{ID: ScriptDarkJudgeContained})
 }
 
@@ -218,20 +219,27 @@ func darkJudgeContainedScript(e *spin.ScriptEnv) {
 
 	vars := GetVars(e)
 
-	selected := vars.DarkJudgeSelected
-	contained := selected - 1
+	if vars.DarkJudgeSelected == jd.DarkJudgeNone {
+		vars.DarkJudgeSelected = jd.DarkJudgeMortis
+	}
+	contained := vars.DarkJudgeSelected
+
+	if vars.DarkJudgeSelected == jd.DarkJudgeDeath {
+		vars.DarkJudgeSelected = jd.DarkJudgeNone
+		vars.LeftPopperManual = true
+		e.Do(spin.PlayScript{ID: ScriptMultiballTransition})
+		return
+	} else {
+		vars.DarkJudgeSelected += 1
+	}
+	vars.MultiballShotsLeft = MultiballShotsToLightJackpot[vars.DarkJudgeSelected]
 
 	jackpot := ScoreMultiballJackpot0 + (ScoreMultiballJackpotN * contained)
 	e.Do(spin.AwardScore{Val: jackpot})
 	ScoreAndLabelPanel(e, r, jackpot, "JACKPOT")
 
-	if contained < 0 {
-		contained = 0
-	}
-	if contained > 2 {
-		contained = 2
-	}
 	e.Do(spin.DriverOff{ID: jd.DarkJudgeFlashers[contained]})
+	e.Do(spin.PlayScript{ID: ScriptMultiballLightJackpot})
 
 	s := spin.NewSequencer(e)
 
@@ -247,13 +255,13 @@ func darkJudgeContainedScript(e *spin.ScriptEnv) {
 	}
 	r.Close()
 
-	if selected == jd.DarkJudgeDeath {
+	if vars.DarkJudgeSelected == jd.DarkJudgeDeath {
 		s := spin.NewSequencer(e)
 		s.Sleep(3_000)
 		e.Do(spin.PlayScript{ID: ScriptJudgeDeath})
 		s.Run()
-	} else {
-		e.Do(spin.PlaySpeech{ID: speechJudges[selected]})
+	} else if vars.DarkJudgeSelected != jd.DarkJudgeNone {
+		e.Do(spin.PlaySpeech{ID: speechJudges[vars.DarkJudgeSelected]})
 	}
 }
 
@@ -273,6 +281,38 @@ func judgeDeathScript(e *spin.ScriptEnv) {
 	s.Do(spin.PlaySpeech{ID: SpeechYouAreDoomed})
 
 	s.Run()
+}
+
+func multiballTransitionScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(0)
+	defer r.Close()
+
+	jackpot := ScoreMultiballJackpot0 + (ScoreMultiballJackpotN * jd.DarkJudgeDeath)
+	e.Do(spin.AwardScore{Val: jackpot})
+	e.Do(spin.StopScript{ID: ScriptPlungeMode})
+	ScoreAndLabelPanel(e, r, jackpot, "JACKPOT")
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.StopAudio{})
+	s.Do(spin.FlippersOff{})
+	s.Do(spin.PlayScript{ID: jd.ScriptGIOff})
+	s.Do(spin.PlaySound{ID: SoundMultiballJackpot, Notify: true, Duck: 0.25})
+	s.WaitFor(spin.SoundFinishedEvent{ID: SoundMultiballJackpot})
+	s.Do(spin.PlaySpeech{ID: SpeechYouCannotContainMe, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Do(spin.PlaySpeech{ID: SpeechIThoughtIStoppedYou, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Do(spin.PlaySpeech{ID: SpeechFoolDeath, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Do(spin.PlaySpeech{ID: SpeechYouCannotKillWhatDoesNotLive, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.DoFunc(func() { r.Fill(spin.ColorOff) })
+	s.Sleep(1_000)
+	s.Do(spin.PlayScript{ID: ScriptDeadworldMode})
+
+	s.Run()
+
 }
 
 func leftRampRunwayScript(e *spin.ScriptEnv) {
@@ -343,4 +383,10 @@ func jackpotRunwayScript(e *spin.ScriptEnv) {
 	e.Do(spin.DriverOff{ID: jd.LampAwardBadImpersonator})
 	e.Do(spin.DriverOff{ID: jd.LampAwardSafeCracker})
 	e.Do(spin.DriverOff{ID: jd.LampMultiballJackpot})
+}
+
+func multiballJudgeDeathScript(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	vars.DarkJudgeSelected = jd.DarkJudgeDeath
+	e.Do(spin.PlayScript{ID: ScriptMultiball})
 }

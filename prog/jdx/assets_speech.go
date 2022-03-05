@@ -6,6 +6,7 @@ const (
 	SpeechAaaaah                                        = "jdx.SpeechAaaaah"
 	SpeechAllReactorsApprochingCriticalMass             = "jdx.SpeechAllReactorsApprochingCriticalMass"
 	SpeechAllReactorsStabilized                         = "jdx.SpeechAllReactorsStabilized"
+	SpeechAndWelcomeToSuperGame                         = "jdx.SpeechAndWelcomeToSuperGame"
 	SpeechBattleTankDamageAt                            = "jdx.SpeechBattleTankDamageAt"
 	SpeechBattleTankDestroyed                           = "jdx.SpeechBattleTankDestroyed"
 	SpeechBattleTankSightedInSectorSix                  = "jdx.SpeechBattleTankSightedInSectorSix"
@@ -14,6 +15,8 @@ const (
 	SpeechContained                                     = "jdx.SpeechContained"
 	SpeechContainmentFailureAtThreeMeterIsland          = "jdx.SpeechContainmentFailureAtThreeMetereIsland"
 	SpeechControlToDredd                                = "jdx.SpeechControlToDredd"
+	SpeechDeadworldDefensiveBarriersAtFullPower         = "jdx.SpeechDeadworldDefensiveBarriersAtFullPower"
+	SpeechDeadworldHasMaterialized                      = "jdx.SpeechDeadworldHasMaterialized"
 	SpeechDeath                                         = "jdx.SpeechDeath"
 	SpeechDimensionalGlobeActivated                     = "jdx.SpeechDimensionalGlobeActivated"
 	SpeechDimensionalLockOne                            = "jdx.SpeechDimensionalLockOne"
@@ -22,6 +25,7 @@ const (
 	SpeechDontMove                                      = "jdx.SpeechDontMove"
 	SpeechDrainShieldDeactivated                        = "jdx.SpeechDrainShieldDeactivated"
 	SpeechDreddToControl                                = "jdx.SpeechDreddToControl"
+	SpeechFoolDeath                                     = "jdx.SpeechFoolDeath"
 	SpeechFour                                          = "jdx.SpeechFour"
 	SpeechFreeze                                        = "jdx.SpeechFreeze"
 	SpeechGoHome                                        = "jdx.SpeechGoHome"
@@ -29,8 +33,10 @@ const (
 	SpeechICanSeeMyHouseFromHere                        = "jdx.SpeechICanSeeMyHouseFromHere"
 	SpeechIfYouDoTheCrimeYouDoTheTime                   = "jdx.SpeechIfYouDoTheCrimeYouDoTheTime"
 	SpeechIllBeBack                                     = "jdx.SpeechIllBeBack"
+	SpeechImAnitaMann                                   = "jdx.SpeechImAnitaMann"
 	SpeechImInPursuitOfAStolenVehicle                   = "jdx.SpeechImInPursuitOfAStolenVehicle"
 	SpeechImStakingOutACrackHouseInSectorTwentyThree    = "jdx.SpeechImStakingOutACrackHouseInSectorTwentyThree"
+	SpeechIThoughtIStoppedYou                           = "jdx.SpeechIThoughtIStoppedYou"
 	SpeechInteresting                                   = "jdx.SpeechInteresting"
 	SpeechItsALongWayDown                               = "jdx.SpeechItsALongWayDown"
 	SpeechIWonderWhatsDownThere                         = "jdx.SpeechIWonderWhatsDownThere"
@@ -69,6 +75,8 @@ const (
 	SpeechUseFireButtonToLaunchBall                     = "jdx.SpeechUseFireButtonToLaunchBall"
 	SpeechWakeUpYouGeezer                               = "jdx.SpeechWakeUpYouGeezer"
 	SpeechYouAreDoomed                                  = "jdx.SpeechYouAreDoomed"
+	SpeechYouCannotContainMe                            = "jdx.SpeechYouCannotContainMe"
+	SpeechYouCannotKillWhatDoesNotLive                  = "jdx.SpeechYouCannotKillWhatDoesNotLive"
 	SpeechYourDrivingDaysAreOverPunk                    = "jdx.SpeechYourDrivingDaysAreOverPunk"
 	SpeechYouSuck                                       = "jdx.SpeechYouSuck"
 )
@@ -116,6 +124,10 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000317-all_reactors_stabilized/all_reac__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechAndWelcomeToSuperGame,
+		Path: "jd-pinsound/voice/000289-and_welcome_to_super_game/and_welc__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechBattleTankDamageAt,
 		Path: "jd-pinsound/voice/000323-battle_tank_damage_at/battle_t__LEGACY_AUD.wav",
 	})
@@ -146,6 +158,14 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechControlToDredd,
 		Path: "jd-pinsound/voice/000342-control_to_dredd/control___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechDeadworldDefensiveBarriersAtFullPower,
+		Path: "jd-pinsound/voice/000329-deadworld_defensive_barriers_at_full_power/deadworl__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechDeadworldHasMaterialized,
+		Path: "jd-pinsound/voice/000300-deadworld_has_materialized/deadworl__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechDeath,
@@ -184,6 +204,10 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000310-4/4__LEGAC__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechFoolDeath,
+		Path: "jd-pinsound/voice/000264-fool/fool__LE__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechFreeze,
 		Path: "jd-pinsound/voice/000216-freeze/freeze____LEGACY.wav",
 	})
@@ -208,12 +232,20 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000202-ill_be_back/000202-ill_be_back_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechImAnitaMann,
+		Path: "jd-pinsound/voice/000288-i_m_a_need_a_man/i_m_a_ne__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechImInPursuitOfAStolenVehicle,
 		Path: "jd-pinsound/voice/000249-i_m_in_pursuit_of_a_stolen_vehicle/i_m_in_p__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechImStakingOutACrackHouseInSectorTwentyThree,
 		Path: "jd-pinsound/voice/000259-i_m_staking_out_a_crack_house_in_sector_23/i_m_stak__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechIThoughtIStoppedYou,
+		Path: "jd-pinsound/voice/000341-i_thought_i_stopped_you/i_though__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechInteresting,
@@ -366,6 +398,14 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechYouAreDoomed,
 		Path: "jd-pinsound/voice/000273-you_are_doomed/you_are___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechYouCannotContainMe,
+		Path: "jd-pinsound/voice/000277-you_cannot_contain_me/you_cann__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechYouCannotKillWhatDoesNotLive,
+		Path: "jd-pinsound/voice/000265-you_cannot_kill_what_does_not_live/you_cann__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechYourDrivingDaysAreOverPunk,

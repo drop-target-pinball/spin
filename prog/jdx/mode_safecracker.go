@@ -13,7 +13,7 @@ func safecrackerModeScript(e *spin.ScriptEnv) {
 	defer e.Do(spin.DriverOff{ID: jd.LampAwardSafeCracker})
 
 	e.Do(spin.PlayScript{ID: ScriptSafecrackerMode1})
-	e.NewCoroutine(watchCenterDropTargetLoop)
+	e.NewCoroutine(watchCenterDropTargetRoutine)
 
 	evt, done := e.WaitFor(
 		spin.AdvanceEvent{},
@@ -138,7 +138,7 @@ func safecrackerMode2Script(e *spin.ScriptEnv) {
 	}
 }
 
-func watchCenterDropTargetLoop(e *spin.ScriptEnv) {
+func watchCenterDropTargetRoutine(e *spin.ScriptEnv) {
 	switches := spin.GetResourceVars(e).Switches
 	for {
 		if !switches[jd.SwitchDropTargetD].Active {

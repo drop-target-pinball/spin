@@ -22,6 +22,7 @@ func ballScript(e *spin.ScriptEnv) {
 	vars.LeftRampsMade = 0
 	vars.RightRampsMade = 0
 	vars.TopLeftRampsMade = 0
+	vars.LeftPopperManual = false
 
 	startBase(e)
 	e.Do(spin.PlayScript{ID: ScriptChain})
@@ -209,18 +210,28 @@ func defaultLeftPopperRoutine(e *spin.ScriptEnv) {
 		if done := spin.WaitForBallArrivalLoop(e, jd.SwitchLeftPopper, 500); done {
 			return
 		}
+		if vars.LeftPopperManual {
+			continue
+		}
 		e.Do(spin.AwardScore{Val: ScoreSubwayEnter * vars.Multiplier})
 		e.Do(spin.PlaySound{ID: SoundDropTargetLitHit3})
-		for i := 0; i < 3; i++ {
-			e.Do(spin.DriverPulse{ID: jd.FlasherSubwayExit})
-			if done := e.Sleep(200); done {
-				return
-			}
+		e.Do(spin.PlayScript{ID: ScriptLeftPopperEject})
+		if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: ScriptLeftPopperEject}); done {
+			return
 		}
 		e.Do(spin.AwardScore{Val: ScoreSubwayExit * vars.Multiplier})
 		e.Do(spin.PlaySound{ID: SoundLeftPopperLaser})
-		e.Do(spin.DriverPulse{ID: jd.CoilLeftPopper})
 	}
+}
+
+func leftPopperEjectScript(e *spin.ScriptEnv) {
+	for i := 0; i < 3; i++ {
+		e.Do(spin.DriverPulse{ID: jd.FlasherSubwayExit})
+		if done := e.Sleep(200); done {
+			return
+		}
+	}
+	e.Do(spin.DriverPulse{ID: jd.CoilLeftPopper})
 }
 
 func defaultRightPopperRoutine(e *spin.ScriptEnv) {

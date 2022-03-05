@@ -38,8 +38,6 @@ func (s *trackerSystem) HandleAction(action Action) {
 }
 
 func (s *trackerSystem) addBall(act AddBall) {
-	game := GetGameVars(s.eng)
-
 	n := act.N
 	if n == 0 {
 		n = 1
@@ -49,7 +47,7 @@ func (s *trackerSystem) addBall(act AddBall) {
 		Warn("add ball request capped to max")
 		s.queued = s.eng.Config.NumBalls
 	}
-	game.BallsInPlay = s.queued + s.active
+	//game.BallsInPlay = s.queued + s.active
 	if !s.processing {
 		s.processing = true
 		s.eng.NewCoroutine(s.launchBall)
@@ -129,7 +127,7 @@ func (s *trackerSystem) launchBall(e *ScriptEnv) {
 // }
 
 func (s *trackerSystem) watchOutLanes(e *ScriptEnv) {
-	game := GetGameVars(e)
+	//game := GetGameVars(e)
 	outlanes := make([]coroutine.Event, len(s.eng.Config.SwitchWillDrain))
 	for i, id := range s.eng.Config.SwitchWillDrain {
 		outlanes[i] = SwitchEvent{ID: id}
@@ -141,9 +139,9 @@ func (s *trackerSystem) watchOutLanes(e *ScriptEnv) {
 		}
 		s.draining += 1
 		s.eng.Post(BallWillDrainEvent{})
-		if game.BallSave {
-			s.addBall(AddBall{})
-		}
+		// if game.BallSave {
+		// 	s.addBall(AddBall{})
+		// }
 	}
 }
 
@@ -203,6 +201,7 @@ func (s *trackerSystem) countBallsInTrough(e *ScriptEnv) (int, bool) {
 }
 
 func (s *trackerSystem) watchTrough(e *ScriptEnv) {
+	game := GetGameVars(e)
 	balls, jam := s.countBallsInTrough(e)
 
 	// FIXME: Is there a better way?
@@ -234,6 +233,7 @@ func (s *trackerSystem) watchTrough(e *ScriptEnv) {
 		newBalls, newJam := s.countBallsInTrough(e)
 		if balls != newBalls || jam != newJam {
 			change := newBalls - balls
+			game.BallsInPlay = e.Config.NumBalls - newBalls
 			e.Post(TroughEvent{Balls: newBalls, Jam: newJam, Change: change})
 			balls, jam = newBalls, newJam
 		}
@@ -262,9 +262,11 @@ func (s *trackerSystem) watchPlayfield(e *ScriptEnv) {
 					return
 				}
 				event := evt.(TroughEvent)
-
 				if event.Change > 0 {
-					e.Post(BallDrainEvent{BallsInPlay: e.Config.NumBalls - event.Balls})
+					e.Post(BallDrainEvent{BallsInPlay: game.BallsInPlay})
+					if game.BallSave {
+						e.Do(AddBall{})
+					}
 				}
 
 				if event.Balls == e.Config.NumBalls {

@@ -111,13 +111,15 @@ var LockLamps = []string{
 }
 
 const (
-	DarkJudgeMortis = iota
+	DarkJudgeNone = iota
+	DarkJudgeMortis
 	DarkJudgeFire
 	DarkJudgeFear
 	DarkJudgeDeath
 )
 
 var DarkJudgeFlashers = []string{
+	"",
 	FlasherJudgeMortis,
 	FlasherJudgeFire,
 	FlasherJudgeFear,

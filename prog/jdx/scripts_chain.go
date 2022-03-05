@@ -18,6 +18,11 @@ func chainScript(e *spin.ScriptEnv) {
 			return
 		}
 		e.Do(spin.DriverOff{ID: ModeLamps[vars.SelectedMode]})
+		if vars.StartModeLeft {
+			e.Do(spin.DriverOff{ID: jd.LampLeftModeStart})
+		} else {
+			e.Do(spin.DriverOff{ID: jd.LampRightModeStart})
+		}
 	}()
 
 	e.NewCoroutine(selectModeScript)
