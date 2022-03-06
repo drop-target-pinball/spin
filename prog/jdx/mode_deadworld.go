@@ -9,7 +9,6 @@ import (
 func deadworldModeScript(e *spin.ScriptEnv) {
 	r := e.Display("").Open(0)
 
-	defer func() { panic("we are done") }()
 	game := spin.GetGameVars(e)
 	switches := spin.GetResourceVars(e).Switches
 	vars := GetVars(e)
@@ -17,17 +16,17 @@ func deadworldModeScript(e *spin.ScriptEnv) {
 
 	vars.ShotsToLowerBarriers = 50
 
-	e.Do(spin.StopScript{ID: ScriptLightBallLock})
-	e.Do(spin.StopScript{ID: ScriptBallLock})
-	e.Do(spin.StopScript{ID: ScriptChain})
-	e.Do(spin.StopScript{ID: ScriptCrimeScenes})
-	e.Do(spin.StopScript{ID: ScriptPlungeMode})
-	e.Do(spin.StopScript{ID: ScriptBallSaver})
-
+	e.Do(spin.StopScriptGroup{ID: ScriptGroupNoMultiball})
 	e.Do(spin.PlayScript{ID: ScriptDeadworldIntro})
 	if _, done := e.WaitFor(spin.ScriptFinishedEvent{ID: ScriptDeadworldIntro}); done {
 		return
 	}
+
+	defer func() {
+		e.Do(spin.StopScript{ID: ScriptJackpotRunway})
+		e.Do(spin.DriverOff{ID: jd.LampAdvanceCrimeLevel})
+		e.Do(spin.DriverOff{ID: jd.LampMystery})
+	}()
 
 	e.Do(spin.FlippersOn{})
 	e.Do(spin.AddBall{N: e.Config.NumBalls - game.BallsInPlay})
@@ -82,6 +81,10 @@ func deadworldModeScript(e *spin.ScriptEnv) {
 		}
 	}
 
+	if lost {
+		panic("we are done")
+	}
+	e.Do(spin.PlayScript{ID: ScriptDeadworldBarriersDown})
 }
 
 func deadworldIntroScript(e *spin.ScriptEnv) {
@@ -93,6 +96,7 @@ func deadworldIntroScript(e *spin.ScriptEnv) {
 	s := spin.NewSequencer(e)
 
 	s.DoFunc(func() { deadworldHasMaterializedFrame(e, r) })
+	s.Do(proc.DriverSchedule{ID: jd.FlasherJudgeDeath, Schedule: darkJudgeSchedule})
 	s.Do(spin.PlaySpeech{ID: SpeechImAnitaMann, Notify: true})
 	s.WaitFor(spin.SpeechFinishedEvent{})
 	s.Do(spin.PlaySpeech{ID: SpeechAndWelcomeToSuperGame, Notify: true})
@@ -188,4 +192,131 @@ func deadwordBallSaverRoutine(e *spin.ScriptEnv) {
 	s.DoFunc(func() { game.BallSave = false })
 	s.Do(spin.PlaySpeech{ID: SpeechDrainShieldDeactivated})
 	s.Run()
+}
+
+func deadworldBarriersDownFrame(e *spin.ScriptEnv, r spin.Renderer) {
+	g := r.Graphics()
+
+	g.Font = spin.FontPfRondaSeven8
+	g.Y = 8
+	r.Print(g, "BARRIERS DOWN")
+
+	g.Font = spin.FontPfRondaSevenBold8
+	g.Y = 18
+	r.Print(g, "SHOOT LEFT RAMP")
+}
+
+func deadworldShotsToGoFrame(e *spin.ScriptEnv, r spin.Renderer) {
+	g := r.Graphics()
+	vars := GetVars(e)
+
+	r.Fill(spin.ColorOff)
+
+	g.Font = spin.FontPfRondaSevenBold16
+	g.X = 30
+	g.Y = 6
+	g.AnchorX = spin.AnchorRight
+	r.Print(g, "%v", vars.ShotsToDestroyDeadworld)
+
+	g.Font = spin.FontPfRondaSeven8
+	g.X = (r.Width() / 2) + 14
+	g.Y = 8
+	g.AnchorX = spin.AnchorCenter
+	r.Print(g, "SHOTS FOR")
+
+	g.Y = 18
+	g.Font = spin.FontPfRondaSevenBold8
+	r.Print(g, "100 MILLION")
+}
+
+func deadworldShotsToGoScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(spin.PriorityAnnounce)
+	defer r.Close()
+
+	deadworldShotsToGoFrame(e, r)
+	e.Sleep(2_000)
+}
+
+func deadworldBarriersDownIntroScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(spin.PriorityAnnounce)
+	defer r.Close()
+
+	s := spin.NewSequencer(e)
+
+	s.DoFunc(func() { deadworldBarriersDownFrame(e, r) })
+	s.Do(spin.PlaySpeech{ID: SpeechDeadworldDefensiveBarriersAreDownFireAtWill, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Sleep(500)
+	s.DoFunc(func() { deadworldShotsToGoFrame(e, r) })
+	s.Do(spin.PlaySpeech{ID: SpeechLoadPlanetForSuperJackpot, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.DoFunc(func() { r.Close() })
+	s.Sleep(5_000)
+	s.Do(spin.PlaySpeech{ID: SpeechGoForTheHundredMillion})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+
+	s.Run()
+}
+
+func deadworldBarriersDownScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(0)
+	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
+	game := spin.GetGameVars(e)
+
+	vars.ShotsToDestroyDeadworld = 4
+
+	e.Do(spin.PlayScript{ID: ScriptDeadworldBarriersDownIntro})
+	e.Do(spin.AddBall{N: e.Config.NumBalls - game.BallsInPlay})
+	e.Do(spin.PlayScript{ID: ScriptLeftRampRunway})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
+			TimerAndScorePanel(e, r, "DEADWORLD", vars.ShotsToDestroyDeadworld, player.Score, "SHOOT LEFT RAMP")
+		})
+	})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		for {
+			if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampEnter}); done {
+				return
+			}
+			// FIXME: make a common function with multiball?
+			// From: https://github.com/preble/JD-pyprocgame/blob/master/multiball.py#L56
+			e.Do(proc.DriverSchedule{ID: jd.CoilDiverter, Schedule: 0xfff, CycleSeconds: 1, Now: true})
+		}
+	})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		for {
+			if _, done := e.WaitFor(spin.SwitchEvent{ID: jd.SwitchLeftRampToLock}); done {
+				return
+			}
+			vars.ShotsToDestroyDeadworld--
+			if vars.ShotsToDestroyDeadworld == 0 {
+				break
+			}
+			e.Do(spin.PlayScript{ID: ScriptDeadworldShotsToGo})
+		}
+		e.Post(spin.AdvanceEvent{})
+	})
+
+	e.NewCoroutine(func(e *spin.ScriptEnv) {
+		for {
+			evt, done := e.WaitFor(spin.BallDrainEvent{})
+			if done {
+				return
+			}
+			if evt.(spin.BallDrainEvent).BallsInPlay == 1 {
+				break
+			}
+		}
+		e.Post(spin.TimeoutEvent{})
+	})
+
+	_, done := e.WaitFor(spin.AdvanceEvent{}, spin.TimeoutEvent{})
+	if done {
+		return
+	}
+	panic("we are done")
 }

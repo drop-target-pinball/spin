@@ -13,6 +13,8 @@ var speechJudges = []string{
 	SpeechJudgeFear,
 }
 
+const darkJudgeSchedule = 0x80
+
 func multiballScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	switches := spin.GetResourceVars(e).Switches
@@ -178,7 +180,7 @@ func multiballLightJackpotScript(e *spin.ScriptEnv) {
 		e.Do(spin.StopScript{ID: ScriptRightPopperRunway})
 	}()
 
-	e.Do(proc.DriverSchedule{ID: jd.DarkJudgeFlashers[vars.DarkJudgeSelected], Schedule: 0x80})
+	e.Do(proc.DriverSchedule{ID: jd.DarkJudgeFlashers[vars.DarkJudgeSelected], Schedule: darkJudgeSchedule})
 
 	for vars.MultiballShotsLeft > 0 {
 		_, done := e.WaitFor(
@@ -294,9 +296,12 @@ func multiballTransitionScript(e *spin.ScriptEnv) {
 
 	s := spin.NewSequencer(e)
 
+	s.Do(spin.StopScriptGroup{ID: ScriptGroupNoMultiball})
 	s.Do(spin.StopAudio{})
 	s.Do(spin.FlippersOff{})
 	s.Do(spin.PlayScript{ID: jd.ScriptGIOff})
+	s.Do(proc.DriverSchedule{ID: jd.FlasherJudgeDeath, Schedule: darkJudgeSchedule})
+
 	s.Do(spin.PlaySound{ID: SoundMultiballJackpot, Notify: true, Duck: 0.25})
 	s.WaitFor(spin.SoundFinishedEvent{ID: SoundMultiballJackpot})
 	s.Do(spin.PlaySpeech{ID: SpeechYouCannotContainMe, Notify: true})

@@ -16,7 +16,7 @@ type ScriptFn func(*ScriptEnv)
 type script struct {
 	id     string
 	fn     ScriptFn
-	group  string
+	groups []string
 	cancel coroutine.CancelFunc
 }
 
@@ -57,10 +57,17 @@ func (s *scriptSystem) HandleAction(action Action) {
 // }
 
 func (s *scriptSystem) registerScript(a RegisterScript) {
+	var groups []string
+	if a.Groups != nil {
+		groups = a.Groups
+	}
+	if a.Group != "" {
+		groups = []string{a.Group}
+	}
 	s.scripts[a.ID] = &script{
-		id:    a.ID,
-		group: a.Group,
-		fn:    a.Script,
+		id:     a.ID,
+		groups: groups,
+		fn:     a.Script,
 	}
 }
 
@@ -94,8 +101,11 @@ func (s *scriptSystem) stopScript(act StopScript) {
 
 func (s *scriptSystem) stopScriptGroup(act StopScriptGroup) {
 	for _, script := range s.scripts {
-		if script.group == act.ID && script.cancel != nil {
-			script.cancel()
+		for _, group := range script.groups {
+			if group == act.ID && script.cancel != nil {
+				script.cancel()
+				break
+			}
 		}
 	}
 }

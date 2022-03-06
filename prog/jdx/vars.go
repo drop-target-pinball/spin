@@ -162,6 +162,7 @@ type Vars struct {
 	SafecrackerScore        int
 	SelectedMode            int
 	ShotsToLowerBarriers    int
+	ShotsToDestroyDeadworld int
 	SniperBonus             int
 	SniperScore             int
 	StakeoutBonus           int
@@ -172,6 +173,10 @@ type Vars struct {
 	Timer                   int
 	TopLeftRampsMade        int
 }
+
+const (
+	ScriptGroupNoMultiball = "GroupNoMultiball"
+)
 
 func GetVarsFor(store spin.Store, player int) *Vars {
 	name := fmt.Sprintf("jdx.%v", player)

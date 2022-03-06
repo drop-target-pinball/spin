@@ -356,7 +356,12 @@ func defaultDropTargetRoutine(e *spin.ScriptEnv) {
 func ballSaverScript(e *spin.ScriptEnv) {
 	vars := spin.GetGameVars(e)
 	vars.BallSave = true
-	defer func() { vars.BallSave = false }()
+	defer func() {
+		if vars.BallSave {
+			e.Do(spin.DriverOff{ID: jd.LampDrainShield})
+			vars.BallSave = false
+		}
+	}()
 
 	e.Do(spin.DriverOn{ID: jd.LampDrainShield})
 	if _, done := e.WaitFor(jd.PlayfieldSwitchEvents...); done {

@@ -15,6 +15,7 @@ const (
 	SpeechContained                                     = "jdx.SpeechContained"
 	SpeechContainmentFailureAtThreeMeterIsland          = "jdx.SpeechContainmentFailureAtThreeMetereIsland"
 	SpeechControlToDredd                                = "jdx.SpeechControlToDredd"
+	SpeechDeadworldDefensiveBarriersAreDownFireAtWill   = "jdx.SpeechDeadworldDefensiveBarriersAreDownFireAtWill"
 	SpeechDeadworldDefensiveBarriersAtFullPower         = "jdx.SpeechDeadworldDefensiveBarriersAtFullPower"
 	SpeechDeadworldHasMaterialized                      = "jdx.SpeechDeadworldHasMaterialized"
 	SpeechDeath                                         = "jdx.SpeechDeath"
@@ -28,6 +29,7 @@ const (
 	SpeechFoolDeath                                     = "jdx.SpeechFoolDeath"
 	SpeechFour                                          = "jdx.SpeechFour"
 	SpeechFreeze                                        = "jdx.SpeechFreeze"
+	SpeechGoForTheHundredMillion                        = "jdx.SpeechGoForTheHundredMillion"
 	SpeechGoHome                                        = "jdx.SpeechGoHome"
 	SpeechGreetingsJudgeAnderson                        = "jdx.SpeechGreetingsJudgeAnderson"
 	SpeechICanSeeMyHouseFromHere                        = "jdx.SpeechICanSeeMyHouseFromHere"
@@ -46,6 +48,7 @@ const (
 	SpeechJudgeFire                                     = "jdx.SpeechJudgeFire"
 	SpeechJudgeMortis                                   = "jdx.SpeechJudgeMortis"
 	SpeechLawMasterComputerOnlineWelcomeAboard          = "jdx.SpeechLawMasterComputerOnlineWelcomeAboard"
+	SpeechLoadPlanetForSuperJackpot                     = "jdx.SpeechLoadPlanetForSuperJackpot"
 	SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters = "jdx.SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters"
 	SpeechMeltdownIsImminent                            = "jdx.SpeechMeltdownIsImminent"
 	SpeechMyNameIsDeath                                 = "jdx.SpeechMyNameIsDeath"
@@ -160,6 +163,10 @@ func RegisterSpeech(eng *spin.Engine) {
 		Path: "jd-pinsound/voice/000342-control_to_dredd/control___LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechDeadworldDefensiveBarriersAreDownFireAtWill,
+		Path: "jd-pinsound/voice/000330-deadworld_defensive_barriers_are_down_fire_at_will/deadworl__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechDeadworldDefensiveBarriersAtFullPower,
 		Path: "jd-pinsound/voice/000329-deadworld_defensive_barriers_at_full_power/deadworl__LEGACY_AUD.wav",
 	})
@@ -210,6 +217,10 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechFreeze,
 		Path: "jd-pinsound/voice/000216-freeze/freeze____LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechGoForTheHundredMillion,
+		Path: "jd-pinsound/voice/000349-go_for_the_hundred_million/go_for_t__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechGoHome,
@@ -282,6 +293,10 @@ func RegisterSpeech(eng *spin.Engine) {
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechLawMasterComputerOnlineWelcomeAboard,
 		Path: "jd-pinsound/voice/000322-law_master_computer_online_welcome_aboard/law_mast__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSpeech{
+		ID:   SpeechLoadPlanetForSuperJackpot,
+		Path: "jd-pinsound/voice/000301-load_planet_for_super_jackpot/load_pla__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSpeech{
 		ID:   SpeechMegaCityOneIsBlackedOutBeOnTheAlertForLooters,

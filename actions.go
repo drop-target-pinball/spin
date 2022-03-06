@@ -161,6 +161,7 @@ type RegisterScript struct {
 	ID     string
 	Script ScriptFn
 	Group  string
+	Groups []string
 }
 
 type RegisterSound struct {
