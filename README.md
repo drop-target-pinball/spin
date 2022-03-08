@@ -32,7 +32,7 @@ P-ROC device will be added and work done on the modes for prison break and the m
 
 ## Demo
 
-[![Super Pinball System: alpha-v8](https://img.youtube.com/vi/8MO_zlPVimo)](https://youtu.be/8MO_zlPVimo)] "Super Pinball System: alpha-v8")
+[![Super Pinball System: alpha-v8](https://img.youtube.com/vi/8MO_zlPVimo/0.jpg)](https://youtu.be/8MO_zlPVimo "Super Pinball System: alpha-v8")
 
 [![Super Pinball System: alpha-v7](https://img.youtube.com/vi/LSEnGz4i4sg/0.jpg)](https://youtu.be/LSEnGz4i4sg "Super Pinball System: alpha-v7")
 
