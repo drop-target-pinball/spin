@@ -26,11 +26,13 @@ I would like to do the following:
 
 A work in progress. Judge Dredd Remix is first.
 
-Version alpha-v7 was for getting the chain modes playable on the actual
-machine. The next version will be for polishing up the base mode, adding
-multiball, drain shield, crime scenes, etc.
+Version alpha-v8 was for polishing up the base mode, adding
+multi-ball, drain shield, crime scenes, etc. For version alpha-v9, a mock
+P-ROC device will be added and work done on the modes for prison break and the mad bomber.
 
 ## Demo
+
+[![Super Pinball System: alpha-v8](https://img.youtube.com/vi/8MO_zlPVimo)](https://youtu.be/8MO_zlPVimo)] "Super Pinball System: alpha-v8")
 
 [![Super Pinball System: alpha-v7](https://img.youtube.com/vi/LSEnGz4i4sg/0.jpg)](https://youtu.be/LSEnGz4i4sg "Super Pinball System: alpha-v7")
 
