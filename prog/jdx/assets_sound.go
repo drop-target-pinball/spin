@@ -4,12 +4,14 @@ import "github.com/drop-target-pinball/spin"
 
 const (
 	SoundAnnounce               = "jdx.SoundAnnounce"
+	SoundApplause               = "jdx.SoundApplause"
 	SoundBadImpersonatorGunFire = "jdx.SoundBadImpersonatorGunFire"
 	SoundBadImpersonatorThrow   = "jdx.SoundBadImpersonatorThrow"
 	SoundBallLock               = "jdx.SoundBallLock"
 	SoundBallLost               = "jdx.SoundBallLost"
 	SoundBlackoutJackpot        = "jdx.SoundBlackoutJackpot"
 	SoundBonus                  = "jdx.SoundBonus"
+	SoundDeadworldExplosion     = "jdx.SoundDeadworldExplosion"
 	SoundDing                   = "jdx.SoundDing"
 	SoundDropTargetLitHit1      = "jdx.SoundDropTargetLitHit1"
 	SoundDropTargetLitHit2      = "jdx.SoundDropTargetLitHit2"
@@ -65,6 +67,10 @@ func RegisterSounds(eng *spin.Engine) {
 		Path: "jd-pinsound/sfx/000157-wrong/wrong__L__LEGACY_AUD.wav",
 	})
 	eng.Do(spin.RegisterSound{
+		ID:   SoundApplause,
+		Path: "afm-pinsound/sfx/0107231306-sameas-000954-applause_for_ruling_universe/applause__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterSound{
 		ID:   SoundBadImpersonatorGunFire,
 		Path: "jd-pinsound/sfx/000045-sniper/sniper_2___LEGACY_AUD.wav",
 	})
@@ -87,6 +93,10 @@ func RegisterSounds(eng *spin.Engine) {
 	eng.Do(spin.RegisterSound{
 		ID:   SoundBonus,
 		Path: "jd-pinsound/sfx/000063-piano_1/piano_1___LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterSound{
+		ID:   SoundDeadworldExplosion,
+		Path: "afm-pinsound/sfx/1313658856-big_nice_explosion/big_nice__LEGACY.wav",
 	})
 	eng.Do(spin.RegisterSound{
 		ID:   SoundDing,

@@ -19,8 +19,8 @@ type driverState struct {
 	procSchedule     uint32
 	procCycleSeconds uint8
 	procNow          bool
-
-	//pulse            int
+	pulse            bool
+	pulseExpire      time.Time
 	//onPWM            int
 	//offPWM           int
 }
@@ -58,6 +58,13 @@ func (s *consoleSystem) HandleAction(action spin.Action) {
 		s.updateState(act.ID, driverState{on: true})
 	case spin.DriverOff:
 		s.updateState(act.ID, driverState{})
+	case spin.DriverPulse:
+		pulse := act.Time
+		if pulse <= 0 {
+			pulse = 25
+		}
+		expire := time.Now().Add(time.Duration(pulse) * time.Millisecond)
+		s.updateState(act.ID, driverState{on: true, pulse: true, pulseExpire: expire})
 	case proc.DriverSchedule:
 		s.updateState(act.ID, driverState{on: true, procSchedule: act.Schedule, procNow: act.Now, procCycleSeconds: act.CycleSeconds})
 	case spin.RegisterConsole:
@@ -157,9 +164,20 @@ func (s *consoleSystem) Service(t time.Time) {
 			micros := mt % 1e+6      // second remainder
 			period := micros / 31250 // every 1/32 of a second
 			bit := uint32(1 << period)
+
+			if period == 0 && state.procCycleSeconds > 0 {
+				state.procCycleSeconds--
+				if state.procCycleSeconds == 0 {
+					state.on = false
+				}
+			}
+
 			if state.procSchedule&bit == 0 {
 				continue
 			}
+		}
+		if state.pulse && t.After(state.pulseExpire) {
+			state.on = false
 		}
 		renderShape(r, layout)
 	}

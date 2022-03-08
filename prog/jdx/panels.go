@@ -92,5 +92,23 @@ func ScoreAndLabelPanel(e *spin.ScriptEnv, r spin.Renderer, score int, label str
 	r.Print(g, label)
 }
 
+func OneLinePanel(e *spin.ScriptEnv, r spin.Renderer, text string) {
+	g := r.Graphics()
+
+	r.Fill(spin.ColorOff)
+	g.AnchorY = spin.AnchorMiddle
+	g.Font = spin.FontPfRondaSevenBold8
+	r.Print(g, text)
+}
+
+func OneLineBigPanel(e *spin.ScriptEnv, r spin.Renderer, text string) {
+	g := r.Graphics()
+
+	r.Fill(spin.ColorOff)
+	g.AnchorY = spin.AnchorMiddle
+	g.Font = spin.FontPfRondaSevenBold16
+	r.Print(g, text)
+}
+
 func GameOverPanel(e *spin.ScriptEnv) {
 }

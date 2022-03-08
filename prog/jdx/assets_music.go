@@ -3,23 +3,33 @@ package jdx
 import "github.com/drop-target-pinball/spin"
 
 const (
-	MusicBadImpersonator = "jdx.MusicBadImpersonator"
-	MusicMain            = "jdx.MusicMain"
-	MusicMatch           = "jdx.MusicMatch"
-	MusicMatchHit        = "jdx.MusicMatchHit"
-	MusicMultiballIntro  = "jdx.MusicMultiballIntro"
-	MusicMultiballLoop   = "jdx.MusicMultiballLoop"
-	MusicMode1           = "jdx.MusicMode1"
-	MusicMode2           = "jdx.MusicMode2"
-	MusicPlungeLoop      = "jdx.MusicPlungeLoop"
-	MusicSuperGame       = "jdx.MusicSuperGame"
-	MusicSuperGame2      = "jdx.MusicSuperGame2"
+	MusicAttackFromMars    = "jdx.MusicAttackFromMars"
+	MusicBadImpersonator   = "jdx.MusicBadImpersonator"
+	MusicDeadworldComplete = "jdx.MusicDeadworldComplete"
+	MusicMain              = "jdx.MusicMain"
+	MusicMatch             = "jdx.MusicMatch"
+	MusicMatchHit          = "jdx.MusicMatchHit"
+	MusicMultiballIntro    = "jdx.MusicMultiballIntro"
+	MusicMultiballLoop     = "jdx.MusicMultiballLoop"
+	MusicMode1             = "jdx.MusicMode1"
+	MusicMode2             = "jdx.MusicMode2"
+	MusicPlungeLoop        = "jdx.MusicPlungeLoop"
+	MusicSuperGame         = "jdx.MusicSuperGame"
+	MusicSuperGame2        = "jdx.MusicSuperGame2"
 )
 
 func RegisterMusic(eng *spin.Engine) {
 	eng.Do(spin.RegisterMusic{
+		ID:   MusicAttackFromMars,
+		Path: "afm-pinsound/music/3654998065-main_theme/main_the__LEGACY.wav",
+	})
+	eng.Do(spin.RegisterMusic{
 		ID:   MusicBadImpersonator,
 		Path: "jd-pinsound/music/000005-bad_impersonator/bad_impe__LEGACY_AUD.wav",
+	})
+	eng.Do(spin.RegisterMusic{
+		ID:   MusicDeadworldComplete,
+		Path: "afm-pinsound/music/3493132690-attract_mode/attract___LEGACY.wav",
 	})
 	eng.Do(spin.RegisterMusic{
 		ID:   MusicMain,

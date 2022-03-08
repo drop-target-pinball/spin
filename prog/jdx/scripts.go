@@ -27,6 +27,7 @@ const (
 	ScriptDeadworldBarriersDown      = "jdx.ScriptDeadworldBarriersDown"
 	ScriptDeadworldBarriersDownIntro = "jdx.ScriptDeadworldBarriersDownIntro"
 	ScriptDeadworldBarrierShotsToGo  = "jdx.ScriptDeadworldBarrierShotsToGo"
+	ScriptDeadworldComplete          = "jdx.ScriptDeadworldComplete"
 	ScriptDeadworldIntro             = "jdx.ScriptDeadworldIntro"
 	ScriptDeadworldMode              = "jdx.ScriptDeadworldMode"
 	ScriptDeadworldShotsToGo         = "jdx.ScriptDeadworldShotsToGo"
@@ -50,6 +51,7 @@ const (
 	ScriptMultiballJackpot           = "jdx.ScriptMultiballJackpot"
 	ScriptMultiballJackpotIsLit      = "jdx.ScriptMultiballJackpotIsLit"
 	ScriptMultiballJudgeDeath        = "jdx.ScriptMultiballJudgeDeath"
+	ScriptMultiballIncomplete        = "jdx.ScriptMultiballIncomplete"
 	ScriptMultiballLightJackpot      = "jdx.ScriptMultiballLightJackpot"
 	ScriptMultiballShotsToGo         = "jdx.ScriptMultiballShotsToGo"
 	ScriptMultiballTransition        = "jdx.ScriptMultiballTransition"
@@ -192,6 +194,11 @@ func RegisterScripts(eng *spin.Engine) {
 		Group:  spin.ScriptGroupMode,
 	})
 	eng.Do(spin.RegisterScript{
+		ID:     ScriptDeadworldComplete,
+		Script: deadworldCompleteScript,
+		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
 		ID:     ScriptDeadworldIntro,
 		Script: deadworldIntroScript,
 		Group:  spin.ScriptGroupMode,
@@ -312,6 +319,11 @@ func RegisterScripts(eng *spin.Engine) {
 		ID:     ScriptMultiballJackpotIsLit,
 		Script: multiballJackpotIsLitScript,
 		Group:  spin.ScriptGroupMode,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     ScriptMultiballIncomplete,
+		Script: multiballIncompleteScript,
+		Group:  spin.ScriptGroupBall,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptMultiballLightJackpot,

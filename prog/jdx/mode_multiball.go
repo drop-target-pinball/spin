@@ -17,7 +17,10 @@ const darkJudgeSchedule = 0x80
 
 func multiballScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
 	switches := spin.GetResourceVars(e).Switches
+
+	vars.StartScore = player.Score
 
 	e.Do(spin.StopScriptGroup{ID: spin.ScriptGroupMode})
 	e.Do(spin.StopScript{ID: ScriptLightBallLock})
@@ -75,7 +78,7 @@ func multiballScript(e *spin.ScriptEnv) {
 	e.Do(spin.PlayScript{ID: ScriptBallLock})
 	e.Do(spin.PlayScript{ID: ScriptCrimeScenes})
 
-	e.Do(spin.PlayMusic{ID: MusicMain})
+	e.Do(spin.PlayScript{ID: ScriptMultiballIncomplete})
 }
 
 func multiballFrame(e *spin.ScriptEnv, r spin.Renderer) {
@@ -289,6 +292,10 @@ func multiballTransitionScript(e *spin.ScriptEnv) {
 	r := e.Display("").Open(0)
 	defer r.Close()
 
+	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
+	total := player.Score - vars.StartScore
+
 	jackpot := ScoreMultiballJackpot0 + (ScoreMultiballJackpotN * jd.DarkJudgeDeath)
 	e.Do(spin.AwardScore{Val: jackpot})
 	e.Do(spin.StopScript{ID: ScriptPlungeMode})
@@ -308,6 +315,9 @@ func multiballTransitionScript(e *spin.ScriptEnv) {
 	s.WaitFor(spin.SpeechFinishedEvent{})
 	s.Do(spin.PlaySpeech{ID: SpeechIThoughtIStoppedYou, Notify: true})
 	s.WaitFor(spin.SpeechFinishedEvent{})
+
+	s.DoFunc(func() { ModeAndScorePanel(e, r, "MULTIBALL TOTAL", total) })
+
 	s.Do(spin.PlaySpeech{ID: SpeechFoolDeath, Notify: true})
 	s.WaitFor(spin.SpeechFinishedEvent{})
 	s.Do(spin.PlaySpeech{ID: SpeechYouCannotKillWhatDoesNotLive, Notify: true})
@@ -394,4 +404,36 @@ func multiballJudgeDeathScript(e *spin.ScriptEnv) {
 	vars := GetVars(e)
 	vars.DarkJudgeSelected = jd.DarkJudgeDeath
 	e.Do(spin.PlayScript{ID: ScriptMultiball})
+}
+
+func multiballIncompleteScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(0)
+	defer r.Close()
+
+	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
+	total := player.Score - vars.StartScore
+
+	ModeAndScorePanel(e, r, "MULTIBALL TOTAL", total)
+
+	s := spin.NewSequencer(e)
+
+	s.Do(spin.PlayMusic{ID: MusicMain})
+	s.Sleep(500)
+	s.Do(spin.PlaySpeech{ID: SpeechDeathLaughing, Notify: true, Duck: 0.5})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Do(spin.PlaySpeech{ID: SpeechIWillBeBack, Notify: true, Duck: 0.5})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Sleep(1_000)
+
+	s.Run()
+}
+
+func multiballEnd(e *spin.ScriptEnv) {
+	vars := GetVars(e)
+	vars.Mode = ModeNone
+
+	e.Do(spin.PlayScript{ID: ScriptBallLock})
+	e.Do(spin.PlayScript{ID: ScriptChain})
+	e.Do(spin.PlayScript{ID: ScriptCrimeScenes})
 }

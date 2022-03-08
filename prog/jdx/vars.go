@@ -168,6 +168,7 @@ type Vars struct {
 	StakeoutBonus           int
 	StakeoutCallout         int
 	StartModeLeft           bool
+	StartScore              int
 	TankBonus               int
 	TankHits                int
 	Timer                   int

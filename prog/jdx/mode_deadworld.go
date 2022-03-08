@@ -8,12 +8,14 @@ import (
 
 func deadworldModeScript(e *spin.ScriptEnv) {
 	r := e.Display("").Open(0)
+	defer r.Close()
 
 	game := spin.GetGameVars(e)
 	switches := spin.GetResourceVars(e).Switches
 	vars := GetVars(e)
 	player := spin.GetPlayerVars(e)
 
+	vars.StartScore = player.Score
 	vars.ShotsToLowerBarriers = 50
 
 	e.Do(spin.StopScriptGroup{ID: ScriptGroupNoMultiball})
@@ -222,7 +224,11 @@ func deadworldShotsToGoFrame(e *spin.ScriptEnv, r spin.Renderer) {
 	g.X = (r.Width() / 2) + 14
 	g.Y = 8
 	g.AnchorX = spin.AnchorCenter
-	r.Print(g, "SHOTS FOR")
+	shots := "SHOTS"
+	if vars.ShotsToDestroyDeadworld == 1 {
+		shots = "SHOT"
+	}
+	r.Print(g, "%v FOR", shots)
 
 	g.Y = 18
 	g.Font = spin.FontPfRondaSevenBold8
@@ -244,15 +250,15 @@ func deadworldBarriersDownIntroScript(e *spin.ScriptEnv) {
 	s := spin.NewSequencer(e)
 
 	s.DoFunc(func() { deadworldBarriersDownFrame(e, r) })
-	s.Do(spin.PlaySpeech{ID: SpeechDeadworldDefensiveBarriersAreDownFireAtWill, Notify: true})
+	s.Do(spin.PlaySpeech{ID: SpeechDeadworldDefensiveBarriersAreDownFireAtWill, Notify: true, Duck: 0.5})
 	s.WaitFor(spin.SpeechFinishedEvent{})
 	s.Sleep(500)
 	s.DoFunc(func() { deadworldShotsToGoFrame(e, r) })
-	s.Do(spin.PlaySpeech{ID: SpeechLoadPlanetForSuperJackpot, Notify: true})
+	s.Do(spin.PlaySpeech{ID: SpeechLoadPlanetForSuperJackpot, Notify: true, Duck: 0.5})
 	s.WaitFor(spin.SpeechFinishedEvent{})
 	s.DoFunc(func() { r.Close() })
 	s.Sleep(5_000)
-	s.Do(spin.PlaySpeech{ID: SpeechGoForTheHundredMillion})
+	s.Do(spin.PlaySpeech{ID: SpeechGoForTheHundredMillion, Notify: true, Duck: 0.5})
 	s.WaitFor(spin.SpeechFinishedEvent{})
 
 	s.Run()
@@ -260,6 +266,8 @@ func deadworldBarriersDownIntroScript(e *spin.ScriptEnv) {
 
 func deadworldBarriersDownScript(e *spin.ScriptEnv) {
 	r := e.Display("").Open(0)
+	defer r.Close()
+
 	vars := GetVars(e)
 	player := spin.GetPlayerVars(e)
 	game := spin.GetGameVars(e)
@@ -269,6 +277,11 @@ func deadworldBarriersDownScript(e *spin.ScriptEnv) {
 	e.Do(spin.PlayScript{ID: ScriptDeadworldBarriersDownIntro})
 	e.Do(spin.AddBall{N: e.Config.NumBalls - game.BallsInPlay})
 	e.Do(spin.PlayScript{ID: ScriptLeftRampRunway})
+
+	defer func() {
+		e.Do(spin.DriverOff{ID: jd.FlasherJudgeDeath})
+		e.Do(spin.StopScript{ID: ScriptLeftRampRunway})
+	}()
 
 	e.NewCoroutine(func(e *spin.ScriptEnv) {
 		spin.RenderFrameLoop(e, func(e *spin.ScriptEnv) {
@@ -296,6 +309,8 @@ func deadworldBarriersDownScript(e *spin.ScriptEnv) {
 			if vars.ShotsToDestroyDeadworld == 0 {
 				break
 			}
+			e.Do(spin.PlaySound{ID: SoundDeadworldExplosion, Duck: 0.5, Notify: true})
+			e.Do(proc.DriverSchedule{ID: jd.FlasherGlobe, Schedule: proc.FlasherBlinkSchedule, Now: true, CycleSeconds: 4})
 			e.Do(spin.PlayScript{ID: ScriptDeadworldShotsToGo})
 		}
 		e.Post(spin.AdvanceEvent{})
@@ -314,9 +329,76 @@ func deadworldBarriersDownScript(e *spin.ScriptEnv) {
 		e.Post(spin.TimeoutEvent{})
 	})
 
-	_, done := e.WaitFor(spin.AdvanceEvent{}, spin.TimeoutEvent{})
+	event, done := e.WaitFor(spin.AdvanceEvent{}, spin.TimeoutEvent{})
 	if done {
 		return
 	}
-	panic("we are done")
+	switch event.(type) {
+	case spin.AdvanceEvent:
+		e.Do(spin.PlayScript{ID: ScriptDeadworldComplete})
+	case spin.TimeoutEvent:
+		panic("we are done")
+	}
+
+}
+
+func deadworldCompleteScript(e *spin.ScriptEnv) {
+	r := e.Display("").Open(spin.PriorityAnnounce)
+	defer r.Close()
+
+	vars := GetVars(e)
+	player := spin.GetPlayerVars(e)
+	player.Score += 100_000_000
+	total := player.Score - vars.StartScore
+
+	e.Do(spin.StopAudio{})
+	e.Do(spin.FlippersOff{})
+
+	s := spin.NewSequencer(e)
+	s.Do(spin.PlaySound{ID: SoundDeadworldExplosion})
+	s.Do(spin.DriverPulse{ID: jd.FlasherGlobe})
+	s.DoFunc(func() { r.Fill(spin.ColorOn) })
+	s.Sleep(200)
+	s.DoFunc(func() { r.Fill(spin.ColorOff) })
+	s.Sleep(200)
+	s.LoopN(4)
+	if done := s.Run(); done {
+		return
+	}
+
+	s = spin.NewSequencer(e)
+	s.Sleep(2_000)
+	s.Do(spin.PlaySound{ID: SoundApplause})
+	s.Sleep(1_000)
+	s.Do(spin.PlayMusic{ID: MusicDeadworldComplete, Notify: true})
+	s.Sleep(2_000)
+	s.DoFunc(func() { OneLinePanel(e, r, "CONGRATULATIONS") })
+	s.Do(spin.PlaySpeech{ID: SpeechCongratulations, Notify: true, Duck: 0.5})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Sleep(1_000)
+	s.Do(spin.PlaySpeech{ID: SpeechOneHundredMillion})
+	s.DoFunc(func() { OneLineBigPanel(e, r, "ONE") })
+	s.Sleep(500)
+	s.DoFunc(func() { OneLineBigPanel(e, r, "HUNDRED") })
+	s.Sleep(750)
+	s.DoFunc(func() { OneLineBigPanel(e, r, "MILLION") })
+	s.Sleep(3_000)
+	s.DoFunc(func() { ModeAndScorePanel(e, r, "DEADWORLD TOTAL", total) })
+	s.Sleep(1_000)
+	s.Do(spin.PlaySpeech{ID: SpeechCantWeJustBeFriends})
+	s.Sleep(2_000)
+	s.Do(spin.FadeOutMusic{Time: 5_000})
+	s.WaitFor(spin.MusicFinishedEvent{})
+	s.DoFunc(func() { r.Fill(spin.ColorOff) })
+	s.Sleep(1_000)
+	s.Do(spin.PlaySpeech{ID: SpeechSuperGameHasEnded, Notify: true})
+	s.WaitFor(spin.SpeechFinishedEvent{})
+	s.Sleep(1_000)
+
+	if done := s.Run(); done {
+		return
+	}
+
+	e.Do(spin.PlayMusic{ID: MusicAttackFromMars})
+	multiballEnd(e)
 }
