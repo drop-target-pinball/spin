@@ -2,6 +2,7 @@ package jdx
 
 import (
 	"github.com/drop-target-pinball/spin"
+	"github.com/drop-target-pinball/spin/mach/jd"
 )
 
 const (
@@ -89,6 +90,10 @@ func RegisterScripts(eng *spin.Engine) {
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptAttractMode,
 		Script: attractModeScript,
+	})
+	eng.Do(spin.RegisterScript{
+		ID:     jd.ScriptAttractLampRoll,
+		Script: jd.AttractLampRollScript,
 	})
 	eng.Do(spin.RegisterScript{
 		ID:     ScriptAttractModeSlide,

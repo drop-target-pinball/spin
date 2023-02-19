@@ -5,6 +5,7 @@ import (
 )
 
 const (
+	ScriptAttractLampRoll             = "jd.ScriptAttractLampRoll"
 	ScriptBallCollect                 = "jd.ScriptBallCollect"
 	ScriptBallSearch                  = "jd.ScriptBallSearch"
 	ScriptGIOn                        = "jd.ScriptGIOn"

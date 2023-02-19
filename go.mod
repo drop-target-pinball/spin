@@ -9,7 +9,7 @@ require (
 	github.com/chzyer/test v0.0.0-20210722231415-061457976a23 // indirect
 	github.com/drop-target-pinball/coroutine v1.0.0
 	github.com/drop-target-pinball/go-pinproc v0.1.0
-	github.com/veandco/go-sdl2 v0.4.11
+	github.com/veandco/go-sdl2 v0.4.19
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	golang.org/x/text v0.3.7
 )

@@ -5,8 +5,9 @@ import (
 )
 
 /*
-SetVar Vars=jdx.1 ID=CrimeScenes Val=4
+SetVar Vars=jdx.1 ID=CrimeScenesCollected Val=4
 SetVar Vars=jdx.1 ID=SniperBonus Val=40000000
+SetVar Vars=jdx.1 ID=TankBonus Val=33000000
 PlayScript ID=jdx.ScriptBonusMode
 */
 
