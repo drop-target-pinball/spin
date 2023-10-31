@@ -1,14 +1,29 @@
 services:
+
   redis-run:
     name: spin-redis-run
     hostname: spin-redis-run
-    container_name: spin-redis-run 
-    build: ./container/redis-run 
+    container_name: spin-redis-run
+    build: ./container/redis-run
     command: redis-server /usr/local/etc/redis.conf
+    ports:
+      - 1080:6379
+    networks:
+      - spin
+
   redis-var:
     name: spin-redis-var
     hostname: spin-redis-var
     container_name: spin-redis-var
-    build: ./container/redis-var 
+    build: ./container/redis-var
     command: redis-server /usr/local/etc/redis.conf
+    ports:
+      - 1081:6379
+    networks:
+      - spin
+
+
+networks:
+  spin:
+    name: spin
 

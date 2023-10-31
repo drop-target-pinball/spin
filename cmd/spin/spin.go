@@ -2,15 +2,17 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/drop-target-pinball/spin/v2"
-	"github.com/hashicorp/hcl/v2/hclsimple"
+)
+
+var (
+	runPort int
+	varPort int
 )
 
 func main() {
-	var config spin.Config
-	err := hclsimple.DecodeFile(os.Args[1], nil, &config)
+	config, err := spin.LoadConfig()
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 		return

@@ -1,0 +1,1 @@
+../../lib/judge_dredd.hcl
