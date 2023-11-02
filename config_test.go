@@ -1,9 +1,10 @@
 package spin
 
 import (
-	"testing"
+	"reflect"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/drop-target-pinball/spin/v2/pkg/testing"
+	"github.com/psanford/memfs"
 )
 
 func TestDevice(t *testing.T) {
@@ -31,7 +32,9 @@ device "device_id" {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			device := conf.Devices["device_id"]
-			assert.Equal(t, test.device, device)
+			if !reflect.DeepEqual(device, test.device) {
+				testing.Error(t, device, test.device)
+			}
 		})
 	}
 }
@@ -71,7 +74,9 @@ driver "driver_id" {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			driver := conf.Drivers["driver_id"]
-			assert.Equal(t, test.driver, driver)
+			if !reflect.DeepEqual(driver, test.driver) {
+				testing.Error(t, test.driver, driver)
+			}
 		})
 	}
 }
@@ -121,7 +126,9 @@ info "driver" "driver_id" {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			info := conf.Info["driver/driver_id"]
-			assert.Equal(t, test.info, info)
+			if !reflect.DeepEqual(info, test.info) {
+				testing.Error(t, test.info, info)
+			}
 		})
 	}
 }
@@ -161,7 +168,87 @@ switch "switch_id" {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			switch_ := conf.Switches["switch_id"]
-			assert.Equal(t, test.switch_, switch_)
+			if !reflect.DeepEqual(switch_, test.switch_) {
+				testing.Error(t, test.switch_, switch_)
+			}
 		})
+	}
+}
+
+func TestInclude(t *testing.T) {
+	file1 := `
+switch "switch_1" {
+	address = "bad"
+}
+
+switch "switch_2" {
+	address	= "sw2"
+}
+`
+
+	file2 := `
+include = [ "file1.hcl" ]
+
+switch "switch_1" {
+	address = "sw1"
+}
+
+switch "switch_3" {
+	address = "sw3"
+}
+`
+	want := map[string]Switch{
+		"switch_1": {
+			ID:      "switch_1",
+			Address: "sw1",
+		},
+		"switch_2": {
+			ID:      "switch_2",
+			Address: "sw2",
+		},
+		"switch_3": {
+			ID:      "switch_3",
+			Address: "sw3",
+		},
+	}
+
+	fs := memfs.New()
+	fs.WriteFile("file1.hcl", []byte(file1), 0o644)
+	fs.WriteFile("file2.hcl", []byte(file2), 0x644)
+
+	conf := NewConfig()
+	conf.FileSystem = fs
+	if err := conf.IncludeFile("file2.hcl"); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(conf.Switches, want) {
+		testing.Error(t, conf, want)
+	}
+}
+
+func TestMissingInclude(t *testing.T) {
+	file := `
+include = [ "missing.hcl" ]
+
+switch "switch_1" {
+	address = "sw1"
+}
+
+switch "switch_3" {
+	address = "sw3"
+}
+`
+	fs := memfs.New()
+	fs.WriteFile("file.hcl", []byte(file), 0o644)
+
+	conf := NewConfig()
+	conf.FileSystem = fs
+	err := conf.IncludeFile("file.hcl")
+	if err == nil {
+		t.Fatal("expected error but got nil")
+	}
+	want := "not a directory: missing.hcl: file does not exist"
+	if err.Error() != want {
+		testing.Error(t, err.Error(), want)
 	}
 }

@@ -1,6 +1,7 @@
 package spin
 
 import (
+	"io/fs"
 	"os"
 	"path"
 
@@ -14,6 +15,8 @@ var (
 	// When Spin starts, the entry point is found by checking the
 	// project.hcl file in this directory.
 	ProjectDir string
+
+	ProjectFS fs.FS
 )
 
 func init() {
@@ -21,6 +24,7 @@ func init() {
 	if ProjectDir == "" {
 		ProjectDir = "./project"
 	}
+	ProjectFS = os.DirFS(ProjectDir)
 }
 
 // ConfigFile represents the structure of a Spin HCL configuration file. This
@@ -35,19 +39,21 @@ type ConfigFile struct {
 
 // Config is configuration that has been loaded from HCL configuration files.
 type Config struct {
-	Devices  map[string]Device
-	Drivers  map[string]Driver
-	Info     map[string]Info
-	Switches map[string]Switch
+	Devices    map[string]Device `json:"devices,omitempty"`
+	Drivers    map[string]Driver `json:"drivers,omitempty"`
+	Info       map[string]Info   `json:"info,omitempty"`
+	Switches   map[string]Switch `json:"switches,omitempty"`
+	FileSystem fs.FS
 }
 
 // NewConfig creates an empty configuration.
 func NewConfig() *Config {
 	return &Config{
-		Devices:  make(map[string]Device),
-		Drivers:  make(map[string]Driver),
-		Info:     make(map[string]Info),
-		Switches: make(map[string]Switch),
+		Devices:    make(map[string]Device),
+		Drivers:    make(map[string]Driver),
+		Info:       make(map[string]Info),
+		Switches:   make(map[string]Switch),
+		FileSystem: os.DirFS("/"),
 	}
 }
 
@@ -85,7 +91,7 @@ func key[T any](source []T, target map[string]T, keyfn func(T) string) {
 // adds it to the current configuration. Configuration entities in the included
 // file overwrite existing entries with the same key.
 func (c *Config) IncludeFile(name string) error {
-	src, err := os.ReadFile(name)
+	src, err := fs.ReadFile(c.FileSystem, name)
 	if err != nil {
 		return err
 	}
