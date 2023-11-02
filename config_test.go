@@ -1,10 +1,11 @@
 package spin
 
 import (
+	"os"
+	"path"
 	"reflect"
-
-	"github.com/drop-target-pinball/spin/v2/pkg/testing"
-	"github.com/psanford/memfs"
+	"strings"
+	"testing"
 )
 
 func TestDevice(t *testing.T) {
@@ -27,13 +28,16 @@ device "device_id" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			hcl := path.Join(t.TempDir(), test.name)
+			os.WriteFile(hcl, []byte(test.src), 0o644)
+
 			conf := NewConfig()
-			if err := conf.Include(test.name, []byte(test.src)); err != nil {
+			if err := conf.Include(hcl); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			device := conf.Devices["device_id"]
 			if !reflect.DeepEqual(device, test.device) {
-				testing.Error(t, device, test.device)
+				t.Errorf("\n have: %v \n want: %v", device, test.device)
 			}
 		})
 	}
@@ -69,13 +73,16 @@ driver "driver_id" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			hcl := path.Join(t.TempDir(), test.name)
+			os.WriteFile(hcl, []byte(test.src), 0o644)
+
 			conf := NewConfig()
-			if err := conf.Include(test.name, []byte(test.src)); err != nil {
+			if err := conf.Include(hcl); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			driver := conf.Drivers["driver_id"]
 			if !reflect.DeepEqual(driver, test.driver) {
-				testing.Error(t, test.driver, driver)
+				t.Errorf("\n have: %v \n want: %v", driver, test.driver)
 			}
 		})
 	}
@@ -121,13 +128,16 @@ info "driver" "driver_id" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			hcl := path.Join(t.TempDir(), test.name)
+			os.WriteFile(hcl, []byte(test.src), 0o644)
+
 			conf := NewConfig()
-			if err := conf.Include(test.name, []byte(test.src)); err != nil {
+			if err := conf.Include(hcl); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			info := conf.Info["driver/driver_id"]
 			if !reflect.DeepEqual(info, test.info) {
-				testing.Error(t, test.info, info)
+				t.Errorf("\n have: %v \n want: %v", info, test.info)
 			}
 		})
 	}
@@ -163,13 +173,16 @@ switch "switch_id" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			hcl := path.Join(t.TempDir(), test.name)
+			os.WriteFile(hcl, []byte(test.src), 0o644)
+
 			conf := NewConfig()
-			if err := conf.Include(test.name, []byte(test.src)); err != nil {
+			if err := conf.Include(hcl); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			switch_ := conf.Switches["switch_id"]
 			if !reflect.DeepEqual(switch_, test.switch_) {
-				testing.Error(t, test.switch_, switch_)
+				t.Errorf("\n have: %v \n want: %v", switch_, test.switch_)
 			}
 		})
 	}
@@ -212,17 +225,18 @@ switch "switch_3" {
 		},
 	}
 
-	fs := memfs.New()
-	fs.WriteFile("file1.hcl", []byte(file1), 0o644)
-	fs.WriteFile("file2.hcl", []byte(file2), 0x644)
+	dir := t.TempDir()
+	hcl1 := path.Join(dir, "file1.hcl")
+	os.WriteFile(hcl1, []byte(file1), 0o644)
+	hcl2 := path.Join(dir, "file2.hcl")
+	os.WriteFile(hcl2, []byte(file2), 0o644)
 
 	conf := NewConfig()
-	conf.FileSystem = fs
-	if err := conf.IncludeFile("file2.hcl"); err != nil {
+	if err := conf.Include(hcl2); err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(conf.Switches, want) {
-		testing.Error(t, conf, want)
+		t.Errorf("\n have: %v \n want: %v", conf.Switches, want)
 	}
 }
 
@@ -238,17 +252,16 @@ switch "switch_3" {
 	address = "sw3"
 }
 `
-	fs := memfs.New()
-	fs.WriteFile("file.hcl", []byte(file), 0o644)
+	hcl := path.Join(t.TempDir(), "file.hcl")
+	os.WriteFile(hcl, []byte(file), 0o644)
 
 	conf := NewConfig()
-	conf.FileSystem = fs
-	err := conf.IncludeFile("file.hcl")
+	err := conf.Include(hcl)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
-	want := "not a directory: missing.hcl: file does not exist"
-	if err.Error() != want {
-		testing.Error(t, err.Error(), want)
+	want := "does not exist."
+	if !strings.HasSuffix(err.Error(), want) {
+		t.Errorf("\n have: %v \n want: suffix with '%v'", err.Error(), want)
 	}
 }

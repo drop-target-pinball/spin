@@ -44,7 +44,7 @@ Use -json to print the configuration as a JSON document.
 
 	conf := spin.NewConfig()
 	for _, arg := range flag.Args() {
-		if err := conf.IncludeFile(arg); err != nil {
+		if err := conf.Include(arg); err != nil {
 			diag, ok := err.(hcl.Diagnostics)
 			if !ok {
 				fmt.Fprintln(os.Stderr, err)

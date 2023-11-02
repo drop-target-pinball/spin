@@ -57,16 +57,16 @@ func NewConfig() *Config {
 	}
 }
 
-// Include loads the HCL configuration a file from within src and
+// IncludeFile loads the HCL configuration a file with the given filename and
 // adds it to the current configuration. Configuration entities in the included
 // file overwrite existing entries with the same key.
-func (c *Config) Include(name string, src []byte) error {
+func (c *Config) Include(name string) error {
 	var cf ConfigFile
-	if err := hclsimple.Decode(name, src, nil, &cf); err != nil {
+	if err := hclsimple.DecodeFile(name, nil, &cf); err != nil {
 		return err
 	}
 	for _, inc := range cf.Include {
-		if err := c.IncludeFile(path.Join(path.Dir(name), inc)); err != nil {
+		if err := c.Include(path.Join(path.Dir(name), inc)); err != nil {
 			return err
 		}
 	}
@@ -87,23 +87,12 @@ func key[T any](source []T, target map[string]T, keyfn func(T) string) {
 	}
 }
 
-// IncludeFile loads the HCL configuration a file with the given filename and
-// adds it to the current configuration. Configuration entities in the included
-// file overwrite existing entries with the same key.
-func (c *Config) IncludeFile(name string) error {
-	src, err := fs.ReadFile(c.FileSystem, name)
-	if err != nil {
-		return err
-	}
-	return c.Include(name, src)
-}
-
 // LoadConfig reads the spin.hcl configuration file found in the
 // ProjectDir and returns the parsed configuration structure.
-func LoadConfig() (*Config, error) {
-	c := NewConfig()
-	if err := c.IncludeFile(path.Join(ProjectDir, "spin.hcl")); err != nil {
-		return nil, err
-	}
-	return c, nil
-}
+// func LoadConfig() (*Config, error) {
+// 	c := NewConfig()
+// 	if err := c.IncludeFile(path.Join(ProjectDir, "spin.hcl")); err != nil {
+// 		return nil, err
+// 	}
+// 	return c, nil
+// }
