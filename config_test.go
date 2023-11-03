@@ -35,7 +35,7 @@ device "device_id" {
 			os.WriteFile(hcl, []byte(test.src), 0o644)
 
 			conf := NewConfig(proj)
-			if err := conf.AddFile(hcl); err != nil {
+			if err := conf.AddFile(test.name); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			device := conf.Devices["device_id"]
@@ -83,7 +83,7 @@ driver "driver_id" {
 			os.WriteFile(hcl, []byte(test.src), 0o644)
 
 			conf := NewConfig(proj)
-			if err := conf.AddFile(hcl); err != nil {
+			if err := conf.AddFile(test.name); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			driver := conf.Drivers["driver_id"]
@@ -141,7 +141,7 @@ info "driver" "driver_id" {
 			os.WriteFile(hcl, []byte(test.src), 0o644)
 
 			conf := NewConfig(proj)
-			if err := conf.AddFile(hcl); err != nil {
+			if err := conf.AddFile(test.name); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			info := conf.Info["driver/driver_id"]
@@ -189,7 +189,7 @@ switch "switch_id" {
 			os.WriteFile(hcl, []byte(test.src), 0o644)
 
 			conf := NewConfig(proj)
-			if err := conf.AddFile(hcl); err != nil {
+			if err := conf.AddFile(test.name); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			switch_ := conf.Switches["switch_id"]
@@ -246,7 +246,7 @@ switch "switch_3" {
 	os.WriteFile(hcl2, []byte(file2), 0o644)
 
 	conf := NewConfig(proj)
-	if err := conf.AddFile(hcl2); err != nil {
+	if err := conf.AddFile("file2.hcl"); err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(conf.Switches, want) {
@@ -286,13 +286,13 @@ switch "switch_3" {
 func TestSettingsMerge(t *testing.T) {
 	file1 := `
 settings {
-	redis_run_port = 1234
+	redis_run_address = "localhost:1234"
 }
 	`
 
 	file2 := `
 settings {
-	redis_var_port = 5678
+	redis_var_address = "localhost:5678"
 }
 `
 
@@ -315,8 +315,8 @@ settings {
 	}
 
 	want := Settings{
-		RedisRunPort: 1234,
-		RedisVarPort: 5678,
+		RedisRunAddress: "localhost:1234",
+		RedisVarAddress: "localhost:5678",
 	}
 
 	if conf.Settings != want {

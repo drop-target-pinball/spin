@@ -52,37 +52,25 @@ func NewProjectWithDir(dir string) *Project {
 }
 
 // FindFileFrom locates a file with the given name in the project path
-// or relative to the source.
-//
-// If the name starts with "./" and a source is provided, the file is searched
-// relative to the source. If source is a directory, that directory is searched
-// to find the file. If source is a file, the source's directory is searched
-// to find the file. Otherwise, the path is searched in order to find the file
-// with the given name.
+// or relative to the source. If the name starts with "./", the file is
+// searched relative to the source's directory. Otherwise, the path is searched
+// in order to find the file with the given name.
 //
 // If the file is found, the full path to the file is returned. Otherwise
 // an error is returned.
 func (p *Project) FindFileFrom(source string, name string) (string, error) {
-	if source != "" && strings.HasPrefix(name, "./") {
-		info, err := os.Stat(source)
-		if err != nil {
-			return "", err
-		}
-		var dir string
-		if info.IsDir() {
-			dir = source
-		} else {
-			dir = path.Dir(source)
-		}
-		fullName := path.Join(dir, name)
-		_, err = os.Stat(fullName)
+	if strings.HasPrefix(name, "./") {
+		fullName := path.Join(path.Dir(source), name)
+		fmt.Printf("**** SOURCE: %v\n", source)
+		fmt.Printf("**** FULLNAME: %v\n", fullName)
+		_, err := os.Stat(fullName)
 		return fullName, err
 	}
 	for _, dir := range p.Path {
 		fullName := path.Join(dir, name)
 		_, err := os.Stat(fullName)
 		if !errors.Is(err, os.ErrNotExist) {
-			return fullName, nil
+			return fullName, err
 		}
 	}
 	return "", fmt.Errorf("%v: file does not exist", name)
@@ -123,8 +111,8 @@ type Config struct {
 }
 
 type Settings struct {
-	RedisRunPort int `hcl:"redis_run_port,optional" json:"redis_run_port,omitempty"`
-	RedisVarPort int `hcl:"redis_var_port,optional" json:"redis_var_port,omitempty"`
+	RedisRunAddress string `hcl:"redis_run_address,optional" json:"redis_run_address,omitempty"`
+	RedisVarAddress string `hcl:"redis_var_address,optional" json:"redis_var_address,omitempty"`
 }
 
 // Merge copies any non-zero values from s2 into this struct. If s2 is nil,
@@ -133,11 +121,11 @@ func (s *Settings) Merge(s2 *Settings) {
 	if s2 == nil {
 		return
 	}
-	if s.RedisRunPort == 0 {
-		s.RedisRunPort = s2.RedisRunPort
+	if s.RedisRunAddress == "" {
+		s.RedisRunAddress = s2.RedisRunAddress
 	}
-	if s.RedisVarPort == 0 {
-		s.RedisVarPort = s2.RedisVarPort
+	if s.RedisVarAddress == "" {
+		s.RedisVarAddress = s2.RedisVarAddress
 	}
 }
 
@@ -152,20 +140,25 @@ func NewConfig(project *Project) *Config {
 	}
 }
 
-// AddFile loads the HCL configuration a file with the given filename and
-// adds it to the current configuration. Configuration entities in the included
-// file overwrite existing entries with the same key.
+// AddFile loads the HCL configuration from the project path with the given
+// filename and adds it to the current configuration. Configuration entities in
+// the included file overwrite existing entries with the same key.
 func (c *Config) AddFile(name string) error {
 	var cf ConfigFile
-	if err := hclsimple.DecodeFile(name, nil, &cf); err != nil {
+
+	fullName, err := c.project.FindFile(name)
+	if err != nil {
+		return err
+	}
+	if err := hclsimple.DecodeFile(fullName, nil, &cf); err != nil {
 		return err
 	}
 	for _, inc := range cf.Include {
-		fullName, err := c.project.FindFileFrom(name, inc)
+		fullInc, err := c.project.FindFileFrom(fullName, inc)
 		if err != nil {
 			return err
 		}
-		if err := c.AddFile(fullName); err != nil {
+		if err := c.AddFile(fullInc); err != nil {
 			return err
 		}
 	}
