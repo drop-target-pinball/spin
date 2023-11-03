@@ -1,10 +1,10 @@
-// Judge Dredd 
-// Bally 1993 
+// Judge Dredd
+// Bally 1993
 //
 // https://ipdb.org/machine.cgi?id=1322
 // https://www.ipdb.org/files/1322/Bally_1993_Judge_Dredd_Manual.pdf
 
-include = [ "wpc.hcl" ]
+include = [ "./wpc.hcl" ]
 
 device "judge_dredd" {
     namespace   = "jd"
@@ -52,7 +52,7 @@ switch "left_shooter_lane" {
     address     = "15"
 }
 
-info "left_shooter_lane" {
+info "switch" "left_shooter_lane" {
     name        = "Left Shooter Lane"
     manual_name = "Left Shoot Lane"
     sort_name   = "Shooter Lane, Left"
@@ -60,7 +60,7 @@ info "left_shooter_lane" {
 
 switch "left_outlane" {
     address     = "!6"
-} 
+}
 
 info "switch" "left_outlane" {
     name        = "Left Outlane"
@@ -90,7 +90,7 @@ switch "slam_tilt" {
 }
 
 info "switch" "slam_tilt" {
-    name        = "Slam Tilt" 
+    name        = "Slam Tilt"
     sort_name   = "Tilt, Slam"
 }
 
@@ -168,10 +168,10 @@ switch "left_rollover" {
 info "switch" "outer_left_loop" {
     name        = "Outer Left Loop"
     manual_name = "Left Rollover"
-    sort_name   = "Loop, Outer Left" 
+    sort_name   = "Loop, Outer Left"
 }
 
-switch "inner_right_return_lane {
+switch "inner_right_return_lane" {
     address     = "34"
 }
 
@@ -192,7 +192,7 @@ info "switch" "inner_loop" {
 }
 
 switch "left_post" {
-    address     = "36" 
+    address     = "36"
 }
 
 info "switch" "left_post" {

@@ -23,13 +23,13 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] <config_file...>\n", prog)
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr, `
-Parses an HCL configuration file. 
+Parses an HCL configuration file.
 
-If no options are specified, the program produces no output and exits with a 
-return code of zero upon success. Otherwise, diagnostics are printed to the 
-console and the program exits with a return code of one. 
+If no options are specified, the program produces no output and exits with a
+return code of zero upon success. Otherwise, diagnostics are printed to the
+console and the program exits with a return code of one.
 
-Use -json to print the configuration as a JSON document. 
+Use -json to print the configuration as a JSON document.
 `)
 	}
 
@@ -42,9 +42,11 @@ Use -json to print the configuration as a JSON document.
 		os.Exit(1)
 	}
 
-	conf := spin.NewConfig()
+	proj := spin.NewProject()
+	conf := spin.NewConfig(proj)
+
 	for _, arg := range flag.Args() {
-		if err := conf.Include(arg); err != nil {
+		if err := conf.AddFile(arg); err != nil {
 			diag, ok := err.(hcl.Diagnostics)
 			if !ok {
 				fmt.Fprintln(os.Stderr, err)

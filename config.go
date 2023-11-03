@@ -1,51 +1,125 @@
 package spin
 
 import (
-	"io/fs"
+	"errors"
+	"fmt"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/hashicorp/hcl/v2/hclsimple"
 )
 
-var (
-	// ProjectDir is the directory containing all configuration and asset
-	// files for a given pinball project. This can be set by using the
-	// SPIN_DIR environment variable, otherwise this defaults to ./project.
-	// When Spin starts, the entry point is found by checking the
-	// project.hcl file in this directory.
-	ProjectDir string
-
-	ProjectFS fs.FS
-)
-
-func init() {
-	ProjectDir = os.Getenv("SPIN_DIR")
-	if ProjectDir == "" {
-		ProjectDir = "./project"
-	}
-	ProjectFS = os.DirFS(ProjectDir)
-}
-
 // ConfigFile represents the structure of a Spin HCL configuration file. This
 // struct shouldn't be used directly--use Config instead.
 type ConfigFile struct {
-	Include  []string `hcl:"include,optional"`
-	Devices  []Device `hcl:"device,block"`
-	Drivers  []Driver `hcl:"driver,block"`
-	Info     []Info   `hcl:"info,block"`
-	Settings Settings `hcl:"settings,block"`
-	Switches []Switch `hcl:"switch,block"`
+	Include  []string  `hcl:"include,optional"`
+	Devices  []Device  `hcl:"device,block"`
+	Drivers  []Driver  `hcl:"driver,block"`
+	Info     []Info    `hcl:"info,block"`
+	Settings *Settings `hcl:"settings,block"`
+	Switches []Switch  `hcl:"switch,block"`
+}
+
+// Project represents directories where configurations and assets are located.
+// Functions are provided for finding and reading files from these directories.
+type Project struct {
+	Path []string // Search path to use when finding files.
+}
+
+// Creates a new project. If the environment variable SPINDIR is not blank, the
+// initial project path is populated with colon-separated directories found in
+// that variable. If no SPINDIR is set, the path is initialized to check
+// "./project" first, and then to check "./lib". To use a custom path,
+// create the object and then modify the value of Path directly.
+func NewProject() *Project {
+	proj := &Project{}
+
+	envPath := os.Getenv("SPINDIR")
+	if envPath == "" {
+		proj.Path = []string{"./project", "./lib"}
+	} else {
+		proj.Path = strings.Split(envPath, ":")
+	}
+	return proj
+}
+
+// Creates a new project with a path containing a single directory.
+func NewProjectWithDir(dir string) *Project {
+	proj := NewProject()
+	proj.Path = []string{dir}
+	return proj
+}
+
+// FindFileFrom locates a file with the given name in the project path
+// or relative to the source.
+//
+// If the name starts with "./" and a source is provided, the file is searched
+// relative to the source. If source is a directory, that directory is searched
+// to find the file. If source is a file, the source's directory is searched
+// to find the file. Otherwise, the path is searched in order to find the file
+// with the given name.
+//
+// If the file is found, the full path to the file is returned. Otherwise
+// an error is returned.
+func (p *Project) FindFileFrom(source string, name string) (string, error) {
+	if source != "" && strings.HasPrefix(name, "./") {
+		info, err := os.Stat(source)
+		if err != nil {
+			return "", err
+		}
+		var dir string
+		if info.IsDir() {
+			dir = source
+		} else {
+			dir = path.Dir(source)
+		}
+		fullName := path.Join(dir, name)
+		_, err = os.Stat(fullName)
+		return fullName, err
+	}
+	for _, dir := range p.Path {
+		fullName := path.Join(dir, name)
+		_, err := os.Stat(fullName)
+		if !errors.Is(err, os.ErrNotExist) {
+			return fullName, nil
+		}
+	}
+	return "", fmt.Errorf("%v: file does not exist", name)
+}
+
+// FindFile locates a file with the given name in the project path. If the file
+// is found, the full path to the file is returned. Otherwise an error is
+// returned.
+func (p *Project) FindFile(name string) (string, error) {
+	return p.FindFileFrom("", name)
+}
+
+// ReadFileFrom reads in a file with the given name in the project path
+// or relative to the source. This function is same as calling FindFileFrom
+// and then using os.ReadFile.
+func (p *Project) ReadFileFrom(src string, name string) ([]byte, error) {
+	fullName, err := p.FindFileFrom(src, name)
+	if err != nil {
+		return nil, err
+	}
+	return os.ReadFile(fullName)
+}
+
+// ReadFile reads in a file with the given name in the project path.
+// This function is same as calling FindFile and then using os.ReadFile.
+func (p *Project) ReadFile(name string) ([]byte, error) {
+	return p.ReadFileFrom("", name)
 }
 
 // Config is configuration that has been loaded from HCL configuration files.
 type Config struct {
-	Devices    map[string]Device `json:"devices,omitempty"`
-	Drivers    map[string]Driver `json:"drivers,omitempty"`
-	Info       map[string]Info   `json:"info,omitempty"`
-	Settings   Settings          `json:"settings,omitempty"`
-	Switches   map[string]Switch `json:"switches,omitempty"`
-	FileSystem fs.FS
+	Devices  map[string]Device `json:"devices,omitempty"`
+	Drivers  map[string]Driver `json:"drivers,omitempty"`
+	Info     map[string]Info   `json:"info,omitempty"`
+	Settings Settings          `json:"settings,omitempty"`
+	Switches map[string]Switch `json:"switches,omitempty"`
+	project  *Project
 }
 
 type Settings struct {
@@ -53,7 +127,12 @@ type Settings struct {
 	RedisVarPort int `hcl:"redis_var_port,optional" json:"redis_var_port,omitempty"`
 }
 
-func (s *Settings) Merge(s2 Settings) {
+// Merge copies any non-zero values from s2 into this struct. If s2 is nil,
+// this method does nothing.
+func (s *Settings) Merge(s2 *Settings) {
+	if s2 == nil {
+		return
+	}
 	if s.RedisRunPort == 0 {
 		s.RedisRunPort = s2.RedisRunPort
 	}
@@ -63,26 +142,30 @@ func (s *Settings) Merge(s2 Settings) {
 }
 
 // NewConfig creates an empty configuration.
-func NewConfig() *Config {
+func NewConfig(project *Project) *Config {
 	return &Config{
-		Devices:    make(map[string]Device),
-		Drivers:    make(map[string]Driver),
-		Info:       make(map[string]Info),
-		Switches:   make(map[string]Switch),
-		FileSystem: os.DirFS("/"),
+		Devices:  make(map[string]Device),
+		Drivers:  make(map[string]Driver),
+		Info:     make(map[string]Info),
+		Switches: make(map[string]Switch),
+		project:  project,
 	}
 }
 
-// IncludeFile loads the HCL configuration a file with the given filename and
+// AddFile loads the HCL configuration a file with the given filename and
 // adds it to the current configuration. Configuration entities in the included
 // file overwrite existing entries with the same key.
-func (c *Config) Include(name string) error {
+func (c *Config) AddFile(name string) error {
 	var cf ConfigFile
 	if err := hclsimple.DecodeFile(name, nil, &cf); err != nil {
 		return err
 	}
 	for _, inc := range cf.Include {
-		if err := c.Include(path.Join(path.Dir(name), inc)); err != nil {
+		fullName, err := c.project.FindFileFrom(name, inc)
+		if err != nil {
+			return err
+		}
+		if err := c.AddFile(fullName); err != nil {
 			return err
 		}
 	}
@@ -103,13 +186,3 @@ func key[T any](source []T, target map[string]T, keyfn func(T) string) {
 		target[keyfn(s)] = s
 	}
 }
-
-// LoadConfig reads the spin.hcl configuration file found in the
-// ProjectDir and returns the parsed configuration structure.
-// func LoadConfig() (*Config, error) {
-// 	c := NewConfig()
-// 	if err := c.IncludeFile(path.Join(ProjectDir, "spin.hcl")); err != nil {
-// 		return nil, err
-// 	}
-// 	return c, nil
-// }

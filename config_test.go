@@ -28,11 +28,14 @@ device "device_id" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			hcl := path.Join(t.TempDir(), test.name)
+			dir := t.TempDir()
+			proj := NewProjectWithDir(dir)
+
+			hcl := path.Join(dir, test.name)
 			os.WriteFile(hcl, []byte(test.src), 0o644)
 
-			conf := NewConfig()
-			if err := conf.Include(hcl); err != nil {
+			conf := NewConfig(proj)
+			if err := conf.AddFile(hcl); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			device := conf.Devices["device_id"]
@@ -73,11 +76,14 @@ driver "driver_id" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			hcl := path.Join(t.TempDir(), test.name)
+			dir := t.TempDir()
+			proj := NewProjectWithDir(dir)
+
+			hcl := path.Join(dir, test.name)
 			os.WriteFile(hcl, []byte(test.src), 0o644)
 
-			conf := NewConfig()
-			if err := conf.Include(hcl); err != nil {
+			conf := NewConfig(proj)
+			if err := conf.AddFile(hcl); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			driver := conf.Drivers["driver_id"]
@@ -128,11 +134,14 @@ info "driver" "driver_id" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			hcl := path.Join(t.TempDir(), test.name)
+			dir := t.TempDir()
+			proj := NewProjectWithDir(dir)
+
+			hcl := path.Join(dir, test.name)
 			os.WriteFile(hcl, []byte(test.src), 0o644)
 
-			conf := NewConfig()
-			if err := conf.Include(hcl); err != nil {
+			conf := NewConfig(proj)
+			if err := conf.AddFile(hcl); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			info := conf.Info["driver/driver_id"]
@@ -173,11 +182,14 @@ switch "switch_id" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			hcl := path.Join(t.TempDir(), test.name)
+			dir := t.TempDir()
+			proj := NewProjectWithDir(dir)
+
+			hcl := path.Join(dir, test.name)
 			os.WriteFile(hcl, []byte(test.src), 0o644)
 
-			conf := NewConfig()
-			if err := conf.Include(hcl); err != nil {
+			conf := NewConfig(proj)
+			if err := conf.AddFile(hcl); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			switch_ := conf.Switches["switch_id"]
@@ -200,7 +212,7 @@ switch "switch_2" {
 `
 
 	file2 := `
-include = [ "file1.hcl" ]
+include = [ "./file1.hcl" ]
 
 switch "switch_1" {
 	address = "sw1"
@@ -226,13 +238,15 @@ switch "switch_3" {
 	}
 
 	dir := t.TempDir()
+	proj := NewProjectWithDir(dir)
+
 	hcl1 := path.Join(dir, "file1.hcl")
 	os.WriteFile(hcl1, []byte(file1), 0o644)
 	hcl2 := path.Join(dir, "file2.hcl")
 	os.WriteFile(hcl2, []byte(file2), 0o644)
 
-	conf := NewConfig()
-	if err := conf.Include(hcl2); err != nil {
+	conf := NewConfig(proj)
+	if err := conf.AddFile(hcl2); err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(conf.Switches, want) {
@@ -252,15 +266,18 @@ switch "switch_3" {
 	address = "sw3"
 }
 `
-	hcl := path.Join(t.TempDir(), "file.hcl")
+	dir := t.TempDir()
+	proj := NewProjectWithDir(dir)
+
+	hcl := path.Join(dir, "file.hcl")
 	os.WriteFile(hcl, []byte(file), 0o644)
 
-	conf := NewConfig()
-	err := conf.Include(hcl)
+	conf := NewConfig(proj)
+	err := conf.AddFile(hcl)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
-	want := "does not exist."
+	want := "does not exist"
 	if !strings.HasSuffix(err.Error(), want) {
 		t.Errorf("\n have: %v \n want: suffix with '%v'", err.Error(), want)
 	}
@@ -280,17 +297,19 @@ settings {
 `
 
 	dir := t.TempDir()
+	proj := NewProjectWithDir(dir)
+
 	hcl1 := path.Join(dir, "file1.hcl")
 	os.WriteFile(hcl1, []byte(file1), 0o644)
 	hcl2 := path.Join(dir, "file2.hcl")
 	os.WriteFile(hcl2, []byte(file2), 0o644)
 
-	conf := NewConfig()
-	err := conf.Include(hcl1)
+	conf := NewConfig(proj)
+	err := conf.AddFile(hcl1)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	err = conf.Include(hcl2)
+	err = conf.AddFile(hcl2)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
