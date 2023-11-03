@@ -265,3 +265,42 @@ switch "switch_3" {
 		t.Errorf("\n have: %v \n want: suffix with '%v'", err.Error(), want)
 	}
 }
+
+func TestSettingsMerge(t *testing.T) {
+	file1 := `
+settings {
+	redis_run_port = 1234
+}
+	`
+
+	file2 := `
+settings {
+	redis_var_port = 5678
+}
+`
+
+	dir := t.TempDir()
+	hcl1 := path.Join(dir, "file1.hcl")
+	os.WriteFile(hcl1, []byte(file1), 0o644)
+	hcl2 := path.Join(dir, "file2.hcl")
+	os.WriteFile(hcl2, []byte(file2), 0o644)
+
+	conf := NewConfig()
+	err := conf.Include(hcl1)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	err = conf.Include(hcl2)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	want := Settings{
+		RedisRunPort: 1234,
+		RedisVarPort: 5678,
+	}
+
+	if conf.Settings != want {
+		t.Errorf("\n have: %v \n want: %v", conf.Settings, want)
+	}
+}

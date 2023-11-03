@@ -34,6 +34,7 @@ type ConfigFile struct {
 	Devices  []Device `hcl:"device,block"`
 	Drivers  []Driver `hcl:"driver,block"`
 	Info     []Info   `hcl:"info,block"`
+	Settings Settings `hcl:"settings,block"`
 	Switches []Switch `hcl:"switch,block"`
 }
 
@@ -42,8 +43,23 @@ type Config struct {
 	Devices    map[string]Device `json:"devices,omitempty"`
 	Drivers    map[string]Driver `json:"drivers,omitempty"`
 	Info       map[string]Info   `json:"info,omitempty"`
+	Settings   Settings          `json:"settings,omitempty"`
 	Switches   map[string]Switch `json:"switches,omitempty"`
 	FileSystem fs.FS
+}
+
+type Settings struct {
+	RedisRunPort int `hcl:"redis_run_port,optional" json:"redis_run_port,omitempty"`
+	RedisVarPort int `hcl:"redis_var_port,optional" json:"redis_var_port,omitempty"`
+}
+
+func (s *Settings) Merge(s2 Settings) {
+	if s.RedisRunPort == 0 {
+		s.RedisRunPort = s2.RedisRunPort
+	}
+	if s.RedisVarPort == 0 {
+		s.RedisVarPort = s2.RedisVarPort
+	}
 }
 
 // NewConfig creates an empty configuration.
@@ -75,6 +91,7 @@ func (c *Config) Include(name string) error {
 	key[Driver](cf.Drivers, c.Drivers, func(d Driver) string { return d.ID })
 	key[Info](cf.Info, c.Info, func(i Info) string { return i.Type + "/" + i.ID })
 	key[Switch](cf.Switches, c.Switches, func(s Switch) string { return s.ID })
+	c.Settings.Merge(cf.Settings)
 
 	return nil
 }
