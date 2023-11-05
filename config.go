@@ -1,9 +1,6 @@
 package spin
 
 import (
-	"errors"
-	"fmt"
-	"os"
 	"path"
 	"strings"
 
@@ -21,85 +18,6 @@ type ConfigFile struct {
 	Switches []Switch  `hcl:"switch,block"`
 }
 
-// Project represents directories where configurations and assets are located.
-// Functions are provided for finding and reading files from these directories.
-type Project struct {
-	Path []string // Search path to use when finding files.
-}
-
-// Creates a new project. If the environment variable SPINDIR is not blank, the
-// initial project path is populated with colon-separated directories found in
-// that variable. If no SPINDIR is set, the path is initialized to check
-// "./project" first, and then to check "./lib". To use a custom path,
-// create the object and then modify the value of Path directly.
-func NewProject() *Project {
-	proj := &Project{}
-
-	envPath := os.Getenv("SPINDIR")
-	if envPath == "" {
-		proj.Path = []string{"./project", "./lib"}
-	} else {
-		proj.Path = strings.Split(envPath, ":")
-	}
-	return proj
-}
-
-// Creates a new project with a path containing a single directory.
-func NewProjectWithDir(dir string) *Project {
-	proj := NewProject()
-	proj.Path = []string{dir}
-	return proj
-}
-
-// FindFileFrom locates a file with the given name in the project path
-// or relative to the source. If the name starts with "./", the file is
-// searched relative to the source's directory. Otherwise, the path is searched
-// in order to find the file with the given name.
-//
-// If the file is found, the full path to the file is returned. Otherwise
-// an error is returned.
-func (p *Project) FindFileFrom(source string, name string) (string, error) {
-	if strings.HasPrefix(name, "./") {
-		fullName := path.Join(path.Dir(source), name)
-		fmt.Printf("**** SOURCE: %v\n", source)
-		fmt.Printf("**** FULLNAME: %v\n", fullName)
-		_, err := os.Stat(fullName)
-		return fullName, err
-	}
-	for _, dir := range p.Path {
-		fullName := path.Join(dir, name)
-		_, err := os.Stat(fullName)
-		if !errors.Is(err, os.ErrNotExist) {
-			return fullName, err
-		}
-	}
-	return "", fmt.Errorf("%v: file does not exist", name)
-}
-
-// FindFile locates a file with the given name in the project path. If the file
-// is found, the full path to the file is returned. Otherwise an error is
-// returned.
-func (p *Project) FindFile(name string) (string, error) {
-	return p.FindFileFrom("", name)
-}
-
-// ReadFileFrom reads in a file with the given name in the project path
-// or relative to the source. This function is same as calling FindFileFrom
-// and then using os.ReadFile.
-func (p *Project) ReadFileFrom(src string, name string) ([]byte, error) {
-	fullName, err := p.FindFileFrom(src, name)
-	if err != nil {
-		return nil, err
-	}
-	return os.ReadFile(fullName)
-}
-
-// ReadFile reads in a file with the given name in the project path.
-// This function is same as calling FindFile and then using os.ReadFile.
-func (p *Project) ReadFile(name string) ([]byte, error) {
-	return p.ReadFileFrom("", name)
-}
-
 // Config is configuration that has been loaded from HCL configuration files.
 type Config struct {
 	Devices  map[string]Device `json:"devices,omitempty"`
@@ -107,7 +25,6 @@ type Config struct {
 	Info     map[string]Info   `json:"info,omitempty"`
 	Settings Settings          `json:"settings,omitempty"`
 	Switches map[string]Switch `json:"switches,omitempty"`
-	project  *Project
 }
 
 type Settings struct {
@@ -130,13 +47,12 @@ func (s *Settings) Merge(s2 *Settings) {
 }
 
 // NewConfig creates an empty configuration.
-func NewConfig(project *Project) *Config {
+func NewConfig() *Config {
 	return &Config{
 		Devices:  make(map[string]Device),
 		Drivers:  make(map[string]Driver),
 		Info:     make(map[string]Info),
 		Switches: make(map[string]Switch),
-		project:  project,
 	}
 }
 
@@ -146,18 +62,11 @@ func NewConfig(project *Project) *Config {
 func (c *Config) AddFile(name string) error {
 	var cf ConfigFile
 
-	fullName, err := c.project.FindFile(name)
-	if err != nil {
-		return err
-	}
-	if err := hclsimple.DecodeFile(fullName, nil, &cf); err != nil {
+	if err := hclsimple.DecodeFile(name, nil, &cf); err != nil {
 		return err
 	}
 	for _, inc := range cf.Include {
-		fullInc, err := c.project.FindFileFrom(fullName, inc)
-		if err != nil {
-			return err
-		}
+		fullInc := resolveFrom(name, inc)
 		if err := c.AddFile(fullInc); err != nil {
 			return err
 		}
@@ -170,6 +79,16 @@ func (c *Config) AddFile(name string) error {
 	c.Settings.Merge(cf.Settings)
 
 	return nil
+}
+
+// If name isn't an absolute path, return a path that is relative to the
+// directory where from resides.
+func resolveFrom(from string, name string) string {
+	fullName := name
+	if !strings.HasPrefix(name, "/") {
+		fullName = path.Join(path.Dir(from), name)
+	}
+	return fullName
 }
 
 // add all items from the source slice to the target map by using the

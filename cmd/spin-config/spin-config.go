@@ -42,9 +42,7 @@ Use -json to print the configuration as a JSON document.
 		os.Exit(1)
 	}
 
-	proj := spin.NewProject()
-	conf := spin.NewConfig(proj)
-
+	conf := spin.NewConfig()
 	for _, arg := range flag.Args() {
 		if err := conf.AddFile(arg); err != nil {
 			diag, ok := err.(hcl.Diagnostics)

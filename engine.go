@@ -11,9 +11,8 @@ type Engine struct {
 }
 
 func NewEngine(settings Settings) (*Engine, error) {
-	project := NewProject()
 	e := &Engine{
-		Config: NewConfig(project),
+		Config: NewConfig(),
 	}
 
 	if err := e.Config.AddFile("project.hcl"); err != nil {
