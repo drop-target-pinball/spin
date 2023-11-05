@@ -23,17 +23,18 @@ type Config struct {
 	Devices  map[string]Device `json:"devices,omitempty"`
 	Drivers  map[string]Driver `json:"drivers,omitempty"`
 	Info     map[string]Info   `json:"info,omitempty"`
-	Settings Settings          `json:"settings,omitempty"`
+	Settings *Settings         `json:"settings,omitempty"`
 	Switches map[string]Switch `json:"switches,omitempty"`
 }
 
 type Settings struct {
+	Dir             string
 	RedisRunAddress string `hcl:"redis_run_address,optional" json:"redis_run_address,omitempty"`
 	RedisVarAddress string `hcl:"redis_var_address,optional" json:"redis_var_address,omitempty"`
 }
 
-// Merge copies any non-zero values from s2 into this struct. If s2 is nil,
-// this method does nothing.
+// Merge copies values from s2 into this struct where values in this struct
+// contain a zero value. If s2 is nil, this method does nothing.
 func (s *Settings) Merge(s2 *Settings) {
 	if s2 == nil {
 		return
@@ -52,6 +53,7 @@ func NewConfig() *Config {
 		Devices:  make(map[string]Device),
 		Drivers:  make(map[string]Driver),
 		Info:     make(map[string]Info),
+		Settings: &Settings{},
 		Switches: make(map[string]Switch),
 	}
 }

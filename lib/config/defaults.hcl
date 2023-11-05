@@ -1,4 +1,4 @@
 settings {
-    redis_run_port = 1080 
-    redis_var_port = 1081 
+    redis_run_address = "localhost:1080" 
+    redis_var_address = "localhost:1081" 
 }

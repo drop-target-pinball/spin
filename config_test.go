@@ -300,7 +300,7 @@ settings {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	want := Settings{
+	want := &Settings{
 		RedisRunAddress: "localhost:1234",
 		RedisVarAddress: "localhost:5678",
 	}
