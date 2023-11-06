@@ -19,42 +19,67 @@ type Engine struct {
 	varDB    *redis.Client
 }
 
-func NewEngine(settings *Settings) (*Engine, error) {
+func NewEngine(settings *Settings) *Engine {
 	if settings.Dir == "" {
 		settings.Dir = "./project"
 	}
-
 	e := &Engine{
 		Config:   NewConfig(),
 		Settings: settings,
 	}
+	return e
+}
 
-	if err := e.Config.AddFile(e.PathTo("project.hcl")); err != nil {
-		return nil, err
+func (e *Engine) Init() error {
+	if err := e.Config.AddFile(e.PathTo(e.Settings.ConfigFile)); err != nil {
+		return err
 	}
 	e.Settings.Merge(e.Config.Settings)
 
-	e.runDB = redis.NewClient(&redis.Options{Addr: settings.RedisRunAddress})
-	e.varDB = redis.NewClient(&redis.Options{Addr: settings.RedisVarAddress})
-	return e, nil
+	e.runDB = redis.NewClient(&redis.Options{Addr: e.Settings.RedisRunAddress})
+	e.varDB = redis.NewClient(&redis.Options{Addr: e.Settings.RedisVarAddress})
+
+	// Runtime database should be cleared out on each start. This also
+	// verifies that the database is up and running. Send a ping to the
+	// variable database to see if that is also running.
+	ctx := context.Background()
+	if resp := e.runDB.FlushAll(ctx); resp.Err() != nil {
+		e.Error(resp)
+	}
+	if resp := e.varDB.Ping(ctx); resp.Err() != nil {
+		e.Error(resp)
+	}
+
+	return nil
+
 }
 
+// PathTo returns a path that in the joined value of the project directory
+// in Settings.Dir and the provided name.
 func (e *Engine) PathTo(name string) string {
 	return path.Join(e.Settings.Dir, name)
 }
 
+// Error writes a message to the log file and then panics. This method should
+// be called on unrecoverable errors when the program should exit and be
+// restarted by systemd.
 func (e *Engine) Error(args ...any) {
-	panic(logMsg(args...))
+	log.Panic(logMsg(args...))
 }
 
+// Warn writes a message to the log. If DevMode is set to true, this will then
+// panic, otherwise execution will continue. This method should be called on
+// errors that are not serious enough to exit the application but should be
+// immediately addressed by the programmer (for example, a missing sound file)
 func (e *Engine) Warn(args ...any) {
 	msg := logMsg(args...)
 	if e.DevMode {
-		panic(msg)
+		log.Panic(msg)
 	}
 	log.Print(msg)
 }
 
+// Note writes a message to the log.
 func (e *Engine) Note(args ...any) {
 	log.Print(logMsg(args...))
 }
@@ -75,7 +100,7 @@ func (e *Engine) Send(message any) {
 	}
 	ctx := context.Background()
 	result := e.runDB.XAdd(ctx, &redis.XAddArgs{
-		Stream: "mq",
+		Stream: MessageQueueKey,
 		Values: []any{
 			"type", reflect.TypeOf(message).Name(),
 			"payload", payload,

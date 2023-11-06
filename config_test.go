@@ -305,7 +305,7 @@ settings {
 		RedisVarAddress: "localhost:5678",
 	}
 
-	if conf.Settings != want {
-		t.Errorf("\n have: %v \n want: %v", conf.Settings, want)
+	if *conf.Settings != *want {
+		t.Errorf("\n have: %+v \n want: %+v", conf.Settings, want)
 	}
 }

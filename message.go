@@ -33,6 +33,10 @@ func ParseMessage(typ string, data []byte) (any, error) {
 	return parser(data)
 }
 
+const (
+	MessageQueueKey = "mq"
+)
+
 type MessageClient struct {
 	db *redis.Client
 }
@@ -46,7 +50,7 @@ func (c *MessageClient) Read() ([]any, error) {
 	ctx := context.Background()
 
 	res := c.db.XRead(ctx, &redis.XReadArgs{
-		Streams: []string{"mq", "$"},
+		Streams: []string{MessageQueueKey, "$"},
 	})
 	if res.Err() != nil {
 		return nil, res.Err()

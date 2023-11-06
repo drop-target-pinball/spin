@@ -3,6 +3,7 @@ package spin
 import (
 	"path"
 	"strings"
+	"testing"
 
 	"github.com/hashicorp/hcl/v2/hclsimple"
 )
@@ -29,8 +30,18 @@ type Config struct {
 
 type Settings struct {
 	Dir             string
+	ConfigFile      string
 	RedisRunAddress string `hcl:"redis_run_address,optional" json:"redis_run_address,omitempty"`
 	RedisVarAddress string `hcl:"redis_var_address,optional" json:"redis_var_address,omitempty"`
+}
+
+func TestSettings(t *testing.T) *Settings {
+	return &Settings{
+		Dir:             t.TempDir(),
+		ConfigFile:      "test.hcl",
+		RedisRunAddress: "localhost:1080",
+		RedisVarAddress: "localhost:1080",
+	}
 }
 
 // Merge copies values from s2 into this struct where values in this struct

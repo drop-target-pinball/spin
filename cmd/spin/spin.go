@@ -11,11 +11,12 @@ import (
 var settings spin.Settings
 
 func main() {
+	flag.StringVar(&settings.ConfigFile, "c", "project.hcl", "configuration file")
 	flag.StringVar(&settings.Dir, "d", "./project", "project directory")
 	flag.Parse()
 
-	eng, err := spin.NewEngine(&settings)
-	if err != nil {
+	eng := spin.NewEngine(&settings)
+	if err := eng.Init(); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
