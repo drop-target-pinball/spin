@@ -8,42 +8,6 @@ import (
 	"testing"
 )
 
-func TestDevice(t *testing.T) {
-
-	minDevice := `
-device "device_id" {
-	namespace = "ns"
-}`
-
-	tests := []struct {
-		name   string
-		src    string
-		device Device
-	}{
-		{"min_device.hcl", minDevice, Device{
-			ID:        "device_id",
-			Namespace: "ns",
-		}},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			dir := t.TempDir()
-			hcl := path.Join(dir, test.name)
-			os.WriteFile(hcl, []byte(test.src), 0o644)
-
-			conf := NewConfig()
-			if err := conf.AddFile(hcl); err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
-			device := conf.Devices["device_id"]
-			if !reflect.DeepEqual(device, test.device) {
-				t.Errorf("\n have: %v \n want: %v", device, test.device)
-			}
-		})
-	}
-}
-
 func TestDriver(t *testing.T) {
 	minDriver := `
 driver "driver_id" {

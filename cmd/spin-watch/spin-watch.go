@@ -27,26 +27,24 @@ func main() {
 	flag.Parse()
 
 	db := redis.NewClient(&redis.Options{Addr: addr})
-	cli := spin.NewMessageClient(db)
+	cli := spin.NewQueueClient(db)
 
 	for {
-		msgs, err := cli.Read()
+		msg, err := cli.Read()
 		if err != nil {
 			abort(err)
 		}
-		for _, msg := range msgs {
-			var payload []byte
-			if pretty {
-				fmt.Println()
-				if payload, err = json.MarshalIndent(msg, "", "  "); err != nil {
-					abort(err)
-				}
-			} else {
-				if payload, err = json.Marshal(msg); err != nil {
-					abort(err)
-				}
+		var payload []byte
+		if pretty {
+			fmt.Println()
+			if payload, err = json.MarshalIndent(msg, "", "  "); err != nil {
+				abort(err)
 			}
-			fmt.Printf("%v: %v\n", reflect.TypeOf(msg).Name(), string(payload))
+		} else {
+			if payload, err = json.Marshal(msg); err != nil {
+				abort(err)
+			}
 		}
+		fmt.Printf("%v: %v\n", reflect.TypeOf(msg).Name(), string(payload))
 	}
 }

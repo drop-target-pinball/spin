@@ -15,6 +15,8 @@ type Engine struct {
 	Config   *Config
 	Settings *Settings
 	DevMode  bool
+	Module   string
+	devices  []Device
 	runDB    *redis.Client
 	varDB    *redis.Client
 }
@@ -50,8 +52,21 @@ func (e *Engine) Init() error {
 		e.Error(resp)
 	}
 
+	for _, conf := range e.Config.AudioDevices {
+		d, ok := NewDevice(conf)
+		if !ok {
+			e.Error("no such handler: %v", conf.Handler)
+		}
+		if d.Init(e) {
+			e.devices = append(e.devices, d)
+		}
+	}
 	return nil
 
+}
+
+func (e *Engine) NewQueueClient() *QueueClient {
+	return NewQueueClient(e.runDB)
 }
 
 // PathTo returns a path that in the joined value of the project directory
@@ -79,8 +94,8 @@ func (e *Engine) Warn(args ...any) {
 	log.Print(msg)
 }
 
-// Note writes a message to the log.
-func (e *Engine) Note(args ...any) {
+// Log writes a message to the log.
+func (e *Engine) Log(args ...any) {
 	log.Print(logMsg(args...))
 }
 

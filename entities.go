@@ -1,11 +1,28 @@
 package spin
 
-type Device struct {
-	// Unique identifier for this driver.
+type Audio struct {
+	// Unique identifier for this audio clip.
 	ID string `hcl:"id,label" json:"id"`
 
-	// Namespace to use when generating code for this device.
-	Namespace string `hcl:"namespace" json:"namespace"`
+	// ID of the AudioDevice responsible for this asset
+	Device string `hcl:"device,optional" json:"device,omitempty"`
+
+	// ID of the Module responsible for this asset
+	Module string `hcl:"module,optional" json:"module,omitempty"`
+
+	// Type of audio, either "music", "sound", or "voice"
+	Type string `hcl:"type" json:"type"`
+
+	// Path to the asset.
+	File string `hcl:"file" json:"file"`
+}
+
+type AudioDevice struct {
+	// Unique identifier for this audio device.
+	ID string `hcl:"id,label" json:"id"`
+
+	// Handler for this audio device, such as "sdl"
+	Handler string `hcl:"handler" json:"handler"`
 }
 
 type Driver struct {

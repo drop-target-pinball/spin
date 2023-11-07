@@ -11,26 +11,33 @@ import (
 // ConfigFile represents the structure of a Spin HCL configuration file. This
 // struct shouldn't be used directly--use Config instead.
 type ConfigFile struct {
-	Include  []string  `hcl:"include,optional"`
-	Devices  []Device  `hcl:"device,block"`
-	Drivers  []Driver  `hcl:"driver,block"`
-	Info     []Info    `hcl:"info,block"`
-	Settings *Settings `hcl:"settings,block"`
-	Switches []Switch  `hcl:"switch,block"`
+	Include      []string      `hcl:"include,optional"`
+	Audio        []Audio       `hcl:"audio,block"`
+	AudioDevices []AudioDevice `hcl:"audio_device,block"`
+	Defaults     Defaults      `hcl:"defaults,block"`
+	Drivers      []Driver      `hcl:"driver,block"`
+	Info         []Info        `hcl:"info,block"`
+	Settings     *Settings     `hcl:"settings,block"`
+	Switches     []Switch      `hcl:"switch,block"`
 }
 
 // Config is configuration that has been loaded from HCL configuration files.
 type Config struct {
-	Devices  map[string]Device `json:"devices,omitempty"`
-	Drivers  map[string]Driver `json:"drivers,omitempty"`
-	Info     map[string]Info   `json:"info,omitempty"`
-	Settings *Settings         `json:"settings,omitempty"`
-	Switches map[string]Switch `json:"switches,omitempty"`
+	Audio        map[string]Audio       `json:"audio,omitempty"`
+	AudioDevices map[string]AudioDevice `json:"audio_devices,omitempty"`
+	Drivers      map[string]Driver      `json:"drivers,omitempty"`
+	Info         map[string]Info        `json:"info,omitempty"`
+	Settings     *Settings              `json:"settings,omitempty"`
+	Switches     map[string]Switch      `json:"switches,omitempty"`
+}
+
+type Defaults struct {
+	Module string `hcl:"module,optional" json:"module,omitempty"`
 }
 
 type Settings struct {
-	Dir             string
-	ConfigFile      string
+	Dir             string `json:"dir,omitempty"`
+	ConfigFile      string `json:"config_file,omitempty"`
 	RedisRunAddress string `hcl:"redis_run_address,optional" json:"redis_run_address,omitempty"`
 	RedisVarAddress string `hcl:"redis_var_address,optional" json:"redis_var_address,omitempty"`
 }
@@ -61,11 +68,12 @@ func (s *Settings) Merge(s2 *Settings) {
 // NewConfig creates an empty configuration.
 func NewConfig() *Config {
 	return &Config{
-		Devices:  make(map[string]Device),
-		Drivers:  make(map[string]Driver),
-		Info:     make(map[string]Info),
-		Settings: &Settings{},
-		Switches: make(map[string]Switch),
+		Audio:        make(map[string]Audio),
+		AudioDevices: make(map[string]AudioDevice),
+		Drivers:      make(map[string]Driver),
+		Info:         make(map[string]Info),
+		Settings:     &Settings{},
+		Switches:     make(map[string]Switch),
 	}
 }
 
@@ -85,7 +93,15 @@ func (c *Config) AddFile(name string) error {
 		}
 	}
 
-	key[Device](cf.Devices, c.Devices, func(d Device) string { return d.ID })
+	for i, a := range cf.Audio {
+		if a.Module == "" {
+			a.Module = cf.Defaults.Module
+		}
+		cf.Audio[i] = a
+	}
+
+	key[Audio](cf.Audio, c.Audio, func(a Audio) string { return a.ID })
+	key[AudioDevice](cf.AudioDevices, c.AudioDevices, func(d AudioDevice) string { return d.ID })
 	key[Driver](cf.Drivers, c.Drivers, func(d Driver) string { return d.ID })
 	key[Info](cf.Info, c.Info, func(i Info) string { return i.Type + "/" + i.ID })
 	key[Switch](cf.Switches, c.Switches, func(s Switch) string { return s.ID })

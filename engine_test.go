@@ -28,7 +28,7 @@ func TestLogging(t *testing.T) {
 		{"error", false, true, e.Error},
 		{"warn", false, false, e.Warn},
 		{"warn", true, false, e.Warn},
-		{"note", false, false, e.Note},
+		{"note", false, false, e.Log},
 	}
 
 	for _, test := range tests {
