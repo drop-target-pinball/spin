@@ -4,7 +4,7 @@ import "log"
 
 type Device interface {
 	Init(*Engine) bool
-	Process(*Engine)
+	Process(*Engine) bool
 }
 
 type NewDeviceFunc func(any) (Device, bool)
@@ -27,5 +27,9 @@ func NewDevice(conf any) (Device, bool) {
 			return dev, true
 		}
 	}
+	return nil, false
+}
+
+func DeviceNotSupported(_ any) (Device, bool) {
 	return nil, false
 }

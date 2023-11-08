@@ -13,10 +13,10 @@ import (
 
 type Engine struct {
 	Config   *Config
-	Settings *Settings
 	DevMode  bool
-	Module   string
+	Settings *Settings
 	devices  []Device
+	modules  map[string]struct{}
 	runDB    *redis.Client
 	varDB    *redis.Client
 }
@@ -28,6 +28,7 @@ func NewEngine(settings *Settings) *Engine {
 	e := &Engine{
 		Config:   NewConfig(),
 		Settings: settings,
+		modules:  make(map[string]struct{}),
 	}
 	return e
 }
@@ -46,11 +47,13 @@ func (e *Engine) Init() error {
 	// variable database to see if that is also running.
 	ctx := context.Background()
 	if resp := e.runDB.FlushAll(ctx); resp.Err() != nil {
-		e.Error(resp)
+		return resp.Err()
 	}
 	if resp := e.varDB.Ping(ctx); resp.Err() != nil {
-		e.Error(resp)
+		return resp.Err()
 	}
+
+	e.Log("spin version %v - %v", Version, Date)
 
 	for _, conf := range e.Config.AudioDevices {
 		d, ok := NewDevice(conf)
@@ -58,9 +61,23 @@ func (e *Engine) Init() error {
 			e.Error("no such handler: %v", conf.Handler)
 		}
 		if d.Init(e) {
+			go func() {
+				for d.Process(e) {
+				}
+			}()
 			e.devices = append(e.devices, d)
 		}
 	}
+
+	for _, id := range e.Config.Load {
+		if _, exists := e.modules[id]; exists {
+			continue
+		}
+		e.modules[id] = struct{}{}
+		e.Log("loading module: %v", id)
+		e.Send(Load{ID: id})
+	}
+
 	return nil
 
 }

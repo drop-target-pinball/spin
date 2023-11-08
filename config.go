@@ -14,9 +14,10 @@ type ConfigFile struct {
 	Include      []string      `hcl:"include,optional"`
 	Audio        []Audio       `hcl:"audio,block"`
 	AudioDevices []AudioDevice `hcl:"audio_device,block"`
-	Defaults     Defaults      `hcl:"defaults,block"`
+	Defaults     *Defaults     `hcl:"defaults,block"`
 	Drivers      []Driver      `hcl:"driver,block"`
 	Info         []Info        `hcl:"info,block"`
+	Load         []string      `hcl:"load,optional"`
 	Settings     *Settings     `hcl:"settings,block"`
 	Switches     []Switch      `hcl:"switch,block"`
 }
@@ -27,6 +28,7 @@ type Config struct {
 	AudioDevices map[string]AudioDevice `json:"audio_devices,omitempty"`
 	Drivers      map[string]Driver      `json:"drivers,omitempty"`
 	Info         map[string]Info        `json:"info,omitempty"`
+	Load         []string               `json:"load,omitempty"`
 	Settings     *Settings              `json:"settings,omitempty"`
 	Switches     map[string]Switch      `json:"switches,omitempty"`
 }
@@ -105,6 +107,8 @@ func (c *Config) AddFile(name string) error {
 	key[Driver](cf.Drivers, c.Drivers, func(d Driver) string { return d.ID })
 	key[Info](cf.Info, c.Info, func(i Info) string { return i.Type + "/" + i.ID })
 	key[Switch](cf.Switches, c.Switches, func(s Switch) string { return s.ID })
+
+	c.Load = append(c.Load, cf.Load...)
 	c.Settings.Merge(cf.Settings)
 
 	return nil

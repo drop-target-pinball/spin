@@ -1,0 +1,15 @@
+[ -z "$SPIN_TAGS" ] && SPIN_TAGS="sdl"
+[ "$SPIN_TAGS" != "none" ] && SPIN_FLAGS="-tags $SPIN_TAGS"
+
+case $1 in
+    run)
+        shift
+        go run $SPIN_FLAGS cmd/spin/spin.go $@
+        ;;
+    example)
+        SPIN_FLAGS=$SPIN_FLAGS exec ./spin-dev run -d example
+        ;;
+    *)
+        echo "error: unknown command: $1"
+        exit 1
+esac

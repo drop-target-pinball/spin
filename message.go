@@ -5,6 +5,10 @@ import (
 	"fmt"
 )
 
+type Load struct {
+	ID string `json:"id"`
+}
+
 type Play struct {
 	ID       string `json:"id"`
 	Loops    int    `json:"loops,omitempty"`
@@ -14,11 +18,13 @@ type Play struct {
 }
 
 type Stop struct {
+	ID string `json:"id"`
 }
 
 type ParseFunc func(data []byte) (any, error)
 
 var parsers = map[string]ParseFunc{
+	"Load": func(data []byte) (any, error) { m := Load{}; err := json.Unmarshal(data, &m); return m, err },
 	"Play": func(data []byte) (any, error) { m := Play{}; err := json.Unmarshal(data, &m); return m, err },
 }
 

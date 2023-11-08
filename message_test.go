@@ -26,10 +26,8 @@ func TestMessageClient(t *testing.T) {
 
 	e.Send(want1)
 	e.Send(want2)
-	err := cli.Reset()
-	if err != nil {
-		t.Fatal(err)
-	}
+	cli.Reset()
+
 	have1, err := cli.Read()
 	if err != nil {
 		t.Error(err)

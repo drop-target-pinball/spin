@@ -18,18 +18,18 @@ type QueueClient struct {
 }
 
 func NewQueueClient(db *redis.Client) *QueueClient {
-	return &QueueClient{db: db}
+	return &QueueClient{db: db, lastID: "$"}
 }
 
-func (c *QueueClient) Reset() error {
-	return c.fillBuf("0-0")
+func (c *QueueClient) Reset() {
+	c.lastID = "0-0"
 }
 
 func (c *QueueClient) Read() (any, error) {
 	if len(c.buf) > 0 {
 		return c.pop(), nil
 	}
-	if err := c.fillBuf("$"); err != nil {
+	if err := c.fillBuf(c.lastID); err != nil {
 		return nil, err
 	}
 	return c.pop(), nil
