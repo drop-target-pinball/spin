@@ -7,7 +7,7 @@ import (
 )
 
 func TestPathTo(t *testing.T) {
-	e := NewEngine(TestSettings(t))
+	e := NewEngine(testSettings(t))
 	e.Settings.Dir = "/tmp/example-project"
 	have := e.PathTo("myconfig/config.hcl")
 	want := "/tmp/example-project/myconfig/config.hcl"
@@ -17,7 +17,7 @@ func TestPathTo(t *testing.T) {
 }
 
 func TestLogging(t *testing.T) {
-	e := NewEngine(TestSettings(t))
+	e := NewEngine(testSettings(t))
 
 	tests := []struct {
 		name    string
@@ -46,8 +46,8 @@ func TestLogging(t *testing.T) {
 					}
 				}
 				have := strings.TrimSpace(buf.String())
-				if have != want {
-					t.Errorf("\n have: %v \n want: %v", have, want)
+				if !strings.HasSuffix(have, want) {
+					t.Errorf("\n have: %v \n want: ...%v", have, want)
 				}
 			}()
 			test.fn(want)

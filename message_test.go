@@ -13,7 +13,7 @@ func TestMessageClient(t *testing.T) {
 	want2 := Play{ID: "sound2"}
 	want3 := Play{ID: "sound3"}
 
-	e := NewEngine(TestSettings(t))
+	e := NewEngine(testSettings(t))
 	if err := os.WriteFile(e.PathTo("test.hcl"), []byte{}, 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -22,29 +22,32 @@ func TestMessageClient(t *testing.T) {
 	}
 
 	db := redis.NewClient(&redis.Options{Addr: e.Settings.RedisRunAddress})
-	cli := NewQueueClient(db)
+	queue := NewQueueClient(db)
 
-	e.Send(want1)
-	e.Send(want2)
-	cli.Reset()
+	if err := queue.Send(want1, want2); err != nil {
+		t.Fatal(err)
+	}
+	queue.Reset()
 
-	have1, err := cli.Read()
+	have1, err := queue.Read()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(have1, want1) {
-		t.Errorf("\n have: %v \n want: %v", have1, want1)
+		t.Fatalf("\n have: %v \n want: %v", have1, want1)
 	}
-	have2, err := cli.Read()
+	have2, err := queue.Read()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(have2, want2) {
-		t.Errorf("\n have: %v \n want: %v", have2, want2)
+		t.Fatalf("\n have: %v \n want: %v", have2, want2)
 	}
 
-	e.Send(want3)
-	have3, err := cli.Read()
+	if err := queue.Send(want3); err != nil {
+		t.Fatal(err)
+	}
+	have3, err := queue.Read()
 	if err != nil {
 		t.Error(err)
 	}

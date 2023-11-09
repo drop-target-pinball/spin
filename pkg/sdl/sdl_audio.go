@@ -91,7 +91,7 @@ func (h *AudioHandler) load(e *spin.Engine, load spin.Load) {
 		if audio.Module != load.ID {
 			continue
 		}
-		e.Log("%v: loading %v %v: %v", h.FormatID(), audio.Type, audio.ID, audio.File)
+		e.Debug("%v: loading %v %v: %v", h.FormatID(), audio.Type, audio.ID, audio.File)
 		fullPath := e.PathTo(audio.File)
 		snd, err := mix.LoadWAV(fullPath)
 		if err != nil {

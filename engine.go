@@ -2,38 +2,55 @@ package spin
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"path"
-	"reflect"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
+// Engine provides the run environment and the main game loop for execution.
 type Engine struct {
-	Config   *Config
-	DevMode  bool
-	Settings *Settings
-	devices  []Device
-	modules  map[string]struct{}
-	runDB    *redis.Client
-	varDB    *redis.Client
+	Config    *Config
+	DevMode   bool
+	Settings  *Settings
+	StartTime time.Time
+	init      bool
+	devices   []Device
+	modules   map[string]struct{}
+	runDB     *redis.Client
+	varDB     *redis.Client
+	shutdown  chan struct{}
 }
 
+// NewEngine creates an engine using the specified settings.
 func NewEngine(settings *Settings) *Engine {
 	if settings.Dir == "" {
 		settings.Dir = "./project"
 	}
+
+	// Disable all default formatting as a specific format will be used
+	// instead.
+	log.SetFlags(0)
+
 	e := &Engine{
-		Config:   NewConfig(),
-		Settings: settings,
-		modules:  make(map[string]struct{}),
+		Config:    NewConfig(),
+		DevMode:   settings.DevMode,
+		Settings:  settings,
+		StartTime: time.Now(),
+		modules:   make(map[string]struct{}),
+		shutdown:  make(chan struct{}),
 	}
 	return e
 }
 
+// Init reads in project configuration files, clears the runtime database,
+// and starts goroutines for devices as necessary.
 func (e *Engine) Init() error {
+	if e.init {
+		return fmt.Errorf("already initialized")
+	}
 	if err := e.Config.AddFile(e.PathTo(e.Settings.ConfigFile)); err != nil {
 		return err
 	}
@@ -69,19 +86,54 @@ func (e *Engine) Init() error {
 		}
 	}
 
+	queue := e.NewQueueClient()
 	for _, id := range e.Config.Load {
 		if _, exists := e.modules[id]; exists {
 			continue
 		}
 		e.modules[id] = struct{}{}
-		e.Log("loading module: %v", id)
-		e.Send(Load{ID: id})
+		e.Debug("loading module: %v", id)
+		if err := queue.Send(Load{ID: id}); err != nil {
+			e.Error(err)
+		}
 	}
-
+	e.init = true
 	return nil
-
 }
 
+// Process is the main body of the run loop. This method is called 60 times
+// a second (every 16.67 milliseconds). Calling this method is useful for
+// testing but normal use is to simply call Run.
+func (e *Engine) Process(t time.Time) {
+}
+
+// Run executes the game engine loop. This loop repeats until Shutdown
+// is called.
+func (e *Engine) Run() {
+	if !e.init {
+		panic("not initialized")
+	}
+	e.Debug("ready")
+	ticker := time.NewTicker(16670 * time.Microsecond)
+
+	var done bool
+	for !done {
+		select {
+		case <-e.shutdown:
+			done = true
+		case t := <-ticker.C:
+			e.Process(t)
+		}
+	}
+	e.Debug("shutdown complete")
+}
+
+// Shutdown sends a message to terminate the main run loop.
+func (e *Engine) Shutdown() {
+	e.shutdown <- struct{}{}
+}
+
+// Creates a new client for reading and posting to the message queue.
 func (e *Engine) NewQueueClient() *QueueClient {
 	return NewQueueClient(e.runDB)
 }
@@ -96,7 +148,7 @@ func (e *Engine) PathTo(name string) string {
 // be called on unrecoverable errors when the program should exit and be
 // restarted by systemd.
 func (e *Engine) Error(args ...any) {
-	log.Panic(logMsg(args...))
+	log.Panic(e.logMsg(args...))
 }
 
 // Warn writes a message to the log. If DevMode is set to true, this will then
@@ -104,7 +156,7 @@ func (e *Engine) Error(args ...any) {
 // errors that are not serious enough to exit the application but should be
 // immediately addressed by the programmer (for example, a missing sound file)
 func (e *Engine) Warn(args ...any) {
-	msg := logMsg(args...)
+	msg := e.logMsg(args...)
 	if e.DevMode {
 		log.Panic(msg)
 	}
@@ -113,32 +165,24 @@ func (e *Engine) Warn(args ...any) {
 
 // Log writes a message to the log.
 func (e *Engine) Log(args ...any) {
-	log.Print(logMsg(args...))
+	log.Print(e.logMsg(args...))
 }
 
-func logMsg(args ...any) string {
+// Debug writes a message to the log if DevMode is true.
+func (e *Engine) Debug(args ...any) {
+	if e.DevMode {
+		log.Printf(e.logMsg(args...))
+	}
+}
+
+func (e *Engine) logMsg(args ...any) string {
 	if len(args) == 0 {
 		return ""
 	}
-	format, others := fmt.Sprintf("%v", args[0]), args[1:]
-	return fmt.Sprintf(format, others...)
-}
+	now := time.Now()
+	diff := float64(now.Sub(e.StartTime).Milliseconds()) / 1000
 
-func (e *Engine) Send(message any) {
-	payload, err := json.Marshal(message)
-	if err != nil {
-		e.Warn(err)
-		return
-	}
-	ctx := context.Background()
-	result := e.runDB.XAdd(ctx, &redis.XAddArgs{
-		Stream: MessageQueueKey,
-		Values: []any{
-			"type", reflect.TypeOf(message).Name(),
-			"payload", payload,
-		},
-	})
-	if result.Err() != nil {
-		e.Error(result.Err())
-	}
+	format, others := fmt.Sprintf("%v", args[0]), args[1:]
+	msg := fmt.Sprintf(format, others...)
+	return fmt.Sprintf("[%10.3f] %v", diff, msg)
 }

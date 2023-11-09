@@ -2,7 +2,9 @@ package spin
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -33,6 +35,27 @@ func (c *QueueClient) Read() (any, error) {
 		return nil, err
 	}
 	return c.pop(), nil
+}
+
+func (c *QueueClient) Send(messages ...any) error {
+	for _, message := range messages {
+		payload, err := json.Marshal(message)
+		if err != nil {
+			return err
+		}
+		ctx := context.Background()
+		result := c.db.XAdd(ctx, &redis.XAddArgs{
+			Stream: MessageQueueKey,
+			Values: []any{
+				"type", reflect.TypeOf(message).Name(),
+				"payload", payload,
+			},
+		})
+		if result.Err() != nil {
+			return result.Err()
+		}
+	}
+	return nil
 }
 
 func (c *QueueClient) pop() any {

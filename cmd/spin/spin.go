@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/drop-target-pinball/spin/v2"
 	"github.com/drop-target-pinball/spin/v2/pkg/sdl"
@@ -14,7 +13,8 @@ var settings spin.Settings
 
 func main() {
 	flag.StringVar(&settings.ConfigFile, "c", "project.hcl", "configuration file")
-	flag.StringVar(&settings.Dir, "d", "./project", "project directory")
+	flag.BoolVar(&settings.DevMode, "d", false, "development mode")
+	flag.StringVar(&settings.Dir, "p", "./project", "project directory")
 	flag.Parse()
 
 	spin.AddNewDeviceFunc(sdl.AudioHandlerName, sdl.NewAudioDevice)
@@ -24,12 +24,5 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
-
-	msg := spin.Play{
-		ID:     "service_enter",
-		Repeat: true,
-		Notify: true,
-	}
-	eng.Send(msg)
-	time.Sleep(1 * time.Second)
+	eng.Run()
 }

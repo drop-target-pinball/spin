@@ -7,7 +7,7 @@ case $1 in
         go run $SPIN_FLAGS cmd/spin/spin.go $@
         ;;
     example)
-        SPIN_FLAGS=$SPIN_FLAGS exec ./spin-dev run -d example
+        SPIN_FLAGS=$SPIN_FLAGS exec ./spin-dev run -d -p example
         ;;
     *)
         echo "error: unknown command: $1"

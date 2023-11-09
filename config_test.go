@@ -1,35 +1,31 @@
 package spin
 
 import (
-	"os"
 	"path"
 	"reflect"
 	"strings"
 	"testing"
 )
 
+func testSettings(t *testing.T) *Settings {
+	return &Settings{
+		Dir:             t.TempDir(),
+		ConfigFile:      "test.hcl",
+		RedisRunAddress: "localhost:1080",
+		RedisVarAddress: "localhost:1080",
+	}
+}
+
 func TestDriver(t *testing.T) {
-	minDriver := `
-driver "driver_id" {
-	address = "addr"
-}`
-
-	maxDriver := `
-driver "driver_id" {
-	address = "addr"
-	type = "solenoid"
-}`
-
 	tests := []struct {
-		name   string
-		src    string
+		file   string
 		driver Driver
 	}{
-		{"min_driver.hcl", minDriver, Driver{
+		{"testdata/config/min_driver.hcl", Driver{
 			ID:      "driver_id",
 			Address: "addr",
 		}},
-		{"max_driver.hcl", maxDriver, Driver{
+		{"testdata/config/max_driver.hcl", Driver{
 			ID:      "driver_id",
 			Address: "addr",
 			Type:    "solenoid",
@@ -37,13 +33,9 @@ driver "driver_id" {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			dir := t.TempDir()
-			hcl := path.Join(dir, test.name)
-			os.WriteFile(hcl, []byte(test.src), 0o644)
-
+		t.Run(path.Base(test.file), func(t *testing.T) {
 			conf := NewConfig()
-			if err := conf.AddFile(hcl); err != nil {
+			if err := conf.AddFile(test.file); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			driver := conf.Drivers["driver_id"]
@@ -55,31 +47,15 @@ driver "driver_id" {
 }
 
 func TestInfo(t *testing.T) {
-	minInfo := `
-info "driver" "driver_id" {
-}`
-
-	maxInfo := `
-info "driver" "driver_id" {
-	name = "Test Driver"
-	menu_name = "T.D."
-	manual_name = "Driver for Testing"
-	sort_name = "Driver, Test"
-	wires = [ "red", "white", "blue" ]
-	jumpers = [ "J1", "J2", "J3" ]
-	transistor = "Q1"
-}`
-
 	tests := []struct {
-		name string
-		src  string
+		file string
 		info Info
 	}{
-		{"min_info.hcl", minInfo, Info{
+		{"testdata/config/min_info.hcl", Info{
 			Type: "driver",
 			ID:   "driver_id",
 		}},
-		{"max_driver.hcl", maxInfo, Info{
+		{"testdata/config/max_info.hcl", Info{
 			Type:       "driver",
 			ID:         "driver_id",
 			Name:       "Test Driver",
@@ -93,13 +69,9 @@ info "driver" "driver_id" {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			dir := t.TempDir()
-			hcl := path.Join(dir, test.name)
-			os.WriteFile(hcl, []byte(test.src), 0o644)
-
+		t.Run(path.Base(test.file), func(t *testing.T) {
 			conf := NewConfig()
-			if err := conf.AddFile(hcl); err != nil {
+			if err := conf.AddFile(test.file); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			info := conf.Info["driver/driver_id"]
@@ -111,27 +83,15 @@ info "driver" "driver_id" {
 }
 
 func TestSwitch(t *testing.T) {
-	minSwitch := `
-switch "switch_id" {
-	address = "addr"
-}`
-
-	maxSwitch := `
-switch "switch_id" {
-	address = "addr"
-	type = "opto"
-}`
-
 	tests := []struct {
-		name    string
-		src     string
+		file    string
 		switch_ Switch
 	}{
-		{"min_switch.hcl", minSwitch, Switch{
+		{"testdata/config/min_switch.hcl", Switch{
 			ID:      "switch_id",
 			Address: "addr",
 		}},
-		{"max_switch.hcl", maxSwitch, Switch{
+		{"testdata/config/max_switch.hcl", Switch{
 			ID:      "switch_id",
 			Address: "addr",
 			Type:    "opto",
@@ -139,13 +99,9 @@ switch "switch_id" {
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			dir := t.TempDir()
-			hcl := path.Join(dir, test.name)
-			os.WriteFile(hcl, []byte(test.src), 0o644)
-
+		t.Run(path.Base(test.file), func(t *testing.T) {
 			conf := NewConfig()
-			if err := conf.AddFile(hcl); err != nil {
+			if err := conf.AddFile(test.file); err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
 			switch_ := conf.Switches["switch_id"]
@@ -157,27 +113,6 @@ switch "switch_id" {
 }
 
 func TestInclude(t *testing.T) {
-	file1 := `
-switch "switch_1" {
-	address = "bad"
-}
-
-switch "switch_2" {
-	address	= "sw2"
-}
-`
-
-	file2 := `
-include = [ "./file1.hcl" ]
-
-switch "switch_1" {
-	address = "sw1"
-}
-
-switch "switch_3" {
-	address = "sw3"
-}
-`
 	want := map[string]Switch{
 		"switch_1": {
 			ID:      "switch_1",
@@ -193,14 +128,8 @@ switch "switch_3" {
 		},
 	}
 
-	dir := t.TempDir()
-	hcl1 := path.Join(dir, "file1.hcl")
-	os.WriteFile(hcl1, []byte(file1), 0o644)
-	hcl2 := path.Join(dir, "file2.hcl")
-	os.WriteFile(hcl2, []byte(file2), 0o644)
-
 	conf := NewConfig()
-	if err := conf.AddFile(hcl2); err != nil {
+	if err := conf.AddFile("testdata/config/include.hcl"); err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(conf.Switches, want) {
@@ -209,23 +138,8 @@ switch "switch_3" {
 }
 
 func TestMissingInclude(t *testing.T) {
-	file := `
-include = [ "missing.hcl" ]
-
-switch "switch_1" {
-	address = "sw1"
-}
-
-switch "switch_3" {
-	address = "sw3"
-}
-`
-	dir := t.TempDir()
-	hcl := path.Join(dir, "file.hcl")
-	os.WriteFile(hcl, []byte(file), 0o644)
-
 	conf := NewConfig()
-	err := conf.AddFile(hcl)
+	err := conf.AddFile("testdata/config/include_missing.hcl")
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -236,30 +150,12 @@ switch "switch_3" {
 }
 
 func TestSettingsMerge(t *testing.T) {
-	file1 := `
-settings {
-	redis_run_address = "localhost:1234"
-}
-	`
-
-	file2 := `
-settings {
-	redis_var_address = "localhost:5678"
-}
-`
-
-	dir := t.TempDir()
-	hcl1 := path.Join(dir, "file1.hcl")
-	os.WriteFile(hcl1, []byte(file1), 0o644)
-	hcl2 := path.Join(dir, "file2.hcl")
-	os.WriteFile(hcl2, []byte(file2), 0o644)
-
 	conf := NewConfig()
-	err := conf.AddFile(hcl1)
+	err := conf.AddFile("testdata/config/settings_1.hcl")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	err = conf.AddFile(hcl2)
+	err = conf.AddFile("testdata/config/settings_2.hcl")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
