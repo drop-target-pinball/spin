@@ -27,7 +27,7 @@ func main() {
 	flag.Parse()
 
 	db := redis.NewClient(&redis.Options{Addr: addr})
-	cli := spin.NewQueueClient(db)
+	cli := spin.NewStreamClient(db)
 
 	for {
 		msg, err := cli.Read()

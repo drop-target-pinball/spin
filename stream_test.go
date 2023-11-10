@@ -8,7 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func TestMessageClient(t *testing.T) {
+func TestMessageStream(t *testing.T) {
 	want1 := Play{ID: "sound1"}
 	want2 := Play{ID: "sound2"}
 	want3 := Play{ID: "sound3"}
@@ -22,21 +22,22 @@ func TestMessageClient(t *testing.T) {
 	}
 
 	db := redis.NewClient(&redis.Options{Addr: e.Settings.RedisRunAddress})
-	queue := NewQueueClient(db)
+	stream := NewStreamClient(db)
 
-	if err := queue.Send(want1, want2); err != nil {
+	if err := stream.Send(want1, want2); err != nil {
 		t.Fatal(err)
 	}
-	queue.Reset()
+	stream.Reset()
+	stream.Read() // Discard the first load message
 
-	have1, err := queue.Read()
+	have1, err := stream.Read()
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(have1, want1) {
 		t.Fatalf("\n have: %v \n want: %v", have1, want1)
 	}
-	have2, err := queue.Read()
+	have2, err := stream.Read()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,10 +45,10 @@ func TestMessageClient(t *testing.T) {
 		t.Fatalf("\n have: %v \n want: %v", have2, want2)
 	}
 
-	if err := queue.Send(want3); err != nil {
+	if err := stream.Send(want3); err != nil {
 		t.Fatal(err)
 	}
-	have3, err := queue.Read()
+	have3, err := stream.Read()
 	if err != nil {
 		t.Error(err)
 	}

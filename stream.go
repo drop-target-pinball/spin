@@ -9,26 +9,22 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const (
-	MessageQueueKey = "mq"
-)
-
-// QueueClient is used to send or receive messages from the queue.
-type QueueClient struct {
+// StreamClient is used to send or receive messages from the stream.
+type StreamClient struct {
 	db     *redis.Client
 	buf    []any
 	lastID string
 }
 
-func NewQueueClient(db *redis.Client) *QueueClient {
-	return &QueueClient{db: db, lastID: "$"}
+func NewStreamClient(db *redis.Client) *StreamClient {
+	return &StreamClient{db: db, lastID: "$"}
 }
 
-func (c *QueueClient) Reset() {
+func (c *StreamClient) Reset() {
 	c.lastID = "0-0"
 }
 
-func (c *QueueClient) Read() (any, error) {
+func (c *StreamClient) Read() (any, error) {
 	if len(c.buf) > 0 {
 		return c.pop(), nil
 	}
@@ -38,7 +34,7 @@ func (c *QueueClient) Read() (any, error) {
 	return c.pop(), nil
 }
 
-func (c *QueueClient) Send(messages ...any) error {
+func (c *StreamClient) Send(messages ...any) error {
 	for _, message := range messages {
 		payload, err := json.Marshal(message)
 		if err != nil {
@@ -46,7 +42,7 @@ func (c *QueueClient) Send(messages ...any) error {
 		}
 		ctx := context.Background()
 		result := c.db.XAdd(ctx, &redis.XAddArgs{
-			Stream: MessageQueueKey,
+			Stream: "mq",
 			Values: []any{
 				"type", reflect.TypeOf(message).Name(),
 				"payload", payload,
@@ -59,20 +55,20 @@ func (c *QueueClient) Send(messages ...any) error {
 	return nil
 }
 
-func (c *QueueClient) pop() any {
+func (c *StreamClient) pop() any {
 	var msg any
 	msg, c.buf = c.buf[0], c.buf[1:]
 	return msg
 }
 
-func (c *QueueClient) fillBuf(fromID string) error {
+func (c *StreamClient) fillBuf(fromID string) error {
 	ctx := context.Background()
 
 	if c.lastID != "" {
 		fromID = c.lastID
 	}
 	res := c.db.XRead(ctx, &redis.XReadArgs{
-		Streams: []string{MessageQueueKey, fromID},
+		Streams: []string{"mq", fromID},
 	})
 	if res.Err() != nil {
 		return res.Err()

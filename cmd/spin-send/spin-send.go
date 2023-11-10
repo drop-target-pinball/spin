@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 
 	cli := redis.NewClient(&redis.Options{Addr: addr})
-	stream := spin.NewQueueClient(cli)
+	stream := spin.NewStreamClient(cli)
 
 	data, err := io.ReadAll(os.Stdin)
 	if err != nil {

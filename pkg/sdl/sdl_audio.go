@@ -35,7 +35,7 @@ type AudioDevice struct {
 	id      string
 	name    string
 	config  spin.AudioDevice
-	queue   *spin.QueueClient
+	stream  *spin.StreamClient
 	sounds  map[string]*mix.Chunk
 }
 
@@ -71,14 +71,14 @@ func (d *AudioDevice) Init(e *spin.Engine) bool {
 	// nChan := mix.AllocateChannels(-1)
 	// h.load(e)
 
-	d.queue = e.NewQueueClient()
-	d.queue.Reset()
+	d.stream = e.NewStreamClient()
+	d.stream.Reset()
 
 	return true
 }
 
 func (d *AudioDevice) Process(e *spin.Engine) bool {
-	msg, err := d.queue.Read()
+	msg, err := d.stream.Read()
 	if err != nil {
 		e.Error(err)
 	}

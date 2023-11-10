@@ -86,18 +86,18 @@ func (e *Engine) Init() error {
 
 	e.Log("spin version %v (%v)", Version, Date)
 
-	queue := e.NewQueueClient()
+	stream := e.NewStreamClient()
 	for _, id := range e.Config.Load {
 		if _, exists := e.modules[id]; exists {
 			continue
 		}
 		e.modules[id] = struct{}{}
 		e.Debug("loading module: %v", id)
-		if err := queue.Send(Load{ID: id}); err != nil {
+		if err := stream.Send(Load{ID: id}); err != nil {
 			e.Error(err)
 		}
 	}
-	if err := queue.Send(Load{}); err != nil {
+	if err := stream.Send(Load{}); err != nil {
 		e.Error(err)
 	}
 
@@ -137,9 +137,10 @@ func (e *Engine) Shutdown() {
 	e.shutdown <- struct{}{}
 }
 
-// Creates a new client for reading and posting to the message queue.
-func (e *Engine) NewQueueClient() *QueueClient {
-	return NewQueueClient(e.runDB)
+// NewStreamClient creates a new client for reading messages from and for
+// posting messages to the message stream.
+func (e *Engine) NewStreamClient() *StreamClient {
+	return NewStreamClient(e.runDB)
 }
 
 // PathTo returns a path that in the joined value of the project directory
