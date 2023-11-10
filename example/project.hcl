@@ -7,6 +7,5 @@ load = [
     "service"
 ]
 
-audio_device "" {
-    handler = "sdl_mixer"
+audio_device "sdl_mixer" "" {
 }

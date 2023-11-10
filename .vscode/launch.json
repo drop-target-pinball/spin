@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Launch Spin",
             "program": "${workspaceFolder}/cmd/spin/spin.go",
-            "args": "-d ${workspaceFolder}/example"
+            "args": "-p ${workspaceFolder}/example"
         }
     ]
 }

@@ -18,11 +18,11 @@ type Audio struct {
 }
 
 type AudioDevice struct {
+	// Type of audio device, such as "sdl_mixer"
+	Type string `hcl:"type,label" json:"type"`
+
 	// Unique identifier for this audio device.
 	ID string `hcl:"id,label" json:"id"`
-
-	// Handler for this audio device, such as "sdl"
-	Handler string `hcl:"handler" json:"handler"`
 }
 
 type Driver struct {

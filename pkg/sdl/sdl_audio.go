@@ -4,42 +4,50 @@ package sdl
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/drop-target-pinball/spin/v2"
 	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-type AudioHandler struct {
-	id     string
-	config spin.AudioDevice
-	queue  *spin.QueueClient
-	sounds map[string]*mix.Chunk
+type AudioFactory struct{}
+
+func (a AudioFactory) ID() string {
+	return "sdl_mixer"
 }
 
-func (a AudioHandler) FormatID() string {
-	if a.id == "" {
-		return AudioHandlerName
-	}
-	return fmt.Sprintf("%v(%v)", AudioHandlerName, a.id)
-}
-
-func NewAudioDevice(conf any) (spin.Device, bool) {
+func (a AudioFactory) NewDevice(conf any) (spin.Device, error) {
 	c, ok := conf.(spin.AudioDevice)
 	if !ok {
-		return nil, false
+		return nil, fmt.Errorf("invalid config for %v, got %v", a.ID(), reflect.TypeOf(conf).Name())
 	}
-	if c.Handler != AudioHandlerName {
-		return nil, false
-	}
-	return &AudioHandler{
+	return &AudioDevice{
 		id:     c.ID,
+		name:   spin.DeviceName(a.ID(), c.ID),
 		config: c,
 		sounds: make(map[string]*mix.Chunk),
-	}, true
+	}, nil
 }
 
-func (h *AudioHandler) Init(e *spin.Engine) bool {
+type AudioDevice struct {
+	handler AudioFactory
+	id      string
+	name    string
+	config  spin.AudioDevice
+	queue   *spin.QueueClient
+	sounds  map[string]*mix.Chunk
+}
+
+func (d *AudioDevice) ID() string {
+	return d.id
+}
+
+func (d *AudioDevice) Name() string {
+	return d.name
+}
+
+func (d *AudioDevice) Init(e *spin.Engine) bool {
 	if err := sdl.Init(sdl.INIT_AUDIO); err != nil {
 		e.Warn("unable to initialize audio: %v", err)
 		return false
@@ -63,49 +71,49 @@ func (h *AudioHandler) Init(e *spin.Engine) bool {
 	// nChan := mix.AllocateChannels(-1)
 	// h.load(e)
 
-	h.queue = e.NewQueueClient()
-	h.queue.Reset()
+	d.queue = e.NewQueueClient()
+	d.queue.Reset()
 
 	return true
 }
 
-func (h *AudioHandler) Process(e *spin.Engine) bool {
-	msg, err := h.queue.Read()
+func (d *AudioDevice) Process(e *spin.Engine) bool {
+	msg, err := d.queue.Read()
 	if err != nil {
 		e.Error(err)
 	}
 	switch m := msg.(type) {
 	case spin.Load:
-		h.load(e, m)
+		d.load(e, m)
 	case spin.Play:
-		h.play(m)
+		d.play(m)
 	}
 	return true
 }
 
-func (h *AudioHandler) load(e *spin.Engine, load spin.Load) {
+func (d *AudioDevice) load(e *spin.Engine, load spin.Load) {
 	for _, audio := range e.Config.Audio {
-		if audio.Device != h.id {
+		if audio.Device != d.id {
 			continue
 		}
 		if audio.Module != load.ID {
 			continue
 		}
-		e.Debug("%v: loading %v %v: %v", h.FormatID(), audio.Type, audio.ID, audio.File)
+		e.Debug("%v: loading %v %v: %v", d.name, audio.Type, audio.ID, audio.File)
 		fullPath := e.PathTo(audio.File)
 		snd, err := mix.LoadWAV(fullPath)
 		if err != nil {
 			e.Warn("unable to load %v: %v", fullPath, err)
 			continue
 		}
-		h.sounds[audio.ID] = snd
+		d.sounds[audio.ID] = snd
 	}
 }
 
-func (h *AudioHandler) play(msg spin.Play) {
-	snd, ok := h.sounds[msg.ID]
+func (d *AudioDevice) play(msg spin.Play) {
+	sound, ok := d.sounds[msg.ID]
 	if !ok {
 		return
 	}
-	snd.Play(-1, 0)
+	sound.Play(-1, 0)
 }

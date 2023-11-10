@@ -64,18 +64,16 @@ func (e *Engine) Init() error {
 	// variable database to see if that is also running.
 	ctx := context.Background()
 	if resp := e.runDB.FlushAll(ctx); resp.Err() != nil {
-		return resp.Err()
+		return fmt.Errorf("unable to flush runtime database: %v", resp.Err())
 	}
 	if resp := e.varDB.Ping(ctx); resp.Err() != nil {
-		return resp.Err()
+		return fmt.Errorf("unable to connect to variable database: %v", resp.Err())
 	}
 
-	e.Log("spin version %v - %v", Version, Date)
-
 	for _, conf := range e.Config.AudioDevices {
-		d, ok := NewDevice(conf)
-		if !ok {
-			e.Error("no such handler: %v", conf.Handler)
+		d, err := NewDevice(conf.Type, conf)
+		if err != nil {
+			return err
 		}
 		if d.Init(e) {
 			go func() {
@@ -85,6 +83,8 @@ func (e *Engine) Init() error {
 			e.devices = append(e.devices, d)
 		}
 	}
+
+	e.Log("spin version %v (%v)", Version, Date)
 
 	queue := e.NewQueueClient()
 	for _, id := range e.Config.Load {

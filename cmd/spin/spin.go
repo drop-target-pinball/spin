@@ -17,7 +17,7 @@ func main() {
 	flag.StringVar(&settings.Dir, "p", "./project", "project directory")
 	flag.Parse()
 
-	spin.AddNewDeviceFunc(sdl.AudioHandlerName, sdl.NewAudioDevice)
+	spin.AddDeviceFactory(sdl.AudioFactory{})
 
 	eng := spin.NewEngine(&settings)
 	if err := eng.Init(); err != nil {
