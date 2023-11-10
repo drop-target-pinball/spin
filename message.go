@@ -6,11 +6,11 @@ import (
 )
 
 type Load struct {
-	ID string `json:"id"`
+	ID string `json:"id" arg:"positional"`
 }
 
 type Play struct {
-	ID       string `json:"id"`
+	ID       string `json:"id" arg:"positional"`
 	Loops    int    `json:"loops,omitempty"`
 	Repeat   bool   `json:"repeat,omitempty"`
 	Priority int    `json:"priority,omitempty"`

@@ -41,10 +41,16 @@ func (c *StreamClient) Send(messages ...any) error {
 			return err
 		}
 		ctx := context.Background()
+		typ := reflect.TypeOf(message)
+		name := typ.Name()
+		if name == "" && typ.Kind() == reflect.Ptr {
+			name = typ.Elem().Name()
+		}
+
 		result := c.db.XAdd(ctx, &redis.XAddArgs{
 			Stream: "mq",
 			Values: []any{
-				"type", reflect.TypeOf(message).Name(),
+				"type", name,
 				"payload", payload,
 			},
 		})

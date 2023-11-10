@@ -5,6 +5,9 @@ case $1 in
     build)
         go build $SPIN_FLAGS ./...
         ;;
+    cli) 
+        go run cmd/spin-cli/spin-cli.go 
+        ;;
     run)
         shift
         go run $SPIN_FLAGS cmd/spin/spin.go $@
