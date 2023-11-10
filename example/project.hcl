@@ -9,3 +9,8 @@ load = [
 
 audio_device "sdl_mixer" "" {
 }
+
+audio "splash" {
+    type = "sound"
+    file = "lib/sound/dtp/splash.ogg"
+}

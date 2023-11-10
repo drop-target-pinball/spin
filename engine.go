@@ -97,6 +97,10 @@ func (e *Engine) Init() error {
 			e.Error(err)
 		}
 	}
+	if err := queue.Send(Load{}); err != nil {
+		e.Error(err)
+	}
+
 	e.init = true
 	return nil
 }
@@ -148,7 +152,9 @@ func (e *Engine) PathTo(name string) string {
 // be called on unrecoverable errors when the program should exit and be
 // restarted by systemd.
 func (e *Engine) Error(args ...any) {
-	log.Panic(e.logMsg(args...))
+	tsMsg, msg := e.logMsg(args...)
+	log.Print(tsMsg)
+	panic(msg)
 }
 
 // Warn writes a message to the log. If DevMode is set to true, this will then
@@ -156,33 +162,35 @@ func (e *Engine) Error(args ...any) {
 // errors that are not serious enough to exit the application but should be
 // immediately addressed by the programmer (for example, a missing sound file)
 func (e *Engine) Warn(args ...any) {
-	msg := e.logMsg(args...)
+	tsMsg, msg := e.logMsg(args...)
+	log.Print(tsMsg)
 	if e.DevMode {
-		log.Panic(msg)
+		panic(msg)
 	}
-	log.Print(msg)
 }
 
 // Log writes a message to the log.
 func (e *Engine) Log(args ...any) {
-	log.Print(e.logMsg(args...))
+	tsMsg, _ := e.logMsg(args...)
+	log.Print(tsMsg)
 }
 
 // Debug writes a message to the log if DevMode is true.
 func (e *Engine) Debug(args ...any) {
 	if e.DevMode {
-		log.Printf(e.logMsg(args...))
+		tsMsg, _ := e.logMsg(args...)
+		log.Print(tsMsg)
 	}
 }
 
-func (e *Engine) logMsg(args ...any) string {
+func (e *Engine) logMsg(args ...any) (string, string) {
 	if len(args) == 0 {
-		return ""
+		return "", ""
 	}
 	now := time.Now()
 	diff := float64(now.Sub(e.StartTime).Milliseconds()) / 1000
 
 	format, others := fmt.Sprintf("%v", args[0]), args[1:]
 	msg := fmt.Sprintf(format, others...)
-	return fmt.Sprintf("[%10.3f] %v", diff, msg)
+	return fmt.Sprintf("[%10.3f] %v", diff, msg), msg
 }

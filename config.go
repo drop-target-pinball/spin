@@ -86,11 +86,13 @@ func (c *Config) AddFile(name string) error {
 		}
 	}
 
-	for i, a := range cf.Audio {
-		if a.Module == "" {
-			a.Module = cf.Defaults.Module
+	if cf.Defaults != nil {
+		for i, a := range cf.Audio {
+			if a.Module == "" {
+				a.Module = cf.Defaults.Module
+			}
+			cf.Audio[i] = a
 		}
-		cf.Audio[i] = a
 	}
 
 	key[Audio](cf.Audio, c.Audio, func(a Audio) string { return a.ID })
