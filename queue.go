@@ -13,6 +13,7 @@ const (
 	MessageQueueKey = "mq"
 )
 
+// QueueClient is used to send or receive messages from the queue.
 type QueueClient struct {
 	db     *redis.Client
 	buf    []any
