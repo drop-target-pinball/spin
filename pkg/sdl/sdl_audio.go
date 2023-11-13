@@ -31,12 +31,11 @@ func (a AudioFactory) NewDevice(conf any) (spin.Device, error) {
 }
 
 type AudioDevice struct {
-	handler AudioFactory
-	id      string
-	name    string
-	config  spin.AudioDevice
-	stream  *spin.StreamClient
-	sounds  map[string]*mix.Chunk
+	id     string
+	name   string
+	config spin.AudioDevice
+	stream *spin.StreamClient
+	sounds map[string]*mix.Chunk
 }
 
 func (d *AudioDevice) ID() string {

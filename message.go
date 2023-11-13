@@ -10,7 +10,7 @@ type Load struct {
 }
 
 type Play struct {
-	ID       string `json:"id" arg:"positional"`
+	ID       string `json:"id" arg:"positional,required"`
 	Loops    int    `json:"loops,omitempty"`
 	Repeat   bool   `json:"repeat,omitempty"`
 	Priority int    `json:"priority,omitempty"`
