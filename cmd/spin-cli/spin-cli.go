@@ -6,7 +6,6 @@ import (
 
 	"github.com/drop-target-pinball/spin/v2"
 	"github.com/drop-target-pinball/spin/v2/app/cli"
-	"github.com/redis/go-redis/v9"
 )
 
 var (
@@ -18,9 +17,10 @@ func main() {
 	flag.StringVar(&addr, "addr", "localhost:1080", "redis address to runtime database")
 	flag.Parse()
 
-	db := redis.NewClient(&redis.Options{Addr: addr})
-	stream := spin.NewStreamClient(db)
-
-	app := cli.NewApp(stream)
+	pin, err := spin.NewClient(addr)
+	if err != nil {
+		log.Fatalf("unable to connect: %v", err)
+	}
+	app := cli.NewApp(pin)
 	app.Run()
 }

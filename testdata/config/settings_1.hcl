@@ -1,3 +1,3 @@
 settings {
-	redis_run_address = "localhost:1234"
+	redis_address = "localhost:1234"
 }

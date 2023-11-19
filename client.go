@@ -9,22 +9,33 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// StreamClient is used to send or receive messages from the stream.
-type StreamClient struct {
+type Client struct {
+	Addr   string
 	db     *redis.Client
 	buf    []any
 	lastID string
 }
 
-func NewStreamClient(db *redis.Client) *StreamClient {
-	return &StreamClient{db: db, lastID: "$"}
+func NewClient(addr string) (*Client, error) {
+	c := &Client{
+		Addr: addr,
+	}
+
+	ctx := context.Background()
+
+	c.db = redis.NewClient(&redis.Options{Addr: addr})
+	resp := c.db.Conn().Hello(ctx, 3, "", "", "client-name-test")
+	if resp.Err() != nil {
+		return nil, resp.Err()
+	}
+	return c, nil
 }
 
-func (c *StreamClient) Reset() {
+func (c *Client) Reset() {
 	c.lastID = "0-0"
 }
 
-func (c *StreamClient) Read() (any, error) {
+func (c *Client) Read() (any, error) {
 	if len(c.buf) > 0 {
 		return c.pop(), nil
 	}
@@ -34,7 +45,7 @@ func (c *StreamClient) Read() (any, error) {
 	return c.pop(), nil
 }
 
-func (c *StreamClient) Send(messages ...any) error {
+func (c *Client) Send(messages ...any) error {
 	for _, message := range messages {
 		payload, err := json.Marshal(message)
 		if err != nil {
@@ -61,13 +72,13 @@ func (c *StreamClient) Send(messages ...any) error {
 	return nil
 }
 
-func (c *StreamClient) pop() any {
+func (c *Client) pop() any {
 	var msg any
 	msg, c.buf = c.buf[0], c.buf[1:]
 	return msg
 }
 
-func (c *StreamClient) fillBuf(fromID string) error {
+func (c *Client) fillBuf(fromID string) error {
 	ctx := context.Background()
 
 	if c.lastID != "" {

@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"os"
+	"log"
 	"reflect"
 
 	"github.com/drop-target-pinball/spin/v2"
-	"github.com/redis/go-redis/v9"
 )
 
 var (
@@ -16,33 +15,31 @@ var (
 	pretty bool
 )
 
-func abort(err error) {
-	fmt.Printf("error: %v\n", err)
-	os.Exit(1)
-}
-
 func main() {
+	log.SetFlags(0)
 	flag.StringVar(&addr, "addr", "localhost:1080", "redis address to run database")
 	flag.BoolVar(&pretty, "pretty", false, "pretty print messages")
 	flag.Parse()
 
-	db := redis.NewClient(&redis.Options{Addr: addr})
-	cli := spin.NewStreamClient(db)
+	pin, err := spin.NewClient(addr)
+	if err != nil {
+		log.Fatalf("unable to connect: %v", err)
+	}
 
 	for {
-		msg, err := cli.Read()
+		msg, err := pin.Read()
 		if err != nil {
-			abort(err)
+			log.Fatal(err)
 		}
 		var payload []byte
 		if pretty {
 			fmt.Println()
 			if payload, err = json.MarshalIndent(msg, "", "  "); err != nil {
-				abort(err)
+				log.Fatal(err)
 			}
 		} else {
 			if payload, err = json.Marshal(msg); err != nil {
-				abort(err)
+				log.Fatal(err)
 			}
 		}
 		fmt.Printf("%v: %v\n", reflect.TypeOf(msg).Name(), string(payload))

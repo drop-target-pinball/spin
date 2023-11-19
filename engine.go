@@ -56,8 +56,8 @@ func (e *Engine) Init() error {
 	}
 	e.Settings.Merge(e.Config.Settings)
 
-	e.runDB = redis.NewClient(&redis.Options{Addr: e.Settings.RedisRunAddress})
-	e.varDB = redis.NewClient(&redis.Options{Addr: e.Settings.RedisVarAddress})
+	// e.runDB = redis.NewClient(&redis.Options{Addr: e.Settings.RedisRunAddress})
+	// e.varDB = redis.NewClient(&redis.Options{Addr: e.Settings.RedisVarAddress})
 
 	// Runtime database should be cleared out on each start. This also
 	// verifies that the database is up and running. Send a ping to the
@@ -86,20 +86,20 @@ func (e *Engine) Init() error {
 
 	e.Log("spin version %v (%v)", Version, Date)
 
-	stream := e.NewStreamClient()
-	for _, id := range e.Config.Load {
-		if _, exists := e.modules[id]; exists {
-			continue
-		}
-		e.modules[id] = struct{}{}
-		e.Debug("loading module: %v", id)
-		if err := stream.Send(Load{ID: id}); err != nil {
-			e.Error(err)
-		}
-	}
-	if err := stream.Send(Load{}); err != nil {
-		e.Error(err)
-	}
+	// stream := e.NewStreamClient()
+	// for _, id := range e.Config.Load {
+	// 	if _, exists := e.modules[id]; exists {
+	// 		continue
+	// 	}
+	// 	e.modules[id] = struct{}{}
+	// 	e.Debug("loading module: %v", id)
+	// 	if err := stream.Send(Load{ID: id}); err != nil {
+	// 		e.Error(err)
+	// 	}
+	// }
+	// if err := stream.Send(Load{}); err != nil {
+	// 	e.Error(err)
+	// }
 
 	e.init = true
 	return nil
@@ -135,12 +135,6 @@ func (e *Engine) Run() {
 // Shutdown sends a message to terminate the main run loop.
 func (e *Engine) Shutdown() {
 	e.shutdown <- struct{}{}
-}
-
-// NewStreamClient creates a new client for reading messages from and for
-// posting messages to the message stream.
-func (e *Engine) NewStreamClient() *StreamClient {
-	return NewStreamClient(e.runDB)
 }
 
 // PathTo returns a path that in the joined value of the project directory

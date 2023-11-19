@@ -9,10 +9,9 @@ import (
 
 func testSettings(t *testing.T) *Settings {
 	return &Settings{
-		Dir:             t.TempDir(),
-		ConfigFile:      "test.hcl",
-		RedisRunAddress: "localhost:1080",
-		RedisVarAddress: "localhost:1080",
+		Dir:          t.TempDir(),
+		ConfigFile:   "test.hcl",
+		RedisAddress: "localhost:1080",
 	}
 }
 
@@ -161,8 +160,7 @@ func TestSettingsMerge(t *testing.T) {
 	}
 
 	want := &Settings{
-		RedisRunAddress: "localhost:1234",
-		RedisVarAddress: "localhost:5678",
+		RedisAddress: "localhost:1234",
 	}
 
 	if *conf.Settings != *want {

@@ -37,11 +37,10 @@ type Defaults struct {
 }
 
 type Settings struct {
-	DevMode         bool
-	Dir             string `json:"dir,omitempty"`
-	ConfigFile      string `json:"config_file,omitempty"`
-	RedisRunAddress string `hcl:"redis_run_address,optional" json:"redis_run_address,omitempty"`
-	RedisVarAddress string `hcl:"redis_var_address,optional" json:"redis_var_address,omitempty"`
+	DevMode      bool
+	Dir          string `json:"dir,omitempty"`
+	ConfigFile   string `json:"config_file,omitempty"`
+	RedisAddress string `hcl:"redis_address,optional" json:"redis_run_address,omitempty"`
 }
 
 // Merge copies values from s2 into this struct where values in this struct
@@ -50,11 +49,8 @@ func (s *Settings) Merge(s2 *Settings) {
 	if s2 == nil {
 		return
 	}
-	if s.RedisRunAddress == "" {
-		s.RedisRunAddress = s2.RedisRunAddress
-	}
-	if s.RedisVarAddress == "" {
-		s.RedisVarAddress = s2.RedisVarAddress
+	if s.RedisAddress == "" {
+		s.RedisAddress = s2.RedisAddress
 	}
 }
 

@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/drop-target-pinball/spin/v2"
-	"github.com/redis/go-redis/v9"
 )
 
 var (
@@ -20,8 +19,10 @@ func main() {
 	flag.StringVar(&addr, "addr", "localhost:1080", "redis address to runtime database")
 	flag.Parse()
 
-	cli := redis.NewClient(&redis.Options{Addr: addr})
-	stream := spin.NewStreamClient(cli)
+	pin, err := spin.NewClient(addr)
+	if err != nil {
+		log.Fatalf("unable to connect: %v", err)
+	}
 
 	data, err := io.ReadAll(os.Stdin)
 	if err != nil {
@@ -36,7 +37,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to parse message: %v", err)
 	}
-	if err := stream.Send(msg); err != nil {
+	if err := pin.Send(msg); err != nil {
 		log.Fatalf("unable to send message: %v", err)
 	}
 }

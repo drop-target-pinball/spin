@@ -8,12 +8,15 @@ case $1 in
     cli) 
         go run cmd/spin-cli/spin-cli.go 
         ;;
+    example)
+        SPIN_FLAGS=$SPIN_FLAGS exec ./spin-dev run -d -p example
+        ;;
     run)
         shift
         go run $SPIN_FLAGS cmd/spin/spin.go $@
         ;;
-    example)
-        SPIN_FLAGS=$SPIN_FLAGS exec ./spin-dev run -d -p example
+    test)
+        go test $SPIN_FLAGS ./...
         ;;
     *)
         echo "error: unknown command: $1"

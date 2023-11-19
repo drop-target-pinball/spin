@@ -26,12 +26,12 @@ type messages struct {
 }
 
 type App struct {
-	stream *spin.StreamClient
-	rl     *readline.Instance
-	out    *Writer
+	pin *spin.Client
+	rl  *readline.Instance
+	out *Writer
 }
 
-func NewApp(stream *spin.StreamClient) *App {
+func NewApp(pin *spin.Client) *App {
 	stateDir := path.Join(xdg.StateHome, "spin")
 	os.MkdirAll(stateDir, 0o750)
 	historyFile := path.Join(stateDir, "history")
@@ -52,9 +52,9 @@ func NewApp(stream *spin.StreamClient) *App {
 	log.SetOutput(out)
 
 	return &App{
-		stream: stream,
-		rl:     rl,
-		out:    out,
+		pin: pin,
+		rl:  rl,
+		out: out,
 	}
 }
 
@@ -100,7 +100,7 @@ func (a *App) Eval(line string) (bool, error) {
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)
 		if !field.IsNil() {
-			return true, a.stream.Send(field.Interface())
+			return true, a.pin.Send(field.Interface())
 		}
 	}
 	panic("should be unreachable")
@@ -110,7 +110,7 @@ func (a *App) HandleMessages() {
 	connected := true
 
 	for {
-		msg, err := a.stream.Read()
+		msg, err := a.pin.Read()
 		if err != nil {
 			if connected {
 				a.Error("read error: %v", err)

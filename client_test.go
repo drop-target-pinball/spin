@@ -1,11 +1,8 @@
 package spin
 
 import (
-	"os"
 	"reflect"
 	"testing"
-
-	"github.com/redis/go-redis/v9"
 )
 
 func TestMessageStream(t *testing.T) {
@@ -13,31 +10,25 @@ func TestMessageStream(t *testing.T) {
 	want2 := Play{ID: "sound2"}
 	want3 := Play{ID: "sound3"}
 
-	e := NewEngine(testSettings(t))
-	if err := os.WriteFile(e.PathTo("test.hcl"), []byte{}, 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if err := e.Init(); err != nil {
+	s := testSettings(t)
+	pin, err := NewClient(s.RedisAddress)
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	db := redis.NewClient(&redis.Options{Addr: e.Settings.RedisRunAddress})
-	stream := NewStreamClient(db)
-
-	if err := stream.Send(want1, want2); err != nil {
+	pin.Reset()
+	if err := pin.Send(want1, want2); err != nil {
 		t.Fatal(err)
 	}
-	stream.Reset()
-	stream.Read() // Discard the first load message
 
-	have1, err := stream.Read()
+	have1, err := pin.Read()
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(have1, want1) {
 		t.Fatalf("\n have: %v \n want: %v", have1, want1)
 	}
-	have2, err := stream.Read()
+	have2, err := pin.Read()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,10 +36,10 @@ func TestMessageStream(t *testing.T) {
 		t.Fatalf("\n have: %v \n want: %v", have2, want2)
 	}
 
-	if err := stream.Send(want3); err != nil {
+	if err := pin.Send(want3); err != nil {
 		t.Fatal(err)
 	}
-	have3, err := stream.Read()
+	have3, err := pin.Read()
 	if err != nil {
 		t.Error(err)
 	}

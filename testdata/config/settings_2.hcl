@@ -1,3 +1,3 @@
 settings {
-	redis_var_address = "localhost:5678"
+	redis_address = "localhost:5678"
 }
