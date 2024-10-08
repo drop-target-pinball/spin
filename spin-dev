@@ -1,23 +1,47 @@
+#!/bin/bash 
+
 [ -z "$SPIN_TAGS" ] && SPIN_TAGS="sdl"
 [ "$SPIN_TAGS" != "none" ] && SPIN_FLAGS="-tags $SPIN_TAGS"
 
+init() {
+    set -x 
+    podman stop -t 0   spin-redis || true 
+    podman rm -f       spin-redis || true 
+        
+    podman build --tag spin-redis containers/spin-redis
+    podman create \
+        --name      spin-redis \
+        --hostname  spin-redis \
+        --userns    keep-id \
+        --volume    .:/spin:z \
+        --publish   6379:6379 \
+        spin-redis 
+    
+    podman start spin-redis 
+}
+
+build() {
+    set -x 
+    go build $SPIN_FLAGS ./...
+}
+
+send() {
+    shift 
+    set -x 
+    go run $SPIN_FLAGS cmd/spin-send/main.go $@ 
+}
+
+watch() {
+    shift 
+    set -x 
+    go run $SPIN_FLAGS cmd/spin-watch/main.go $@
+}
+
 case $1 in
-    build)
-        go build $SPIN_FLAGS ./...
-        ;;
-    cli) 
-        go run cmd/spin-cli/spin-cli.go 
-        ;;
-    example)
-        SPIN_FLAGS=$SPIN_FLAGS exec ./spin-dev run -d -p example
-        ;;
-    run)
-        shift
-        go run $SPIN_FLAGS cmd/spin/spin.go $@
-        ;;
-    test)
-        go test $SPIN_FLAGS ./...
-        ;;
+    init)       (init)      ;;
+    build)      (build)     ;;
+    send)       (send $@)   ;; 
+    watch)      (watch $@)  ;;
     *)
         echo "error: unknown command: $1"
         exit 1

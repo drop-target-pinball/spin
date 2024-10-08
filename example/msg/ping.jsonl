@@ -1,0 +1,2 @@
+{ "to": "sys", "type": "ping" }
+{ "from": "test", "id": "foo" }
