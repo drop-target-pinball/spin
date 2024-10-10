@@ -10,7 +10,6 @@ import (
 	"os"
 
 	"github.com/drop-target-pinball/spin/v2"
-	"github.com/redis/go-redis/v9"
 )
 
 var (
@@ -41,7 +40,7 @@ files are specified or if a file is '-', JSON is read from standard input.
 		return
 	}
 
-	c := spin.NewClient(redis.Options{Addr: RedisAddr})
+	c := spin.NewClient(RedisAddr)
 	args := flag.Args()
 	if len(args) == 0 {
 		args = []string{"-"}

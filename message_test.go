@@ -36,7 +36,7 @@ func (t testBool) Name() string { return "test-bool" }
 
 func TestFormatBody(t *testing.T) {
 	tests := []struct {
-		msg Body
+		msg Message
 		str string
 	}{
 		{testStr{A: "foo"}, "test-str a=foo"},

@@ -26,6 +26,12 @@ build() {
     go build $SPIN_FLAGS ./...
 }
 
+run() {
+    shift 
+    set -x 
+    go run $SPIN_FLAGS cmd/spin/main.go $@
+}
+
 send() {
     shift 
     set -x 
@@ -46,6 +52,7 @@ watch() {
 case $1 in
     init)       (init)      ;;
     build)      (build)     ;;
+    run)        (run)       ;;
     send)       (send $@)   ;; 
     start)      (start)     ;;
     watch)      (watch $@)  ;;

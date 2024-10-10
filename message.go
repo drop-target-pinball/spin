@@ -18,31 +18,31 @@ type Header struct {
 	Name string `json:"name"`
 }
 
-type Body interface {
+type Message interface {
 	Name() string
 	Chan() string
 }
 
-type Message struct {
+type Packet struct {
 	Header Header
-	Body   Body
+	Body   Message
 }
 
-type parseFunc func([]byte) (Body, error)
+type parseFunc func([]byte) (Message, error)
 
 var parsers = map[string]parseFunc{
-	msg.PingName: func(b []byte) (Body, error) { m := msg.Ping{}; err := json.Unmarshal(b, &m); return m, err },
-	msg.PongName: func(b []byte) (Body, error) { m := msg.Pong{}; err := json.Unmarshal(b, &m); return m, err },
+	msg.PingName: func(b []byte) (Message, error) { m := msg.Ping{}; err := json.Unmarshal(b, &m); return m, err },
+	msg.PongName: func(b []byte) (Message, error) { m := msg.Pong{}; err := json.Unmarshal(b, &m); return m, err },
 }
 
-func ParseHeader(data []byte, dest *Message) error {
+func ParseHeader(data []byte, dest *Packet) error {
 	if err := json.Unmarshal(data, &dest.Header); err != nil {
 		return err
 	}
 	return nil
 }
 
-func ParseBody(data []byte, dest *Message) error {
+func ParseBody(data []byte, dest *Packet) error {
 	if dest.Header.Chan == "" {
 		return fmt.Errorf("header does not contain channel name")
 	}
@@ -58,8 +58,8 @@ func ParseBody(data []byte, dest *Message) error {
 	return nil
 }
 
-func ParseMessage(d *json.Decoder) (Message, error) {
-	var msg Message
+func ParseMessage(d *json.Decoder) (Packet, error) {
+	var msg Packet
 	var obj1, obj2 any
 
 	if err := d.Decode(&obj1); err != nil {
@@ -94,7 +94,7 @@ func ParseMessage(d *json.Decoder) (Message, error) {
 	return msg, nil
 }
 
-func FormatBody(b Body) string {
+func FormatBody(b Message) string {
 	var s strings.Builder
 	s.WriteString(b.Name())
 	t := reflect.TypeOf(b)
