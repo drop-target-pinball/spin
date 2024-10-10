@@ -1,2 +1,3 @@
 { "chan": "sys", "name": "ping" }
 { "from": "test", "id": "foo" }
+

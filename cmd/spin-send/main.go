@@ -15,7 +15,6 @@ import (
 var (
 	RedisAddr string
 	Version   bool
-	Help      bool
 )
 
 func main() {
