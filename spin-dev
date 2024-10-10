@@ -22,6 +22,7 @@ init() {
 
 build() {
     set -x 
+    go generate internal/gen-about/gen-about.go 
     go build $SPIN_FLAGS ./...
 }
 
@@ -29,6 +30,11 @@ send() {
     shift 
     set -x 
     go run $SPIN_FLAGS cmd/spin-send/main.go $@ 
+}
+
+start() {
+    set -x 
+    podman start spin-redis
 }
 
 watch() {
@@ -41,6 +47,7 @@ case $1 in
     init)       (init)      ;;
     build)      (build)     ;;
     send)       (send $@)   ;; 
+    start)      (start)     ;;
     watch)      (watch $@)  ;;
     *)
         echo "error: unknown command: $1"

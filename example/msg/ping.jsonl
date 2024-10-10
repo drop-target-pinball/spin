@@ -1,2 +1,2 @@
-{ "to": "sys", "type": "ping" }
+{ "chan": "sys", "name": "ping" }
 { "from": "test", "id": "foo" }

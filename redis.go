@@ -30,17 +30,17 @@ func NewClient(opts redis.Options) *Client {
 func (c *Client) Send(msg Message) error {
 	header, err := json.Marshal(msg.Header)
 	if err != nil {
-		return fmt.Errorf("unable to encode message header: %v", err)
+		return fmt.Errorf("invalid header: %v", err)
 	}
 	body, err := json.Marshal(msg.Body)
 	if err != nil {
-		return fmt.Errorf("unable to encode message body: %v", err)
+		return fmt.Errorf("invalid body: %v", err)
 	}
-	if err := c.rdb.Publish(c.ctx, msg.Header.To, header).Err(); err != nil {
-		return fmt.Errorf("unable to send message header: %v", err)
+	if err := c.rdb.Publish(c.ctx, msg.Header.Chan, header).Err(); err != nil {
+		return err
 	}
-	if err := c.rdb.Publish(c.ctx, msg.Header.To, body).Err(); err != nil {
-		return fmt.Errorf("unable to send message body: %v", err)
+	if err := c.rdb.Publish(c.ctx, msg.Header.Chan, body).Err(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -60,18 +60,18 @@ func (c *Client) Receive() (Message, error) {
 	}
 	header, err := c.sub.ReceiveMessage(c.ctx)
 	if err != nil {
-		return msg, fmt.Errorf("unable to receive message header: %v", err)
+		return msg, err
 	}
 	if err := ParseHeader([]byte(header.Payload), &msg); err != nil {
-		return msg, fmt.Errorf("unable to parse message header: %v", err)
+		return msg, fmt.Errorf("parse error: %v", err)
 	}
 
 	body, err := c.sub.ReceiveMessage(c.ctx)
 	if err != nil {
-		return msg, fmt.Errorf("unable to receive message body: %v", err)
+		return msg, err
 	}
 	if err := ParseBody([]byte(body.Payload), &msg); err != nil {
-		return msg, fmt.Errorf("unable to parse message body: %v", err)
+		return msg, fmt.Errorf("parse error: %v", err)
 	}
 	return msg, nil
 }
