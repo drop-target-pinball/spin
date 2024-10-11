@@ -3,6 +3,9 @@ package spin
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"path"
 	"slices"
 	"time"
 
@@ -11,6 +14,11 @@ import (
 
 type Provider interface {
 	Provides() []string
+	Handle(Message)
+	Service(time.Time)
+}
+
+type Service interface {
 	Handle(Message)
 	Service(time.Time)
 }
@@ -28,14 +36,21 @@ func DefaultSettings() Settings {
 }
 
 type Engine struct {
+	Dir       string
+	client    *Client
 	providers []Provider
 	settings  Settings
 	ticker    *time.Ticker
 	sendQueue []Packet
+	running   bool
 }
 
 func NewEngine(s Settings) *Engine {
 	e := &Engine{settings: s}
+	e.Dir = os.Getenv("SPIN_DIR")
+	if e.Dir == "" {
+		e.Dir = "."
+	}
 	return e
 }
 
@@ -53,8 +68,26 @@ func (e *Engine) Alert(format string, args ...any) {
 	})
 }
 
+func (e *Engine) Abort(format string, args ...any) {
+	e.Alert(format, args...)
+	if err := e.flush(); err != nil {
+		log.Print(err)
+	}
+	log.Fatalf(format, args...)
+}
+
+func (e *Engine) PathTo(tail string) string {
+	return path.Join(e.Dir, tail)
+}
+
 func (e *Engine) Run() error {
+	if e.running {
+		return fmt.Errorf("already running")
+	}
+	e.running = true
+
 	c := NewClient(e.settings.Addr)
+	e.client = c
 	e.ticker = time.NewTicker(e.settings.TickInterval)
 
 	var subs []string
@@ -91,5 +124,21 @@ func (e *Engine) Run() error {
 				return fmt.Errorf("queue unavailable: %v", err)
 			}
 		}
+
+		if err := e.flush(); err != nil {
+			return err
+		}
 	}
+}
+
+func (e *Engine) flush() error {
+	if e.client == nil {
+		return nil
+	}
+	for _, p := range e.sendQueue {
+		if err := e.client.Send(p); err != nil {
+			return fmt.Errorf("queue unavailable: %v", err)
+		}
+	}
+	return nil
 }

@@ -1,8 +1,6 @@
 package msg
 
-const (
-	ChanSys = "sys"
-)
+const ChanSys = "sys"
 
 const (
 	AlertName = "alert"
