@@ -1,69 +1,77 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/drop-target-pinball/spin/v2"
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/hashicorp/hcl/v2/hclparse"
 )
 
-var data1 = []byte(`
-item_c {
-	a = "foo1"
-	c = "baz1"
-}
-`)
-
-var data2 = []byte(`
-item_d {
-	a = "foo2"
-	d = "baz2"
-}
-
-item_c {
-	a = "other2"
-	c = "other2"
-}
-`)
-
-func printDiag(diag hcl.Diagnostics) {
-	for _, err := range diag.Errs() {
-		fmt.Fprintln(os.Stderr, err)
-	}
-}
+var (
+	Json    bool
+	Module  bool
+	Version bool
+)
 
 func main() {
-	var c spin.ConfigFile
+	log.SetFlags(0)
 
-	p := hclparse.NewParser()
-	f1, diag := p.ParseHCL(data1, "data1.hcl")
-	if diag != nil {
-		printDiag(diag)
+	flag.Usage = func() {
+		fmt.Printf("Usage: %v [options] <dir>\n", os.Args[0])
+		fmt.Print(`
+Parses an HCL configuration directory.
+
+If no options are specified, the program produces no output and exits with a
+return code of zero upon success. Otherwise, diagnostics are printed to the
+console and the program exits with a return code of one.
+
+Use -json to print the configuration as a JSON document.
+
+`)
+		flag.PrintDefaults()
+	}
+
+	flag.BoolVar(&Json, "j", false, "emit JSON document")
+	flag.BoolVar(&Module, "m", false, "load as a module")
+	flag.BoolVar(&Version, "v", false, "version")
+	flag.Parse()
+
+	if Version {
+		fmt.Println(spin.Banner())
 		return
 	}
 
-	f2, diag := p.ParseHCL(data2, "data2.hcl")
-	if diag != nil {
-		printDiag(diag)
-		return
+	if flag.NArg() != 1 {
+		flag.Usage()
+		os.Exit(1)
 	}
 
-	m := hcl.MergeBodies([]hcl.Body{f1.Body, f2.Body})
-	diag = gohcl.DecodeBody(m, nil, &c)
-	if diag != nil {
-		printDiag(diag)
-		return
+	dir := flag.Arg(0)
+
+	config := spin.NewConfig()
+	var diags hcl.Diagnostics
+
+	if Module {
+		diags = spin.LoadModule(config, dir)
+	} else {
+		diags = spin.LoadConfig(config, dir)
 	}
 
-	fmt.Printf("%+v\n", c)
-	//fmt.Println(c.ItemC[0].A)
-	//fmt.Println(c.ItemC[0].B)
-	//fmt.Println(c.ItemC[0].C)
-
-	// fmt.Println(c.ItemC[1].A)
-	// fmt.Println(c.ItemC[1].B)
-	// fmt.Println(c.ItemC[1].C)
+	for _, d := range diags {
+		fmt.Println(d)
+	}
+	if diags.HasErrors() {
+		os.Exit(1)
+	}
+	if Json {
+		text, err := json.MarshalIndent(config, "", "    ")
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(string(text))
+	}
 }

@@ -26,6 +26,12 @@ build() {
     go build $SPIN_FLAGS ./...
 }
 
+config() {
+    shift
+    set -x 
+    go run $SPIN_FLAGS cmd/spin-config/main.go $@
+}
+
 run() {
     shift 
     set -x 
@@ -50,12 +56,13 @@ watch() {
 }
 
 case $1 in
-    init)       (init)      ;;
-    build)      (build)     ;;
-    run)        (run)       ;;
-    send)       (send $@)   ;; 
-    start)      (start)     ;;
-    watch)      (watch $@)  ;;
+    config)     (config $@)     ;;
+    init)       (init)          ;;
+    build)      (build)         ;;
+    run)        (run)           ;;
+    send)       (send $@)       ;; 
+    start)      (start)         ;;
+    watch)      (watch $@)      ;;
     *)
         echo "error: unknown command: $1"
         exit 1
