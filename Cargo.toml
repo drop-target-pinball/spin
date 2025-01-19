@@ -3,7 +3,17 @@ name = "spin"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "spin"
+path = "src/lib.rs"
+
+[[bin]]
+name = "spin"
+path = "src/bin.rs"
+
 [dependencies]
 mlua = { version = "~0.10.2", features = ["lua54"] }
-sdl2 = { version = "0.37",    features = ["ttf","image","gfx","mixer"] }
+sdl2 = { version = "0.37", features = ["ttf","image","gfx","mixer"] }
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = "1.0.135"
 
