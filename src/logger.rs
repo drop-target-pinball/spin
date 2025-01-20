@@ -9,7 +9,9 @@ impl<W> Logger<W>
     where W: io::Write
 {
     pub fn new(out: W) -> Self {
-        Logger{out}
+        Logger{
+            out
+        }
     }
 
     fn log(&mut self, ctx: &mut Context, n: &Note) {
@@ -48,11 +50,19 @@ impl Default for Logger<io::Stdout> {
     }
 }
 
-impl<W> System for Logger<W>
+impl<W> Device for Logger<W>
 where W: io::Write {
-    fn process(&mut self, ctx: &mut Context, evt: &Event) {
-        match evt {
-            Event::Note(n) => self.log(ctx, n),
+    fn id(&self) -> u8 {
+        0
+    }
+
+    fn topic(&self) -> Topic {
+        Topic::Admin
+    }
+
+    fn process(&mut self, ctx: &mut Context, _: Topic, msg: &Message) {
+        match msg {
+            Message::Note(n) => self.log(ctx, n),
             _ => (),
         }
     }
@@ -67,7 +77,7 @@ mod tests {
         let mut e = Engine::default();
         let mut buf = Vec::new();
         let mut logger = Logger::new(&mut buf);
-        e.add_system(&mut logger);
+        e.add_device(&mut logger);
 
         info!(e.queue, "this is a test");
         e.tick();
@@ -82,7 +92,7 @@ mod tests {
         let mut e = Engine::default();
         let mut buf = Vec::new();
         let mut logger = Logger::new(&mut buf);
-        e.add_system(&mut logger);
+        e.add_device(&mut logger);
 
         alert!(e.queue, "this is a test");
         e.tick();
@@ -98,7 +108,7 @@ mod tests {
         let mut e = Engine::default();
         let mut buf = Vec::new();
         let mut logger = Logger::new(&mut buf);
-        e.add_system(&mut logger);
+        e.add_device(&mut logger);
 
         fault!(e.queue, "this is a test");
         e.tick();
@@ -109,7 +119,7 @@ mod tests {
         let mut e = Engine::new(Config::new(RunMode::Prod));
         let mut buf = Vec::new();
         let mut logger = Logger::new(&mut buf);
-        e.add_system(&mut logger);
+        e.add_device(&mut logger);
 
         fault!(e.queue, "this is a test");
         e.tick();
