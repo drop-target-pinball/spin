@@ -16,4 +16,5 @@ mlua = { version = "~0.10.2", features = ["lua54"] }
 sdl2 = { version = "0.37", features = ["ttf","image","gfx","mixer"] }
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.135"
+thiserror = "2.0.11"
 

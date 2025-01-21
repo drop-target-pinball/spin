@@ -98,7 +98,7 @@ macro_rules! alert {
 #[macro_export]
 macro_rules! fault {
     ($queue:expr, $($args:expr),+) => {
-        $queue.fault(&format!($($args),+));
+        $queue.fault(&format!($($args),+))
     };
 }
 

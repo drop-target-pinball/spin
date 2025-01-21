@@ -1,17 +1,22 @@
-//use sdl2::mixer;
-//use sdl2::mixer::{InitFlag, AUDIO_S16LSB, DEFAULT_CHANNELS};
+use spin::prelude::*;
 
 pub fn main() {
-    // let sdl = sdl2::init().unwrap();
+    println!("hello world");
 
-    // let frequency = 44_100;
-    // let format = AUDIO_S16LSB; // signed 16 bit samples, in little-endian byte order
-    // let channels = DEFAULT_CHANNELS; // Stereo
-    // let chunk_size = 1_024;
-    // sdl2::mixer::open_audio(frequency, format, channels, chunk_size)?;
+    let mut dev_sdl = sdl::Device::new(0).unwrap();
+    let mut audio = sdl::Audio::new();
+    dev_sdl.add_system(&mut audio);
 
-    // let _mix_ctx = mixer::init(InitFlag::OGG);
-    // sdl2::mixer::allocate_channels(4);
 
-    // sdl2::mixer::Chunk::from_file("")
+    let mut conf = Config::new(RunMode::Debug);
+    conf.add_sound(&Sound::new("test", "test.wav"));
+
+    let mut logger = Logger::default();
+    let mut e = Engine::new(conf);
+
+    e.add_device(&mut dev_sdl);
+    e.add_device(&mut logger);
+
+    e.init();
+
 }

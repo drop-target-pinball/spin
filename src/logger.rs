@@ -16,10 +16,10 @@ impl<W> Logger<W>
 
     fn log(&mut self, ctx: &mut Context, n: &Note) {
         // In the event that the note could not be logged, panic when in
-        // development mode and simply write to standard error when in
+        // debug mode and simply write to standard error when in
         // production mode
         if let Err(e) = self.checked_log(ctx, n) {
-            if ctx.conf.is_dev() {
+            if ctx.conf.is_debug() {
                 panic!("fault: unable to log: {}", e)
             } else {
                 eprintln!("fault: unable to log: {}", e)
@@ -34,7 +34,7 @@ impl<W> Logger<W>
             NoteKind::Info => writeln!(self.out, "{} {}", fmt_uptime, n.message),
             NoteKind::Alert => writeln!(self.out, "{} (!) {}", fmt_uptime, n.message),
             NoteKind::Fault => {
-                if ctx.conf.is_dev() {
+                if ctx.conf.is_debug() {
                     panic!("fault: {}", n.message);
                 }
                 writeln!(self.out, "{} (*) {}", fmt_uptime, n.message)

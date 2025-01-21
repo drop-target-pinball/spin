@@ -14,9 +14,15 @@ pub trait System {
 
 
 impl<'d> Device<'d> {
-    pub fn new(id: u8) -> Result<Self, String> {
-        let sdl = sdl2::init()?;
-        Ok(Self{id, sdl, systems: Vec::new()})
+    pub fn new(id: u8) -> Result<Self, Error> {
+        match sdl2::init() {
+            Ok(sdl) =>  Ok(Self{
+                id,
+                sdl,
+                systems: Vec::new()
+            }),
+            Err(e) => Err(Error::Device(e.to_string())),
+        }
     }
 
     pub fn add_system(&mut self, s: &'d mut dyn System) {

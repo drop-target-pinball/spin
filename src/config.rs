@@ -1,14 +1,26 @@
-#[derive(PartialEq)]
+
+#[derive(Clone, Copy, PartialEq)]
 pub enum RunMode {
-    Dev,
+    Debug,
     Prod
 }
 
+#[derive(Clone)]
 pub struct Sound {
-    id: String,
-    path: String,
+    pub id: String,
+    pub path: String,
 }
 
+impl Sound {
+    pub fn new(id: &str, path: &str) -> Sound {
+        Self {
+            id: id.to_string(),
+            path: path.to_string(),
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct Config {
     pub mode: RunMode,
     pub sounds: Vec<Sound>
@@ -17,18 +29,23 @@ pub struct Config {
 impl Config {
     pub fn new(mode: RunMode) -> Self {
         Config {
-            mode, sounds:
-            Vec::new(),
+            mode,
+            sounds: Vec::new(),
         }
     }
 
-    pub fn is_dev(&self) -> bool {
-        return self.mode == RunMode::Dev
+    pub fn add_sound(&mut self, s: &Sound) -> &mut Self {
+        self.sounds.push(s.clone());
+        self
+    }
+
+    pub fn is_debug(&self) -> bool {
+        return self.mode == RunMode::Debug
     }
 }
 
 impl Default for Config {
     fn default() -> Self {
-        Self::new(RunMode::Dev)
+        Self::new(RunMode::Debug)
     }
 }
