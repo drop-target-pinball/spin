@@ -272,7 +272,7 @@ func deadworldBarriersDownScript(e *spin.ScriptEnv) {
 	player := spin.GetPlayerVars(e)
 	game := spin.GetGameVars(e)
 
-	vars.ShotsToDestroyDeadworld = 1
+	vars.ShotsToDestroyDeadworld = 3
 
 	e.Do(spin.PlayScript{ID: ScriptDeadworldBarriersDownIntro})
 	e.Do(spin.AddBall{N: e.Config.NumBalls - game.BallsInPlay})

@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	ScriptInit = "ScriptInit"
+	ScriptInit = "Init"
 )
 
 func Load(eng *spin.Engine) {
