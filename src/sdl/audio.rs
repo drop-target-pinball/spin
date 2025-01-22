@@ -32,27 +32,27 @@ pub struct Audio {
 }
 
 impl Audio {
-    pub fn new(ctx: &sdl2::Sdl, id: u8, opt: AudioOptions) -> Result<Self> {
+    pub fn new(ctx: &sdl2::Sdl, id: u8, opt: AudioOptions) -> Self {
         let audio = match ctx.audio() {
             Ok(a) => a,
             Err(reason) => {
-                return device_error("unable to open SDL audio", reason);
+                panic!("unable to open SDL audio: {}", reason);
             }
         };
 
         if let Err(reason) = mixer::open_audio(opt.freq, opt.format, opt.channels, opt.chunk_size) {
-            return device_error("unable to open mixer", reason);
+            panic!("unable to open mixer: {}", reason);
         }
 
         if let Err(reason) = mixer::init(opt.flags) {
-            return device_error("unable to initialize mixer", reason);
+            panic!("unable to initialize mixer: {}", reason);
         }
 
-        Ok(Self {
+        Self {
             id,
             sounds: HashMap::new(),
             _audio: audio,
-        })
+        }
     }
 
     fn init(&mut self, env: &mut Env, q: &mut Queue) {

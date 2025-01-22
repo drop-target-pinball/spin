@@ -1,5 +1,4 @@
 pub mod engine;
-pub mod error;
 pub mod message;
 pub mod logger;
 pub mod config;
@@ -9,7 +8,6 @@ pub mod state;
 
 pub mod prelude {
     pub use crate::engine::*;
-    pub use crate::error::*;
     pub use crate::message::*;
     pub use crate::logger::*;
     pub use crate::config::*;

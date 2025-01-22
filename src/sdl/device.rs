@@ -7,20 +7,22 @@ pub struct SdlDevice {
     audio: Option<Audio>
 }
 
-impl SdlDevice {
-    pub fn new() -> Result<Self> {
+impl Default for SdlDevice {
+    fn default() -> Self {
         match sdl2::init() {
-            Ok(ctx) =>  Ok(Self{
+            Ok(ctx) => Self {
                 ctx,
                 audio: None,
-            }),
-            Err(reason) => device_error("unable to initialize SDL", reason)
+            },
+            Err(reason) => panic!("unable to initialize SDL: {}", reason),
         }
     }
+}
 
-    pub fn with_audio(mut self, id: u8, options: AudioOptions) -> Result<Self> {
-        self.audio = Some(Audio::new(&self.ctx, id, options)?);
-        Ok(self)
+impl SdlDevice {
+    pub fn with_audio(mut self, id: u8, options: AudioOptions) -> Self {
+        self.audio = Some(Audio::new(&self.ctx, id, options));
+        self
     }
 }
 
