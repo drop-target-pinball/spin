@@ -19,7 +19,7 @@ impl<W> Logger<W>
         // debug mode and simply write to standard error when in
         // production mode
         if let Err(e) = self.checked_log(ctx, n) {
-            if ctx.conf.is_debug() {
+            if ctx.conf.is_develop() {
                 panic!("fault: unable to log: {}", e)
             } else {
                 eprintln!("fault: unable to log: {}", e)
@@ -34,7 +34,7 @@ impl<W> Logger<W>
             NoteKind::Info => writeln!(self.out, "{} {}", fmt_uptime, n.message),
             NoteKind::Alert => writeln!(self.out, "{} (!) {}", fmt_uptime, n.message),
             NoteKind::Fault => {
-                if ctx.conf.is_debug() {
+                if ctx.conf.is_develop() {
                     panic!("fault: {}", n.message);
                 }
                 writeln!(self.out, "{} (*) {}", fmt_uptime, n.message)
@@ -52,19 +52,12 @@ impl Default for Logger<io::Stdout> {
 
 impl<W> Device for Logger<W>
 where W: io::Write {
-    fn id(&self) -> u8 {
-        0
-    }
-
-    fn topic(&self) -> Topic {
-        Topic::Admin
-    }
-
-    fn process(&mut self, ctx: &mut Context, _: Topic, msg: &Message) {
+    fn process(&mut self, ctx: &mut Context, msg: &Message) -> bool {
         match msg {
             Message::Note(n) => self.log(ctx, n),
-            _ => (),
+            _ => return false,
         }
+        true
     }
 }
 
@@ -116,7 +109,7 @@ mod tests {
 
     #[test]
     fn test_fault_prod() {
-        let mut e = Engine::new(Config::new(RunMode::Prod));
+        let mut e = Engine::new(Config::new(RunMode::Release));
         let mut buf = Vec::new();
         let mut logger = Logger::new(&mut buf);
         e.add_device(&mut logger);

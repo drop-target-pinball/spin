@@ -1,18 +1,7 @@
 use serde::{Serialize, Deserialize};
 use std::collections::VecDeque;
 
-#[derive(Copy, Clone, PartialEq)]
-pub enum Topic {
-    All,
-    Audio,
-    Driver,
-    Event,
-    Render,
-    Display,
-    Admin,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum NoteKind {
     Info,
@@ -39,14 +28,8 @@ pub enum Message {
     PlaySound(PlayAudio),
 }
 
-pub struct Packet {
-    pub topic: Topic,
-    pub device_id: u8,
-    pub message: Message,
-}
-
 pub struct Queue {
-    messages: VecDeque<Packet>
+    messages: VecDeque<Message>
 }
 
 impl Queue {
@@ -56,15 +39,11 @@ impl Queue {
         }
     }
 
-    pub fn post(&mut self, topic: Topic, device_id: u8, message: Message) {
-        self.messages.push_back(Packet{
-            topic,
-            device_id,
-            message
-        });
+    pub fn push(&mut self, message: Message) {
+        self.messages.push_back(message);
     }
 
-    pub fn process(&mut self) -> Option<Packet> {
+    pub fn pop(&mut self) -> Option<Message> {
         self.messages.pop_front()
     }
 
@@ -74,17 +53,17 @@ impl Queue {
 
     pub fn alert(&mut self, message: &str) {
         let n = Note{kind: NoteKind::Alert, message: message.to_string() };
-        self.post(Topic::Admin, 0, Message::Note(n));
+        self.push(Message::Note(n));
     }
 
     pub fn fault(&mut self, message: &str) {
         let n = Note{kind: NoteKind::Fault, message: message.to_string() };
-        self.post(Topic::Admin, 0, Message::Note(n));
+        self.push(Message::Note(n));
     }
 
     pub fn info(&mut self, message: &str) {
         let n = Note{kind: NoteKind::Info, message: message.to_string() };
-        self.post(Topic::Admin, 0, Message::Note(n));
+        self.push(Message::Note(n));
     }
 }
 

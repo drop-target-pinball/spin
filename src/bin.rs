@@ -8,7 +8,7 @@ pub fn main() {
     dev_sdl.add_system(&mut audio);
 
 
-    let mut conf = Config::new(RunMode::Debug);
+    let mut conf = Config::new(RunMode::Devel);
     conf.add_sound(&Sound::new("test", "test.wav"));
 
     let mut logger = Logger::default();

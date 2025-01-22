@@ -14,19 +14,7 @@ impl<'s> Context<'s> {
 }
 
 pub trait Device {
-    fn id(&self) -> u8;
-    fn topic(&self) -> Topic;
-    fn process(&mut self, ctx: &mut Context, topic: Topic, msg: &Message);
-
-    fn is_addressed_to(&self, pkt: &Packet) -> bool {
-        if self.topic() == Topic::All {
-            true
-        } else if pkt.topic == Topic::All {
-            true
-        } else {
-            self.topic() == pkt.topic && self.id() == pkt.device_id
-        }
-    }
+    fn process(&mut self, ctx: &mut Context, msg: &Message) -> bool;
 }
 
 pub struct Engine<'e>  {
@@ -52,7 +40,7 @@ impl<'e> Engine<'e> {
     }
 
     pub fn init(&mut self) {
-        self.queue.post(Topic::All, 0, Message::Init);
+        self.queue.push(Message::Init);
         self.process_queue();
     }
 
@@ -69,21 +57,23 @@ impl<'e> Engine<'e> {
             let mut ctx = Context::new(&mut self.state, &mut out_queue, &self.conf);
 
             // Send each message in the queue to every system for processing.
-            match self.queue.process() {
+            match self.queue.pop() {
                 None => break,
-                Some(pkt) => {
+                Some(msg) => {
+                    let mut handled = false;
                     for dev in &mut self.devices {
-                        if dev.is_addressed_to(&pkt) {
-                            dev.process(&mut ctx, pkt.topic, &pkt.message);
-                        }
+                            handled |= dev.process(&mut ctx, &msg);
+                    }
+                    if ctx.conf.is_develop() && !handled {
+                        panic!("message not handled: {:?}", &msg);
                     }
                 },
             }
 
             // If systems generated additional messages, place these on the
             // main queue.
-            while let Some(pkt) = out_queue.process() {
-                self.queue.post(pkt.topic, pkt.device_id, pkt.message);
+            while let Some(msg) = out_queue.pop() {
+                self.queue.push(msg);
             }
 
             // Continue processing until the main queue is empty
@@ -93,6 +83,17 @@ impl<'e> Engine<'e> {
         }
     }
 
+    fn process(&mut self, ctx: &mut Context, msg: &Message) -> bool {
+        match msg {
+            Message::Note(n) => {
+                if ctx.conf.is_develop() && n.kind == NoteKind::Fault {
+                    panic!("fault: {}", n.message);
+                }
+            },
+            _ => return false
+        }
+        true
+    }
 
 }
 

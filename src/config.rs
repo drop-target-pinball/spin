@@ -1,8 +1,9 @@
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum RunMode {
-    Debug,
-    Prod
+    Develop,
+    Test,
+    Release
 }
 
 #[derive(Clone)]
@@ -39,13 +40,13 @@ impl Config {
         self
     }
 
-    pub fn is_debug(&self) -> bool {
-        return self.mode == RunMode::Debug
+    pub fn is_develop(&self) -> bool {
+        return self.mode == RunMode::Develop
     }
 }
 
 impl Default for Config {
     fn default() -> Self {
-        Self::new(RunMode::Debug)
+        Self::new(RunMode::Develop)
     }
 }
