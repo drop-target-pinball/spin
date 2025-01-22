@@ -71,9 +71,26 @@ impl Audio {
         }
     }
 
+    fn play_sound(&mut self, q: &mut Queue, evt: &PlayAudio)  {
+        let chunk = match self.sounds.get(&evt.name) {
+            Some(c) => c,
+            None => {
+                fault!(q, "unregistered sound: {}", evt.name);
+                return;
+            }
+        };
+
+        if let Err(e) = sdl2::mixer::Channel::all().play(&chunk, 0) {
+            fault!(q, "cannot play sound: {}", e);
+            return;
+        }
+
+    }
+
     pub fn process(&mut self, _: &sdl2::Sdl, env: &mut Env, q: &mut Queue, msg: &Message) -> bool {
         match msg {
             Message::Init => self.init(env, q),
+            Message::PlaySound(a) => self.play_sound(q, a),
             _ => return false,
         }
         true

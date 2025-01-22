@@ -11,7 +11,7 @@ pub enum NoteKind {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PlayAudio {
-    pub id: String,
+    pub name: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
