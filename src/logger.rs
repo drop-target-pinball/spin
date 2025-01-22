@@ -63,7 +63,7 @@ mod tests {
         let mut e = Env::default();
         let mut buf = Vec::new();
         let mut logger: Logger<&mut Vec<u8>> = Logger::new(&mut buf);
-        logger.process(&mut e, &mut Queue::new(), &Message::Note(Note {
+        logger.process(&mut e, &mut Queue::default(), &Message::Note(Note {
             kind: NoteKind::Info,
             message: "this is a test".to_string(),
         }));
@@ -78,7 +78,7 @@ mod tests {
         let mut e = Env::default();
         let mut buf = Vec::new();
         let mut logger = Logger::new(&mut buf);
-        logger.process(&mut e, &mut Queue::new(), &Message::Note(Note {
+        logger.process(&mut e, &mut Queue::default(), &Message::Note(Note {
             kind: NoteKind::Alert,
             message: "this is a test".to_string(),
         }));
@@ -93,7 +93,7 @@ mod tests {
         let mut e = Env::default();
         let mut buf = Vec::new();
         let mut logger = Logger::new(&mut buf);
-        logger.process(&mut e, &mut Queue::new(), &Message::Note(Note {
+        logger.process(&mut e, &mut Queue::default(), &Message::Note(Note {
             kind: NoteKind::Fault,
             message: "this is a test".to_string(),
         }));

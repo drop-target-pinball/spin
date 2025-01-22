@@ -28,7 +28,7 @@ impl Default for AudioOptions {
 pub struct Audio {
     id: u8,
     sounds: HashMap<String,mixer::Chunk>,
-    audio: sdl2::AudioSubsystem,
+    _audio: sdl2::AudioSubsystem,
 }
 
 impl Audio {
@@ -51,7 +51,7 @@ impl Audio {
         Ok(Self {
             id,
             sounds: HashMap::new(),
-            audio,
+            _audio: audio,
         })
     }
 
@@ -63,9 +63,10 @@ impl Audio {
             let path = spin_path(&sound.path);
             match mixer::Chunk::from_file(&path) {
                 Err(e) => fault!(q, "unable to load sound: {}", &e),
-                Ok(chunk) => match self.sounds.insert(sound.name.clone(), chunk) {
-                    Some(_) => fault!(q, "sound already loaded: {}", &path.to_string_lossy()),
-                    None => (),
+                Ok(chunk) => {
+                    if self.sounds.insert(sound.name.clone(), chunk).is_some() {
+                        fault!(q, "sound already loaded: {}", &path.to_string_lossy());
+                    }
                 }
             };
         }
@@ -80,11 +81,9 @@ impl Audio {
             }
         };
 
-        if let Err(e) = sdl2::mixer::Channel::all().play(&chunk, 0) {
+        if let Err(e) = sdl2::mixer::Channel::all().play(chunk, 0) {
             fault!(q, "cannot play sound: {}", e);
-            return;
         }
-
     }
 
     pub fn process(&mut self, _: &sdl2::Sdl, env: &mut Env, q: &mut Queue, msg: &Message) -> bool {

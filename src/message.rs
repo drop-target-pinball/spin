@@ -28,18 +28,12 @@ pub enum Message {
     PlaySound(PlayAudio),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Queue {
     messages: VecDeque<Message>
 }
 
 impl Queue {
-    pub fn new() -> Queue {
-        Queue {
-            messages: VecDeque::new(),
-        }
-    }
-
     pub fn push(&mut self, message: Message) {
         self.messages.push_back(message);
     }

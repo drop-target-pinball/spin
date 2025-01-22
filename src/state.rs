@@ -5,14 +5,12 @@ pub struct Vars {
     pub now: time::Instant,
 }
 
-impl Vars {
-    pub fn new() -> Vars {
+impl Default for Vars {
+    fn default() -> Vars {
         let now = time::Instant::now();
         Vars {
             uptime: now,
             now,
         }
     }
-
-
 }

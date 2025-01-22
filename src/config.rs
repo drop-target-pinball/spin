@@ -43,7 +43,7 @@ impl Config {
     }
 
     pub fn is_develop(&self) -> bool {
-        return self.mode == RunMode::Develop
+        self.mode == RunMode::Develop
     }
 }
 

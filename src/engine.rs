@@ -16,7 +16,7 @@ impl Default for Env {
     fn default() -> Self {
         Self {
             conf: Config::new(RunMode::Develop),
-            vars: Vars::new(),
+            vars: Vars::default(),
         }
     }
 }
@@ -34,10 +34,10 @@ pub struct Engine {
 
 impl Engine {
     pub fn new(conf: Config) -> Self {
-        let env = Env::new(conf, Vars::new());
+        let env = Env::new(conf, Vars::default());
         Engine {
             env,
-            queue: Queue::new(),
+            queue: Queue::default(),
             devices: Vec::new(),
         }
     }
@@ -60,7 +60,7 @@ impl Engine {
         loop {
             // As messages are being processed, the systems may want to
             // generate additional messages. Collect those here.
-            let mut out_queue = Queue::new();
+            let mut out_queue = Queue::default();
 
             // Send each message in the queue to every system for processing.
             match self.queue.pop() {
@@ -90,7 +90,7 @@ impl Engine {
         }
     }
 
-    fn process(e: &mut Env, queue: &mut Queue, msg: &Message) -> bool {
+    fn process(e: &mut Env, _: &mut Queue, msg: &Message) -> bool {
         match msg {
             Message::Note(n) => {
                 if e.conf.is_develop() && n.kind == NoteKind::Fault {
