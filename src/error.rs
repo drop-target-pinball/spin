@@ -6,3 +6,6 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+pub fn device_error<T>(what: &str, reason: String) -> Result<T> {
+    Err(Error::Device(what.to_string(), reason))
+}

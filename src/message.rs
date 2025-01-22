@@ -28,6 +28,7 @@ pub enum Message {
     PlaySound(PlayAudio),
 }
 
+#[derive(Debug)]
 pub struct Queue {
     messages: VecDeque<Message>
 }

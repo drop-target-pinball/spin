@@ -8,14 +8,16 @@ pub enum RunMode {
 
 #[derive(Clone)]
 pub struct Sound {
-    pub id: String,
+    pub name: String,
+    pub device_id: u8,
     pub path: String,
 }
 
 impl Sound {
-    pub fn new(id: &str, path: &str) -> Sound {
+    pub fn new(name: &str, path: &str) -> Sound {
         Self {
-            id: id.to_string(),
+            name: name.to_string(),
+            device_id: 0,
             path: path.to_string(),
         }
     }

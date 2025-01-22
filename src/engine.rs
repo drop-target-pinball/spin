@@ -1,42 +1,49 @@
 use crate::prelude::*;
 use std::time;
 
-pub struct Context<'s> {
-    pub state: &'s mut State,
-    pub queue: &'s mut Queue,
-    pub conf: &'s Config,
+pub struct Env {
+    pub conf: Config,
+    pub vars: Vars,
 }
 
-impl<'s> Context<'s> {
-    pub fn new(state: &'s mut State, queue: &'s mut Queue, conf: &'s Config) -> Self {
-        Self { state, queue, conf }
+impl Env  {
+    pub fn new(conf: Config, vars: Vars) -> Self {
+        Self {conf, vars}
+    }
+}
+
+impl Default for Env {
+    fn default() -> Self {
+        Self {
+            conf: Config::new(RunMode::Develop),
+            vars: Vars::new(),
+        }
     }
 }
 
 pub trait Device {
-    fn process(&mut self, ctx: &mut Context, msg: &Message) -> bool;
+    fn process(&mut self, e: &mut Env, q: &mut Queue, msg: &Message) -> bool;
 }
 
-pub struct Engine<'e>  {
+pub struct Engine {
+    pub env: Env,
     pub queue: Queue,
-    pub state: State,
-    devices: Vec<&'e mut dyn Device>,
-    conf: Config,
+    devices: Vec<Box<dyn Device>>,
 }
 
 
-impl<'e> Engine<'e> {
+impl Engine {
     pub fn new(conf: Config) -> Self {
+        let env = Env::new(conf, Vars::new());
         Engine {
-            state: State::new(),
+            env,
             queue: Queue::new(),
             devices: Vec::new(),
-            conf,
         }
     }
 
-    pub fn add_device(&mut self, s: &'e mut dyn Device) {
-        self.devices.push(s);
+    pub fn add_device(&mut self, d: Box<dyn Device>) {
+        self.devices.push(d);
     }
 
     pub fn init(&mut self) {
@@ -45,7 +52,7 @@ impl<'e> Engine<'e> {
     }
 
     pub fn tick(&mut self) {
-        self.state.now = time::Instant::now();
+        self.env.vars.now = time::Instant::now();
         self.process_queue();
     }
 
@@ -54,7 +61,6 @@ impl<'e> Engine<'e> {
             // As messages are being processed, the systems may want to
             // generate additional messages. Collect those here.
             let mut out_queue = Queue::new();
-            let mut ctx = Context::new(&mut self.state, &mut out_queue, &self.conf);
 
             // Send each message in the queue to every system for processing.
             match self.queue.pop() {
@@ -62,9 +68,10 @@ impl<'e> Engine<'e> {
                 Some(msg) => {
                     let mut handled = false;
                     for dev in &mut self.devices {
-                            handled |= dev.process(&mut ctx, &msg);
+                            handled |= dev.process(&mut self.env, &mut out_queue, &msg);
                     }
-                    if ctx.conf.is_develop() && !handled {
+                    handled |= Self::process(&mut self.env, &mut out_queue, &msg);
+                    if !handled && self.env.conf.is_develop() {
                         panic!("message not handled: {:?}", &msg);
                     }
                 },
@@ -83,10 +90,10 @@ impl<'e> Engine<'e> {
         }
     }
 
-    fn process(&mut self, ctx: &mut Context, msg: &Message) -> bool {
+    fn process(e: &mut Env, queue: &mut Queue, msg: &Message) -> bool {
         match msg {
             Message::Note(n) => {
-                if ctx.conf.is_develop() && n.kind == NoteKind::Fault {
+                if e.conf.is_develop() && n.kind == NoteKind::Fault {
                     panic!("fault: {}", n.message);
                 }
             },
@@ -97,7 +104,7 @@ impl<'e> Engine<'e> {
 
 }
 
-impl<'e> Default for Engine<'e> {
+impl Default for Engine {
     fn default() -> Self {
         Engine::new(Config::default())
     }

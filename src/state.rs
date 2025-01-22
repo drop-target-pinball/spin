@@ -1,14 +1,14 @@
 use std::time;
 
-pub struct State {
+pub struct Vars {
     pub uptime: time::Instant,
     pub now: time::Instant,
 }
 
-impl State {
-    pub fn new() -> State {
+impl Vars {
+    pub fn new() -> Vars {
         let now = time::Instant::now();
-        State {
+        Vars {
             uptime: now,
             now,
         }

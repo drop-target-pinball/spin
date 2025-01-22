@@ -3,19 +3,16 @@ use spin::prelude::*;
 pub fn main() {
     println!("hello world");
 
-    let mut dev_sdl = sdl::Device::new(0).unwrap();
-    let mut audio = sdl::Audio::new();
-    dev_sdl.add_system(&mut audio);
+    let mut conf = Config::new(RunMode::Develop);
+    conf.sounds.push(Sound::new("foo", "tmp/foo.wav"));
 
+    let dev_sdl = sdl::SdlDevice::new().unwrap()
+        .with_audio(0,sdl::AudioOptions::default()).unwrap();
+    let logger = Logger::default();
 
-    let mut conf = Config::new(RunMode::Devel);
-    conf.add_sound(&Sound::new("test", "test.wav"));
-
-    let mut logger = Logger::default();
     let mut e = Engine::new(conf);
-
-    e.add_device(&mut dev_sdl);
-    e.add_device(&mut logger);
+    e.add_device(Box::new(dev_sdl));
+    e.add_device(Box::new(logger));
 
     e.init();
 
