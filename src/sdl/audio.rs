@@ -72,11 +72,11 @@ impl Audio {
         }
     }
 
-    fn play_sound(&mut self, q: &mut Queue, evt: &PlayAudio)  {
-        let chunk = match self.sounds.get(&evt.name) {
+    fn play_sound(&mut self, q: &mut Queue, cmd: &PlayAudio)  {
+        let chunk = match self.sounds.get(&cmd.name) {
             Some(c) => c,
             None => {
-                fault!(q, "unregistered sound: {}", evt.name);
+                fault!(q, "unregistered sound: {}", cmd.name);
                 return;
             }
         };
