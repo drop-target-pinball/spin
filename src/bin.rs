@@ -1,5 +1,6 @@
-use std::time::Duration;
+use std::{process::ExitCode, time::Duration};
 use clap::{Parser, crate_name, crate_description, crate_version};
+use std::thread;
 
 use spin::prelude::*;
 
@@ -12,7 +13,7 @@ struct Cli {
     release: bool
 }
 
-pub fn main() {
+pub fn main() -> ExitCode {
     let cli = Cli::parse();
 
     let mode = if cli.release {
@@ -24,23 +25,31 @@ pub fn main() {
     };
 
     let mut conf = Config::new(mode);
+
     conf.sounds.push(Sound::new("foo", "sample/swing.ogg"));
 
-    let dev_sdl = sdl::SdlDevice::default()
+    let mut dev_sdl = sdl::SdlDevice::default()
         .with_audio(0,sdl::AudioOptions::default());
-    let logger = Logger::default();
+    let mut logger = Logger::default();
 
     let mut e = Engine::new(conf);
-    e.add_device(Box::new(dev_sdl));
-    e.add_device(Box::new(logger));
+    e.add_device(&mut dev_sdl);
+    e.add_device(&mut logger);
 
-    info!(e.queue, "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
-    e.init();
+    info!(e.queue(), "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
 
-    info!(e.queue, "ready");
-    e.tick();
+    let q = e.queue();
+    thread::spawn(move || {
+        std::thread::sleep(Duration::from_secs(1));
+        q.post(Message::PlaySound(PlayAudio{name: "foo".to_string() }));
+    });
 
-    e.queue.push(Message::PlaySound(PlayAudio{name: "foo".to_string() }));
-    e.tick();
-    std::thread::sleep(Duration::from_secs(5));
+    match e.run() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("error: {}", e);
+            ExitCode::FAILURE
+        }
+    }
+
 }

@@ -12,11 +12,11 @@ impl<W> Logger<W>
         Logger{out}
     }
 
-    fn log(&mut self, env: &mut Env, n: &Note) {
+    fn log(&mut self, env: &mut Env, text: &str) {
         // In the event that the note could not be logged, panic when in
         // debug mode and simply write to standard error when in
         // production mode
-        if let Err(e) = self.checked_log(env, n) {
+        if let Err(e) = self.checked_log(env, text) {
             if env.conf.is_develop() {
                 panic!("fault: unable to log: {}", e)
             } else {
@@ -25,14 +25,10 @@ impl<W> Logger<W>
         }
     }
 
-    fn checked_log(&mut self, env: &mut Env, n: &Note) -> io::Result<()> {
+    fn checked_log(&mut self, env: &mut Env, text: &str) -> io::Result<()> {
         let elapsed = env.vars.now.duration_since(env.vars.uptime);
         let fmt_uptime = format!("[{:10.3}]", elapsed.as_secs_f32());
-        match n.kind {
-            NoteKind::Info => writeln!(self.out, "{} {}", fmt_uptime, n.message),
-            NoteKind::Alert => writeln!(self.out, "{} (!) {}", fmt_uptime, n.message),
-            NoteKind::Fault => writeln!(self.out, "{} (*) {}", fmt_uptime, n.message),
-        }
+        writeln!(self.out, "{} {}", fmt_uptime, text)
     }
 }
 
@@ -47,10 +43,14 @@ impl<W> Device for Logger<W>
 where W: io::Write {
     fn process(&mut self, env: &mut Env, _: &mut Queue, msg: &Message) -> bool {
         match msg {
-            Message::Note(n) => self.log(env, n),
-            _ => return false,
+            Message::Note(_) => self.log(env, &msg.to_string()),
+            _ => {
+                if env.conf.is_develop() {
+                    self.log(env, &format!("> {}", msg));
+                }
+            }
         }
-        true
+        false
     }
 }
 
@@ -59,14 +59,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_note() {
-        let mut e = Env::default();
+    fn test_note_info() {
+        let mut e = Engine::new(Config::default());
         let mut buf = Vec::new();
-        let mut logger: Logger<&mut Vec<u8>> = Logger::new(&mut buf);
-        logger.process(&mut e, &mut Queue::default(), &Message::Note(Note {
-            kind: NoteKind::Info,
-            message: "this is a test".to_string(),
-        }));
+        let mut logger= Logger::new(&mut buf);
+        e.add_device(&mut logger);
+
+        let q = e.queue();
+        info!(q, "this is a test");
+        e.tick();
 
         let want = "[     0.000] this is a test\n";
         let have = String::from_utf8(buf).unwrap();
@@ -74,14 +75,15 @@ mod tests {
     }
 
     #[test]
-    fn test_alert() {
-        let mut e = Env::default();
+    fn test_note_alert() {
+        let mut e = Engine::new(Config::default());
         let mut buf = Vec::new();
-        let mut logger = Logger::new(&mut buf);
-        logger.process(&mut e, &mut Queue::default(), &Message::Note(Note {
-            kind: NoteKind::Alert,
-            message: "this is a test".to_string(),
-        }));
+        let mut logger= Logger::new(&mut buf);
+        e.add_device(&mut logger);
+
+        let q = e.queue();
+        alert!(q, "this is a test");
+        e.tick();
 
         let want = "[     0.000] (!) this is a test\n";
         let have = String::from_utf8(buf).unwrap();
@@ -89,14 +91,16 @@ mod tests {
     }
 
     #[test]
-    fn test_fault() {
-        let mut e = Env::default();
+    fn test_note_fault() {
+        let conf = Config::new(RunMode::Release);
+        let mut e = Engine::new(conf);
         let mut buf = Vec::new();
-        let mut logger = Logger::new(&mut buf);
-        logger.process(&mut e, &mut Queue::default(), &Message::Note(Note {
-            kind: NoteKind::Fault,
-            message: "this is a test".to_string(),
-        }));
+        let mut logger= Logger::new(&mut buf);
+        e.add_device(&mut logger);
+
+        let q = e.queue();
+        fault!(q, "this is a test");
+        e.tick();
 
         let want = "[     0.000] (*) this is a test\n";
         let have = String::from_utf8(buf).unwrap();
