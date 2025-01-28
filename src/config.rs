@@ -1,4 +1,8 @@
 
+use std::path::{Path, PathBuf};
+use std::env;
+use std::ffi::OsString;
+
 #[derive(Clone, Copy, PartialEq)]
 pub enum RunMode {
     Develop,
@@ -26,6 +30,8 @@ impl Sound {
 #[derive(Clone)]
 pub struct Config {
     pub mode: RunMode,
+    pub lib_dir: PathBuf,
+    pub app_dir: PathBuf,
     pub sounds: Vec<Sound>
 }
 
@@ -33,6 +39,8 @@ impl Config {
     pub fn new(mode: RunMode) -> Self {
         Config {
             mode,
+            lib_dir: PathBuf::from(env::var_os("SPIN_LIB_DIR").unwrap_or(".".into())),
+            app_dir: PathBuf::from(env::var_os("SPIN_APP_DIR").unwrap_or(".".into())),
             sounds: Vec::new(),
         }
     }
@@ -44,6 +52,13 @@ impl Config {
 
     pub fn is_develop(&self) -> bool {
         self.mode == RunMode::Develop
+    }
+
+    pub fn lua_path(&self) -> OsString {
+        let mut path = OsString::new();
+        path.push(&self.lib_dir.clone());
+        path.push("/lua/?.lua;");
+        path
     }
 }
 

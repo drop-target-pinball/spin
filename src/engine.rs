@@ -7,6 +7,9 @@ use std::{
     thread,
     time::{self, Duration},
 };
+use mlua::prelude::*;
+use std::env;
+
 
 pub struct Env {
     pub conf: Config,
@@ -37,10 +40,19 @@ pub struct Engine<'e> {
     pub queue: Queue,
     pub rx: Receiver<Message>,
     devices: Vec<&'e mut dyn Device>,
+    lua: Lua,
 }
 
 impl<'e> Engine<'e> {
     pub fn new(conf: Config) -> Self {
+        env::set_var("LUA_PATH", conf.lua_path());
+        let lua = Lua::new();
+
+        let lua_entry =lua.load(conf.lib_dir.join("main.lua"));
+        if let Err(e) = lua_entry.exec() {
+            panic!("{}", e);
+        }
+
         let env = Env::new(conf, Vars::default());
         let (tx, rx) = mpsc::channel();
         Engine {
@@ -48,6 +60,7 @@ impl<'e> Engine<'e> {
             queue: Queue::new(tx),
             rx,
             devices: Vec::new(),
+            lua,
         }
     }
 
@@ -60,6 +73,9 @@ impl<'e> Engine<'e> {
     }
 
     pub fn init(&mut self) {
+        if let Err(e) = self.lua.load("init()").exec() {
+            panic!("{}", e);
+        }
         self.queue.post(Message::Init);
         self.process_queue();
         info!(self.queue, "ready");

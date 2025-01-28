@@ -60,7 +60,7 @@ impl Audio {
             if sound.device_id != self.id {
                 continue
             }
-            let path = spin_path(&sound.path);
+            let path = env.conf.app_dir.join(&sound.path);
             match mixer::Chunk::from_file(&path) {
                 Err(e) => fault!(q, "unable to load sound: {}", &e),
                 Ok(chunk) => {

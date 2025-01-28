@@ -16,15 +16,6 @@ pub mod prelude {
 
     #[cfg(feature = "sdl")]
     pub use crate::sdl;
-
-    pub use super::spin_path;
 }
 
-use std::env;
-use std::path::{Path, PathBuf};
-
-pub fn spin_path(name: &str) -> PathBuf {
-    let root = env::var_os("SPIN_DIR").unwrap_or(".".into());
-    Path::new(&root).join(name)
-}
 

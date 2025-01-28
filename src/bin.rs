@@ -26,7 +26,7 @@ pub fn main() -> ExitCode {
 
     let mut conf = Config::new(mode);
 
-    conf.sounds.push(Sound::new("foo", "sample/swing.ogg"));
+    conf.sounds.push(Sound::new("foo", "example/swing.ogg"));
 
     let mut dev_sdl = sdl::SdlDevice::default()
         .with_audio(0,sdl::AudioOptions::default());
