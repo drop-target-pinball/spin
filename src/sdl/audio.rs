@@ -86,13 +86,12 @@ impl Audio {
         }
     }
 
-    pub fn process(&mut self, _: &sdl2::Sdl, env: &mut Env, q: &mut Queue, msg: &Message) -> bool {
+    pub fn process(&mut self, _: &sdl2::Sdl, env: &mut Env, q: &mut Queue, msg: &Message)  {
         match msg {
             Message::Init => self.init(env, q),
             Message::PlaySound(a) => self.play_sound(q, a),
-            _ => return false,
+            _ => ()
         }
-        true
     }
 }
 

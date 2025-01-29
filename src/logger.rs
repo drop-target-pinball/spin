@@ -41,7 +41,7 @@ impl Default for Logger<io::Stdout> {
 
 impl<W> Device for Logger<W>
 where W: io::Write {
-    fn process(&mut self, env: &mut Env, _: &mut Queue, msg: &Message) -> bool {
+    fn process(&mut self, env: &mut Env, _: &mut Queue, msg: &Message) {
         match msg {
             Message::Note(_) => self.log(env, &msg.to_string()),
             _ => {
@@ -50,7 +50,6 @@ where W: io::Write {
                 }
             }
         }
-        false
     }
 }
 

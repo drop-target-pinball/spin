@@ -31,7 +31,7 @@ impl Default for Env {
 }
 
 pub trait Device {
-    fn process(&mut self, e: &mut Env, q: &mut Queue, msg: &Message) -> bool;
+    fn process(&mut self, e: &mut Env, q: &mut Queue, msg: &Message);
 }
 
 pub struct Engine<'e> {
@@ -40,18 +40,15 @@ pub struct Engine<'e> {
     pub rx: Receiver<Message>,
     devices: Vec<&'e mut dyn Device>,
     lua: Lua,
+    lua_process: mlua::Function,
 }
 
 impl<'e> Engine<'e> {
     pub fn new(conf: Config) -> Self {
-        env::set_var("LUA_PATH", conf.lua_path());
-        let lua = Lua::new();
-
-        let lua_entry =lua.load(conf.lib_dir.join("main.lua"));
-        if let Err(e) = lua_entry.exec() {
-            panic!("{}", e);
-        }
-
+        let (lua, lua_process) = match lua_init(&conf) {
+            Ok((l, p)) => (l, p),
+            Err(e) => panic!("lua setup failure: {}", e)
+        };
         let env = Env::new(conf, Vars::default());
         let (tx, rx) = mpsc::channel();
         Engine {
@@ -60,6 +57,7 @@ impl<'e> Engine<'e> {
             rx,
             devices: Vec::new(),
             lua,
+            lua_process,
         }
     }
 
@@ -72,9 +70,6 @@ impl<'e> Engine<'e> {
     }
 
     pub fn init(&mut self) {
-        if let Err(e) = self.lua.load("init()").exec() {
-            panic!("{}", e);
-        }
         self.queue.post(Message::Init);
         self.process_queue();
         info!(self.queue, "ready");
@@ -85,7 +80,7 @@ impl<'e> Engine<'e> {
         self.process_queue();
     }
 
-    pub fn run(&mut self) -> Result<(), String> {
+    pub fn run(&mut self) {
         let rate = Duration::from_micros(16670);
 
         self.init();
@@ -97,7 +92,7 @@ impl<'e> Engine<'e> {
             running_2.store(false, Ordering::SeqCst);
         });
         if let Err(e) = result {
-            return Err(format!("unable to set signal handler: {}", e));
+            panic!("unable to set signal handler: {}", e);
         }
 
         while running.load(Ordering::SeqCst) {
@@ -111,10 +106,8 @@ impl<'e> Engine<'e> {
             }
         }
 
-        info!(self.queue, "stop requested");
+        self.queue.post(Message::Shutdown);
         self.tick();
-
-        Ok(())
     }
 
     fn process_queue(&mut self) {
@@ -128,34 +121,91 @@ impl<'e> Engine<'e> {
                 Err(TryRecvError::Empty) => break,
                 Err(TryRecvError::Disconnected) => panic!("channel closed"),
                 Ok(msg) => {
-                    let mut handled = false;
                     for dev in &mut self.devices {
-                        handled |= dev.process(&mut self.env, &mut q, &msg);
+                        dev.process(&mut self.env, &mut q, &msg);
                     }
-                    handled |= Self::process(&mut self.env, &mut q, &msg);
-                    if !handled && self.env.conf.is_develop() {
-                        panic!("message not handled: {:?}", &msg);
-                    }
+                    self.process_lua_message(&msg);
+                    Self::process(&mut self.env, &mut q, &msg);
                 }
             }
         }
     }
 
-    fn process(e: &mut Env, _: &mut Queue, msg: &Message) -> bool {
+    fn process_lua_message(&mut self, msg: &Message) {
+        let lua_msg = match self.lua.to_value(&msg) {
+            Ok(m) => m,
+            Err(e) => {
+                fault!(self.queue, "cannot convert message for lua: {}", e);
+                return;
+            }
+        };
+
+        let result = match self.lua_process.call::<mlua::Value>(&lua_msg) {
+            Ok(r) => r,
+            Err(e) => {
+                fault!(self.queue, "lua execution failed: {}", e);
+                return;
+            }
+        };
+
+        match result {
+            mlua::Value::Nil => (),
+            mlua::Value::Table(t) => self.process_lua_returns(&t),
+            _ => fault!(self.queue, "invalid return type from lua: {:?}", result)
+        }
+    }
+
+    fn process_lua_returns(&mut self, ret: &mlua::Table) {
+        for tbls in ret.sequence_values::<mlua::Value>() {
+            match tbls {
+                Err(e) => fault!(self.queue, "expected lua table: {}", e),
+                Ok(tbl) => {
+                    match self.lua.from_value(tbl) {
+                        Ok(m) => self.queue.post(m),
+                        Err(e) => fault!(self.queue, "invalid return: {}", e)
+                    };
+                }
+            }
+        }
+    }
+
+    fn process(e: &mut Env, _: &mut Queue, msg: &Message)  {
         match msg {
             Message::Note(n) => {
                 if e.conf.is_develop() && n.kind == NoteKind::Fault {
                     panic!("fault: {}", n.message);
                 }
             }
-            _ => return false,
+            _ => ()
         }
-        true
     }
+
 }
 
 impl Default for Engine<'_> {
     fn default() -> Self {
         Engine::new(Config::default())
     }
+}
+
+fn lua_init(conf: &Config) -> mlua::Result<(Lua, mlua::Function)> {
+    env::set_var("LUA_PATH", conf.lua_path());
+    let lua = Lua::new();
+
+    let lua_entry = lua.load(conf.lib_dir.join("lua/engine.lua"));
+    if let Err(e) = lua_entry.exec() {
+        panic!("{}", e);
+    }
+
+    let globals = lua.globals();
+    let lua_engine: mlua::Table = match globals.get("engine") {
+        Ok(p) => p,
+        Err(e) => panic!("{}", e),
+    };
+
+    let lua_process: mlua::Function = match lua_engine.get("process") {
+        Ok(p) => p,
+        Err(e) => panic!("{}", e),
+    };
+    Ok((lua, lua_process))
 }

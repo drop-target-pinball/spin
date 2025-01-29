@@ -28,25 +28,40 @@ pub struct Note {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct Run {
+    pub name: String,
+}
+
+impl fmt::Display for Run {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "{}", self.name)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum Message {
     Init,
     Note(Note),
     PlaySound(PlayAudio),
+    Run(Run),
+    Shutdown,
 }
 
 impl fmt::Display for Message {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match &self {
             Message::Init => write!(f, "init"),
-            Message::Note(n) => {
-                match n.kind {
-                    NoteKind::Alert => write!(f, "(!) {}", n.message),
-                    NoteKind::Fault => write!(f, "(*) {}", n.message),
-                    NoteKind::Info => write!(f, "{}", n.message),
+            Message::Note(m) => {
+                match m.kind {
+                    NoteKind::Alert => write!(f, "(!) {}", m.message),
+                    NoteKind::Fault => write!(f, "(*) {}", m.message),
+                    NoteKind::Info => write!(f, "{}", m.message),
                 }
             }
-            Message::PlaySound(a) => write!(f, "play_sound: {}", a),
+            Message::PlaySound(m) => write!(f, "play_sound: {}", m),
+            Message::Run(m) => write!(f, "run: {}", m),
+            Message::Shutdown => write!(f, "shutdown")
         }
     }
 }

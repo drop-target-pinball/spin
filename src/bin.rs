@@ -1,4 +1,4 @@
-use std::{process::ExitCode, time::Duration};
+use std::time::Duration;
 use clap::{Parser, crate_name, crate_description, crate_version};
 use std::thread;
 
@@ -13,7 +13,7 @@ struct Cli {
     release: bool
 }
 
-pub fn main() -> ExitCode {
+pub fn main()  {
     let cli = Cli::parse();
 
     let mode = if cli.release {
@@ -36,20 +36,14 @@ pub fn main() -> ExitCode {
     e.add_device(&mut dev_sdl);
     e.add_device(&mut logger);
 
-    info!(e.queue(), "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
-
     let q = e.queue();
+    info!(q, "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
+
     thread::spawn(move || {
         std::thread::sleep(Duration::from_secs(1));
-        q.post(Message::PlaySound(PlayAudio{name: "foo".to_string() }));
+        q.post(Message::Run(Run{name: "hello".to_string()}));
     });
 
-    match e.run() {
-        Ok(()) => ExitCode::SUCCESS,
-        Err(e) => {
-            eprintln!("error: {}", e);
-            ExitCode::FAILURE
-        }
-    }
+    e.run();
 
 }
