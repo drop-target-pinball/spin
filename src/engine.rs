@@ -10,7 +10,6 @@ use std::{
 use mlua::prelude::*;
 use std::env;
 
-
 pub struct Env {
     pub conf: Config,
     pub vars: Vars,
