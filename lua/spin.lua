@@ -2,6 +2,20 @@ local spin = {}
 
 spin.out = {}
 
+function spin.alert(message)
+    table.insert(spin.out, { note = {
+        kind = 'alert',
+        message = message,
+    }})
+end
+
+function spin.fault(message)
+    table.insert(spin.out, { note = {
+        kind = 'fault',
+        message = message,
+    }})
+end
+
 function spin.info(message)
     table.insert(spin.out, { note = {
         kind = 'info',

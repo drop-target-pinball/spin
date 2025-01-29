@@ -4,6 +4,8 @@ pub mod logger;
 pub mod config;
 #[cfg(feature = "sdl")]
 pub mod sdl;
+#[cfg(feature = "server")]
+pub mod server;
 pub mod state;
 
 pub mod prelude {
@@ -16,6 +18,11 @@ pub mod prelude {
 
     #[cfg(feature = "sdl")]
     pub use crate::sdl;
+    #[cfg(feature = "server")]
+    pub use crate::server;
 }
+
+
+
 
 

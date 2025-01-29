@@ -39,6 +39,19 @@ pub fn main()  {
     let q = e.queue();
     info!(q, "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
 
+    #[cfg(feature = "server")] {
+        if mode != RunMode::Release {
+            //let svr = server::new(e.queue(), "0.0.0.0:7746");
+            use rocket::tokio::runtime::Runtime;
+            thread::spawn(move || {
+                let rt = Runtime::new().unwrap();
+                rt.block_on( async move {
+                    server::run().await
+                });
+            });
+        }
+    }
+
     thread::spawn(move || {
         std::thread::sleep(Duration::from_secs(1));
         q.post(Message::Run(Run{name: "hello".to_string()}));

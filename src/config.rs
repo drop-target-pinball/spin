@@ -54,6 +54,10 @@ impl Config {
         self.mode == RunMode::Develop
     }
 
+    pub fn is_release(&self) -> bool {
+        self.mode == RunMode::Release
+    }
+
     pub fn lua_path(&self) -> OsString {
         let mut path = OsString::new();
         path.push(&self.lib_dir.clone());
