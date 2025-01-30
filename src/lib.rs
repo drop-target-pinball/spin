@@ -9,8 +9,7 @@ pub mod proc;
 
 #[cfg(feature = "sdl")]
 pub mod sdl;
-#[cfg(feature = "server")]
-pub mod server;
+
 
 pub mod prelude {
     pub use crate::builtin;
@@ -25,8 +24,6 @@ pub mod prelude {
 
     #[cfg(feature = "sdl")]
     pub use crate::sdl;
-    #[cfg(feature = "server")]
-    pub use crate::server;
 }
 
 

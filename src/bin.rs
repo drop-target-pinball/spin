@@ -42,32 +42,7 @@ pub fn main()  {
     let q = e.queue();
     info!(q, "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
 
-    // #[cfg(feature = "server")] {
-    //     if mode != config::RunMode::Release && conf.server.enabled {
-    //         start_server(conf.server.clone());
-    //     }
-    // }
-
-    // thread::spawn(move || {
-    //     std::thread::sleep(Duration::from_secs(1));
-    //     q.post(Message::Run(Run{name: "hello".to_string()}));
-    // });
-
-    // thread::spawn(|| {
-    //     cli::run();
-    // });
-
     e.run();
-
+    println!("\n");
 }
 
-fn start_server(conf: config::Server) {
-    use rocket::tokio::runtime::Runtime;
-    thread::spawn(move || {
-        let rt = Runtime::new().unwrap();
-        rt.block_on( async move {
-            server::run(conf).await
-        });
-    });
-
-}

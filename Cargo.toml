@@ -13,16 +13,14 @@ name = "spin"
 path = "src/bin.rs"
 
 [features]
-default = ["sdl", "server"]
+default = ["sdl"]
 sdl = ["dep:sdl2"]
-server = ["dep:rocket"]
 
 [dependencies]
 ansi_term = "0.12.1"
 clap = { version = "4.5.13", features = ["cargo", "derive"] }
 ctrlc = "3.4.5"
 mlua = { version = "~0.10.2", features = ["lua54", "serialize"] }
-rocket = { version = "0.5.1", optional = true }
 rustyline = "15.0.0"
 sdl2 = { version = "0.37", optional = true, features = ["ttf","image","gfx","mixer"] }
 serde = { version = "1.0.217", features = ["derive"] }

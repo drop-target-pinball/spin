@@ -2,7 +2,10 @@ use crate::prelude::*;
 use rustyline::{DefaultEditor, ExternalPrinter};
 use std::thread;
 use mlua::{Error, MultiValue};
-use ansi_term::Color;
+use ansi_term::{ANSIString, Color};
+
+static GRAY: Color = Color::Fixed(8);
+static BRIGHT_YELLOW: Color = Color::Fixed(11);
 
 pub struct Console<'c> {
     out: Box<dyn ExternalPrinter + 'c>,
@@ -31,7 +34,7 @@ impl<'c> Console<'c> {
     fn checked_log(&mut self, env: &mut Env, text: &str) -> rustyline::Result<()> {
         let elapsed = env.vars.elapsed;
         let fmt_uptime = format!("[{:10.3}]", elapsed.as_secs_f32());
-        self.out.print(format!("{} {}", Color::Yellow.paint(fmt_uptime), text))?;
+        self.out.print(format!("{} {}", Color::Blue.bold().paint(fmt_uptime), text))?;
         Ok(())
     }
 
@@ -40,8 +43,14 @@ impl<'c> Console<'c> {
 impl<'c> Device for Console<'c> {
     fn process(&mut self, env: &mut Env, msg: &Message) {
         match msg {
-            Message::Note(_) => self.log(env, &msg.to_string()),
-            _ => self.log(env, &format!("> {}", msg))
+            Message::Note(n) => {
+                match n.kind {
+                    NoteKind::Info => self.log(env, &format!("{}", Color::Cyan.bold().paint(msg.to_string()))),
+                    NoteKind::Alert => self.log(env, &format!("{}", BRIGHT_YELLOW.bold().paint(msg.to_string()))),
+                    NoteKind::Fault => self.log(env, &format!("{}", Color::Red.bold().paint(msg.to_string()))),
+                }
+            }
+            _ => self.log(env, &format!("{}", GRAY.bold().paint(msg.to_string()))),
         }
     }
 }
