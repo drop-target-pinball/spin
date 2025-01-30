@@ -27,9 +27,9 @@ impl SdlDevice {
 }
 
 impl Device for SdlDevice {
-    fn process(&mut self, env: &mut Env, queue: &mut Queue, msg: &Message)  {
+    fn process(&mut self, env: &mut Env, msg: &Message)  {
         if let Some(audio) = &mut self.audio {
-            audio.process(&self.ctx, env, queue, msg);
+            audio.process(&self.ctx, env, msg);
         }
     }
 }

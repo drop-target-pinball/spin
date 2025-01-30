@@ -23,7 +23,7 @@ local function run(name)
 end
 
 function engine.process(msg)
-    spin.out = {}
+    -- spin.out = {}
     local kind = ""
     local body = nil
     if type(msg) == "string" then
@@ -45,7 +45,10 @@ function engine.process(msg)
     if next(spin.out) == nil then
         return nil
     else
-        return spin.out
+        -- FIXME: hack
+        local ret = spin.out
+        spin.out = {}
+        return ret
     end
 end
 

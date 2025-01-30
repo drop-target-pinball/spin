@@ -30,25 +30,32 @@ pub fn main()  {
 
     let mut dev_sdl = sdl::SdlDevice::default()
         .with_audio(0,sdl::AudioOptions::default());
-    let mut logger = Logger::default();
+    // let mut logger = Logger::default();
 
     let mut e = Engine::new(&conf);
     e.add_device(&mut dev_sdl);
-    e.add_device(&mut logger);
+    // e.add_device(&mut logger);
+
+    let mut cons = builtin::Console::new(e.state());
+    e.add_device(&mut cons);
 
     let q = e.queue();
     info!(q, "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
 
-    #[cfg(feature = "server")] {
-        if mode != config::RunMode::Release && conf.server.enabled {
-            start_server(conf.server.clone());
-        }
-    }
+    // #[cfg(feature = "server")] {
+    //     if mode != config::RunMode::Release && conf.server.enabled {
+    //         start_server(conf.server.clone());
+    //     }
+    // }
 
-    thread::spawn(move || {
-        std::thread::sleep(Duration::from_secs(1));
-        q.post(Message::Run(Run{name: "hello".to_string()}));
-    });
+    // thread::spawn(move || {
+    //     std::thread::sleep(Duration::from_secs(1));
+    //     q.post(Message::Run(Run{name: "hello".to_string()}));
+    // });
+
+    // thread::spawn(|| {
+    //     cli::run();
+    // });
 
     e.run();
 

@@ -26,7 +26,7 @@ impl<W> Logger<W>
     }
 
     fn checked_log(&mut self, env: &mut Env, text: &str) -> io::Result<()> {
-        let elapsed = env.vars.now.duration_since(env.vars.uptime);
+        let elapsed = env.vars.elapsed;
         let fmt_uptime = format!("[{:10.3}]", elapsed.as_secs_f32());
         writeln!(self.out, "{} {}", fmt_uptime, text)
     }
@@ -41,7 +41,7 @@ impl Default for Logger<io::Stdout> {
 
 impl<W> Device for Logger<W>
 where W: io::Write {
-    fn process(&mut self, env: &mut Env, _: &mut Queue, msg: &Message) {
+    fn process(&mut self, env: &mut Env, msg: &Message) {
         match msg {
             Message::Note(_) => self.log(env, &msg.to_string()),
             _ => {
@@ -55,6 +55,8 @@ where W: io::Write {
 
 #[cfg(test)]
 mod tests {
+    use core::time;
+
     use super::*;
 
     #[test]
@@ -66,7 +68,7 @@ mod tests {
 
         let q = e.queue();
         info!(q, "this is a test");
-        e.tick();
+        e.tick(time::Duration::ZERO);
 
         let want = "[     0.000] this is a test\n";
         let have = String::from_utf8(buf).unwrap();
@@ -82,7 +84,7 @@ mod tests {
 
         let q = e.queue();
         alert!(q, "this is a test");
-        e.tick();
+        e.tick(time::Duration::ZERO);
 
         let want = "[     0.000] (!) this is a test\n";
         let have = String::from_utf8(buf).unwrap();
@@ -99,7 +101,7 @@ mod tests {
 
         let q = e.queue();
         fault!(q, "this is a test");
-        e.tick();
+        e.tick(time::Duration::ZERO);
 
         let want = "[     0.000] (*) this is a test\n";
         let have = String::from_utf8(buf).unwrap();

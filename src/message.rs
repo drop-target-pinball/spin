@@ -43,6 +43,7 @@ impl fmt::Display for Run {
 pub enum Message {
     Init,
     Note(Note),
+    Nop, // FIXME: Hack, remove
     PlaySound(PlayAudio),
     Run(Run),
     Shutdown,
@@ -59,6 +60,7 @@ impl fmt::Display for Message {
                     NoteKind::Info => write!(f, "{}", m.message),
                 }
             }
+            Message::Nop => Ok(()),
             Message::PlaySound(m) => write!(f, "play_sound: {}", m),
             Message::Run(m) => write!(f, "run: {}", m),
             Message::Shutdown => write!(f, "shutdown")

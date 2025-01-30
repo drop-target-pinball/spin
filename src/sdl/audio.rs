@@ -55,41 +55,41 @@ impl Audio {
         }
     }
 
-    fn init(&mut self, env: &mut Env, q: &mut Queue) {
+    fn init(&mut self, env: &mut Env) {
         for sound in &env.conf.sounds {
             if sound.device_id != self.id {
                 continue
             }
             let path = env.conf.app_dir.join(&sound.path);
             match mixer::Chunk::from_file(&path) {
-                Err(e) => fault!(q, "unable to load sound: {}", &e),
+                Err(e) => fault!(env.queue, "unable to load sound: {}", &e),
                 Ok(chunk) => {
                     if self.sounds.insert(sound.name.clone(), chunk).is_some() {
-                        fault!(q, "sound already loaded: {}", &path.to_string_lossy());
+                        fault!(env.queue, "sound already loaded: {}", &path.to_string_lossy());
                     }
                 }
             };
         }
     }
 
-    fn play_sound(&mut self, q: &mut Queue, cmd: &PlayAudio)  {
+    fn play_sound(&mut self, env: &mut Env, cmd: &PlayAudio)  {
         let chunk = match self.sounds.get(&cmd.name) {
             Some(c) => c,
             None => {
-                fault!(q, "unregistered sound: {}", cmd.name);
+                fault!(env.queue, "unregistered sound: {}", cmd.name);
                 return;
             }
         };
 
         if let Err(e) = sdl2::mixer::Channel::all().play(chunk, 0) {
-            fault!(q, "cannot play sound: {}", e);
+            fault!(env.queue, "cannot play sound: {}", e);
         }
     }
 
-    pub fn process(&mut self, _: &sdl2::Sdl, env: &mut Env, q: &mut Queue, msg: &Message)  {
+    pub fn process(&mut self, _: &sdl2::Sdl, env: &mut Env, msg: &Message)  {
         match msg {
-            Message::Init => self.init(env, q),
-            Message::PlaySound(a) => self.play_sound(q, a),
+            Message::Init => self.init(env),
+            Message::PlaySound(a) => self.play_sound(env, a),
             _ => ()
         }
     }
