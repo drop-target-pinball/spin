@@ -2,6 +2,7 @@ use crate::prelude::*;
 use rustyline::{DefaultEditor, ExternalPrinter};
 use std::thread;
 use mlua::{Error, MultiValue};
+use ansi_term::Color;
 
 pub struct Console<'c> {
     out: Box<dyn ExternalPrinter + 'c>,
@@ -30,7 +31,7 @@ impl<'c> Console<'c> {
     fn checked_log(&mut self, env: &mut Env, text: &str) -> rustyline::Result<()> {
         let elapsed = env.vars.elapsed;
         let fmt_uptime = format!("[{:10.3}]", elapsed.as_secs_f32());
-        self.out.print(format!("{} {}", fmt_uptime, text))?;
+        self.out.print(format!("{} {}", Color::Yellow.paint(fmt_uptime), text))?;
         Ok(())
     }
 
