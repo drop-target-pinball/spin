@@ -8,6 +8,7 @@ use std::{
     time::{self, Duration},
 };
 use std::sync::Mutex;
+use clap::{crate_name, crate_description, crate_version};
 
 pub struct Env<'e> {
     pub conf: &'e config::App,
@@ -45,6 +46,7 @@ pub struct Engine<'e> {
     pub rx: Receiver<Message>,
     devices: Vec<Box<dyn Device + 'e>>,
     proc_env: proc::Env,
+    shutdown: bool,
 }
 
 impl<'e> Engine<'e> {
@@ -58,6 +60,7 @@ impl<'e> Engine<'e> {
             rx,
             devices: Vec::new(),
             proc_env,
+            shutdown: false,
         }
     }
 
@@ -87,19 +90,21 @@ impl<'e> Engine<'e> {
         let run_start = time::Instant::now();
         let rate = Duration::from_micros(16670);
 
+        info!(self.queue, "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
         self.init();
 
-        let running = Arc::new(AtomicBool::new(true));
-        let running_2 = running.clone();
+        // FIXME: Add in control-c handler for release mode
+        // let running = Arc::new(AtomicBool::new(true));
+        // let running_2 = running.clone();
 
-        let result = ctrlc::set_handler(move || {
-            running_2.store(false, Ordering::SeqCst);
-        });
-        if let Err(e) = result {
-            panic!("unable to set signal handler: {}", e);
-        }
+        // let result = ctrlc::set_handler(move || {
+        //     running_2.store(false, Ordering::SeqCst);
+        // });
+        // if let Err(e) = result {
+        //     panic!("unable to set signal handler: {}", e);
+        // }
 
-        while running.load(Ordering::SeqCst) {
+        while /*running.load(Ordering::SeqCst) &&*/ !self.shutdown {
             let frame_start = time::Instant::now();
             self.tick(run_start.elapsed());
 
@@ -110,8 +115,10 @@ impl<'e> Engine<'e> {
             }
         }
 
-        self.queue.post(Message::Shutdown);
-        self.tick(run_start.elapsed());
+        if !self.shutdown {
+            self.queue.post(Message::Shutdown);
+            self.tick(run_start.elapsed());
+        }
     }
 
     fn process_queue(&mut self, elapsed: time::Duration) {
@@ -122,15 +129,13 @@ impl<'e> Engine<'e> {
 
         // Send each message in the queue to every system for processing.
         loop {
-            // As messages are being processed, the systems may want to
-            // generate additional messages. Create a new sender for those.
-            let mut q = self.queue.clone();
-
+            if self.shutdown {
+                return
+            }
             match self.rx.try_recv() {
                 Err(TryRecvError::Empty) => break,
                 Err(TryRecvError::Disconnected) => panic!("channel closed"),
                 Ok(msg) => {
-                    Self::process(&mut env, &mut q, &msg);
                     for dev in &mut self.devices {
                         dev.process(&mut env, &msg);
                     }
@@ -142,22 +147,20 @@ impl<'e> Engine<'e> {
                         }
                         Err(e) => fault!(self.queue, "{}", e),
                     }
+
+                    match msg {
+                        Message::Note(n) => {
+                            if env.conf.is_develop() && n.kind == NoteKind::Fault {
+                                panic!("fault: {}", n.message);
+                            }
+                        }
+                        Message::Shutdown => self.shutdown = true,
+                        _ => (),
+                    }
                 }
             }
         }
     }
-
-    fn process(e: &mut Env, _: &mut Queue, msg: &Message)  {
-        match msg {
-            Message::Note(n) => {
-                if e.conf.is_develop() && n.kind == NoteKind::Fault {
-                    panic!("fault: {}", n.message);
-                }
-            }
-            _ => ()
-        }
-    }
-
 }
 
 impl Default for Engine<'_> {

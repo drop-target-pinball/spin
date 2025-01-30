@@ -28,19 +28,20 @@ pub fn main()  {
     conf.server.enabled = true;
     conf.sounds.push(config::Sound::new("foo", "example/swing.ogg"));
 
+    let mut e = Engine::new(&conf);
+
     let dev_sdl = sdl::SdlDevice::default()
         .with_audio(0,sdl::AudioOptions::default());
-    // let mut logger = Logger::default();
 
-    let mut e = Engine::new(&conf);
     e.add_device(Box::new(dev_sdl));
-    // e.add_device(&mut logger);
 
-    let cons = builtin::Console::new(e.state());
-    e.add_device(Box::new(cons));
-
-    let q = e.queue();
-    info!(q, "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
+    if mode == config::RunMode::Release {
+        let logger = Logger::default();
+        e.add_device(Box::new(logger));
+    } else {
+        let console = builtin::Console::new(e.state());
+        e.add_device(Box::new(console));
+    }
 
     e.run();
     println!("\n");

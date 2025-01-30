@@ -2,10 +2,12 @@ use crate::prelude::*;
 use rustyline::{DefaultEditor, ExternalPrinter};
 use std::thread;
 use mlua::{Error, MultiValue};
-use ansi_term::{ANSIString, Color};
+use ansi_term::Color;
 
 static GRAY: Color = Color::Fixed(8);
 static BRIGHT_YELLOW: Color = Color::Fixed(11);
+
+static GLOBALS: &[u8] = include_bytes!("console.lua");
 
 pub struct Console<'c> {
     out: Box<dyn ExternalPrinter + 'c>,
@@ -34,7 +36,7 @@ impl<'c> Console<'c> {
     fn checked_log(&mut self, env: &mut Env, text: &str) -> rustyline::Result<()> {
         let elapsed = env.vars.elapsed;
         let fmt_uptime = format!("[{:10.3}]", elapsed.as_secs_f32());
-        self.out.print(format!("{} {}", Color::Blue.bold().paint(fmt_uptime), text))?;
+        self.out.print(format!("{} {}\n", Color::Blue.bold().paint(fmt_uptime), text))?;
         Ok(())
     }
 
@@ -57,16 +59,24 @@ impl<'c> Device for Console<'c> {
 
 fn run(mut editor: DefaultEditor, state: State) {
     let mut proc_env: proc::Env = proc::Env::new().unwrap();
+    proc_env.load("console.lua", GLOBALS).unwrap();
 
     loop {
         let mut prompt = "spin> ";
         let mut line = String::new();
 
-
         loop {
             match editor.readline(prompt) {
                 Ok(input) => line.push_str(&input),
-                Err(_) => return,
+                Err(_) => {
+                    state.queue.post(Message::Shutdown);
+                    return
+                }
+            }
+
+            if line.trim() == "quit" || line.trim() == "exit" {
+                state.queue.post(Message::Shutdown);
+                return
             }
 
             match proc_env.lua().load(&line).eval::<MultiValue>() {
@@ -80,15 +90,7 @@ fn run(mut editor: DefaultEditor, state: State) {
                             .collect::<Vec<_>>()
                             .join("\t")
                     );
-
-                    let mut vars = state.vars.lock().unwrap();
-                    let eng_env = Env::new(&state.conf, &mut vars, state.queue.clone());
-
-                    let messages = proc_env.process(&Message::Nop).unwrap();
-                    for msg in messages {
-                        eng_env.queue.post(msg);
-                    }
-
+                    post(&proc_env, &state, Message::Nop);
                     break;
                 }
                 Err(Error::SyntaxError {
@@ -105,5 +107,15 @@ fn run(mut editor: DefaultEditor, state: State) {
                 }
             }
         }
+    }
+}
+
+fn post(proc_env: &proc::Env, state: &State, msg: Message) {
+    let mut vars = state.vars.lock().unwrap();
+    let eng_env = Env::new(&state.conf, &mut vars, state.queue.clone());
+
+    let messages = proc_env.process(&msg).unwrap();
+    for msg in messages {
+        eng_env.queue.post(msg);
     }
 }

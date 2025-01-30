@@ -19,7 +19,7 @@ impl Env {
         for (name, data) in SCRIPTS {
             let chunk = lua.load(data).set_name(name);
             if let Err(e) = chunk.exec() {
-                return raise!(Error::ProcEnv, "{}", e);
+                return raise!(Error::ProcExec, "{}", e);
             }
         }
 
@@ -35,6 +35,14 @@ impl Env {
         };
 
         Ok(Env{lua, process})
+    }
+
+    pub fn load(&self, name: &str, data: &[u8]) -> Result<()> {
+        let chunk = self.lua.load(data).set_name(name);
+        match chunk.exec() {
+            Ok(_) => Ok(()),
+            Err(e) => raise!(Error::ProcExec, "{}", e)
+        }
     }
 
     pub fn process(&self, msg: &Message) -> Result<Vec<Message>> {
