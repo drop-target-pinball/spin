@@ -9,11 +9,6 @@ use std::{
 };
 use std::sync::Mutex;
 
-static SCRIPTS: [(&str, &[u8]); 2] = [
-    ("spin.lua", include_bytes!("spin.lua")),
-    ("engine.lua", include_bytes!("engine.lua")),
-];
-
 pub struct Env<'e> {
     pub conf: &'e config::App,
     pub vars: &'e mut Vars,
@@ -48,7 +43,7 @@ pub struct Engine<'e> {
     queue: Queue,
 
     pub rx: Receiver<Message>,
-    devices: Vec<&'e mut dyn Device>,
+    devices: Vec<Box<dyn Device + 'e>>,
     proc_env: proc::Env,
 }
 
@@ -66,8 +61,8 @@ impl<'e> Engine<'e> {
         }
     }
 
-    pub fn add_device(&mut self, d: &'e mut dyn Device) {
-        self.devices.push(d);
+    pub fn add_device(&mut self, d: Box<dyn Device>) {
+        self.devices.push(d)
     }
 
     pub fn queue(&self) -> Queue {
