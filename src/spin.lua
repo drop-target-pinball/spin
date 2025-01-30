@@ -29,4 +29,5 @@ function spin.play_sound(name, opts)
     }})
 end
 
-return spin
+package.loaded['spin'] = spin
+

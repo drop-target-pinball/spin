@@ -12,7 +12,7 @@ pub mod prelude {
     pub use crate::engine::*;
     pub use crate::message::*;
     pub use crate::logger::*;
-    pub use crate::config::*;
+    pub use crate::config;
     pub use crate::state::*;
     pub use crate::{alert, fault, info};
 

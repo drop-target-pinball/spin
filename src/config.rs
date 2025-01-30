@@ -1,7 +1,8 @@
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::env;
-use std::ffi::OsString;
+
+use serde::{Serialize, Deserialize};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum RunMode {
@@ -10,7 +11,11 @@ pub enum RunMode {
     Release
 }
 
-#[derive(Clone)]
+impl Default for RunMode {
+    fn default() -> RunMode { RunMode::Develop }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Sound {
     pub name: String,
     pub device_id: u8,
@@ -27,24 +32,45 @@ impl Sound {
     }
 }
 
-#[derive(Clone)]
-pub struct Config {
-    pub mode: RunMode,
-    pub lib_dir: PathBuf,
-    pub app_dir: PathBuf,
-    pub sounds: Vec<Sound>
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Server {
+    pub enabled: bool,
+    pub host: String,
+    pub port: u16,
+    pub log_level: Option<String>,
 }
 
-impl Config {
-    pub fn new(mode: RunMode) -> Self {
-        Config {
-            mode,
-            lib_dir: PathBuf::from(env::var_os("SPIN_LIB_DIR").unwrap_or(".".into())),
-            app_dir: PathBuf::from(env::var_os("SPIN_APP_DIR").unwrap_or(".".into())),
-            sounds: Vec::new(),
+impl Default for Server {
+    fn default() -> Server {
+        Server {
+            enabled: false,
+            host: String::from("0.0.0.0"),
+            port: 7746, // SPIN on telephone buttons
+            log_level: None,
         }
     }
+}
 
+#[derive(Serialize, Deserialize, Clone)]
+pub struct App {
+    #[serde(skip)]
+    pub mode: RunMode,
+    #[serde(skip)]
+    pub app_dir: PathBuf,
+    pub sounds: Vec<Sound>,
+    pub server: Server,
+}
+
+pub fn new(mode: RunMode) -> App {
+    App {
+        mode,
+        app_dir: PathBuf::from(env::var_os("SPIN_DIR").unwrap_or(".".into())),
+        sounds: Vec::new(),
+        server: Server::default(),
+    }
+}
+
+impl App {
     pub fn add_sound(&mut self, s: &Sound) -> &mut Self {
         self.sounds.push(s.clone());
         self
@@ -57,17 +83,10 @@ impl Config {
     pub fn is_release(&self) -> bool {
         self.mode == RunMode::Release
     }
-
-    pub fn lua_path(&self) -> OsString {
-        let mut path = OsString::new();
-        path.push(&self.lib_dir.clone());
-        path.push("/lua/?.lua;");
-        path
-    }
 }
 
-impl Default for Config {
+impl Default for App {
     fn default() -> Self {
-        Self::new(RunMode::Develop)
+        new(RunMode::Develop)
     }
 }

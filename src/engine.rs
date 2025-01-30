@@ -8,15 +8,19 @@ use std::{
     time::{self, Duration},
 };
 use mlua::prelude::*;
-use std::env;
+
+static SCRIPTS: [(&str, &[u8]); 2] = [
+    ("spin.lua", include_bytes!("spin.lua")),
+    ("engine.lua", include_bytes!("engine.lua")),
+];
 
 pub struct Env {
-    pub conf: Config,
+    pub conf: config::App,
     pub vars: Vars,
 }
 
 impl Env {
-    pub fn new(conf: Config, vars: Vars) -> Self {
+    pub fn new(conf: config::App, vars: Vars) -> Self {
         Self { conf, vars }
     }
 }
@@ -24,7 +28,7 @@ impl Env {
 impl Default for Env {
     fn default() -> Self {
         Self {
-            conf: Config::new(RunMode::Develop),
+            conf: config::App::default(),
             vars: Vars::default(),
         }
     }
@@ -44,12 +48,12 @@ pub struct Engine<'e> {
 }
 
 impl<'e> Engine<'e> {
-    pub fn new(conf: Config) -> Self {
-        let (lua, lua_process) = match lua_init(&conf) {
+    pub fn new(conf: &config::App) -> Self {
+        let (lua, lua_process) = match lua_init() {
             Ok((l, p)) => (l, p),
             Err(e) => panic!("lua setup failure: {}", e)
         };
-        let env = Env::new(conf, Vars::default());
+        let env = Env::new(conf.clone(), Vars::default());
         let (tx, rx) = mpsc::channel();
         Engine {
             env,
@@ -184,17 +188,17 @@ impl<'e> Engine<'e> {
 
 impl Default for Engine<'_> {
     fn default() -> Self {
-        Engine::new(Config::default())
+        Engine::new(&config::App::default())
     }
 }
 
-fn lua_init(conf: &Config) -> mlua::Result<(Lua, mlua::Function)> {
-    env::set_var("LUA_PATH", conf.lua_path());
+fn lua_init() -> mlua::Result<(Lua, mlua::Function)> {
     let lua = Lua::new();
-
-    let lua_entry = lua.load(conf.lib_dir.join("lua/engine.lua"));
-    if let Err(e) = lua_entry.exec() {
-        panic!("{}", e);
+    for (name, data) in SCRIPTS {
+        let chunk = lua.load(data).set_name(name);
+        if let Err(e) = chunk.exec() {
+            panic!("{}", e);
+        }
     }
 
     let globals = lua.globals();

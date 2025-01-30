@@ -59,7 +59,7 @@ mod tests {
 
     #[test]
     fn test_note_info() {
-        let mut e = Engine::new(Config::default());
+        let mut e = Engine::default();
         let mut buf = Vec::new();
         let mut logger= Logger::new(&mut buf);
         e.add_device(&mut logger);
@@ -75,7 +75,7 @@ mod tests {
 
     #[test]
     fn test_note_alert() {
-        let mut e = Engine::new(Config::default());
+        let mut e = Engine::default();
         let mut buf = Vec::new();
         let mut logger= Logger::new(&mut buf);
         e.add_device(&mut logger);
@@ -91,8 +91,8 @@ mod tests {
 
     #[test]
     fn test_note_fault() {
-        let conf = Config::new(RunMode::Release);
-        let mut e = Engine::new(conf);
+        let conf = config::new(config::RunMode::Release);
+        let mut e = Engine::new(&conf);
         let mut buf = Vec::new();
         let mut logger= Logger::new(&mut buf);
         e.add_device(&mut logger);

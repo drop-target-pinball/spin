@@ -17,22 +17,22 @@ pub fn main()  {
     let cli = Cli::parse();
 
     let mode = if cli.release {
-        RunMode::Release
+        config::RunMode::Release
     } else if cli.test {
-        RunMode::Test
+        config::RunMode::Test
     } else {
-        RunMode::Develop
+        config::RunMode::Develop
     };
 
-    let mut conf = Config::new(mode);
-
-    conf.sounds.push(Sound::new("foo", "example/swing.ogg"));
+    let mut conf = config::new(mode);
+    conf.server.enabled = true;
+    conf.sounds.push(config::Sound::new("foo", "example/swing.ogg"));
 
     let mut dev_sdl = sdl::SdlDevice::default()
         .with_audio(0,sdl::AudioOptions::default());
     let mut logger = Logger::default();
 
-    let mut e = Engine::new(conf);
+    let mut e = Engine::new(&conf);
     e.add_device(&mut dev_sdl);
     e.add_device(&mut logger);
 
@@ -40,15 +40,8 @@ pub fn main()  {
     info!(q, "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
 
     #[cfg(feature = "server")] {
-        if mode != RunMode::Release {
-            //let svr = server::new(e.queue(), "0.0.0.0:7746");
-            use rocket::tokio::runtime::Runtime;
-            thread::spawn(move || {
-                let rt = Runtime::new().unwrap();
-                rt.block_on( async move {
-                    server::run().await
-                });
-            });
+        if mode != config::RunMode::Release && conf.server.enabled {
+            start_server(conf.server.clone());
         }
     }
 
@@ -58,5 +51,16 @@ pub fn main()  {
     });
 
     e.run();
+
+}
+
+fn start_server(conf: config::Server) {
+    use rocket::tokio::runtime::Runtime;
+    thread::spawn(move || {
+        let rt = Runtime::new().unwrap();
+        rt.block_on( async move {
+            server::run(conf).await
+        });
+    });
 
 }

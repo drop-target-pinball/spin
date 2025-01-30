@@ -49,4 +49,6 @@ function engine.process(msg)
     end
 end
 
+package.loaded['engine'] = engine
+
 
