@@ -5,6 +5,7 @@ use mlua::{Error, MultiValue};
 use ansi_term::Color;
 
 static GRAY: Color = Color::Fixed(8);
+static BRIGHT_RED: Color = Color::Fixed(9);
 static BRIGHT_YELLOW: Color = Color::Fixed(11);
 
 static GLOBALS: &[u8] = include_bytes!("console.lua");
@@ -49,7 +50,7 @@ impl<'c> Device for Console<'c> {
                 match n.kind {
                     NoteKind::Info => self.log(env, &format!("{}", Color::Cyan.bold().paint(msg.to_string()))),
                     NoteKind::Alert => self.log(env, &format!("{}", BRIGHT_YELLOW.bold().paint(msg.to_string()))),
-                    NoteKind::Fault => self.log(env, &format!("{}", Color::Red.bold().paint(msg.to_string()))),
+                    NoteKind::Fault => self.log(env, &format!("{}", BRIGHT_RED.bold().paint(msg.to_string()))),
                 }
             }
             _ => self.log(env, &format!("{}", GRAY.bold().paint(msg.to_string()))),
@@ -58,7 +59,7 @@ impl<'c> Device for Console<'c> {
 }
 
 fn run(mut editor: DefaultEditor, state: State) {
-    let mut proc_env: proc::Env = unwrap!(proc::Env::new());
+    let mut proc_env: proc::Env = unwrap!(proc::Env::new(&state.conf));
     unwrap!(proc_env.load("console.lua", GLOBALS));
 
     loop {

@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+use std::env;
 use mlua::prelude::*;
 use mlua::{Function, Table, Value};
 
@@ -14,7 +15,12 @@ pub struct Env {
 }
 
 impl Env {
-    pub fn new() -> Result<Env> {
+    pub fn new(conf: &config::App) -> Result<Env> {
+        // Setup path for use when loading project-specific files
+        let root = conf.app_dir.to_string_lossy();
+        env::set_var("LUA_PATH",
+        format!("{}/proc/?.lua;{}/proc/?/?.lua", root, root));
+
         let lua = Lua::new();
         for (name, data) in SCRIPTS {
             let chunk = lua.load(data).set_name(name);
@@ -33,6 +39,20 @@ impl Env {
             Ok(p) => p,
             Err(_) => return raise!(Error::ProcEnv, "'process' not found in 'engine'")
         };
+
+        let lua_spin: Table = match globals.get("spin") {
+            Ok(p) => p,
+            Err(_) => return raise!(Error::ProcEnv, "'spin' not found in globals")
+        };
+
+        let lua_conf = match lua.to_value(&conf) {
+            Ok(v) => v,
+            Err(e) => return raise!(Error::ProcEnv, "unable to convert config: {}", e)
+        };
+
+        if let Err(e) =  lua_spin.set("conf", lua_conf) {
+            return raise!(Error::ProcEnv, "unable to set config: {}", e);
+        }
 
         Ok(Env{lua, process})
     }

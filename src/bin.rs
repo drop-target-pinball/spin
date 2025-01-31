@@ -33,13 +33,14 @@ pub fn main() -> ExitCode  {
         }
     };
 
-    let conf: config::App = match serde_yml::from_str(&conf_text) {
+    let mut conf: config::App = match serde_yml::from_str(&conf_text) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("configuration error: {}", e);
             return ExitCode::FAILURE;
         }
     };
+    conf.app_dir = config::app_dir();
 
     let mut e = Engine::new(&conf);
 
@@ -48,7 +49,7 @@ pub fn main() -> ExitCode  {
     e.add_device(Box::new(dev_sdl));
 
     if mode == config::RunMode::Release {
-        let logger = Logger::default();
+        let logger = builtin::Logger::default();
         e.add_device(Box::new(logger));
     } else {
         let console = builtin::Console::new(e.state());

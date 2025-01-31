@@ -49,7 +49,7 @@ pub struct Engine<'e> {
 
 impl<'e> Engine<'e> {
     pub fn new(conf: &config::App) -> Self {
-        let proc_env = proc::Env::new().unwrap();
+        let proc_env = unwrap!(proc::Env::new(&conf));
         let (tx, rx) = mpsc::channel();
         Engine {
             conf: conf.clone(),
@@ -148,7 +148,7 @@ impl<'e> Engine<'e> {
                     match msg {
                         Message::Note(n) => {
                             if env.conf.is_develop() && n.kind == NoteKind::Fault {
-                                panic!("fault: {}", n.message);
+                                self.shutdown = true
                             }
                         }
                         Message::Shutdown => self.shutdown = true,

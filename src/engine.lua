@@ -1,17 +1,16 @@
-local spin = require("spin")
-
+spin = require("spin")
 engine = {}
 
-local function hello()
-    spin.info("hello world")
-    spin.play_sound("foo")
-end
-
-local procs = {
-    hello = hello
-}
+local procs = {}
 
 local running = {}
+
+local function init()
+    for i, def in ipairs(spin.conf.procs) do
+        local mod = require(def.module)
+        procs[def.name] = mod[def.call]
+    end
+end
 
 local function run(name)
     local proc = procs[name]
@@ -38,7 +37,10 @@ function engine.process(msg)
             body = value
         end
     end
-    if kind == 'run' then
+
+    if kind == 'init' then
+        init()
+    elseif kind == 'run' then
         run(body.name)
     end
 

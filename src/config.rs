@@ -16,6 +16,16 @@ impl Default for RunMode {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct Proc {
+    pub name: String,
+    pub module: String,
+    pub call: String,
+    #[serde(default)]
+    pub group: String,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Sound {
     pub name: String,
     #[serde(default)]
@@ -39,6 +49,8 @@ pub struct App {
     pub mode: RunMode,
     #[serde(skip)]
     pub app_dir: PathBuf,
+
+    pub procs: Vec<Proc>,
     pub sounds: Vec<Sound>,
 }
 
@@ -46,16 +58,12 @@ pub fn new(mode: RunMode, app_dir: PathBuf) -> App {
     App {
         mode,
         app_dir,
+        procs: Vec::new(),
         sounds: Vec::new(),
     }
 }
 
 impl App {
-    // pub fn add_sound(&mut self, s: &Sound) -> &mut Self {
-    //     self.sounds.push(s.clone());
-    //     self
-    // }
-
     pub fn is_develop(&self) -> bool {
         self.mode == RunMode::Develop
     }
