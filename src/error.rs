@@ -1,5 +1,8 @@
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[error("configuration error: {0}")]
+    Config(String),
+
     #[error("invalid procedure environment: {0}")]
     ProcEnv(String),
 

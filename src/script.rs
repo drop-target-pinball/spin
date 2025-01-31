@@ -21,7 +21,7 @@ impl Env {
         // Setup path for use when loading project-specific files
         let root = conf.app_dir.to_string_lossy();
         env::set_var("LUA_PATH",
-        format!("{}/proc/?.lua;{}/proc/?/?.lua", root, root));
+        format!("{}/scripts/?.lua;{}/scripts/?/?.lua", root, root));
 
         let lua = Lua::new();
         for (name, data) in SCRIPTS {

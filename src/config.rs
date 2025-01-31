@@ -1,6 +1,12 @@
 
-use std::path::PathBuf;
+use crate::prelude::*;
+
+use std::fs;
+use std::io;
+use std::path::{Path, PathBuf};
 use std::env;
+use figment::Figment;
+use figment::providers::{Format, Yaml};
 
 use serde::{Serialize, Deserialize};
 
@@ -17,7 +23,7 @@ impl Default for RunMode {
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct Proc {
+pub struct Script {
     pub name: String,
     pub module: String,
     pub call: String,
@@ -50,7 +56,7 @@ pub struct App {
     #[serde(skip)]
     pub app_dir: PathBuf,
 
-    pub procs: Vec<Proc>,
+    pub scripts: Vec<Script>,
     pub sounds: Vec<Sound>,
 }
 
@@ -58,7 +64,7 @@ pub fn new(mode: RunMode, app_dir: PathBuf) -> App {
     App {
         mode,
         app_dir,
-        procs: Vec::new(),
+        scripts: Vec::new(),
         sounds: Vec::new(),
     }
 }
@@ -81,4 +87,48 @@ impl Default for App {
 
 pub fn app_dir() -> PathBuf {
     PathBuf::from(env::var_os("SPIN_DIR").unwrap_or(".".into()))
+}
+
+pub fn load(dir: &Path) -> Result<App> {
+    let files = match find_files(dir) {
+        Ok(f) => f,
+        Err(e) => return raise!(Error::Config, "error searching for files: {}", e)
+    };
+
+    if files.is_empty() {
+        return raise!(Error::Config, "no configuration files found in '{}'", dir.to_string_lossy());
+    }
+
+    let mut builder = Figment::new();
+    for file in files {
+        println!("loading file: {}", file.to_string_lossy());
+        builder = builder.merge(Yaml::file(&file));
+    }
+    let config: App = match builder.extract() {
+        Ok(c) => c,
+        Err(e) => return raise!(Error::Config, "{}", e),
+    };
+    Ok(config)
+}
+
+fn find_files(dir: &Path) -> io::Result<Vec<PathBuf>> {
+    let mut files: Vec<PathBuf> = Vec::new();
+    let listing = fs::read_dir(&dir)?;
+    for result  in listing {
+        let entry = result?;
+        if entry.file_type()?.is_dir() {
+            continue
+        }
+
+        let name = PathBuf::from(&entry.file_name());
+        match name.extension() {
+            None => (),
+            Some(os_str) => match os_str.to_str() {
+                Some("yaml") => files.push(name),
+                Some("yml") => files.push(name),
+                _ => (),
+            }
+        }
+    }
+    return Ok(files)
 }

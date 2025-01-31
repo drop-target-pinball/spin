@@ -24,19 +24,11 @@ pub fn main() -> ExitCode  {
         config::RunMode::Develop
     };
 
-    let conf_file = config::app_dir().join("config.yaml");
-    let conf_text = match fs::read_to_string(&conf_file) {
-        Ok(f) => f,
-        Err(e) => {
-            eprintln!("error: unable to read config file '{}': {}", &conf_file.to_string_lossy(), e);
-            return ExitCode::FAILURE;
-        }
-    };
-
-    let mut conf: config::App = match serde_yml::from_str(&conf_text) {
+    let conf_dir = config::app_dir().join("config");
+    let mut conf = match config::load(&conf_dir) {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("configuration error: {}", e);
+            eprintln!("{}", e);
             return ExitCode::FAILURE;
         }
     };

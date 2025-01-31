@@ -2,7 +2,7 @@ sounds:
   - name: foo
     path: swing.ogg
 
-procs:
+scripts:
   - name: hello
     module: hello
     call: hello
