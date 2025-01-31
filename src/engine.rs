@@ -22,14 +22,8 @@ impl<'e> Env<'e> {
 
 pub struct State {
     pub conf: config::App,
-    pub vars: Arc<Mutex<Vars>>,
+    pub vars_box: Arc<Mutex<VarsBox>>,
     pub queue: Queue,
-}
-
-impl State {
-    pub fn new(conf: config::App, vars: Arc<Mutex<Vars>>, queue: Queue) -> Self {
-        Self { conf, vars, queue }
-    }
 }
 
 pub trait Device {
@@ -38,26 +32,29 @@ pub trait Device {
 
 pub struct Engine<'e> {
     conf: config::App,
-    vars: Arc<Mutex<Vars>>,
+    vars_box: Arc<Mutex<VarsBox>>,
     queue: Queue,
+    script_env: script::Env,
 
     pub rx: Receiver<Message>,
     devices: Vec<Box<dyn Device + 'e>>,
-    proc_env: proc::Env,
     shutdown: bool,
 }
 
 impl<'e> Engine<'e> {
     pub fn new(conf: &config::App) -> Self {
-        let proc_env = unwrap!(proc::Env::new(&conf));
+        let vars_box = VarsBox{ vars: Vars::default() };
+        let arc_vars_box = Arc::new(Mutex::new(vars_box));
+
+        let script_env = unwrap!(script::Env::new(&conf, arc_vars_box.clone()));
         let (tx, rx) = mpsc::channel();
         Engine {
             conf: conf.clone(),
-            vars: Arc::new(Mutex::new(Vars::default())),
+            vars_box: arc_vars_box,
             queue: Queue::new(tx),
             rx,
             devices: Vec::new(),
-            proc_env,
+            script_env,
             shutdown: false,
         }
     }
@@ -71,7 +68,11 @@ impl<'e> Engine<'e> {
     }
 
     pub fn state(&self) -> State {
-        State::new(self.conf.clone(), self.vars.clone(), self.queue.clone())
+        State {
+            conf: self.conf.clone(),
+            vars_box: self.vars_box.clone(),
+            queue: self.queue.clone(),
+        }
     }
 
     pub fn init(&mut self) {
@@ -120,15 +121,20 @@ impl<'e> Engine<'e> {
     }
 
     fn process_queue(&mut self, elapsed: time::Duration) {
-        let mut vars = self.vars.lock().unwrap();
-        let mut env = Env::new(&self.conf, &mut vars, self.queue.clone());
+        let messages = self.process_queue_rust(elapsed);
+        self.process_queue_lua(messages);
+    }
 
-        env.vars.elapsed = elapsed;
+    fn process_queue_rust(&mut self, elapsed: time::Duration) -> Vec<Message> {
+        let vars = &mut unwrap!(self.vars_box.lock()).vars;
+        let mut env = Env::new(&self.conf, vars, self.queue.clone());
 
-        // Send each message in the queue to every system for processing.
+        env.vars.elapsed = elapsed.as_millis() as u64;
+
+        let mut messages: Vec<Message> = Vec::new();
         loop {
             if self.shutdown {
-                return
+                break
             }
             match self.rx.try_recv() {
                 Err(TryRecvError::Empty) => break,
@@ -137,16 +143,7 @@ impl<'e> Engine<'e> {
                     for dev in &mut self.devices {
                         dev.process(&mut env, &msg);
                     }
-                    match self.proc_env.process(&msg) {
-                        Ok(returns) => {
-                            for ret in returns {
-                                self.queue.post(ret);
-                            }
-                        }
-                        Err(e) => fault!(self.queue, "{}", e),
-                    }
-
-                    match msg {
+                    match &msg {
                         Message::Note(n) => {
                             if env.conf.is_develop() && n.kind == NoteKind::Fault {
                                 self.shutdown = true
@@ -155,10 +152,34 @@ impl<'e> Engine<'e> {
                         Message::Shutdown => self.shutdown = true,
                         _ => (),
                     }
+                    messages.push(msg);
                 }
             }
         }
+        return messages;
     }
+
+    fn process_queue_lua(&mut self, messages: Vec<Message>) {
+        if let Err(e) = self.script_env.send_vars() {
+            fault!(self.queue, "{}", e);
+            return
+        }
+        for msg in messages {
+            match self.script_env.process(&msg) {
+                Ok(returns) => {
+                    for ret in returns {
+                        self.queue.post(ret);
+                    }
+                }
+                Err(e) => fault!(self.queue, "{}", e),
+            }
+        }
+        if let Err(e) = self.script_env.recv_vars() {
+            fault!(self.queue, "{}", e);
+            return
+        }
+    }
+
 }
 
 impl Default for Engine<'_> {

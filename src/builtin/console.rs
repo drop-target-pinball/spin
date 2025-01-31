@@ -36,7 +36,7 @@ impl<'c> Console<'c> {
 
     fn checked_log(&mut self, env: &mut Env, text: &str) -> rustyline::Result<()> {
         let elapsed = env.vars.elapsed;
-        let fmt_uptime = format!("[{:10.3}]", elapsed.as_secs_f32());
+        let fmt_uptime = format!("[{:10.3}]", elapsed as f64 / 1000.0);
         self.out.print(format!("{} {}\n", Color::Blue.bold().paint(fmt_uptime), text))?;
         Ok(())
     }
@@ -60,8 +60,8 @@ impl<'c> Device for Console<'c> {
     }
 }
 
-fn run(mut editor: DefaultEditor, state: State) {
-    let mut proc_env: proc::Env = unwrap!(proc::Env::new(&state.conf));
+fn run(mut editor: DefaultEditor, mut state: State) {
+    let mut proc_env: script::Env = unwrap!(script::Env::new(&state.conf, state.vars_box.clone()));
     unwrap!(proc_env.load("console.lua", GLOBALS));
 
     loop {
@@ -93,7 +93,7 @@ fn run(mut editor: DefaultEditor, state: State) {
                             .collect::<Vec<_>>()
                             .join("\t")
                     );
-                    post(&proc_env, &state, Message::Nop);
+                    post(&proc_env, &mut state,Message::Nop);
                     break;
                 }
                 Err(Error::SyntaxError {
@@ -113,11 +113,14 @@ fn run(mut editor: DefaultEditor, state: State) {
     }
 }
 
-fn post(proc_env: &proc::Env, state: &State, msg: Message) {
-    let mut vars = state.vars.lock().unwrap();
-    let eng_env = Env::new(&state.conf, &mut vars, state.queue.clone());
-
+fn post(proc_env: &script::Env, state: &mut State, msg: Message) {
+    unwrap!(proc_env.send_vars());
     let messages = proc_env.process(&msg).unwrap();
+    unwrap!(proc_env.recv_vars());
+
+    let vars = &mut unwrap!(state.vars_box.lock()).vars;
+    let eng_env = Env::new(&state.conf, vars, state.queue.clone());
+
     for msg in messages {
         eng_env.queue.post(msg);
     }

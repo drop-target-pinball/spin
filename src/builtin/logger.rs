@@ -27,7 +27,7 @@ impl<W> Logger<W>
 
     fn checked_log(&mut self, env: &mut Env, text: &str) -> io::Result<()> {
         let elapsed = env.vars.elapsed;
-        let fmt_uptime = format!("[{:10.3}]", elapsed.as_secs_f32());
+        let fmt_uptime = format!("[{:10.3}]", elapsed as f64 / 1000.0);
         writeln!(self.out, "{} {}", fmt_uptime, text)
     }
 }

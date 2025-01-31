@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 use std::env;
+use std::sync::{Arc, Mutex};
 use mlua::prelude::*;
 use mlua::{Function, Table, Value};
 
@@ -10,11 +11,13 @@ static SCRIPTS: [(&str, &[u8]); 1] = [
 
 pub struct Env {
     lua: Lua,
+    vars: Arc<Mutex<VarsBox>>,
+    spin: Table,
     post: Function,
 }
 
 impl Env {
-    pub fn new(conf: &config::App) -> Result<Env> {
+    pub fn new(conf: &config::App, vars: Arc<Mutex<VarsBox>>) -> Result<Env> {
         // Setup path for use when loading project-specific files
         let root = conf.app_dir.to_string_lossy();
         env::set_var("LUA_PATH",
@@ -29,14 +32,14 @@ impl Env {
         }
 
         let globals = lua.globals();
-        let lua_spin: Table = match globals.get("spin") {
+        let spin: Table = match globals.get("spin") {
             Ok(p) => p,
             Err(_) => return raise!(Error::ProcEnv, "'spin' not found in globals")
         };
 
-        let post: Function = match lua_spin.get("post") {
+        let post: Function = match spin.get("post") {
             Ok(p) => p,
-            Err(_) => return raise!(Error::ProcEnv, "'post' not found in 'engine'")
+            Err(_) => return raise!(Error::ProcEnv, "'post' not found in 'spin'")
         };
 
         let lua_conf = match lua.to_value(&conf) {
@@ -44,11 +47,40 @@ impl Env {
             Err(e) => return raise!(Error::ProcEnv, "unable to convert config: {}", e)
         };
 
-        if let Err(e) =  lua_spin.set("conf", lua_conf) {
+        if let Err(e) = spin.set("conf", lua_conf) {
             return raise!(Error::ProcEnv, "unable to set config: {}", e);
         }
 
-        Ok(Env{lua, post})
+        Ok(Env{lua, vars, spin, post})
+    }
+
+    pub fn send_vars(&self) -> Result<()> {
+        let vars = &mut unwrap!(self.vars.lock()).vars;
+        let lua_vars= match self.lua.to_value(vars) {
+            Ok(v) => v,
+            Err(e) => return raise!(Error::ProcEnv, "unable to convert vars: {}", e),
+        };
+
+        match self.spin.set("vars", &lua_vars) {
+            Ok(()) => Ok(()),
+            Err(e) => raise!(Error::ProcEnv, "unable to send vars: {}", e)
+        }
+    }
+
+    pub fn recv_vars(&self) -> Result<()> {
+        let vars_box = &mut unwrap!(self.vars.lock());
+
+        let lua_vars: Value = match self.spin.get("vars") {
+            Ok(v) => v,
+            Err(e) => return raise!(Error::ProcEnv, "unable to receive vars: {}", e)
+        };
+
+        let vars = match self.lua.from_value(lua_vars) {
+            Ok(v) => v,
+            Err(e) => return raise!(Error::ProcEnv, "unable to convert vars: {}", e)
+        };
+        vars_box.vars = vars;
+        Ok(())
     }
 
     pub fn load(&self, name: &str, data: &[u8]) -> Result<()> {

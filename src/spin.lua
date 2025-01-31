@@ -1,48 +1,51 @@
 spin = {
-    conf = {}
+    conf = {},
+    vars = {},
 }
 
-local procs = {}
+local scripts = {}
 local running = {}
 local queue = {}
 
 local function init()
     for i, def in ipairs(spin.conf.procs) do
         local mod = require(def.module)
-        procs[def.name] = mod[def.call]
+        scripts[def.name] = mod[def.call]
     end
 end
 
 local function run(name)
-    local proc = procs[name]
-    if proc == nil then
-        error("no such procedure: " .. name)
+    local script = scripts[name]
+    if script == nil then
+        error("no such script: " .. name)
     end
 
     -- Create the coroutine and place it in the running table. Set the wait
     -- condition to ready so that it will execute on the next tick
-    local co = coroutine.create(proc)
+    local co = coroutine.create(script)
     running[name] = {
         co = co,
-        resume_when = ready
+        can_resume = spin.ready
     }
 end
 
 local function tick()
-    for name, proc in pairs(running) do
-        if coroutine.status(proc.co) == "dead" then
-            table.insert(queue, { proc_ended = {
+    for name, script in pairs(running) do
+        if coroutine.status(script.co) == "dead" then
+            table.insert(queue, { script_ended = {
                 name = name
             }})
             running[name] = nil
         else
-            if proc.resume_when() then
-                coroutine.resume(proc.co)
+            if script.can_resume() then
+                local running, cond = coroutine.resume(script.co)
+                if running then
+                    script.can_resume = cond
+                end
             end
         end
     end
 end
-
 
 function spin.post(msg)
     local kind = ""
@@ -77,10 +80,20 @@ function spin.post(msg)
     end
 end
 
-function ready()
+-------------------------------------------------------------------------------
+function spin.ready()
     return true
 end
 
+function spin.sleep(secs)
+    local millis = secs * 1000
+    local wake_at = spin.vars.elapsed + millis
+    coroutine.yield(function ()
+        return spin.vars.elapsed >= wake_at
+    end)
+end
+
+-------------------------------------------------------------------------------
 function spin.alert(message)
     table.insert(queue, { note = {
         kind = 'alert',

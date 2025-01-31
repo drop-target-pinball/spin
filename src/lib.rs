@@ -4,7 +4,7 @@ pub mod error;
 pub mod message;
 pub mod config;
 pub mod vars;
-pub mod proc;
+pub mod script;
 
 #[cfg(feature = "sdl")]
 pub mod sdl;
@@ -17,7 +17,7 @@ pub mod prelude {
     pub use crate::message::*;
     pub use crate::config;
     pub use crate::vars::*;
-    pub use crate::proc;
+    pub use crate::script;
     pub use crate::{alert, raise, fault, info, unwrap};
 
     #[cfg(feature = "sdl")]
