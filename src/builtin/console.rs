@@ -53,6 +53,8 @@ impl<'c> Device for Console<'c> {
                     NoteKind::Fault => self.log(env, &format!("{}", BRIGHT_RED.bold().paint(msg.to_string()))),
                 }
             }
+            Message::Nop => (),
+            Message::Tick => (),
             _ => self.log(env, &format!("{}", GRAY.bold().paint(msg.to_string()))),
         }
     }

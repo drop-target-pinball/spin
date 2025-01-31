@@ -4,14 +4,13 @@ use std::env;
 use mlua::prelude::*;
 use mlua::{Function, Table, Value};
 
-static SCRIPTS: [(&str, &[u8]); 2] = [
+static SCRIPTS: [(&str, &[u8]); 1] = [
     ("spin.lua", include_bytes!("spin.lua")),
-    ("engine.lua", include_bytes!("engine.lua")),
 ];
 
 pub struct Env {
     lua: Lua,
-    process: Function,
+    post: Function,
 }
 
 impl Env {
@@ -30,19 +29,14 @@ impl Env {
         }
 
         let globals = lua.globals();
-        let lua_engine: Table = match globals.get("engine") {
-            Ok(p) => p,
-            Err(_) => return raise!(Error::ProcEnv, "'engine' not found in globals")
-        };
-
-        let process: Function = match lua_engine.get("process") {
-            Ok(p) => p,
-            Err(_) => return raise!(Error::ProcEnv, "'process' not found in 'engine'")
-        };
-
         let lua_spin: Table = match globals.get("spin") {
             Ok(p) => p,
             Err(_) => return raise!(Error::ProcEnv, "'spin' not found in globals")
+        };
+
+        let post: Function = match lua_spin.get("post") {
+            Ok(p) => p,
+            Err(_) => return raise!(Error::ProcEnv, "'post' not found in 'engine'")
         };
 
         let lua_conf = match lua.to_value(&conf) {
@@ -54,7 +48,7 @@ impl Env {
             return raise!(Error::ProcEnv, "unable to set config: {}", e);
         }
 
-        Ok(Env{lua, process})
+        Ok(Env{lua, post})
     }
 
     pub fn load(&self, name: &str, data: &[u8]) -> Result<()> {
@@ -71,7 +65,7 @@ impl Env {
             Err(e) => return raise!(Error::ProcExec, "cannot convert message to lua table: {}", e)
         };
 
-        let result = match self.process.call::<Value>(&lua_msg) {
+        let result = match self.post.call::<Value>(&lua_msg) {
             Ok(r) => r,
             Err(e) => return raise!(Error::ProcExec, "{}", e)
         };

@@ -82,6 +82,8 @@ impl<'e> Engine<'e> {
 
     pub fn tick(&mut self, elapsed: time::Duration) {
         self.process_queue(elapsed);
+        self.queue.post(Message::Tick);
+        self.process_queue(elapsed);
     }
 
     pub fn run(&mut self) {
@@ -106,8 +108,7 @@ impl<'e> Engine<'e> {
             self.tick(run_start.elapsed());
 
             let frame_time = frame_start.elapsed();
-            let remaining = rate - frame_time;
-            if remaining > Duration::ZERO {
+            if let Some(remaining) = rate.checked_sub(frame_time) {
                 thread::sleep(remaining);
             }
         }
