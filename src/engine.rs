@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::Receiver;
 use std::sync::Arc;
 use std::{
@@ -8,7 +7,6 @@ use std::{
     time::{self, Duration},
 };
 use std::sync::Mutex;
-use clap::{crate_name, crate_description, crate_version};
 
 pub struct Env<'e> {
     pub conf: &'e config::App,
@@ -90,7 +88,6 @@ impl<'e> Engine<'e> {
         let run_start = time::Instant::now();
         let rate = Duration::from_micros(16670);
 
-        info!(self.queue, "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
         self.init();
 
         // FIXME: Add in control-c handler for release mode

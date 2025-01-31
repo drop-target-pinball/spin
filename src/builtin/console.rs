@@ -58,8 +58,8 @@ impl<'c> Device for Console<'c> {
 }
 
 fn run(mut editor: DefaultEditor, state: State) {
-    let mut proc_env: proc::Env = proc::Env::new().unwrap();
-    proc_env.load("console.lua", GLOBALS).unwrap();
+    let mut proc_env: proc::Env = unwrap!(proc::Env::new());
+    unwrap!(proc_env.load("console.lua", GLOBALS));
 
     loop {
         let mut prompt = "spin> ";

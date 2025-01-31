@@ -18,6 +18,7 @@ impl Default for RunMode {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Sound {
     pub name: String,
+    #[serde(default)]
     pub device_id: u8,
     pub path: String,
 }
@@ -33,48 +34,27 @@ impl Sound {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct Server {
-    pub enabled: bool,
-    pub host: String,
-    pub port: u16,
-    pub log_level: Option<String>,
-}
-
-impl Default for Server {
-    fn default() -> Server {
-        Server {
-            enabled: false,
-            host: String::from("0.0.0.0"),
-            port: 7746, // SPIN on telephone buttons
-            log_level: None,
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone)]
 pub struct App {
     #[serde(skip)]
     pub mode: RunMode,
     #[serde(skip)]
     pub app_dir: PathBuf,
     pub sounds: Vec<Sound>,
-    pub server: Server,
 }
 
-pub fn new(mode: RunMode) -> App {
+pub fn new(mode: RunMode, app_dir: PathBuf) -> App {
     App {
         mode,
-        app_dir: PathBuf::from(env::var_os("SPIN_DIR").unwrap_or(".".into())),
+        app_dir,
         sounds: Vec::new(),
-        server: Server::default(),
     }
 }
 
 impl App {
-    pub fn add_sound(&mut self, s: &Sound) -> &mut Self {
-        self.sounds.push(s.clone());
-        self
-    }
+    // pub fn add_sound(&mut self, s: &Sound) -> &mut Self {
+    //     self.sounds.push(s.clone());
+    //     self
+    // }
 
     pub fn is_develop(&self) -> bool {
         self.mode == RunMode::Develop
@@ -87,6 +67,10 @@ impl App {
 
 impl Default for App {
     fn default() -> Self {
-        new(RunMode::Develop)
+        new(RunMode::Develop, ".".into())
     }
+}
+
+pub fn app_dir() -> PathBuf {
+    PathBuf::from(env::var_os("SPIN_DIR").unwrap_or(".".into()))
 }

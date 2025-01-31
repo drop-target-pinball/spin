@@ -20,13 +20,20 @@ pub mod prelude {
     pub use crate::config;
     pub use crate::vars::*;
     pub use crate::proc;
-    pub use crate::{alert, raise, fault, info};
+    pub use crate::{alert, raise, fault, info, unwrap};
 
     #[cfg(feature = "sdl")]
     pub use crate::sdl;
 }
 
-
-
+#[macro_export]
+macro_rules! unwrap {
+    ($q:expr) => {
+        match $q {
+            Ok(a) => a,
+            Err(e) => panic!("unexpected error: {}", e),
+        }
+    };
+}
 
 
