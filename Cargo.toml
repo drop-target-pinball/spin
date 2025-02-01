@@ -3,6 +3,7 @@ name = "spin"
 description = "Super Pinball System"
 version = "0.1.0"
 edition = "2021"
+default-run = "spin"
 
 [lib]
 name = "spin"
@@ -11,6 +12,10 @@ path = "src/lib.rs"
 [[bin]]
 name = "spin"
 path = "src/bin.rs"
+
+[[bin]]
+name = "id-gen"
+path = "src/tools/id-gen.rs"
 
 [features]
 default = ["sdl"]

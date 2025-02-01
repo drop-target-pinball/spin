@@ -23,7 +23,17 @@ pub struct PlayAudio {
 
 impl fmt::Display for PlayAudio {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.name)
+        write!(f, "{}", self.name)?;
+        if self.volume != 0 {
+            write!(f, " volume={}", self.loops)?;
+        }
+        if self.loops != 0 {
+            write!(f, " loops={}", self.loops)?;
+        }
+        if self.notify {
+            write!(f, " notify")?;
+        }
+        Ok(())
     }
 }
 
@@ -57,11 +67,13 @@ pub enum Message {
     Nop,
     PlayMusic(PlayAudio),
     PlaySound(PlayAudio),
+    PlayVocal(PlayAudio),
     ScriptEnded(Name),
     Shutdown,
     StopMusic(Name),
     Run(Name),
     Tick,
+    VocalEnded(Name),
 }
 
 impl fmt::Display for Message {
@@ -79,11 +91,13 @@ impl fmt::Display for Message {
             Message::MusicEnded(m) => write!(f, "music_ended: {}", m),
             Message::PlayMusic(m) => write!(f, "play_music: {}", m),
             Message::PlaySound(m) => write!(f, "play_sound: {}", m),
+            Message::PlayVocal(m) => write!(f, "play_vocal: {}", m),
             Message::ScriptEnded(m) => write!(f, "script_ended: {}", m),
             Message::Run(m) => write!(f, "run: {}", m),
             Message::Shutdown => write!(f, "shutdown"),
             Message::StopMusic(m) => write!(f, "stop_music: {}", m),
             Message::Tick => Ok(()),
+            Message::VocalEnded(m) => write!(f, "vocal_ended: {}", m),
         }
     }
 }

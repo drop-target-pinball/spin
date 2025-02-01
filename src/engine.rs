@@ -182,8 +182,8 @@ impl<'e> Engine<'e> {
 
 }
 
-impl Default for Engine<'_> {
-    fn default() -> Self {
-        Engine::new(&config::App::default())
-    }
-}
+// impl Default for Engine<'_> {
+//     fn default() -> Self {
+//         Engine::new(&config::App::default())
+//     }
+// }

@@ -7,6 +7,12 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 static MUSIC_FINISHED: AtomicBool = AtomicBool::new(false);
 
+struct ActiveAudio {
+    name: String,
+    priority: i8,
+    notify: bool,
+}
+
 pub struct AudioOptions {
     pub freq: i32,
     pub format: u16,
@@ -32,10 +38,11 @@ pub struct Audio<'a> {
     id: u8,
     music: HashMap<String,mixer::Music<'a>>,
     sounds: HashMap<String,mixer::Chunk>,
+    vocals: HashMap<String,mixer::Chunk>,
     _audio: sdl2::AudioSubsystem,
 
-    music_playing: Option<String>,
-    music_notify: bool,
+    music_playing: Option<ActiveAudio>,
+    vocal_playing: Option<ActiveAudio>,
 }
 
 impl<'a> Audio<'a> {
@@ -55,13 +62,20 @@ impl<'a> Audio<'a> {
             panic!("unable to initialize mixer: {}", reason);
         }
 
+        // Reserve one channel for vocals
+        sdl2::mixer::reserve_channels(1);
+
+        // Allocate the maximum number as specified in the AudioOptions
+        sdl2::mixer::allocate_channels(-1);
+
         Self {
             id,
             music: HashMap::new(),
             sounds: HashMap::new(),
+            vocals: HashMap::new(),
             _audio: audio,
             music_playing: None,
-            music_notify: false,
+            vocal_playing: None,
         }
     }
 
@@ -72,10 +86,10 @@ impl<'a> Audio<'a> {
             }
             let path = env.conf.data_dir.join(&music.path);
             match mixer::Music::from_file(&path) {
-                Err(e) => fault!(env.queue, "unable to load sound: {}", &e),
+                Err(e) => fault!(env.queue, "unable to load music '{}': {}", &music.name, &e),
                 Ok(m) => {
                     if self.music.insert(music.name.clone(), m).is_some() {
-                        fault!(env.queue, "music already loaded: {}", &path.to_string_lossy());
+                        fault!(env.queue, "music already loaded '{}': {}", &music.name, &path.to_string_lossy());
                     }
                 }
             }
@@ -87,10 +101,25 @@ impl<'a> Audio<'a> {
             }
             let path = env.conf.data_dir.join(&sound.path);
             match mixer::Chunk::from_file(&path) {
-                Err(e) => fault!(env.queue, "unable to load sound: {}", &e),
+                Err(e) => fault!(env.queue, "unable to load sound '{}': {}", &sound.name, &e),
                 Ok(chunk) => {
                     if self.sounds.insert(sound.name.clone(), chunk).is_some() {
-                        fault!(env.queue, "sound already loaded: {}", &path.to_string_lossy());
+                        fault!(env.queue, "sound already loaded '{}': {}", &sound.name, &path.to_string_lossy());
+                    }
+                }
+            };
+        }
+
+        for vocal in &env.conf.vocals {
+            if vocal.device_id != self.id {
+                continue
+            }
+            let path = env.conf.data_dir.join(&vocal.path);
+            match mixer::Chunk::from_file(&path) {
+                Err(e) => fault!(env.queue, "unable to load vocal '{}': {}", &vocal.name, &e),
+                Ok(chunk) => {
+                    if self.vocals.insert(vocal.name.clone(), chunk).is_some() {
+                        fault!(env.queue, "sound already loaded '{}': {}", &vocal.name, &path.to_string_lossy());
                     }
                 }
             };
@@ -103,13 +132,7 @@ impl<'a> Audio<'a> {
     }
 
     fn play_sound(&mut self, env: &mut Env, cmd: &PlayAudio)  {
-        let chunk = match self.sounds.get(&cmd.name) {
-            Some(c) => c,
-            None => {
-                fault!(env.queue, "unregistered sound: {}", cmd.name);
-                return;
-            }
-        };
+        let Some(chunk) = self.sounds.get(&cmd.name) else { return };
 
         if let Err(e) = sdl2::mixer::Channel::all().play(chunk, 0) {
             fault!(env.queue, "cannot play sound: {}", e);
@@ -126,28 +149,49 @@ impl<'a> Audio<'a> {
         if let Err(e) = music.play(loops) {
             fault!(env.queue, "cannot play music: {}", e);
         }
-        self.music_playing = Some(cmd.name.clone());
-        self.music_notify = cmd.notify;
+        self.music_playing = Some(ActiveAudio{
+            name: cmd.name.clone(),
+            priority: 0,
+            notify: cmd.notify
+        });
     }
 
-    fn stop_music(&mut self, env: &mut Env, cmd: &Name) {
+    fn play_vocal(&mut self, env: &mut Env, cmd: &PlayAudio) {
+        let Some(vocal) = self.vocals.get(&cmd.name) else { return };
+
+        match sdl2::mixer::Channel(0).play(vocal, 0) {
+            Ok(_) => sdl2::mixer::Music::set_volume(64),
+            Err(e) => fault!(env.queue, "cannot play vocal: {}", e),
+        }
+    }
+
+    fn stop_music(&mut self, _: &mut Env, cmd: &Name) {
         let Some(playing) = &self.music_playing else { return };
-        if cmd.name != "" && cmd.name != *playing {
+        if cmd.name != "" && cmd.name != *playing.name {
             return
         }
         sdl2::mixer::Music::halt();
         self.music_playing = None;
-        self.music_notify = false;
     }
 
     pub fn process(&mut self, _: &sdl2::Sdl, env: &mut Env, msg: &Message) {
         if MUSIC_FINISHED.load(Ordering::SeqCst) {
             MUSIC_FINISHED.store(false, Ordering::SeqCst);
-            if let Some(name) = &self.music_playing {
-                if self.music_notify {
-                    env.queue.post(Message::MusicEnded(Name{name: name.to_string()}));
+            if let Some(playing) = &self.music_playing {
+                if playing.notify {
+                    env.queue.post(Message::MusicEnded(Name{name: playing.name.to_string()}));
                 }
                 self.music_playing = None;
+            }
+        }
+
+        if let Some(playing) = &self.vocal_playing {
+            if !mixer::Channel(0).is_playing() {
+                if playing.notify {
+                    env.queue.post(Message::VocalEnded(Name{name: playing.name.to_string()}));
+                }
+                sdl2::mixer::Music::set_volume(128);
+                self.vocal_playing = None;
             }
         }
 
@@ -155,28 +199,9 @@ impl<'a> Audio<'a> {
             Message::Init => self.init(env),
             Message::PlayMusic(m) => self.play_music(env, m),
             Message::PlaySound(m) => self.play_sound(env, m),
+            Message::PlayVocal(m) => self.play_vocal(env, m),
             Message::StopMusic(m) => self.stop_music(env, m),
             _ => ()
         }
     }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use crate::sdl;
-
-//     #[test]
-//     pub fn test_init() -> Result<()> {
-//         // let mut dev = sdl::Device
-//         // let mut dev_sdl = sdl::Device::new(0).unwrap();
-//         // dev_sdl.add_system(&mut audio);
-
-//         // let mut e = Engine::default();
-//         // e.add_device(&mut dev_sdl);
-
-//         // e.init();
-//         // assert!(false);
-//         Ok(())
-//     }
-// }

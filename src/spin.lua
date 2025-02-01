@@ -10,7 +10,10 @@ local queue = {}
 local function init()
     for i, def in ipairs(spin.conf.scripts) do
         local mod = require(def.module)
-        scripts[def.name] = mod[def.call]
+        if type(mod) ~= "table" then
+            error("module '" .. def.module .. "' did not return a table")
+        end
+        scripts[def.name] = mod[def.name]
     end
 end
 
@@ -29,7 +32,7 @@ local function run(name)
     }
 end
 
-local function tick()
+local function service_coroutines(msg)
     for name, script in pairs(running) do
         if coroutine.status(script.co) == "dead" then
             table.insert(queue, { script_ended = {
@@ -37,7 +40,7 @@ local function tick()
             }})
             running[name] = nil
         else
-            if script.can_resume() then
+            if script.can_resume(msg) then
                 local running, cond = coroutine.resume(script.co)
                 if running then
                     script.can_resume = cond
@@ -67,9 +70,9 @@ function spin.post(msg)
         init()
     elseif kind == 'run' then
         run(body.name)
-    elseif kind == 'tick' then
-        tick()
     end
+
+    service_coroutines(kind, msg)
 
     if next(queue) == nil then
         return nil
@@ -90,6 +93,12 @@ function spin.sleep(secs)
     local wake_at = spin.vars.elapsed + millis
     coroutine.yield(function ()
         return spin.vars.elapsed >= wake_at
+    end)
+end
+
+function spin.wait_for(name)
+    coroutine.yield(function (kind)
+        return kind == name
     end)
 end
 
@@ -132,6 +141,18 @@ end
 
 function spin.play_sound(name, opts)
     table.insert(queue, { play_sound = {
+        name = name
+    }})
+end
+
+function spin.play_vocal(name)
+    table.insert(queue, { play_vocal = {
+        name = name
+    }})
+end
+
+function spin.run(name)
+    table.insert(queue, { run = {
         name = name
     }})
 end

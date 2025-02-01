@@ -5,8 +5,9 @@ use std::sync::{Arc, Mutex};
 use mlua::prelude::*;
 use mlua::{Function, Table, Value};
 
-static SCRIPTS: [(&str, &[u8]); 1] = [
+static SCRIPTS: [(&str, &[u8]); 2] = [
     ("spin.lua", include_bytes!("spin.lua")),
+    ("message.lua", include_bytes!("message.lua"))
 ];
 
 pub struct Env {

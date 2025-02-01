@@ -40,7 +40,6 @@ pub struct Music {
 pub struct Script {
     pub name: String,
     pub module: String,
-    pub call: String,
     #[serde(default)]
     pub group: String,
 }
@@ -66,6 +65,15 @@ impl Sound {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
+pub struct Vocal {
+    pub name: String,
+    #[serde(default)]
+    pub device_id: u8,
+    pub path: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct App {
     #[serde(skip)]
     pub mode: RunMode,
@@ -73,6 +81,10 @@ pub struct App {
     pub app_dir: PathBuf,
     #[serde(skip)]
     pub data_dir: PathBuf,
+    #[serde(skip)]
+    pub scripts_dir: PathBuf,
+
+    pub module_name: Option<String>,
 
     #[serde(default)]
     pub music: Vec<Music>,
@@ -80,19 +92,23 @@ pub struct App {
     pub scripts: Vec<Script>,
     #[serde(default)]
     pub sounds: Vec<Sound>,
+    #[serde(default)]
+    pub vocals: Vec<Vocal>,
 }
 
-pub fn new(mode: RunMode, app_dir: PathBuf) -> App {
-    let data_dir = app_dir.join("data");
-    App {
-        mode,
-        app_dir,
-        data_dir,
-        music: Vec::new(),
-        scripts: Vec::new(),
-        sounds: Vec::new(),
-    }
-}
+// pub fn new(mode: RunMode, app_dir: PathBuf) -> App {
+//     App {
+//         mode,
+//         app_dir: PathBuf::new(),
+//         data_dir: PathBuf::new(),
+//         scripts_dir: PathBuf::new(),
+//         module_name: None,
+//         music: Vec::new(),
+//         scripts: Vec::new(),
+//         sounds: Vec::new(),
+//         vocals: Vec::new(),
+//     }
+// }
 
 impl App {
     pub fn is_develop(&self) -> bool {
@@ -104,11 +120,13 @@ impl App {
     }
 }
 
-impl Default for App {
-    fn default() -> Self {
-        new(RunMode::Develop, ".".into())
-    }
-}
+// impl Default for App {
+//     fn default() -> Self {
+//         new(RunMode::Develop, ".".into())
+//     }
+// }
+
+// ----------------------------------------------------------------------------
 
 pub fn app_dir() -> PathBuf {
     PathBuf::from(env::var_os("SPIN_DIR").unwrap_or(".".into()))
@@ -117,6 +135,7 @@ pub fn app_dir() -> PathBuf {
 pub fn load(app_dir: &Path) -> Result<App> {
     let conf_dir = app_dir.join("config");
     let data_dir = app_dir.join("data");
+    let scripts_dir = app_dir.join("scripts");
 
     let files = match find_files(&conf_dir) {
         Ok(f) => f,
@@ -138,6 +157,7 @@ pub fn load(app_dir: &Path) -> Result<App> {
 
     config.app_dir = PathBuf::from(app_dir);
     config.data_dir = data_dir;
+    config.scripts_dir = scripts_dir;
 
     Ok(config)
 }
