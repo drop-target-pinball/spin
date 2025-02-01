@@ -8,7 +8,7 @@ local running = {}
 local queue = {}
 
 local function init()
-    for i, def in ipairs(spin.conf.procs) do
+    for i, def in ipairs(spin.conf.scripts) do
         local mod = require(def.module)
         scripts[def.name] = mod[def.call]
     end

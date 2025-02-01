@@ -1,5 +1,4 @@
 use clap::{Parser, crate_name, crate_description, crate_version};
-use std::fs;
 use std::process::ExitCode;
 
 use spin::prelude::*;

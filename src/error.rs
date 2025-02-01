@@ -3,11 +3,11 @@ pub enum Error {
     #[error("configuration error: {0}")]
     Config(String),
 
-    #[error("invalid procedure environment: {0}")]
-    ProcEnv(String),
+    #[error("invalid script environment: {0}")]
+    ScriptEnv(String),
 
-    #[error("procedure execution error: {0}")]
-    ProcExec(String),
+    #[error("script execution error: {0}")]
+    ScriptExec(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

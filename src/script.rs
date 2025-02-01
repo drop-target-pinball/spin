@@ -27,28 +27,28 @@ impl Env {
         for (name, data) in SCRIPTS {
             let chunk = lua.load(data).set_name(name);
             if let Err(e) = chunk.exec() {
-                return raise!(Error::ProcExec, "{}", e);
+                return raise!(Error::ScriptExec, "{}", e);
             }
         }
 
         let globals = lua.globals();
         let spin: Table = match globals.get("spin") {
             Ok(p) => p,
-            Err(_) => return raise!(Error::ProcEnv, "'spin' not found in globals")
+            Err(_) => return raise!(Error::ScriptEnv, "'spin' not found in globals")
         };
 
         let post: Function = match spin.get("post") {
             Ok(p) => p,
-            Err(_) => return raise!(Error::ProcEnv, "'post' not found in 'spin'")
+            Err(_) => return raise!(Error::ScriptEnv, "'post' not found in 'spin'")
         };
 
         let lua_conf = match lua.to_value(&conf) {
             Ok(v) => v,
-            Err(e) => return raise!(Error::ProcEnv, "unable to convert config: {}", e)
+            Err(e) => return raise!(Error::ScriptEnv, "unable to convert config: {}", e)
         };
 
         if let Err(e) = spin.set("conf", lua_conf) {
-            return raise!(Error::ProcEnv, "unable to set config: {}", e);
+            return raise!(Error::ScriptEnv, "unable to set config: {}", e);
         }
 
         Ok(Env{lua, vars, spin, post})
@@ -58,12 +58,12 @@ impl Env {
         let vars = &mut unwrap!(self.vars.lock()).vars;
         let lua_vars= match self.lua.to_value(vars) {
             Ok(v) => v,
-            Err(e) => return raise!(Error::ProcEnv, "unable to convert vars: {}", e),
+            Err(e) => return raise!(Error::ScriptEnv, "unable to convert vars: {}", e),
         };
 
         match self.spin.set("vars", &lua_vars) {
             Ok(()) => Ok(()),
-            Err(e) => raise!(Error::ProcEnv, "unable to send vars: {}", e)
+            Err(e) => raise!(Error::ScriptEnv, "unable to send vars: {}", e)
         }
     }
 
@@ -72,12 +72,12 @@ impl Env {
 
         let lua_vars: Value = match self.spin.get("vars") {
             Ok(v) => v,
-            Err(e) => return raise!(Error::ProcEnv, "unable to receive vars: {}", e)
+            Err(e) => return raise!(Error::ScriptEnv, "unable to receive vars: {}", e)
         };
 
         let vars = match self.lua.from_value(lua_vars) {
             Ok(v) => v,
-            Err(e) => return raise!(Error::ProcEnv, "unable to convert vars: {}", e)
+            Err(e) => return raise!(Error::ScriptEnv, "unable to convert vars: {}", e)
         };
         vars_box.vars = vars;
         Ok(())
@@ -87,36 +87,36 @@ impl Env {
         let chunk = self.lua.load(data).set_name(name);
         match chunk.exec() {
             Ok(_) => Ok(()),
-            Err(e) => raise!(Error::ProcExec, "{}", e)
+            Err(e) => raise!(Error::ScriptExec, "{}", e)
         }
     }
 
     pub fn process(&self, msg: &Message) -> Result<Vec<Message>> {
         let lua_msg = match self.lua.to_value(&msg) {
             Ok(m) => m,
-            Err(e) => return raise!(Error::ProcExec, "cannot convert message to lua table: {}", e)
+            Err(e) => return raise!(Error::ScriptExec, "cannot convert message to lua table: {}", e)
         };
 
         let result = match self.post.call::<Value>(&lua_msg) {
             Ok(r) => r,
-            Err(e) => return raise!(Error::ProcExec, "{}", e)
+            Err(e) => return raise!(Error::ScriptExec, "{}", e)
         };
 
         let rets = match result {
             Value::Table(t) => t,
             Value::Nil => return Ok(Vec::new()),
-            _ => return raise!(Error::ProcExec, "invalid lua return type: {:?}", result)
+            _ => return raise!(Error::ScriptExec, "invalid lua return type: {:?}", result)
         };
 
         let mut msgs: Vec<Message> = Vec::new();
 
         for ret in rets.sequence_values::<Value>() {
             match ret {
-                Err(e) => return raise!(Error::ProcExec, "expected table in returns: {}", e),
+                Err(e) => return raise!(Error::ScriptExec, "expected table in returns: {}", e),
                 Ok(tbl) => {
                     match self.lua.from_value(tbl) {
                         Ok(m) => msgs.push(m),
-                        Err(e) => return raise!(Error::ProcExec, "invalid return value: {}", e),
+                        Err(e) => return raise!(Error::ScriptExec, "invalid return value: {}", e),
                     }
                 }
             }

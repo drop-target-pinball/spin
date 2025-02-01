@@ -10,7 +10,7 @@ use figment::providers::{Format, Yaml};
 
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum RunMode {
     Develop,
     Test,
@@ -21,7 +21,7 @@ impl Default for RunMode {
     fn default() -> RunMode { RunMode::Develop }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Script {
     pub name: String,
@@ -31,7 +31,7 @@ pub struct Script {
     pub group: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Sound {
     pub name: String,
     #[serde(default)]
@@ -49,7 +49,7 @@ impl Sound {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct App {
     #[serde(skip)]
     pub mode: RunMode,
@@ -92,7 +92,7 @@ pub fn app_dir() -> PathBuf {
 pub fn load(dir: &Path) -> Result<App> {
     let files = match find_files(dir) {
         Ok(f) => f,
-        Err(e) => return raise!(Error::Config, "error searching for files: {}", e)
+        Err(e) => return raise!(Error::Config, "{}: {}", dir.to_string_lossy(), e)
     };
 
     if files.is_empty() {
@@ -101,8 +101,8 @@ pub fn load(dir: &Path) -> Result<App> {
 
     let mut builder = Figment::new();
     for file in files {
-        println!("loading file: {}", file.to_string_lossy());
-        builder = builder.merge(Yaml::file(&file));
+        let path = dir.join(file);
+        builder = builder.merge(Yaml::file(&path));
     }
     let config: App = match builder.extract() {
         Ok(c) => c,
