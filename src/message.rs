@@ -13,6 +13,12 @@ pub enum NoteKind {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PlayAudio {
     pub name: String,
+    #[serde(default)]
+    pub volume: u8,
+    #[serde(default)]
+    pub loops: i32,
+    #[serde(default)]
+    pub notify: bool,
 }
 
 impl fmt::Display for PlayAudio {
@@ -28,7 +34,11 @@ pub struct Name {
 
 impl fmt::Display for Name {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.name)
+        if self.name != "" {
+            write!(f, "{}", self.name)
+        } else {
+            write!(f, "any")
+        }
     }
 }
 
@@ -43,11 +53,14 @@ pub struct Note {
 pub enum Message {
     Init,
     Note(Note),
+    MusicEnded(Name),
     Nop,
+    PlayMusic(PlayAudio),
     PlaySound(PlayAudio),
     ScriptEnded(Name),
-    Run(Name),
     Shutdown,
+    StopMusic(Name),
+    Run(Name),
     Tick,
 }
 
@@ -63,10 +76,13 @@ impl fmt::Display for Message {
                 }
             }
             Message::Nop => Ok(()),
+            Message::MusicEnded(m) => write!(f, "music_ended: {}", m),
+            Message::PlayMusic(m) => write!(f, "play_music: {}", m),
             Message::PlaySound(m) => write!(f, "play_sound: {}", m),
             Message::ScriptEnded(m) => write!(f, "script_ended: {}", m),
             Message::Run(m) => write!(f, "run: {}", m),
             Message::Shutdown => write!(f, "shutdown"),
+            Message::StopMusic(m) => write!(f, "stop_music: {}", m),
             Message::Tick => Ok(()),
         }
     }

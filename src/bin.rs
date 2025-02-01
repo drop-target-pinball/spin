@@ -23,15 +23,13 @@ pub fn main() -> ExitCode  {
         config::RunMode::Develop
     };
 
-    let conf_dir = config::app_dir().join("config");
-    let mut conf = match config::load(&conf_dir) {
+    let conf = match config::load(&config::app_dir()) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("{}", e);
             return ExitCode::FAILURE;
         }
     };
-    conf.app_dir = config::app_dir();
 
     let mut e = Engine::new(&conf);
 

@@ -115,7 +115,13 @@ fn run(mut editor: DefaultEditor, mut state: State) {
 
 fn post(proc_env: &script::Env, state: &mut State, msg: Message) {
     unwrap!(proc_env.send_vars());
-    let messages = proc_env.process(&msg).unwrap();
+    let messages = match proc_env.process(&msg) {
+        Ok(m) => m,
+        Err(e) => {
+            println!("{}", BRIGHT_RED.bold().paint(e.to_string()));
+            Vec::new()
+        }
+    };
     unwrap!(proc_env.recv_vars());
 
     let vars = &mut unwrap!(state.vars_box.lock()).vars;

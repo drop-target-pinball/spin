@@ -115,8 +115,32 @@ function spin.info(message)
     }})
 end
 
+function spin.play_music(name, opts)
+    if name == nil then
+        error("name is required")
+    end
+    msg = {
+        name = name
+    }
+    copy_opts(opts, msg,
+        'volume',
+        'loops',
+        'notify'
+    )
+    table.insert(queue, { play_music = msg })
+end
+
 function spin.play_sound(name, opts)
     table.insert(queue, { play_sound = {
+        name = name
+    }})
+end
+
+function spin.stop_music(name)
+    if name == nil then
+        name = ""
+    end
+    table.insert(queue, { stop_music = {
         name = name
     }})
 end
@@ -125,6 +149,22 @@ function spin.run(name)
     table.insert(queue, { run = {
         name = name
     }})
+end
+
+-------------------------------------------------------------------------------
+function copy_opts(src, dest, ...)
+    local arg = {...}
+    if src == nil then
+        return
+    end
+    if arg == nil then
+        error("field names to copy are required")
+    end
+    for i, name in ipairs(arg) do
+        if src[name] ~= nil then
+            dest[name] = src[name]
+        end
+    end
 end
 
 package.loaded['spin'] = spin

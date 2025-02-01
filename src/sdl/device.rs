@@ -2,12 +2,12 @@ use crate::prelude::*;
 use crate::sdl::audio::{Audio, AudioOptions};
 use sdl2;
 
-pub struct SdlDevice {
+pub struct SdlDevice<'a> {
     ctx: sdl2::Sdl,
-    audio: Option<Audio>
+    audio: Option<Audio<'a>>
 }
 
-impl Default for SdlDevice {
+impl<'a> Default for SdlDevice<'a> {
     fn default() -> Self {
         match sdl2::init() {
             Ok(ctx) => Self {
@@ -19,14 +19,14 @@ impl Default for SdlDevice {
     }
 }
 
-impl SdlDevice {
+impl<'a> SdlDevice<'a> {
     pub fn with_audio(mut self, id: u8, options: AudioOptions) -> Self {
         self.audio = Some(Audio::new(&self.ctx, id, options));
         self
     }
 }
 
-impl Device for SdlDevice {
+impl<'a> Device for SdlDevice<'a> {
     fn process(&mut self, env: &mut Env, msg: &Message)  {
         if let Some(audio) = &mut self.audio {
             audio.process(&self.ctx, env, msg);
