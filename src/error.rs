@@ -11,6 +11,7 @@ pub enum Error {
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
+pub type FmtResult = std::result::Result<(), std::fmt::Error>;
 
 #[macro_export]
 macro_rules! raise {

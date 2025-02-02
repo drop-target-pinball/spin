@@ -118,6 +118,9 @@ fn run(mut editor: DefaultEditor, mut state: State) {
                 return
             }
 
+            // Get a fresh copy of the variable state
+            post(&script_env, &mut state,Message::Nop);
+
             match script_env.load_string("cli", &line).eval::<MultiValue>() {
                 Ok(values) => {
                     editor.add_history_entry(line).unwrap();
@@ -129,6 +132,7 @@ fn run(mut editor: DefaultEditor, mut state: State) {
                             .collect::<Vec<_>>()
                             .join("\t")
                     );
+                    // Process any generated messages from lua
                     post(&script_env, &mut state,Message::Nop);
                     break;
                 }

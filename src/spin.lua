@@ -223,6 +223,29 @@ function spin.run(name)
     }})
 end
 
+function spin.set_var(name, value)
+    assert('name', name)
+    assert('value', value)
+    msg = {
+        name = name,
+        value = {},
+    }
+    if type(value) == "number" then
+        if tonumber(tostring(value), 10) then
+            msg.value = { int = value }
+        else
+            msg.value = { float = value }
+        end
+    elseif type(value) == "boolean" then
+        msg.value = { bool = value }
+    elseif type(value) == "string" then
+        msg.value = { string = value }
+    else
+        error("unsupported type: " .. value)
+    end
+    table.insert(queue, { set_var = msg })
+end
+
 function spin.silence()
     table.insert(queue, "silence")
 end
@@ -252,6 +275,12 @@ function spin.run(name)
 end
 
 -------------------------------------------------------------------------------
+function assert(name, val)
+    if val == nil then
+        error(name .. " is required")
+    end
+end
+
 function copy_opts(src, dest, ...)
     local arg = {...}
     if src == nil then

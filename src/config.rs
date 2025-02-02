@@ -67,6 +67,13 @@ impl Sound {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
+pub struct Var {
+    pub name: String,
+    pub value: Value,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct Vocal {
     pub name: String,
     #[serde(default)]
@@ -98,6 +105,8 @@ pub struct App {
     pub sounds: Vec<Sound>,
     #[serde(default)]
     pub vocals: Vec<Vocal>,
+    #[serde(default)]
+    pub vars: Vec<Var>,
 }
 
 // pub fn new(mode: RunMode, app_dir: PathBuf) -> App {

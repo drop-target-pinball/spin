@@ -1,3 +1,5 @@
+use crate::prelude::*;
+
 use serde::{Serialize, Deserialize};
 use std::sync::mpsc::Sender;
 use std::fmt;
@@ -24,7 +26,7 @@ pub struct PlayAudio {
 }
 
 impl fmt::Display for PlayAudio {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
         write!(f, "{}", self.name)?;
         if self.volume != 0 {
             write!(f, ", volume={}", self.loops)?;
@@ -48,7 +50,7 @@ pub struct Name {
 }
 
 impl fmt::Display for Name {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
         if self.name != "" {
             write!(f, "{}", self.name)
         } else {
@@ -61,6 +63,31 @@ impl fmt::Display for Name {
 pub struct Note {
     pub kind: NoteKind,
     pub message: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Var {
+    pub name: String,
+    pub value: Value,
+}
+
+impl fmt::Display for Var {
+    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+        write!(f, "{}={}", self.name, self.value)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct VarChanged {
+    pub name: String,
+    pub prev: Value,
+    pub this: Value,
+}
+
+impl fmt::Display for VarChanged {
+    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+        write!(f, "{} prev={}, this={}", self.name, self.prev, self.this)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -77,17 +104,19 @@ pub enum Message {
     PlaySound(PlayAudio),
     PlayVocal(PlayAudio),
     ScriptEnded(Name),
+    SetVar(Var),
     Shutdown,
     Silence,
     StopMusic(Name),
     StopVocal(Name),
     Run(Name),
     Tick,
+    VarChanged(VarChanged),
     VocalEnded(Name),
 }
 
 impl fmt::Display for Message {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
         match &self {
             Message::Halt => write!(f, "halt"),
             Message::Init => write!(f, "init"),
@@ -106,12 +135,14 @@ impl fmt::Display for Message {
             Message::PlaySound(m) => write!(f, "play_sound: {}", m),
             Message::PlayVocal(m) => write!(f, "play_vocal: {}", m),
             Message::ScriptEnded(m) => write!(f, "script_ended: {}", m),
+            Message::SetVar(m) => write!(f, "set_var: {}", m),
             Message::Run(m) => write!(f, "run: {}", m),
             Message::Shutdown => write!(f, "shutdown"),
             Message::Silence => write!(f, "silence"),
             Message::StopMusic(m) => write!(f, "stop_music: {}", m),
             Message::StopVocal(m) => write!(f, "stop_vocal: {}", m),
             Message::Tick => Ok(()),
+            Message::VarChanged(m) => write!(f, "var_changed: {}", m),
             Message::VocalEnded(m) => write!(f, "vocal_ended: {}", m),
         }
     }

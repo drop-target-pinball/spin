@@ -37,6 +37,9 @@ pub fn main() -> ExitCode  {
         .with_audio(0,sdl::AudioOptions::default());
     e.add_device(Box::new(dev_sdl));
 
+    let store = builtin::Store::new();
+    e.add_device(Box::new(store));
+
     if mode == config::RunMode::Release {
         let logger = builtin::Logger::default();
         e.add_device(Box::new(logger));
