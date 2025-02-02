@@ -20,9 +20,15 @@ pub fn main() -> ExitCode {
     let mut ids: Vec<String> = Vec::new();
 
     for v in conf.music   { ids.push(v.name) }
-    for v in conf.scripts { ids.push(v.name) }
     for v in conf.sounds  { ids.push(v.name) }
     for v in conf.vocals  { ids.push(v.name) }
+
+    for v in conf.scripts {
+        ids.push(v.name);
+        if v.group != "" {
+            ids.push(v.group);
+        }
+    }
 
     ids.sort();
     ids.dedup();

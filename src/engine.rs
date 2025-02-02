@@ -144,11 +144,11 @@ impl<'e> Engine<'e> {
                         dev.process(&mut env, &msg);
                     }
                     match &msg {
-                        Message::Note(n) => {
-                            if env.conf.is_develop() && n.kind == NoteKind::Fault {
-                                self.shutdown = true
-                            }
-                        }
+                        // Message::Note(n) => {
+                        //     if env.conf.is_develop() && n.kind == NoteKind::Fault {
+                        //         self.shutdown = true
+                        //     }
+                        // }
                         Message::Shutdown => self.shutdown = true,
                         _ => (),
                     }

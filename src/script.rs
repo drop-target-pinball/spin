@@ -84,7 +84,11 @@ impl Env {
         Ok(())
     }
 
-    pub fn load(&self, name: &str, data: &[u8]) -> Result<()> {
+    pub fn load_string<'a>(&self, name: &str, data: &'a String) -> LuaChunk<'a> {
+        self.lua.load(data).set_name(name)
+    }
+
+    pub fn exec(&self, name: &str, data: &[u8]) -> Result<()> {
         let chunk = self.lua.load(data).set_name(name);
         match chunk.exec() {
             Ok(_) => Ok(()),
@@ -125,7 +129,7 @@ impl Env {
         Ok(msgs)
     }
 
-    pub fn lua(&mut self) -> &mut Lua {
-        &mut self.lua
-    }
+    // pub fn lua(&mut self) -> &mut Lua {
+    //     &mut self.lua
+    // }
 }

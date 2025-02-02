@@ -6,7 +6,7 @@ pub enum Error {
     #[error("invalid script environment: {0}")]
     ScriptEnv(String),
 
-    #[error("script execution error: {0}")]
+    #[error("{0}")]
     ScriptExec(String),
 }
 

@@ -18,6 +18,8 @@ pub struct PlayAudio {
     #[serde(default)]
     pub loops: i32,
     #[serde(default)]
+    pub no_restart: bool,
+    #[serde(default)]
     pub notify: bool,
 }
 
@@ -25,13 +27,16 @@ impl fmt::Display for PlayAudio {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(f, "{}", self.name)?;
         if self.volume != 0 {
-            write!(f, " volume={}", self.loops)?;
+            write!(f, ", volume={}", self.loops)?;
         }
         if self.loops != 0 {
-            write!(f, " loops={}", self.loops)?;
+            write!(f, ", loops={}", self.loops)?;
+        }
+        if self.no_restart {
+            write!(f, ", no_restart={}", self.no_restart)?;
         }
         if self.notify {
-            write!(f, " notify")?;
+            write!(f, ", notify={}", self.notify)?;
         }
         Ok(())
     }
@@ -61,7 +66,10 @@ pub struct Note {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum Message {
+    Halt,
     Init,
+    Kill(Name),
+    KillGroup(Name),
     Note(Note),
     MusicEnded(Name),
     Nop,
@@ -70,7 +78,9 @@ pub enum Message {
     PlayVocal(PlayAudio),
     ScriptEnded(Name),
     Shutdown,
+    Silence,
     StopMusic(Name),
+    StopVocal(Name),
     Run(Name),
     Tick,
     VocalEnded(Name),
@@ -79,7 +89,10 @@ pub enum Message {
 impl fmt::Display for Message {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match &self {
+            Message::Halt => write!(f, "halt"),
             Message::Init => write!(f, "init"),
+            Message::Kill(m) => write!(f, "kill: {}", m),
+            Message::KillGroup(m) => write!(f, "kill_group: {}", m),
             Message::Note(m) => {
                 match m.kind {
                     NoteKind::Alert => write!(f, "(!) {}", m.message),
@@ -95,7 +108,9 @@ impl fmt::Display for Message {
             Message::ScriptEnded(m) => write!(f, "script_ended: {}", m),
             Message::Run(m) => write!(f, "run: {}", m),
             Message::Shutdown => write!(f, "shutdown"),
+            Message::Silence => write!(f, "silence"),
             Message::StopMusic(m) => write!(f, "stop_music: {}", m),
+            Message::StopVocal(m) => write!(f, "stop_vocal: {}", m),
             Message::Tick => Ok(()),
             Message::VocalEnded(m) => write!(f, "vocal_ended: {}", m),
         }

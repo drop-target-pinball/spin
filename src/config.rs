@@ -42,6 +42,8 @@ pub struct Script {
     pub module: String,
     #[serde(default)]
     pub group: String,
+    #[serde(default)]
+    pub replace: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -70,6 +72,8 @@ pub struct Vocal {
     #[serde(default)]
     pub device_id: u8,
     pub path: String,
+    #[serde(default)]
+    pub duck: f32
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

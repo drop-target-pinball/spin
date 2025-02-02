@@ -1,8 +1,10 @@
 use crate::prelude::*;
-use rustyline::{DefaultEditor, ExternalPrinter};
-use std::thread;
+use rustyline::{config, DefaultEditor, ExternalPrinter};
+use std::{os::fd::AsRawFd, thread};
 use mlua::{Error, MultiValue};
 use ansi_term::Color;
+use termios::Termios;
+use std::path::PathBuf;
 
 static GRAY: Color = Color::Fixed(8);
 static BRIGHT_RED: Color = Color::Fixed(9);
@@ -12,19 +14,28 @@ static GLOBALS: &[u8] = include_bytes!("console.lua");
 
 pub struct Console<'c> {
     out: Box<dyn ExternalPrinter + 'c>,
+    original_mode: Termios,
 }
 
 impl<'c> Console<'c> {
     pub fn new(state: State) -> Self {
-        let mut editor = DefaultEditor::new().expect("failed to create editor");
-        let out = editor.create_external_printer().expect("failed to create printer");
+        let mut editor = unwrap!(DefaultEditor::with_config(
+            config::Builder::new()
+                .edit_mode(config::EditMode::Emacs)
+                .build()
+        ));
+        let out = unwrap!(editor.create_external_printer());
 
         thread::spawn(move || {
             run(editor, state);
         });
 
+        // rustyline is going to switch the input to raw mode. Save the
+        // current mode so we can restore on exit
+        let original_mode = unwrap!(Termios::from_fd(0));
         Self {
             out: Box::new(out),
+            original_mode,
         }
     }
 
@@ -41,6 +52,14 @@ impl<'c> Console<'c> {
         Ok(())
     }
 
+}
+
+impl<'c> Drop for Console<'c> {
+    fn drop(&mut self) {
+        // Disable raw mode. This is necessary for when the cli exits without
+        // shutting down the thread that reads from stdin
+        unwrap!(termios::tcsetattr(std::io::stdin().as_raw_fd(), termios::TCSADRAIN, &self.original_mode));
+    }
 }
 
 impl<'c> Device for Console<'c> {
@@ -61,14 +80,31 @@ impl<'c> Device for Console<'c> {
 }
 
 fn run(mut editor: DefaultEditor, mut state: State) {
-    let mut proc_env: script::Env = unwrap!(script::Env::new(&state.conf, state.vars_box.clone()));
-    unwrap!(proc_env.load("console.lua", GLOBALS));
+    let script_env: script::Env = unwrap!(script::Env::new(&state.conf, state.vars_box.clone()));
+    unwrap!(script_env.exec("console.lua", GLOBALS));
+
+    let history_file: Option<PathBuf> = match home::home_dir() {
+        Some(h) => Some(h.join(".local/share/spin.history")),
+        None => None
+    };
+
+    if let Some(h) = &history_file {
+        if let Err(_) = editor.load_history(&h) {
+            // ok
+        }
+    }
 
     loop {
         let mut prompt = "spin> ";
         let mut line = String::new();
 
         loop {
+            if let Some(h) = &history_file {
+                if let Err(_) = editor.save_history(&h) {
+                    // ok
+                }
+            }
+
             match editor.readline(prompt) {
                 Ok(input) => line.push_str(&input),
                 Err(_) => {
@@ -82,7 +118,7 @@ fn run(mut editor: DefaultEditor, mut state: State) {
                 return
             }
 
-            match proc_env.lua().load(&line).eval::<MultiValue>() {
+            match script_env.load_string("cli", &line).eval::<MultiValue>() {
                 Ok(values) => {
                     editor.add_history_entry(line).unwrap();
                     println!(
@@ -93,7 +129,7 @@ fn run(mut editor: DefaultEditor, mut state: State) {
                             .collect::<Vec<_>>()
                             .join("\t")
                     );
-                    post(&proc_env, &mut state,Message::Nop);
+                    post(&script_env, &mut state,Message::Nop);
                     break;
                 }
                 Err(Error::SyntaxError {
@@ -105,7 +141,8 @@ fn run(mut editor: DefaultEditor, mut state: State) {
                     prompt = ">> ";
                 }
                 Err(e) => {
-                    eprintln!("error: {}", e);
+                    editor.add_history_entry(line).unwrap();
+                    println!("{}", BRIGHT_RED.bold().paint(e.to_string()));
                     break;
                 }
             }

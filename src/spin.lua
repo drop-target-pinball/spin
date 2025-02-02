@@ -3,9 +3,15 @@ spin = {
     vars = {},
 }
 
+local script_defs = {}
 local scripts = {}
 local running = {}
 local queue = {}
+
+-------------------------------------------------------------------------------
+local function halt()
+    running = {}
+end
 
 local function init()
     for i, def in ipairs(spin.conf.scripts) do
@@ -13,7 +19,23 @@ local function init()
         if type(mod) ~= "table" then
             error("module '" .. def.module .. "' did not return a table")
         end
+        script_defs[def.name] = def
         scripts[def.name] = mod[def.name]
+    end
+end
+
+local function kill(name)
+    if running[name] == nil then
+        return
+    end
+    running[name] = nil
+end
+
+local function kill_group(group)
+    for i, def in ipairs(spin.conf.scripts) do
+        if def.group == group then
+            kill(def.name)
+        end
     end
 end
 
@@ -21,6 +43,16 @@ local function run(name)
     local script = scripts[name]
     if script == nil then
         error("no such script: " .. name)
+    end
+
+    -- See if this script, when run, replaces all scripts in the group
+    local this_def = script_defs[name]
+    if this_def.replace and this_def.group ~= "" then
+        for i, def in ipairs(spin.conf.scripts) do
+            if def.group == this_def.group then
+                kill(def.name)
+            end
+        end
     end
 
     -- Create the coroutine and place it in the running table. Set the wait
@@ -66,7 +98,13 @@ function spin.post(msg)
         end
     end
 
-    if kind == 'init' then
+    if kind == 'halt' then
+        halt()
+    elseif kind == 'kill' then
+        kill(body.name)
+    elseif kind == 'kill_group' then
+        kill_group(body.name)
+    elseif kind == 'init' then
         init()
     elseif kind == 'run' then
         run(body.name)
@@ -117,6 +155,24 @@ function spin.fault(message)
     }})
 end
 
+function spin.halt()
+    table.insert(queue, "halt")
+end
+
+function spin.kill(name)
+    if name == nil then
+        error('name is required')
+    end
+    table.insert(queue, { kill = { name = name } })
+end
+
+function spin.kill_group(name)
+    if name == nil then
+        error('name is required')
+    end
+    table.insert(queue, { kill_group = { name = name } })
+end
+
 function spin.info(message)
     table.insert(queue, { note = {
         kind = 'info',
@@ -134,6 +190,7 @@ function spin.play_music(name, opts)
     copy_opts(opts, msg,
         'volume',
         'loops',
+        'no_restart',
         'notify'
     )
     table.insert(queue, { play_music = msg })
@@ -145,10 +202,19 @@ function spin.play_sound(name, opts)
     }})
 end
 
-function spin.play_vocal(name)
-    table.insert(queue, { play_vocal = {
+function spin.play_vocal(name, opts)
+    if name == nil then
+        error("name is required")
+    end
+    msg = {
         name = name
-    }})
+    }
+    copy_opts(opts, msg,
+        'volume',
+        'loops',
+        'notify'
+    )
+    table.insert(queue, { play_vocal = msg })
 end
 
 function spin.run(name)
@@ -157,11 +223,24 @@ function spin.run(name)
     }})
 end
 
+function spin.silence()
+    table.insert(queue, "silence")
+end
+
 function spin.stop_music(name)
     if name == nil then
         name = ""
     end
     table.insert(queue, { stop_music = {
+        name = name
+    }})
+end
+
+function spin.stop_vocal(name)
+    if name == nil then
+        name = ""
+    end
+    table.insert(queue, { stop_vocal = {
         name = name
     }})
 end
