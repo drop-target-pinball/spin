@@ -8,7 +8,6 @@ use std::path::PathBuf;
 
 static GRAY: Color = Color::Fixed(8);
 static BRIGHT_RED: Color = Color::Fixed(9);
-static BRIGHT_GREEN: Color = Color::Fixed(10);
 static BRIGHT_YELLOW: Color = Color::Fixed(11);
 
 static GLOBALS: &[u8] = include_bytes!("console.lua");
@@ -69,7 +68,7 @@ impl<'c> Device for Console<'c> {
             Message::Note(n) => {
                 match n.kind {
                     NoteKind::Alert => self.log(env, &format!("{}", BRIGHT_YELLOW.bold().paint(msg.to_string()))),
-                    NoteKind::Diag => self.log(env, &format!("{}", BRIGHT_GREEN.bold().paint(msg.to_string()))),
+                    NoteKind::Diag => self.log(env, &format!("{}", Color::Cyan.bold().paint(msg.to_string()))),
                     NoteKind::Info => self.log(env, &format!("{}", Color::Cyan.bold().paint(msg.to_string()))),
                     NoteKind::Fault => self.log(env, &format!("{}", BRIGHT_RED.bold().paint(msg.to_string()))),
                 }
@@ -125,7 +124,7 @@ fn run(mut editor: DefaultEditor, mut state: State) {
 
             match script_env.load_string("cli", &line).eval::<MultiValue>() {
                 Ok(values) => {
-                    editor.add_history_entry(line).unwrap();
+                    unwrap!(editor.add_history_entry(line));
                     println!(
                         "{}",
                         values
@@ -147,7 +146,7 @@ fn run(mut editor: DefaultEditor, mut state: State) {
                     prompt = ">> ";
                 }
                 Err(e) => {
-                    editor.add_history_entry(line).unwrap();
+                    unwrap!(editor.add_history_entry(line));
                     println!("{}", BRIGHT_RED.bold().paint(e.to_string()));
                     break;
                 }

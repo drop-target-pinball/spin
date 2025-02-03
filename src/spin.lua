@@ -203,7 +203,7 @@ function spin.play_music(name, opts)
 end
 
 function spin.play_sound(name, opts)
-    assert("name", name)
+    must_have("name", name)
     local msg = { name = name }
     copy_opts(opts, msg,
         'loops',
@@ -225,14 +225,15 @@ function spin.play_vocal(name, opts)
 end
 
 function spin.run(name)
+    must_have("name", name);
     table.insert(queue, { run = {
         name = name
     }})
 end
 
 function spin.set_var(name, value)
-    assert('name', name)
-    assert('value', value)
+    must_have('name', name)
+    must_have('value', value)
     msg = {
         name = name,
         value = {},
@@ -276,7 +277,7 @@ function spin.stop_vocal(name)
 end
 
 -------------------------------------------------------------------------------
-function assert(name, val)
+function must_have(name, val)
     if val == nil then
         error(name .. " is required")
     end

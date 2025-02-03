@@ -200,7 +200,6 @@ macro_rules! diag {
     };
 }
 
-
 #[macro_export]
 macro_rules! fault {
     ($tx:expr, $($args:expr),+) => {
