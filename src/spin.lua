@@ -148,6 +148,13 @@ function spin.alert(message)
     }})
 end
 
+function spin.diag(message)
+    table.insert(queue, { note = {
+        kind = 'diag',
+        message = message,
+    }})
+end
+
 function spin.fault(message)
     table.insert(queue, { note = {
         kind = 'fault',
@@ -184,11 +191,10 @@ function spin.play_music(name, opts)
     if name == nil then
         error("name is required")
     end
-    msg = {
+    local msg = {
         name = name
     }
     copy_opts(opts, msg,
-        'volume',
         'loops',
         'no_restart',
         'notify'
@@ -197,20 +203,21 @@ function spin.play_music(name, opts)
 end
 
 function spin.play_sound(name, opts)
-    table.insert(queue, { play_sound = {
-        name = name
-    }})
+    assert("name", name)
+    local msg = { name = name }
+    copy_opts(opts, msg,
+        'loops',
+        'notify'
+    )
+    table.insert(queue, { play_sound = msg })
 end
 
 function spin.play_vocal(name, opts)
     if name == nil then
         error("name is required")
     end
-    msg = {
-        name = name
-    }
+    local msg = { name = name }
     copy_opts(opts, msg,
-        'volume',
         'loops',
         'notify'
     )
@@ -264,12 +271,6 @@ function spin.stop_vocal(name)
         name = ""
     end
     table.insert(queue, { stop_vocal = {
-        name = name
-    }})
-end
-
-function spin.run(name)
-    table.insert(queue, { run = {
         name = name
     }})
 end

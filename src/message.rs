@@ -7,16 +7,15 @@ use std::fmt;
 #[derive(Serialize, Deserialize, Debug, PartialEq, Copy, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum NoteKind {
-    Info,
     Alert,
+    Diag,
     Fault,
+    Info,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct PlayAudio {
+pub struct PlayMusic {
     pub name: String,
-    #[serde(default)]
-    pub volume: u8,
     #[serde(default)]
     pub loops: i32,
     #[serde(default)]
@@ -25,18 +24,54 @@ pub struct PlayAudio {
     pub notify: bool,
 }
 
-impl fmt::Display for PlayAudio {
+impl fmt::Display for PlayMusic {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
         write!(f, "{}", self.name)?;
-        if self.volume != 0 {
-            write!(f, ", volume={}", self.loops)?;
-        }
         if self.loops != 0 {
             write!(f, ", loops={}", self.loops)?;
         }
         if self.no_restart {
             write!(f, ", no_restart={}", self.no_restart)?;
         }
+        if self.notify {
+            write!(f, ", notify={}", self.notify)?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PlaySound {
+    pub name: String,
+    #[serde(default)]
+    pub loops: i32,
+    #[serde(default)]
+    pub notify: bool,
+}
+
+impl fmt::Display for PlaySound {
+    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+        write!(f, "{}", self.name)?;
+        if self.loops != 0 {
+            write!(f, ", loops={}", self.loops)?;
+        }
+        if self.notify {
+            write!(f, ", notify={}", self.notify)?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PlayVocal {
+    pub name: String,
+    #[serde(default)]
+    pub notify: bool,
+}
+
+impl fmt::Display for PlayVocal {
+    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+        write!(f, "{}", self.name)?;
         if self.notify {
             write!(f, ", notify={}", self.notify)?;
         }
@@ -100,13 +135,14 @@ pub enum Message {
     Note(Note),
     MusicEnded(Name),
     Nop,
-    PlayMusic(PlayAudio),
-    PlaySound(PlayAudio),
-    PlayVocal(PlayAudio),
+    PlayMusic(PlayMusic),
+    PlaySound(PlaySound),
+    PlayVocal(PlayVocal),
     ScriptEnded(Name),
     SetVar(Var),
     Shutdown,
     Silence,
+    SoundEnded(Name),
     StopMusic(Name),
     StopVocal(Name),
     Run(Name),
@@ -125,6 +161,7 @@ impl fmt::Display for Message {
             Message::Note(m) => {
                 match m.kind {
                     NoteKind::Alert => write!(f, "(!) {}", m.message),
+                    NoteKind::Diag => write!(f, "(?) {}", m.message),
                     NoteKind::Fault => write!(f, "(*) {}", m.message),
                     NoteKind::Info => write!(f, "{}", m.message),
                 }
@@ -139,6 +176,7 @@ impl fmt::Display for Message {
             Message::Run(m) => write!(f, "run: {}", m),
             Message::Shutdown => write!(f, "shutdown"),
             Message::Silence => write!(f, "silence"),
+            Message::SoundEnded(m) => write!(f, "sound_ended: {}", m),
             Message::StopMusic(m) => write!(f, "stop_music: {}", m),
             Message::StopVocal(m) => write!(f, "stop_vocal: {}", m),
             Message::Tick => Ok(()),
@@ -154,6 +192,14 @@ macro_rules! alert {
         $tx.post(Message::Note(Note{kind: NoteKind::Alert, message: format!($($args),+)}))
     };
 }
+
+#[macro_export]
+macro_rules! diag {
+    ($tx:expr, $($args:expr),+) => {
+        $tx.post(Message::Note(Note{kind: NoteKind::Diag, message: format!($($args),+)}))
+    };
+}
+
 
 #[macro_export]
 macro_rules! fault {

@@ -53,6 +53,13 @@ pub struct Sound {
     #[serde(default)]
     pub device_id: u8,
     pub path: String,
+    #[serde(default)]
+    pub priority: i32,
+    #[serde(default)]
+    pub duck: f64,
+    #[serde(default)]
+    /// Seconds
+    pub debounce: f64,
 }
 
 impl Sound {
@@ -61,6 +68,9 @@ impl Sound {
             name: name.to_string(),
             device_id: 0,
             path: path.to_string(),
+            priority: 0,
+            duck: 0.0,
+            debounce: 0.0,
         }
     }
 }
@@ -80,7 +90,9 @@ pub struct Vocal {
     pub device_id: u8,
     pub path: String,
     #[serde(default)]
-    pub duck: f32
+    pub priority: i32,
+    #[serde(default)]
+    pub duck: f64
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -18,7 +18,9 @@ pub mod prelude {
     pub use crate::config;
     pub use crate::vars::*;
     pub use crate::script;
-    pub use crate::{alert, raise, fault, info, unwrap};
+    pub use crate::{alert, diag, raise, fault, info, unwrap};
+
+    pub use crate::sec_to_millis;
 
     #[cfg(feature = "sdl")]
     pub use crate::sdl;
@@ -34,4 +36,7 @@ macro_rules! unwrap {
     };
 }
 
+pub fn sec_to_millis(sec: f64) -> u64 {
+    return (sec * 1000 as f64) as u64;
+}
 
