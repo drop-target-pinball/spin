@@ -1,10 +1,11 @@
+use crate::config::Namespace;
 use crate::prelude::*;
 
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::fmt;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
 pub struct VarsBox {
     pub vars: Vars
 }
@@ -16,6 +17,7 @@ pub enum Value {
     Float(f64),
     String(String),
     Bool(bool),
+    Vars(Vars),
 }
 
 impl fmt::Display for Value {
@@ -25,26 +27,36 @@ impl fmt::Display for Value {
             Value::Float(fl) => write!(f, "{}", fl),
             Value::String(s) => write!(f, "'{}'", s),
             Value::Bool(b) => write!(f, "{}", b),
+            Value::Vars(v) => write!(f, "{{ {} }}", v),
         }
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+pub type Namespaces = HashMap<String, Vec<config::Var>>;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Vars {
     pub elapsed: u64,
-    store: HashMap<String,Value>,
+    store: HashMap<String, Value>,
 }
 
-impl Default for Vars {
-    fn default() -> Vars {
-        Vars {
+// impl Default for Vars {
+//     fn default() -> Vars {
+//         Vars {
+//             elapsed: 0,
+//             store: HashMap::new(),
+//         }
+//     }
+// }
+
+impl Vars {
+    pub fn new() -> Self {
+        Self {
             elapsed: 0,
             store: HashMap::new(),
         }
     }
-}
 
-impl Vars {
     fn update(&mut self, queue: &mut Queue, name: &str, prev: Value, this: &Value) {
         let msg = VarChanged{
             name: name.to_string(),
@@ -56,12 +68,32 @@ impl Vars {
         queue.post(Message::VarChanged(msg));
     }
 
-    pub fn define(&mut self, queue: &mut Queue, name: &str, value: &Value) {
+    pub fn define(&mut self, queue: &mut Queue, spaces: &Namespaces, name: &str, kind: &config::VarKind) {
         if let Some(_) = self.store.get(name) {
             fault!(queue, "variable already defined: {}", name);
             return;
         }
-        self.store.insert(name.to_string(), value.clone());
+        let value = match kind {
+            config::VarKind::Int{default} => Value::Int(*default),
+            config::VarKind::Float{default} => Value::Float(*default),
+            config::VarKind::String{default} => Value::String(default.clone()),
+            config::VarKind::Bool{default} => Value::Bool(*default),
+            config::VarKind::Namespace{name} => {
+                let defs = match spaces.get(name) {
+                    Some(v) => v,
+                    None => {
+                        fault!(queue, "unknown namespace: {}", name);
+                        return;
+                    }
+                };
+                let mut vars = Vars::new();
+                for def in defs {
+                    vars.define(queue, spaces, &def.name, &def.kind);
+                }
+                Value::Vars(vars)
+            }
+        };
+        self.store.insert(name.to_string(), value);
     }
 
     pub fn set(&mut self, queue: &mut Queue, name: &str, this: &Value) {
@@ -78,8 +110,12 @@ impl Vars {
             (Value::Float(_), Value::Float(_)) => self.update(queue, name, prev.clone(), this),
             (Value::String(_), Value::String(_)) => self.update(queue, name, prev.clone(), this),
             (Value::Bool(_), Value::Bool(_)) => self.update(queue, name, prev.clone(), this),
-            (got, _) => {
-                fault!(queue, "invalid type, expected int, got {}", got);
+            (Value::Vars(_), Value::Vars(_)) => {
+                fault!(queue, "cannot set vars '{}'", name);
+                return
+            },
+            (p, t) => {
+                fault!(queue, "invalid type, expected {}, got {}", p, t);
             }
         }
     }
@@ -88,4 +124,14 @@ impl Vars {
         self.set(queue, name, &Value::Int(i));
     }
 
+}
+
+impl fmt::Display for Vars {
+    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+        let mut kvs: Vec<String> = Vec::new();
+        for (k, v) in &self.store {
+            kvs.push(format!("{}={}", k, v));
+        }
+        write!(f, "{}", kvs.join(" "))
+    }
 }

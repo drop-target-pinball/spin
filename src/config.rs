@@ -76,10 +76,27 @@ impl Sound {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum VarKind {
+    Int{default: i64},
+    Float{default: f64},
+    String{default: String},
+    Bool{default: bool},
+    Namespace{name: String},
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct Namespace {
+    pub name: String,
+    pub vars: Vec<Var>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Var {
     pub name: String,
-    pub value: Value,
+    pub kind: VarKind,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -111,6 +128,8 @@ pub struct App {
 
     #[serde(default)]
     pub music: Vec<Music>,
+    #[serde(default)]
+    pub namespaces: Vec<Namespace>,
     #[serde(default)]
     pub scripts: Vec<Script>,
     #[serde(default)]

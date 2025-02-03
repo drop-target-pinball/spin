@@ -13,6 +13,15 @@ struct Cli {
 }
 
 pub fn main() -> ExitCode  {
+    // let v = config::Var{
+    //     name: "test".to_string(),
+    //     value: Value::Int(0),
+    //     kind: config::VarKind::Int{default: 0},
+    // };
+    // let x = serde_yml::to_string(&v).unwrap();
+    // println!("{}", x);
+    // return ExitCode::SUCCESS;
+
     let cli = Cli::parse();
 
     let mode = if cli.release {

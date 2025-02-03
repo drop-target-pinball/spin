@@ -43,7 +43,7 @@ pub struct Engine<'e> {
 
 impl<'e> Engine<'e> {
     pub fn new(conf: &config::App) -> Self {
-        let vars_box = VarsBox{ vars: Vars::default() };
+        let vars_box = VarsBox{ vars: Vars::new() };
         let arc_vars_box = Arc::new(Mutex::new(vars_box));
 
         let script_env = unwrap!(script::Env::new(&conf, arc_vars_box.clone()));
