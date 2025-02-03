@@ -17,7 +17,7 @@ pub struct Console<'c> {
     original_mode: Termios,
 }
 
-impl<'c> Console<'c> {
+impl Console<'_> {
     pub fn new(state: State) -> Self {
         let mut editor = unwrap!(DefaultEditor::with_config(
             config::Builder::new()
@@ -54,7 +54,7 @@ impl<'c> Console<'c> {
 
 }
 
-impl<'c> Drop for Console<'c> {
+impl Drop for Console<'_> {
     fn drop(&mut self) {
         // Disable raw mode. This is necessary for when the cli exits without
         // shutting down the thread that reads from stdin
@@ -62,7 +62,7 @@ impl<'c> Drop for Console<'c> {
     }
 }
 
-impl<'c> Device for Console<'c> {
+impl Device for Console<'_> {
     fn process(&mut self, env: &mut Env, msg: &Message) {
         match msg {
             Message::Note(n) => {
@@ -84,13 +84,11 @@ fn run(mut editor: DefaultEditor, mut state: State) {
     let script_env: script::Env = unwrap!(script::Env::new(&state.conf, state.vars_box.clone()));
     unwrap!(script_env.exec("console.lua", GLOBALS));
 
-    let history_file: Option<PathBuf> = match home::home_dir() {
-        Some(h) => Some(h.join(".local/share/spin.history")),
-        None => None
-    };
+    let history_file: Option<PathBuf> = home::home_dir()
+        .map(|h| h.join(".local/share/spin.history"));
 
     if let Some(h) = &history_file {
-        if let Err(_) = editor.load_history(&h) {
+        if editor.load_history(&h).is_err() {
             // ok
         }
     }
@@ -101,7 +99,7 @@ fn run(mut editor: DefaultEditor, mut state: State) {
 
         loop {
             if let Some(h) = &history_file {
-                if let Err(_) = editor.save_history(&h) {
+                if editor.save_history(&h).is_err() {
                     // ok
                 }
             }
@@ -142,7 +140,7 @@ fn run(mut editor: DefaultEditor, mut state: State) {
                     ..
                 }) => {
                     // continue reading input and append it to `line`
-                    line.push_str("\n"); // separate input lines
+                    line.push('\n'); // separate input lines
                     prompt = ">> ";
                 }
                 Err(e) => {

@@ -61,7 +61,7 @@ pub fn main() -> ExitCode  {
 
     info!(e.queue(), "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
     e.run();
-    println!("");
+    println!();
 
     let tos = termios::Termios::from_fd(0).unwrap();
     termios::tcsetattr(std::io::stdin().as_raw_fd(), termios::TCSADRAIN, &tos).unwrap();

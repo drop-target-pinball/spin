@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+#[derive(Default)]
 pub struct Store {
 }
 

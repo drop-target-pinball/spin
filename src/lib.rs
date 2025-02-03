@@ -37,6 +37,6 @@ macro_rules! unwrap {
 }
 
 pub fn sec_to_millis(sec: f64) -> u64 {
-    return (sec * 1000 as f64) as u64;
+    (sec * 1000_f64) as u64
 }
 

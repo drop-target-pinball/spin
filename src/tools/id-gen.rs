@@ -25,7 +25,7 @@ pub fn main() -> ExitCode {
 
     for v in conf.scripts {
         ids.push(v.name);
-        if v.group != "" {
+        if v.group.is_empty() {
             ids.push(v.group);
         }
     }
@@ -57,5 +57,5 @@ pub fn format_source(ids: &Vec<String>, f: &mut String) -> Result {
         writeln!(f, "pub.{} = \"{}\"", id.to_uppercase(), id)?;
     }
     writeln!(f, "\nreturn pub")?;
-    return Ok(());
+    Ok(())
 }

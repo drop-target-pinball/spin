@@ -10,9 +10,10 @@ use figment::providers::{Format, Yaml};
 
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum RunMode {
     /// Without pinball machine
+    #[default]
     Develop,
 
     /// With pinball machine
@@ -20,10 +21,6 @@ pub enum RunMode {
 
     /// Headless via systemd
     Release
-}
-
-impl Default for RunMode {
-    fn default() -> RunMode { RunMode::Develop }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -140,20 +137,6 @@ pub struct App {
     pub vars: Vec<Var>,
 }
 
-// pub fn new(mode: RunMode, app_dir: PathBuf) -> App {
-//     App {
-//         mode,
-//         app_dir: PathBuf::new(),
-//         data_dir: PathBuf::new(),
-//         scripts_dir: PathBuf::new(),
-//         module_name: None,
-//         music: Vec::new(),
-//         scripts: Vec::new(),
-//         sounds: Vec::new(),
-//         vocals: Vec::new(),
-//     }
-// }
-
 impl App {
     pub fn is_develop(&self) -> bool {
         self.mode == RunMode::Develop
@@ -163,12 +146,6 @@ impl App {
         self.mode == RunMode::Release
     }
 }
-
-// impl Default for App {
-//     fn default() -> Self {
-//         new(RunMode::Develop, ".".into())
-//     }
-// }
 
 // ----------------------------------------------------------------------------
 
@@ -208,11 +185,11 @@ pub fn load(app_dir: &Path) -> Result<App> {
 
 fn find_files(dir: &Path) -> io::Result<Vec<PathBuf>> {
     let mut files: Vec<PathBuf> = Vec::new();
-    let listing = fs::read_dir(&dir)?;
+    let listing = fs::read_dir(dir)?;
     for result in listing {
         let entry = result?;
         if entry.file_type()?.is_dir() {
-            files.append(&mut find_files(&dir.join(&entry.file_name()))?);
+            files.append(&mut find_files(&dir.join(entry.file_name()))?);
             continue
         }
 
@@ -226,5 +203,5 @@ fn find_files(dir: &Path) -> io::Result<Vec<PathBuf>> {
             }
         }
     }
-    return Ok(files)
+    Ok(files)
 }

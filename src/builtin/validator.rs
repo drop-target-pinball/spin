@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use std::collections::HashSet;
 
+#[derive(Default)]
 pub struct Validator {
     music: HashSet<String>,
     sounds: HashSet<String>,

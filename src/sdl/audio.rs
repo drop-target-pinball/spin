@@ -71,7 +71,7 @@ pub struct Audio<'a> {
     active: Vec<Option<ActiveAudio>>,
 }
 
-impl<'a> Audio<'a> {
+impl Audio<'_> {
     pub fn new(ctx: &sdl2::Sdl, id: u8, opt: AudioOptions) -> Self {
         let audio = match ctx.audio() {
             Ok(a) => a,
@@ -104,33 +104,33 @@ impl<'a> Audio<'a> {
         }
     }
 
-    fn find_available_channel(&self, env: &mut Env, priority: i32) -> i32 {
+    fn find_available_channel(&self, env: &mut Env, priority: i32) -> Option<i32> {
         let mut opt_candidate: Option<&ActiveAudio> = None;
 
         // First check if there are any open slots
         for i in 1..self.active.len() {
             match &self.active[i] {
-                None => return i as i32,
+                None => return Some(i as i32),
                 // Otherwise, see if this is a candidate that could be
                 // freed.
                 Some(aa) => {
-                    if aa.priority >= priority {
+                    if aa.priority > priority {
                         continue
                     }
                     match opt_candidate {
                         // If it has a lower priority and we don't have a
                         // candidate yet, this is it.
-                        None => opt_candidate = Some(&aa),
+                        None => opt_candidate = Some(aa),
                         // If we do have a candidate already, take it if
                         // it has a lower priority or an earlier start
                         // time with the same priority.
                         Some(cand) => {
                             if aa.priority < cand.priority {
-                                opt_candidate = Some(&aa);
+                                opt_candidate = Some(aa);
                                 continue;
                             }
                             if aa.priority == cand.priority && aa.start_time < cand.start_time {
-                                opt_candidate = Some(&aa);
+                                opt_candidate = Some(aa);
                             }
                         }
                     }
@@ -142,11 +142,10 @@ impl<'a> Audio<'a> {
         // channel and return that.
         match opt_candidate {
             Some(aa) => {
-                diag!(env.queue, "a lower priority channel was freed");
-                let chan = aa.chan;
-                chan
+                diag!(env.queue, "a channel was interrupted to satisfy request");
+                Some(aa.chan)
             },
-            None => 0
+            None => None
         }
     }
 
@@ -242,7 +241,7 @@ impl<'a> Audio<'a> {
                 Ok(chunk) => {
                     let s= Sound{conf: sound.clone(), chunk };
                     if self.sounds.insert(sound.name.clone(), s).is_some() {
-                        fault!(env.queue, "sound already loaded '{}': {}", &sound.name, &path.to_string_lossy());
+                        alert!(env.queue, "sound already loaded '{}': {}", &sound.name, &path.to_string_lossy());
                     }
                 }
             };
@@ -258,7 +257,7 @@ impl<'a> Audio<'a> {
                 Ok(chunk) => {
                     let entry = Vocal{conf: vocal.clone(), chunk };
                     if self.vocals.insert(vocal.name.clone(), entry).is_some() {
-                        fault!(env.queue, "sound already loaded '{}': {}", &vocal.name, &path.to_string_lossy());
+                        alert!(env.queue, "vocal already loaded '{}': {}", &vocal.name, &path.to_string_lossy());
                     }
                 }
             };
@@ -301,7 +300,7 @@ impl<'a> Audio<'a> {
     fn play_sound(&mut self, env: &mut Env, cmd: &PlaySound)  {
         let Some(sound) = self.sounds.get(&cmd.name) else { return };
 
-        let mut chan_num: i32 = 0;
+        let mut opt_chan_num: Option<i32> = None;
         // See if the same sound is already playing
         for i in 1..self.active.len() {
             let Some(aa) = &self.active[i] else { continue };
@@ -316,23 +315,29 @@ impl<'a> Audio<'a> {
                 }
                 // Since the sound is already playing, this channel will
                 // be reused.
-                chan_num = i as i32;
+                opt_chan_num = Some(i as i32);
                 break;
             }
         }
 
-        if chan_num > 0 {
-            self.free_channel(env, chan_num);
-            self.active[chan_num as usize] = None;
-        } else {
-            chan_num = self.find_available_channel(env, sound.conf.priority);
-            if chan_num == 0 {
-                diag!(env.queue, "no sound channels are available");
-                return;
+        if opt_chan_num.is_none() {
+            opt_chan_num = match self.find_available_channel(env, sound.conf.priority) {
+                Some(chan_num) => {
+                    self.free_channel(env, chan_num);
+                    self.active[chan_num as usize] = None;
+                    Some(chan_num)
+                }
+                None => {
+                    diag!(env.queue, "no sound channels are available");
+                    return;
+                }
             }
-            self.free_channel(env, chan_num);
-            self.active[chan_num as usize] = None;
         }
+
+        // There must be a channel number assigned by this point
+        let chan_num = opt_chan_num.unwrap();
+        self.free_channel(env, chan_num);
+        self.active[chan_num as usize] = None;
 
         debug_audio!(env.queue, "channel {} allocate: {}", chan_num, sound.conf.name);
         match sdl2::mixer::Channel(chan_num).play(&sound.chunk, cmd.loops) {
@@ -349,7 +354,6 @@ impl<'a> Audio<'a> {
             }
             Err(e) =>  {
                 fault!(env.queue, "cannot play sound: {}", e);
-                return
             }
         };
     }
@@ -391,7 +395,7 @@ impl<'a> Audio<'a> {
 
     fn stop_music(&mut self, _: &mut Env, cmd: &Name) {
         let Some(playing) = &self.music_playing else { return };
-        if cmd.name != "" && cmd.name != *playing.name {
+        if !cmd.name.is_empty() && cmd.name != *playing.name {
             return
         }
         sdl2::mixer::Music::halt();
@@ -400,7 +404,7 @@ impl<'a> Audio<'a> {
 
     fn stop_vocal(&mut self, env: &mut Env, cmd: &Name) {
         let Some(playing) = &self.active[0] else { return };
-        if cmd.name != "" && cmd.name != *playing.name {
+        if !cmd.name.is_empty() && cmd.name != *playing.name {
             return
         }
         self.free_channel(env, 0);

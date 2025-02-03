@@ -41,12 +41,12 @@ pub struct Engine<'e> {
     shutdown: bool,
 }
 
-impl<'e> Engine<'e> {
+impl Engine<'_> {
     pub fn new(conf: &config::App) -> Self {
         let vars_box = VarsBox{ vars: Vars::new() };
         let arc_vars_box = Arc::new(Mutex::new(vars_box));
 
-        let script_env = unwrap!(script::Env::new(&conf, arc_vars_box.clone()));
+        let script_env = unwrap!(script::Env::new(conf, arc_vars_box.clone()));
         let (tx, rx) = mpsc::channel();
         Engine {
             conf: conf.clone(),
@@ -144,11 +144,11 @@ impl<'e> Engine<'e> {
                         dev.process(&mut env, &msg);
                     }
                     match &msg {
-                        // Message::Note(n) => {
-                        //     if env.conf.is_develop() && n.kind == NoteKind::Fault {
-                        //         self.shutdown = true
-                        //     }
-                        // }
+                        Message::Note(n) => {
+                            if env.conf.is_release() && n.kind == NoteKind::Fault {
+                                self.shutdown = true
+                            }
+                        }
                         Message::Shutdown => self.shutdown = true,
                         _ => (),
                     }
@@ -156,7 +156,7 @@ impl<'e> Engine<'e> {
                 }
             }
         }
-        return messages;
+        messages
     }
 
     fn process_queue_lua(&mut self, messages: Vec<Message>) {
@@ -176,14 +176,8 @@ impl<'e> Engine<'e> {
         }
         if let Err(e) = self.script_env.recv_vars() {
             fault!(self.queue, "{}", e);
-            return
         }
     }
 
 }
 
-// impl Default for Engine<'_> {
-//     fn default() -> Self {
-//         Engine::new(&config::App::default())
-//     }
-// }

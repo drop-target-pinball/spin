@@ -86,7 +86,7 @@ pub struct Name {
 
 impl fmt::Display for Name {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
-        if self.name != "" {
+        if !self.name.is_empty() {
             write!(f, "{}", self.name)
         } else {
             write!(f, "any")

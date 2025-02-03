@@ -1,4 +1,3 @@
-use crate::config::Namespace;
 use crate::prelude::*;
 
 use serde::{Serialize, Deserialize};
@@ -40,15 +39,6 @@ pub struct Vars {
     store: HashMap<String, Value>,
 }
 
-// impl Default for Vars {
-//     fn default() -> Vars {
-//         Vars {
-//             elapsed: 0,
-//             store: HashMap::new(),
-//         }
-//     }
-// }
-
 impl Vars {
     pub fn new() -> Self {
         Self {
@@ -69,7 +59,7 @@ impl Vars {
     }
 
     pub fn define(&mut self, queue: &mut Queue, spaces: &Namespaces, name: &str, kind: &config::VarKind) {
-        if let Some(_) = self.store.get(name) {
+        if self.store.contains_key(name) {
             fault!(queue, "variable already defined: {}", name);
             return;
         }
@@ -112,7 +102,6 @@ impl Vars {
             (Value::Bool(_), Value::Bool(_)) => self.update(queue, name, prev.clone(), this),
             (Value::Vars(_), Value::Vars(_)) => {
                 fault!(queue, "cannot set vars '{}'", name);
-                return
             },
             (p, t) => {
                 fault!(queue, "invalid type, expected {}, got {}", p, t);
@@ -123,7 +112,12 @@ impl Vars {
     pub fn set_int(&mut self, queue: &mut Queue, name: &str, i: i64) {
         self.set(queue, name, &Value::Int(i));
     }
+}
 
+impl Default for Vars {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl fmt::Display for Vars {
