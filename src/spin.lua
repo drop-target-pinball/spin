@@ -64,7 +64,7 @@ local function run(name)
     }
 end
 
-local function service_coroutines(msg)
+local function service_coroutines(kind, msg)
     for name, script in pairs(running) do
         if coroutine.status(script.co) == "dead" then
             table.insert(queue, { script_ended = {
@@ -72,10 +72,13 @@ local function service_coroutines(msg)
             }})
             running[name] = nil
         else
-            if script.can_resume(msg) then
-                local running, cond = coroutine.resume(script.co)
+            if script.can_resume(kind, msg) then
+                local running, result = coroutine.resume(script.co)
+                if not running and result ~= nil then
+                    error(result)
+                end
                 if running then
-                    script.can_resume = cond
+                    script.can_resume = result
                 end
             end
         end
@@ -138,6 +141,28 @@ function spin.wait_for(name)
     coroutine.yield(function (kind)
         return kind == name
     end)
+end
+
+-------------------------------------------------------------------------------
+local function must_have(name, val)
+    if val == nil then
+        error(name .. " is required")
+    end
+end
+
+local function copy_opts(src, dest, ...)
+    local arg = {...}
+    if src == nil then
+        return
+    end
+    if arg == nil then
+        error("field names to copy are required")
+    end
+    for i, name in ipairs(arg) do
+        if src[name] ~= nil then
+            dest[name] = src[name]
+        end
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -276,27 +301,6 @@ function spin.stop_vocal(name)
     }})
 end
 
--------------------------------------------------------------------------------
-function must_have(name, val)
-    if val == nil then
-        error(name .. " is required")
-    end
-end
-
-function copy_opts(src, dest, ...)
-    local arg = {...}
-    if src == nil then
-        return
-    end
-    if arg == nil then
-        error("field names to copy are required")
-    end
-    for i, name in ipairs(arg) do
-        if src[name] ~= nil then
-            dest[name] = src[name]
-        end
-    end
-end
 
 package.loaded['spin'] = spin
 

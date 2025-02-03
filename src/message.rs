@@ -188,22 +188,22 @@ impl fmt::Display for Message {
 
 #[macro_export]
 macro_rules! alert {
-    ($tx:expr, $($args:expr),+) => {
-        $tx.post(Message::Note(Note{kind: NoteKind::Alert, message: format!($($args),+)}))
+    ($q:expr, $($args:expr),+) => {
+        $q.post(Message::Note(Note{kind: NoteKind::Alert, message: format!($($args),+)}))
     };
 }
 
 #[macro_export]
 macro_rules! diag {
-    ($tx:expr, $($args:expr),+) => {
-        $tx.post(Message::Note(Note{kind: NoteKind::Diag, message: format!($($args),+)}))
+    ($q:expr, $($args:expr),+) => {
+        $q.post(Message::Note(Note{kind: NoteKind::Diag, message: format!($($args),+)}))
     };
 }
 
 #[macro_export]
 macro_rules! fault {
-    ($tx:expr, $($args:expr),+) => {
-        $tx.post(Message::Note(Note{kind: NoteKind::Fault, message: format!($($args),+)}))
+    ($q:expr, $($args:expr),+) => {
+        $q.post(Message::Note(Note{kind: NoteKind::Fault, message: format!($($args),+)}))
     };
 }
 

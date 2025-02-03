@@ -9,6 +9,18 @@ use std::sync::atomic::{AtomicBool, Ordering};
 static MUSIC_FINISHED: AtomicBool = AtomicBool::new(false);
 const MAX_VOLUME: i32 = 128;
 
+#[cfg(feature = "debug_audio")]
+macro_rules! debug_audio {
+    ($q:expr, $($args:expr),+) => {
+        $q.post(Message::Note(Note{kind: NoteKind::Diag, message: format!($($args),+)}))
+    }
+}
+#[cfg(not(feature = "debug_audio"))]
+macro_rules! debug_audio {
+    ($q:expr, $($args:expr),+) => {
+    }
+}
+
 struct ActiveAudio {
     name: String,
     chan: i32,
@@ -193,9 +205,9 @@ impl<'a> Audio<'a> {
                         chan.halt();
                     }
                 }
-                Some(_) => {
+                Some(_aa) => {
                     if !chan.is_playing() {
-                        //diag!(env.queue, "reap: {} {}", aa.chan, aa.name);
+                        debug_audio!(env.queue, "channel {} reap: {}", _aa.chan, _aa.name);
                         self.free_channel(env, i as i32);
                         self.active[i] = None;
                     }
@@ -322,6 +334,7 @@ impl<'a> Audio<'a> {
             self.active[chan_num as usize] = None;
         }
 
+        debug_audio!(env.queue, "channel {} allocate: {}", chan_num, sound.conf.name);
         match sdl2::mixer::Channel(chan_num).play(&sound.chunk, cmd.loops) {
             Ok(_) => {
                 let active = ActiveAudio{

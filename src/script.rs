@@ -106,8 +106,6 @@ impl Env {
             Err(e) => return raise!(Error::ScriptExec, "{}", e)
         };
 
-        // FIXME: Errors are not always getting back. Does this need to be
-        // a pcall somehow?
         let result = &results[0];
         let rets = match result {
             LuaValue::Table(t) => t,

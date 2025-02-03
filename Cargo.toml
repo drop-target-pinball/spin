@@ -20,6 +20,7 @@ path = "src/tools/id-gen.rs"
 [features]
 default = ["sdl"]
 sdl = ["dep:sdl2"]
+debug_audio = []
 
 [dependencies]
 ansi_term = "0.12.1"
