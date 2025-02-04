@@ -10,12 +10,8 @@ impl Store {
     }
 
     fn init(&mut self, env: &mut Env) {
-        let mut spaces = vars::Namespaces::new();
-        for ns in &env.conf.namespaces {
-            spaces.insert(ns.name.clone(), ns.vars.clone());
-        }
         for v in &env.conf.vars {
-            vars::define(&mut env.queue, env.vars, &spaces, &v.name, &v.kind);
+            vars::define(&mut env.queue, env.vars, &env.conf.namespaces, &v.name, &v.kind);
         }
     }
 

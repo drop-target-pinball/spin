@@ -101,6 +101,18 @@ pub struct Note {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SwitchEvent {
+    pub name: String,
+    pub active: bool,
+}
+
+impl fmt::Display for SwitchEvent {
+    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+        write!(f, "{} active={}", self.name, self.active)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Var {
     pub name: String,
     pub value: vars::Value,
@@ -145,6 +157,7 @@ pub enum Message {
     SoundEnded(Name),
     StopMusic(Name),
     StopVocal(Name),
+    SwitchEvent(SwitchEvent),
     Run(Name),
     Tick,
     VarChanged(VarChanged),
@@ -179,6 +192,7 @@ impl fmt::Display for Message {
             Message::SoundEnded(m) => write!(f, "sound_ended: {}", m),
             Message::StopMusic(m) => write!(f, "stop_music: {}", m),
             Message::StopVocal(m) => write!(f, "stop_vocal: {}", m),
+            Message::SwitchEvent(m) => write!(f, "switch_event: {}", m),
             Message::Tick => Ok(()),
             Message::VarChanged(m) => write!(f, "var_changed: {}", m),
             Message::VocalEnded(m) => write!(f, "vocal_ended: {}", m),

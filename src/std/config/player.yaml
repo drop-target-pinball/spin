@@ -1,0 +1,8 @@
+namespaces:
+  player:
+    - { name: score, kind: !int 0 }
+    - { name: ball, kind: !int 1 }
+    - { name: extra_balls_awarded, kind: !int 0 }
+    - { name: total_extra_balls_awarded, kind: !int 0 }
+    - { name: replay_awarded, kind: !bool false }
+

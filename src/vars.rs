@@ -54,16 +54,16 @@ fn update(env: &mut Env, name: &str, prev: Value, this: &Value) {
     env.queue.post(Message::VarChanged(msg));
 }
 
-pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &Namespaces, name: &str, kind: &config::VarKind) {
+pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, Vec<config::Var>>, name: &str, kind: &config::VarKind) {
     if vars.contains_key(name) {
         fault!(queue, "variable already defined: {}", name);
         return;
     }
     let value = match kind {
-        config::VarKind::Int{default} => Value::Int(*default),
-        config::VarKind::Float{default} => Value::Float(*default),
-        config::VarKind::String{default} => Value::String(default.clone()),
-        config::VarKind::Bool{default} => Value::Bool(*default),
+        config::VarKind::Int(i) => Value::Int(*i),
+        config::VarKind::Float(f) => Value::Float(*f),
+        config::VarKind::String(s) => Value::String(s.clone()),
+        config::VarKind::Bool(b) => Value::Bool(*b),
         config::VarKind::Namespace{name} => {
             let defs = match spaces.get(name) {
                 Some(v) => v,

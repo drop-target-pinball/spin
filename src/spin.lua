@@ -125,25 +125,6 @@ function spin.post(msg)
 end
 
 -------------------------------------------------------------------------------
-function spin.ready()
-    return true
-end
-
-function spin.sleep(secs)
-    local millis = secs * 1000
-    local wake_at = spin.int('elapsed') + millis
-    coroutine.yield(function ()
-        return spin.int('elapsed') >= wake_at
-    end)
-end
-
-function spin.wait_for(name)
-    coroutine.yield(function (kind)
-        return kind == name
-    end)
-end
-
--------------------------------------------------------------------------------
 local function must_have(name, val)
     if val == nil then
         error(name .. " is required")
@@ -168,6 +149,46 @@ end
 function spin.int(name)
     must_have('name', name)
     return spin.vars[name]["int"]
+end
+
+-------------------------------------------------------------------------------
+function spin.ready()
+    return true
+end
+
+function spin.sleep(secs)
+    local millis = secs * 1000
+    local wake_at = spin.int('elapsed') + millis
+    coroutine.yield(function ()
+        return spin.int('elapsed') >= wake_at
+    end)
+end
+
+function spin.wait_for(...)
+    local conds = {...}
+    for i, cond in ipairs(conds) do
+        if cond(kind, name) then
+            return true
+        end
+    end
+    return false
+end
+
+function spin.any(name)
+    must_have("name", name)
+    coroutine.yield(function (kind)
+        return kind == name
+    end)
+end
+
+function spin.switch(name, active)
+    must_have("name", name)
+    if active == nil then
+        active = true
+    end
+    coroutine.yield(function (kind, msg)
+        return kind == 'switch_event' and msg.name == name and msg.active == active
+    end)
 end
 
 -------------------------------------------------------------------------------
@@ -306,6 +327,13 @@ function spin.stop_vocal(name)
     }})
 end
 
+function spin.switch_event(name, active)
+    must_have("name", name)
+    if active == nil then
+        active = true
+    end
+    table.insert(queue, {switch_event = {name=name, active=active}})
+end
 
-package.loaded['spin'] = spin
+package.loaded["spin"] = spin
 
