@@ -25,7 +25,7 @@ struct ActiveAudio {
     name: String,
     chan: i32,
     duck: i32,
-    start_time: u64,
+    start_time: i64,
     priority: i32,
     notify: bool,
 }
@@ -142,7 +142,7 @@ impl Audio<'_> {
         // channel and return that.
         match opt_candidate {
             Some(aa) => {
-                diag!(env.queue, "a channel was interrupted to satisfy request");
+                diag!(env.queue, "a sound channel was interrupted to satisfy request");
                 Some(aa.chan)
             },
             None => None
@@ -291,7 +291,7 @@ impl Audio<'_> {
             chan: -1,
             duck: 0,
             priority: 0,
-            start_time: env.vars.elapsed,
+            start_time: env.vars["elapsed"].as_int(),
             notify: cmd.notify
         };
         self.music_playing = Some(active);
@@ -307,7 +307,7 @@ impl Audio<'_> {
             if aa.name == cmd.name {
                 // If this sound is already active, do nothing if within the
                 // debounce period
-                let delta = env.vars.elapsed - aa.start_time;
+                let delta = env.vars["elapsed"].as_int() - aa.start_time;
                 let debounce = sec_to_millis(sound.conf.debounce);
                 if debounce > 0 && debounce > delta {
                     diag!(env.queue, "debounce: {}", cmd.name);
@@ -347,7 +347,7 @@ impl Audio<'_> {
                     chan: chan_num,
                     duck: scale_volume(MAX_VOLUME, sound.conf.duck),
                     priority: sound.conf.priority,
-                    start_time: env.vars.elapsed,
+                    start_time: env.vars["elapsed"].as_int(),
                     notify: cmd.notify
                 };
                 self.active[chan_num as usize] = Some(active);
@@ -379,7 +379,7 @@ impl Audio<'_> {
                     chan: 0,
                     duck: scale_volume(MAX_VOLUME, vocal.conf.duck),
                     priority: vocal.conf.priority,
-                    start_time: env.vars.elapsed,
+                    start_time: env.vars["elapsed"].as_int(),
                     notify: cmd.notify
                 };
                 self.active[0] = Some(active);

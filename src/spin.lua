@@ -131,9 +131,9 @@ end
 
 function spin.sleep(secs)
     local millis = secs * 1000
-    local wake_at = spin.vars.elapsed + millis
+    local wake_at = spin.int('elapsed') + millis
     coroutine.yield(function ()
-        return spin.vars.elapsed >= wake_at
+        return spin.int('elapsed') >= wake_at
     end)
 end
 
@@ -163,6 +163,11 @@ local function copy_opts(src, dest, ...)
             dest[name] = src[name]
         end
     end
+end
+
+function spin.int(name)
+    must_have('name', name)
+    return spin.vars[name]["int"]
 end
 
 -------------------------------------------------------------------------------

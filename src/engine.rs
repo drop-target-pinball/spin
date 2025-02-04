@@ -10,19 +10,19 @@ use std::sync::Mutex;
 
 pub struct Env<'e> {
     pub conf: &'e config::App,
-    pub vars: &'e mut Vars,
+    pub vars: &'e mut vars::Vars,
     pub queue: Queue,
 }
 
 impl<'e> Env<'e> {
-    pub fn new(conf: &'e config::App, vars: &'e mut Vars, queue: Queue) -> Self {
+    pub fn new(conf: &'e config::App, vars: &'e mut vars::Vars, queue: Queue) -> Self {
         Self { conf, vars, queue }
     }
 }
 
 pub struct State {
     pub conf: config::App,
-    pub vars_box: Arc<Mutex<VarsBox>>,
+    pub vars_box: Arc<Mutex<vars::VarsBox>>,
     pub queue: Queue,
 }
 
@@ -32,7 +32,7 @@ pub trait Device {
 
 pub struct Engine<'e> {
     conf: config::App,
-    vars_box: Arc<Mutex<VarsBox>>,
+    vars_box: Arc<Mutex<vars::VarsBox>>,
     queue: Queue,
     script_env: script::Env,
 
@@ -43,7 +43,7 @@ pub struct Engine<'e> {
 
 impl Engine<'_> {
     pub fn new(conf: &config::App) -> Self {
-        let vars_box = VarsBox{ vars: Vars::new() };
+        let vars_box = vars::VarsBox{ vars: vars::Vars::new() };
         let arc_vars_box = Arc::new(Mutex::new(vars_box));
 
         let script_env = unwrap!(script::Env::new(conf, arc_vars_box.clone()));
@@ -129,7 +129,7 @@ impl Engine<'_> {
         let vars = &mut unwrap!(self.vars_box.lock()).vars;
         let mut env = Env::new(&self.conf, vars, self.queue.clone());
 
-        env.vars.elapsed = elapsed.as_millis() as u64;
+        env.vars.insert("elapsed".to_string(), vars::Value::Int(elapsed.as_millis() as i64));
 
         let mut messages: Vec<Message> = Vec::new();
         loop {

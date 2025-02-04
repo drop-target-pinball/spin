@@ -10,17 +10,17 @@ impl Store {
     }
 
     fn init(&mut self, env: &mut Env) {
-        let mut spaces = Namespaces::new();
+        let mut spaces = vars::Namespaces::new();
         for ns in &env.conf.namespaces {
             spaces.insert(ns.name.clone(), ns.vars.clone());
         }
         for v in &env.conf.vars {
-            env.vars.define(&mut env.queue, &spaces, &v.name, &v.kind);
+            vars::define(&mut env.queue, env.vars, &spaces, &v.name, &v.kind);
         }
     }
 
     fn set_var(&self, env: &mut Env, msg: &Var) {
-        env.vars.set(&mut env.queue, &msg.name, &msg.value);
+        vars::set(env, &msg.name, &msg.value);
     }
 }
 

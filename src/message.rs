@@ -103,7 +103,7 @@ pub struct Note {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Var {
     pub name: String,
-    pub value: Value,
+    pub value: vars::Value,
 }
 
 impl fmt::Display for Var {
@@ -115,8 +115,8 @@ impl fmt::Display for Var {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct VarChanged {
     pub name: String,
-    pub prev: Value,
-    pub this: Value,
+    pub prev: vars::Value,
+    pub this: vars::Value,
 }
 
 impl fmt::Display for VarChanged {

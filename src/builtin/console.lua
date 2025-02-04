@@ -13,6 +13,3 @@ set_var = spin.set_var
 silence = spin.silence
 stop_music = spin.stop_music
 stop_vocal = spin.stop_vocal
-
-conf = spin.conf
-vars = spin.vars

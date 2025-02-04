@@ -11,13 +11,13 @@ static SCRIPTS: [(&str, &[u8]); 2] = [
 
 pub struct Env {
     lua: Lua,
-    vars: Arc<Mutex<VarsBox>>,
+    vars: Arc<Mutex<vars::VarsBox>>,
     spin: LuaTable,
     post: LuaFunction,
 }
 
 impl Env {
-    pub fn new(conf: &config::App, vars: Arc<Mutex<VarsBox>>) -> Result<Env> {
+    pub fn new(conf: &config::App, vars: Arc<Mutex<vars::VarsBox>>) -> Result<Env> {
         // Setup path for use when loading project-specific files
         let root = conf.app_dir.to_string_lossy();
         env::set_var("LUA_PATH",

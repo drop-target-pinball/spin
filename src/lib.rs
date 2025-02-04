@@ -16,7 +16,7 @@ pub mod prelude {
     pub use crate::error::*;
     pub use crate::message::*;
     pub use crate::config;
-    pub use crate::vars::*;
+    pub use crate::vars;
     pub use crate::script;
     pub use crate::{alert, diag, raise, fault, info, unwrap};
 
@@ -36,7 +36,7 @@ macro_rules! unwrap {
     };
 }
 
-pub fn sec_to_millis(sec: f64) -> u64 {
-    (sec * 1000_f64) as u64
+pub fn sec_to_millis(sec: f64) -> i64 {
+    (sec * 1000_f64) as i64
 }
 
