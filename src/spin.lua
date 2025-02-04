@@ -146,9 +146,20 @@ local function copy_opts(src, dest, ...)
     end
 end
 
+function spin.bool(name)
+    must_have('name', name)
+    return spin.vars[name]["bool"]
+end
+
 function spin.int(name)
     must_have('name', name)
     return spin.vars[name]["int"]
+end
+
+function spin.set_int(name, value)
+    must_have('name', name)
+    must_have('value', value)
+    spin.vars[name]["int"] = value
 end
 
 -------------------------------------------------------------------------------
@@ -164,24 +175,26 @@ function spin.sleep(secs)
     end)
 end
 
-function spin.wait_for(...)
+function spin.wait(...)
     local conds = {...}
-    for i, cond in ipairs(conds) do
-        if cond(kind, name) then
-            return true
+    coroutine.yield(function(kind, msg)
+        for i, cond in ipairs(conds) do
+            if cond(kind, msg) then
+                return true
+            end
         end
-    end
-    return false
+        return false
+    end)
 end
 
-function spin.any(name)
+function spin.for_any(name)
     must_have("name", name)
-    coroutine.yield(function (kind)
+    coroutine.yield(function(kind)
         return kind == name
     end)
 end
 
-function spin.switch(name, active)
+function spin.for_switch(name, active)
     must_have("name", name)
     if active == nil then
         active = true
@@ -211,6 +224,14 @@ function spin.fault(message)
         kind = 'fault',
         message = message,
     }})
+end
+
+function spin.credits_required()
+    table.insert(queue, "credits_required")
+end
+
+function spin.game_full()
+    table.insert(queue, "game_full")
 end
 
 function spin.halt()

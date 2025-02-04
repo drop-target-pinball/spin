@@ -101,6 +101,17 @@ pub struct Note {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Player {
+    pub num: u8,
+}
+
+impl fmt::Display for Player {
+    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+        write!(f, "num={}", self.num)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SwitchEvent {
     pub name: String,
     pub active: bool,
@@ -140,6 +151,9 @@ impl fmt::Display for VarChanged {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum Message {
+    CreditsRequired,
+    GameFull,
+    GameStarted,
     Halt,
     Init,
     Kill(Name),
@@ -147,6 +161,7 @@ pub enum Message {
     Note(Note),
     MusicEnded(Name),
     Nop,
+    PlayerAdded(Player),
     PlayMusic(PlayMusic),
     PlaySound(PlaySound),
     PlayVocal(PlayVocal),
@@ -167,6 +182,9 @@ pub enum Message {
 impl fmt::Display for Message {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
         match &self {
+            Message::CreditsRequired => write!(f, "credits_required"),
+            Message::GameFull => write!(f, "game_full"),
+            Message::GameStarted => write!(f, "game_started"),
             Message::Halt => write!(f, "halt"),
             Message::Init => write!(f, "init"),
             Message::Kill(m) => write!(f, "kill: {}", m),
@@ -181,6 +199,7 @@ impl fmt::Display for Message {
             }
             Message::Nop => Ok(()),
             Message::MusicEnded(m) => write!(f, "music_ended: {}", m),
+            Message::PlayerAdded(m) => write!(f, "player_added: {}", m),
             Message::PlayMusic(m) => write!(f, "play_music: {}", m),
             Message::PlaySound(m) => write!(f, "play_sound: {}", m),
             Message::PlayVocal(m) => write!(f, "play_vocal: {}", m),

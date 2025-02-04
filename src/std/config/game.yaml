@@ -1,0 +1,4 @@
+vars:
+  - { name: credits, kind: !int 0 }
+  - { name: free_play, kind: !bool false }
+  - { name: game_on, kind: !bool false }
