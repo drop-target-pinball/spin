@@ -22,6 +22,8 @@ I already have a working version written in Go in the
 I do need to learn some Rust. And while we are at it, why not change the
 game logic to use Lua? This branch is the result of that work.
 
+Click here for the [Judge Dredd](https://github.com/drop-target-pinball/judge-dredd) game implementation in progress.
+
 ## Older Demos
 
 Demos from the earlier version. Newer demos on the way!
