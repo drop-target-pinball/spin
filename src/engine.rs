@@ -87,12 +87,16 @@ impl Engine<'_> {
         self.process_queue(elapsed);
     }
 
-    pub fn run(&mut self) {
+    pub fn run(&mut self, init_script: Option<String>) {
         let run_start = time::Instant::now();
         let rate = Duration::from_micros(16670);
 
         self.init();
 
+        if let Some(init) = init_script {
+            let msg = Name{name: init};
+            self.queue.post(Message::Run(msg));
+        }
         // FIXME: Add in control-c handler for release mode
         // let running = Arc::new(AtomicBool::new(true));
         // let running_2 = running.clone();
@@ -145,7 +149,7 @@ impl Engine<'_> {
                     }
                     match &msg {
                         Message::Note(n) => {
-                            if n.kind == NoteKind::Fault {
+                            if env.conf.is_release() && n.kind == NoteKind::Fault {
                                 self.shutdown = true
                             }
                         }

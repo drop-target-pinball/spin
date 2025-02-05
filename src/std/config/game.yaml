@@ -4,6 +4,8 @@ vars:
   - { name: game_active, kind: !bool false }
 
 scripts:
-  - { name: "start_game", module: "game" }
-  - { name: "start_service", module: "game" }
-  - { name: "add_player", module: "game" }
+  std_start_game:     { module: "std_game" }
+  std_start_service:  { module: "std_game" }
+  std_add_player:     { module: "std_game" }
+
+

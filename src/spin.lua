@@ -14,13 +14,13 @@ local function halt()
 end
 
 local function init()
-    for i, def in ipairs(spin.conf.scripts) do
+    for name, def in pairs(spin.conf.scripts) do
         local mod = require(def.module)
         if type(mod) ~= "table" then
             error("module '" .. def.module .. "' did not return a table")
         end
-        script_defs[def.name] = def
-        scripts[def.name] = mod[def.name]
+        script_defs[name] = def
+        scripts[name] = mod[name]
     end
 end
 
@@ -146,6 +146,16 @@ local function copy_opts(src, dest, ...)
     end
 end
 
+-------------------------------------------------------------------------------
+local function extract_var(msg)
+    local kind, value
+    for k, v in pairs(msg.value) do
+        kind = k
+        value = v
+    end
+    return msg.name, kind, value
+end
+
 function spin.bool(name)
     must_have('name', name)
     local v = spin.vars[name]
@@ -202,6 +212,19 @@ function spin.for_switch(name, active)
     end
     return function (kind, msg)
         return kind == "switch_updated" and msg.name == name and msg.active == active
+    end
+end
+
+function spin.for_eq(name, value)
+    must_have("name", name)
+    must_have("value", value)
+    return function (kind, msg)
+        if kind == "updated" then
+            local var_name, _, var_value = extract_var(msg)
+            return var_name == name and var_value == value
+        else
+            return false
+        end
     end
 end
 

@@ -29,10 +29,10 @@ pub fn main() -> ExitCode {
     for v in conf.sounds  { add(&mut ids, v.name) }
     for v in conf.vocals  { add(&mut ids, v.name) }
 
-    for v in conf.scripts {
-        add(&mut ids, v.name);
-        if !v.group.is_empty() {
-            add(&mut ids, v.group);
+    for (name, s) in conf.scripts {
+        add(&mut ids, name);
+        if !s.group.is_empty() {
+            add(&mut ids, s.group);
         }
     }
 

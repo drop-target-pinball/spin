@@ -142,13 +142,13 @@ impl fmt::Display for Vars {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Updated {
     pub name: String,
-    pub prev: vars::Value,
-    pub this: vars::Value,
+    pub was: vars::Value,
+    pub value: vars::Value,
 }
 
 impl fmt::Display for Updated {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
-        write!(f, "{}={} (was={})", self.name, self.this, self.prev)
+        write!(f, "{}={} (was={})", self.name, self.value, self.was)
     }
 }
 

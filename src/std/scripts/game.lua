@@ -24,7 +24,7 @@ local function accept_payment()
     return true
 end
 
-function pub.start_service()
+function pub.std_start_service()
     while true do
         spin.wait(spin.for_switch(std.START_BUTTON))
         if assert_open_spot() and accept_payment() then
@@ -37,7 +37,7 @@ function pub.start_service()
     end
 end
 
-function pub.start_game()
+function pub.std_start_game()
     spin.set_multi({
         [std.PLAYER_COUNT] = 1,
         [std.PLAYER] = 1,
@@ -45,7 +45,7 @@ function pub.start_game()
     })
 end
 
-function pub.add_player()
+function pub.std_add_player()
     if not assert_open_spot() then
         return
     end
@@ -53,7 +53,7 @@ function pub.add_player()
     spin.set(std.PLAYER_COUNT, new_count)
 end
 
-package.loaded["game"] = pub
+package.loaded["std_game"] = pub
 
 return pub
 

@@ -46,8 +46,8 @@ pub type Vars = HashMap<String, Value>;
 fn update(env: &mut Env, name: &str, prev: Value, this: &Value) {
     let msg = Updated{
         name: name.to_string(),
-        prev,
-        this: this.clone()
+        was: prev,
+        value: this.clone()
     };
 
     env.vars.insert(name.to_string(), this.clone());

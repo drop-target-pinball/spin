@@ -42,7 +42,6 @@ pub struct Music {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Script {
-    pub name: String,
     pub module: String,
     #[serde(default)]
     pub group: String,
@@ -144,7 +143,7 @@ pub struct App {
     #[serde(default)]
     pub namespaces: HashMap<String, Vec<Var>>,
     #[serde(default)]
-    pub scripts: Vec<Script>,
+    pub scripts: HashMap<String, Script>,
     #[serde(default)]
     pub sounds: Vec<Sound>,
     #[serde(default)]
@@ -153,9 +152,6 @@ pub struct App {
     pub vocals: Vec<Vocal>,
     #[serde(default)]
     pub vars: Vec<Var>,
-
-    #[serde(default)]
-    pub foobars: HashMap<String, String>,
 }
 
 impl App {
@@ -190,7 +186,7 @@ pub fn load(app_dir: &Path) -> Result<App> {
 
     let mut builder = Figment::new();
     for file in files {
-        builder = builder.merge(Yaml::file(&file));
+        builder = builder.admerge(Yaml::file(&file));
     }
 
     let config: App = match builder.extract() {
@@ -219,7 +215,6 @@ pub fn load(app_dir: &Path) -> Result<App> {
     config.data_dir = data_dir;
     config.scripts_dir = scripts_dir;
 
-    //config.namespaces = merge(config.namespaces, |n| { &n.name });
     Ok(config)
 }
 

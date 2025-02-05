@@ -6,22 +6,18 @@ use spin::prelude::*;
 #[derive(Parser)]
 struct Cli {
     #[arg(short, long)]
+    /// testing mode - enable hardware devices
     test: bool,
 
     #[arg(short, long)]
-    release: bool
+    /// release mode - headless and panic on fault
+    release: bool,
+
+    /// run this script at startup
+    run_script: Option<String>
 }
 
 pub fn main() -> ExitCode  {
-    // let v = config::Var{
-    //     name: "test".to_string(),
-    //     value: Value::Int(0),
-    //     kind: config::VarKind::Int{default: 0},
-    // };
-    // let x = serde_yml::to_string(&v).unwrap();
-    // println!("{}", x);
-    // return ExitCode::SUCCESS;
-
     let cli = Cli::parse();
 
     let mode = if cli.release {
@@ -60,7 +56,7 @@ pub fn main() -> ExitCode  {
     }
 
     info!(e.queue(), "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());
-    e.run();
+    e.run(cli.run_script);
     println!();
 
     let tos = termios::Termios::from_fd(0).unwrap();
