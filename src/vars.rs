@@ -44,14 +44,14 @@ pub type Namespaces = HashMap<String, Vec<config::Var>>;
 pub type Vars = HashMap<String, Value>;
 
 fn update(env: &mut Env, name: &str, prev: Value, this: &Value) {
-    let msg = VarChanged{
+    let msg = Updated{
         name: name.to_string(),
         prev,
         this: this.clone()
     };
 
     env.vars.insert(name.to_string(), this.clone());
-    env.queue.post(Message::VarChanged(msg));
+    env.queue.post(Message::Updated(msg));
 }
 
 pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, Vec<config::Var>>, name: &str, kind: &config::VarKind) {

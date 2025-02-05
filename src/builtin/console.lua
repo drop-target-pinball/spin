@@ -1,4 +1,5 @@
-local spin = require('spin')
+local spin = require("spin")
+local std = require("std")
 
 alert = spin.alert
 fault = spin.fault
@@ -14,8 +15,20 @@ silence = spin.silence
 stop_music = spin.stop_music
 stop_vocal = spin.stop_vocal
 
+function credit(num)
+    if num == nil then
+        num = 1
+    end
+    local credits = spin.int(std.CREDITS)
+    spin.set(std.CREDITS, credits + num)
+end
+
 function press(name)
-    spin.switch_event(name)
-    spin.switch_event(name, false)
+    spin.switch_updated(name)
+    spin.switch_updated(name, false)
+end
+
+function start()
+    press(std.START_BUTTON)
 end
 

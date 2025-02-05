@@ -5,12 +5,12 @@ spin = {
 
 local script_defs = {}
 local scripts = {}
-local running = {}
+local alive = {}
 local queue = {}
 
 -------------------------------------------------------------------------------
 local function halt()
-    running = {}
+    alive = {}
 end
 
 local function init()
@@ -25,10 +25,10 @@ local function init()
 end
 
 local function kill(name)
-    if running[name] == nil then
+    if alive[name] == nil then
         return
     end
-    running[name] = nil
+    alive[name] = nil
 end
 
 local function kill_group(group)
@@ -55,22 +55,22 @@ local function run(name)
         end
     end
 
-    -- Create the coroutine and place it in the running table. Set the wait
+    -- Create the coroutine and place it in the alive table. Set the wait
     -- condition to ready so that it will execute on the next tick
     local co = coroutine.create(script)
-    running[name] = {
+    alive[name] = {
         co = co,
         can_resume = spin.ready
     }
 end
 
 local function service_coroutines(kind, msg)
-    for name, script in pairs(running) do
+    for name, script in pairs(alive) do
         if coroutine.status(script.co) == "dead" then
             table.insert(queue, { script_ended = {
                 name = name
             }})
-            running[name] = nil
+            alive[name] = nil
         else
             if script.can_resume(kind, msg) then
                 local running, result = coroutine.resume(script.co)
@@ -113,7 +113,7 @@ function spin.post(msg)
         run(body.name)
     end
 
-    service_coroutines(kind, msg)
+    service_coroutines(kind, body)
 
     if next(queue) == nil then
         return nil
@@ -148,18 +148,19 @@ end
 
 function spin.bool(name)
     must_have('name', name)
-    return spin.vars[name]["bool"]
+    local v = spin.vars[name]
+    if v == nil then
+        error("undefined: " .. name)
+    end
+    if v["bool"] == nil then
+        error("not a bool: " .. name)
+    end
+    return v["bool"]
 end
 
 function spin.int(name)
     must_have('name', name)
     return spin.vars[name]["int"]
-end
-
-function spin.set_int(name, value)
-    must_have('name', name)
-    must_have('value', value)
-    spin.vars[name]["int"] = value
 end
 
 -------------------------------------------------------------------------------
@@ -189,9 +190,9 @@ end
 
 function spin.for_any(name)
     must_have("name", name)
-    coroutine.yield(function(kind)
+    return function(kind)
         return kind == name
-    end)
+    end
 end
 
 function spin.for_switch(name, active)
@@ -199,9 +200,9 @@ function spin.for_switch(name, active)
     if active == nil then
         active = true
     end
-    coroutine.yield(function (kind, msg)
-        return kind == 'switch_event' and msg.name == name and msg.active == active
-    end)
+    return function (kind, msg)
+        return kind == "switch_updated" and msg.name == name and msg.active == active
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -226,14 +227,7 @@ function spin.fault(message)
     }})
 end
 
-function spin.credits_required()
-    table.insert(queue, "credits_required")
-end
-
-function spin.game_full()
-    table.insert(queue, "game_full")
-end
-
+-------------------------------------------------------------------------------
 function spin.halt()
     table.insert(queue, "halt")
 end
@@ -296,6 +290,11 @@ function spin.play_vocal(name, opts)
     table.insert(queue, { play_vocal = msg })
 end
 
+function spin.rejected(reason)
+    must_have("reason", reason);
+    table.insert(queue, { rejected = {reason=reason}})
+end
+
 function spin.run(name)
     must_have("name", name);
     table.insert(queue, { run = {
@@ -303,27 +302,40 @@ function spin.run(name)
     }})
 end
 
-function spin.set_var(name, value)
+local function set_nv(name, value)
     must_have('name', name)
     must_have('value', value)
-    msg = {
-        name = name,
-        value = {},
-    }
+
     if type(value) == "number" then
         if tonumber(tostring(value), 10) then
-            msg.value = { int = value }
+            return { int = value }
         else
-            msg.value = { float = value }
+            return { float = value }
         end
     elseif type(value) == "boolean" then
-        msg.value = { bool = value }
+        return { bool = value }
     elseif type(value) == "string" then
-        msg.value = { string = value }
-    else
-        error("unsupported type: " .. value)
+        return { string = value }
     end
-    table.insert(queue, { set_var = msg })
+
+    error("unsupported type: " .. value)
+end
+
+function spin.set(name, value)
+    table.insert(queue, { set = {
+        vars = {
+            [name] = set_nv(name, value)
+        }
+    }})
+end
+
+function spin.set_multi(vars)
+    must_have("vars", vars)
+    local msg = {}
+    for name, value in pairs(vars) do
+        msg[name] = set_nv(name, value)
+    end
+    table.insert(queue, { set = {vars=msg} })
 end
 
 function spin.silence()
@@ -348,12 +360,12 @@ function spin.stop_vocal(name)
     }})
 end
 
-function spin.switch_event(name, active)
+function spin.switch_updated(name, active)
     must_have("name", name)
     if active == nil then
         active = true
     end
-    table.insert(queue, {switch_event = {name=name, active=active}})
+    table.insert(queue, {switch_updated = {name=name, active=active}})
 end
 
 package.loaded["spin"] = spin

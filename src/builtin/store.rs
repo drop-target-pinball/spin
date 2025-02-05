@@ -15,8 +15,10 @@ impl Store {
         }
     }
 
-    fn set_var(&self, env: &mut Env, msg: &Var) {
-        vars::set(env, &msg.name, &msg.value);
+    fn set(&self, env: &mut Env, msg: &Vars) {
+        for (name, value) in &msg.vars {
+            vars::set(env, &name, &value);
+        }
     }
 }
 
@@ -24,7 +26,7 @@ impl Device for Store {
     fn process(&mut self, env: &mut Env, msg: &Message) {
         match msg {
             Message::Init => self.init(env),
-            Message::SetVar(m) => self.set_var(env, m),
+            Message::Set(m) => self.set(env, m),
             _ => (),
         }
     }

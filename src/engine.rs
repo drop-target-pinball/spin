@@ -145,7 +145,7 @@ impl Engine<'_> {
                     }
                     match &msg {
                         Message::Note(n) => {
-                            if env.conf.is_release() && n.kind == NoteKind::Fault {
+                            if n.kind == NoteKind::Fault {
                                 self.shutdown = true
                             }
                         }

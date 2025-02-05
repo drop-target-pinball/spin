@@ -6,3 +6,6 @@ namespaces:
     - { name: total_extra_balls_awarded, kind: !int 0 }
     - { name: replay_awarded, kind: !bool false }
 
+vars:
+  - { name: player, kind: !int 0 }
+  - { name: player_count, kind: !int 0 }

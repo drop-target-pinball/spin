@@ -4,9 +4,11 @@ use std::env;
 use std::sync::{Arc, Mutex};
 use mlua::prelude::*;
 
-static SCRIPTS: [(&str, &[u8]); 2] = [
+static SCRIPTS: [(&str, &[u8]); 4] = [
     ("spin.lua", include_bytes!("spin.lua")),
-    ("message.lua", include_bytes!("message.lua"))
+    ("std.lua", include_bytes!("std.lua")),
+    ("message.lua", include_bytes!("message.lua")),
+    ("game.lua", include_bytes!("std/scripts/game.lua")),
 ];
 
 pub struct Env {

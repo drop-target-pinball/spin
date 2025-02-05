@@ -3,6 +3,7 @@ use crate::prelude::*;
 use serde::{Serialize, Deserialize};
 use std::sync::mpsc::Sender;
 use std::fmt;
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Copy, Clone)]
 #[serde(rename_all = "snake_case")]
@@ -101,59 +102,59 @@ pub struct Note {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Player {
-    pub num: u8,
+pub struct Rejected {
+    pub reason: String,
 }
 
-impl fmt::Display for Player {
+impl fmt::Display for Rejected {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
-        write!(f, "num={}", self.num)
+        write!(f, "{}", self.reason)
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SwitchEvent {
+pub struct SwitchUpdated {
     pub name: String,
     pub active: bool,
 }
 
-impl fmt::Display for SwitchEvent {
+impl fmt::Display for SwitchUpdated {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
         write!(f, "{} active={}", self.name, self.active)
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Var {
-    pub name: String,
-    pub value: vars::Value,
+pub struct Vars {
+    pub vars: HashMap<String, vars::Value>
 }
 
-impl fmt::Display for Var {
+impl fmt::Display for Vars {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
-        write!(f, "{}={}", self.name, self.value)
+        for (name, val) in &self.vars {
+            write!(f, " {}={}", name, val)?;
+        }
+        Ok(())
     }
 }
 
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct VarChanged {
+pub struct Updated {
     pub name: String,
     pub prev: vars::Value,
     pub this: vars::Value,
 }
 
-impl fmt::Display for VarChanged {
+impl fmt::Display for Updated {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
-        write!(f, "{} prev={}, this={}", self.name, self.prev, self.this)
+        write!(f, "{}={} (was={})", self.name, self.this, self.prev)
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum Message {
-    CreditsRequired,
-    GameFull,
-    GameStarted,
     Halt,
     Init,
     Kill(Name),
@@ -161,30 +162,27 @@ pub enum Message {
     Note(Note),
     MusicEnded(Name),
     Nop,
-    PlayerAdded(Player),
     PlayMusic(PlayMusic),
     PlaySound(PlaySound),
     PlayVocal(PlayVocal),
+    Rejected(Rejected),
     ScriptEnded(Name),
-    SetVar(Var),
+    Set(Vars),
     Shutdown,
     Silence,
     SoundEnded(Name),
     StopMusic(Name),
     StopVocal(Name),
-    SwitchEvent(SwitchEvent),
+    SwitchUpdated(SwitchUpdated),
     Run(Name),
     Tick,
-    VarChanged(VarChanged),
+    Updated(Updated),
     VocalEnded(Name),
 }
 
 impl fmt::Display for Message {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
         match &self {
-            Message::CreditsRequired => write!(f, "credits_required"),
-            Message::GameFull => write!(f, "game_full"),
-            Message::GameStarted => write!(f, "game_started"),
             Message::Halt => write!(f, "halt"),
             Message::Init => write!(f, "init"),
             Message::Kill(m) => write!(f, "kill: {}", m),
@@ -199,21 +197,21 @@ impl fmt::Display for Message {
             }
             Message::Nop => Ok(()),
             Message::MusicEnded(m) => write!(f, "music_ended: {}", m),
-            Message::PlayerAdded(m) => write!(f, "player_added: {}", m),
             Message::PlayMusic(m) => write!(f, "play_music: {}", m),
             Message::PlaySound(m) => write!(f, "play_sound: {}", m),
             Message::PlayVocal(m) => write!(f, "play_vocal: {}", m),
+            Message::Rejected(m) => write!(f, "rejected: {}", m),
             Message::ScriptEnded(m) => write!(f, "script_ended: {}", m),
-            Message::SetVar(m) => write!(f, "set_var: {}", m),
+            Message::Set(m) => write!(f, "set:{}", m),
             Message::Run(m) => write!(f, "run: {}", m),
             Message::Shutdown => write!(f, "shutdown"),
             Message::Silence => write!(f, "silence"),
             Message::SoundEnded(m) => write!(f, "sound_ended: {}", m),
             Message::StopMusic(m) => write!(f, "stop_music: {}", m),
             Message::StopVocal(m) => write!(f, "stop_vocal: {}", m),
-            Message::SwitchEvent(m) => write!(f, "switch_event: {}", m),
+            Message::SwitchUpdated(m) => write!(f, "switch_updated: {}", m),
             Message::Tick => Ok(()),
-            Message::VarChanged(m) => write!(f, "var_changed: {}", m),
+            Message::Updated(m) => write!(f, "updated: {}", m),
             Message::VocalEnded(m) => write!(f, "vocal_ended: {}", m),
         }
     }

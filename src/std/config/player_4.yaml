@@ -1,7 +1,5 @@
 vars:
   - { name: max_players, kind: !int 4 }
-  - { name: player, kind: !string player1 }
-  - { name: player_num, kind: !int 1 }
 
   - { name: player1, kind: !namespace { name: player } }
   - { name: player2, kind: !namespace { name: player } }

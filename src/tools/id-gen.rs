@@ -19,14 +19,20 @@ pub fn main() -> ExitCode {
 
     let mut ids: Vec<String> = Vec::new();
 
-    for v in conf.music   { ids.push(v.name) }
-    for v in conf.sounds  { ids.push(v.name) }
-    for v in conf.vocals  { ids.push(v.name) }
+    let add = |ids: &mut Vec<String>, name: String| {
+        let name = name.trim().to_owned();
+        assert!(!name.is_empty());
+        ids.push(name);
+    };
+
+    for v in conf.music   { add(&mut ids, v.name) }
+    for v in conf.sounds  { add(&mut ids, v.name) }
+    for v in conf.vocals  { add(&mut ids, v.name) }
 
     for v in conf.scripts {
-        ids.push(v.name);
-        if v.group.is_empty() {
-            ids.push(v.group);
+        add(&mut ids, v.name);
+        if !v.group.is_empty() {
+            add(&mut ids, v.group);
         }
     }
 
