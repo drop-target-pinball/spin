@@ -1,8 +1,0 @@
-sounds:
-  - name: foo
-    path: swing.ogg
-
-scripts:
-  - name: hello
-    module: hello
-    call: hello
