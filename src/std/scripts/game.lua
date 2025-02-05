@@ -14,21 +14,19 @@ end
 local function accept_payment()
     if spin.bool(std.FREE_PLAY) then
         return true
-    else
-        local credits = spin.int(std.CREDITS)
-        if credits == 0 then
-            spin.rejected(std.CREDITS_REQUIRED)
-            return false
-        end
-        spin.set(std.CREDITS, credits - 1)
-        return true
     end
+    local credits = spin.int(std.CREDITS)
+    if credits == 0 then
+        spin.rejected(std.CREDITS_REQUIRED)
+        return false
+    end
+    spin.set(std.CREDITS, credits - 1)
+    return true
 end
 
 function pub.start_service()
     while true do
         spin.wait(spin.for_switch(std.START_BUTTON))
-
         if assert_open_spot() and accept_payment() then
             if spin.bool(std.GAME_ACTIVE) then
                 spin.run(std.ADD_PLAYER)
@@ -48,14 +46,11 @@ function pub.start_game()
 end
 
 function pub.add_player()
-    local player_count = spin.int(std.PLAYER_COUNT)
-    if player_count >= spin.int(std.MAX_PLAYERS) then
-        spin.rejected(std.GAME_FULL)
+    if not assert_open_spot() then
         return
     end
-
-    player_count = player_count + 1
-    spin.set(std.PLAYER_COUNT, player_count)
+    local new_count = spin.int(std.PLAYER_COUNT) + 1
+    spin.set(std.PLAYER_COUNT, new_count)
 end
 
 package.loaded["game"] = pub

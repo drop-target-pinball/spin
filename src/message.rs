@@ -131,13 +131,13 @@ pub struct Vars {
 
 impl fmt::Display for Vars {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+        let mut nvs: Vec<String> = Vec::new();
         for (name, val) in &self.vars {
-            write!(f, " {}={}", name, val)?;
+            nvs.push(format!("{}={}", name, val));
         }
-        Ok(())
+        write!(f, "{}", nvs.join(", "))
     }
 }
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Updated {
@@ -202,7 +202,7 @@ impl fmt::Display for Message {
             Message::PlayVocal(m) => write!(f, "play_vocal: {}", m),
             Message::Rejected(m) => write!(f, "rejected: {}", m),
             Message::ScriptEnded(m) => write!(f, "script_ended: {}", m),
-            Message::Set(m) => write!(f, "set:{}", m),
+            Message::Set(m) => write!(f, "set: {}", m),
             Message::Run(m) => write!(f, "run: {}", m),
             Message::Shutdown => write!(f, "shutdown"),
             Message::Silence => write!(f, "silence"),
