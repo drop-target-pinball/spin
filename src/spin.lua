@@ -1,4 +1,4 @@
-spin = {
+local pub = {
     conf = {},
     vars = {},
 }
@@ -14,7 +14,7 @@ local function halt()
 end
 
 local function init()
-    for name, def in pairs(spin.conf.scripts) do
+    for name, def in pairs(pub.conf.scripts) do
         local mod = require(def.module)
         if type(mod) ~= "table" then
             error("module '" .. def.module .. "' did not return a table")
@@ -32,9 +32,9 @@ local function kill(name)
 end
 
 local function kill_group(group)
-    for i, def in ipairs(spin.conf.scripts) do
+    for name, def in pairs(pub.conf.scripts) do
         if def.group == group then
-            kill(def.name)
+            kill(name)
         end
     end
 end
@@ -48,9 +48,9 @@ local function run(name)
     -- See if this script, when run, replaces all scripts in the group
     local this_def = script_defs[name]
     if this_def.replace and this_def.group ~= "" then
-        for i, def in ipairs(spin.conf.scripts) do
+        for name, def in pairs(pub.conf.scripts) do
             if def.group == this_def.group then
-                kill(def.name)
+                kill(name)
             end
         end
     end
@@ -60,7 +60,7 @@ local function run(name)
     local co = coroutine.create(script)
     alive[name] = {
         co = co,
-        can_resume = spin.ready
+        can_resume = pub.ready
     }
 end
 
@@ -85,7 +85,7 @@ local function service_coroutines(kind, msg)
     end
 end
 
-function spin.post(msg)
+function pub.post(msg)
     local kind = ""
     local body = nil
     if type(msg) == "string" then
@@ -156,9 +156,9 @@ local function extract_var(msg)
     return msg.name, kind, value
 end
 
-function spin.bool(name)
+function pub.bool(name)
     must_have('name', name)
-    local v = spin.vars[name]
+    local v = pub.vars[name]
     if v == nil then
         error("undefined: " .. name)
     end
@@ -168,25 +168,25 @@ function spin.bool(name)
     return v["bool"]
 end
 
-function spin.int(name)
+function pub.int(name)
     must_have('name', name)
-    return spin.vars[name]["int"]
+    return pub.vars[name]["int"]
 end
 
 -------------------------------------------------------------------------------
-function spin.ready()
+function pub.ready()
     return true
 end
 
-function spin.sleep(secs)
+function pub.sleep(secs)
     local millis = secs * 1000
-    local wake_at = spin.int('elapsed') + millis
+    local wake_at = pub.int('elapsed') + millis
     coroutine.yield(function ()
-        return spin.int('elapsed') >= wake_at
+        return pub.int('elapsed') >= wake_at
     end)
 end
 
-function spin.wait(...)
+function pub.wait(...)
     local conds = {...}
     coroutine.yield(function(kind, msg)
         for i, cond in ipairs(conds) do
@@ -198,14 +198,14 @@ function spin.wait(...)
     end)
 end
 
-function spin.for_any(name)
+function pub.for_any(name)
     must_have("name", name)
     return function(kind)
         return kind == name
     end
 end
 
-function spin.for_switch(name, active)
+function pub.for_switch(name, active)
     must_have("name", name)
     if active == nil then
         active = true
@@ -215,7 +215,7 @@ function spin.for_switch(name, active)
     end
 end
 
-function spin.for_eq(name, value)
+function pub.for_eq(name, value)
     must_have("name", name)
     must_have("value", value)
     return function (kind, msg)
@@ -229,21 +229,21 @@ function spin.for_eq(name, value)
 end
 
 -------------------------------------------------------------------------------
-function spin.alert(message)
+function pub.alert(message)
     table.insert(queue, { note = {
         kind = 'alert',
         message = message,
     }})
 end
 
-function spin.diag(message)
+function pub.diag(message)
     table.insert(queue, { note = {
         kind = 'diag',
         message = message,
     }})
 end
 
-function spin.fault(message)
+function pub.fault(message)
     table.insert(queue, { note = {
         kind = 'fault',
         message = message,
@@ -251,32 +251,32 @@ function spin.fault(message)
 end
 
 -------------------------------------------------------------------------------
-function spin.halt()
+function pub.halt()
     table.insert(queue, "halt")
 end
 
-function spin.kill(name)
+function pub.kill(name)
     if name == nil then
         error('name is required')
     end
     table.insert(queue, { kill = { name = name } })
 end
 
-function spin.kill_group(name)
+function pub.kill_group(name)
     if name == nil then
         error('name is required')
     end
     table.insert(queue, { kill_group = { name = name } })
 end
 
-function spin.info(message)
+function pub.info(message)
     table.insert(queue, { note = {
         kind = 'info',
         message = message,
     }})
 end
 
-function spin.play_music(name, opts)
+function pub.play_music(name, opts)
     if name == nil then
         error("name is required")
     end
@@ -291,7 +291,7 @@ function spin.play_music(name, opts)
     table.insert(queue, { play_music = msg })
 end
 
-function spin.play_sound(name, opts)
+function pub.play_sound(name, opts)
     must_have("name", name)
     local msg = { name = name }
     copy_opts(opts, msg,
@@ -301,7 +301,7 @@ function spin.play_sound(name, opts)
     table.insert(queue, { play_sound = msg })
 end
 
-function spin.play_vocal(name, opts)
+function pub.play_vocal(name, opts)
     if name == nil then
         error("name is required")
     end
@@ -313,12 +313,12 @@ function spin.play_vocal(name, opts)
     table.insert(queue, { play_vocal = msg })
 end
 
-function spin.rejected(reason)
+function pub.rejected(reason)
     must_have("reason", reason);
     table.insert(queue, { rejected = {reason=reason}})
 end
 
-function spin.run(name)
+function pub.run(name)
     must_have("name", name);
     table.insert(queue, { run = {
         name = name
@@ -344,7 +344,7 @@ local function set_nv(name, value)
     error("unsupported type: " .. value)
 end
 
-function spin.set(name, value)
+function pub.set(name, value)
     table.insert(queue, { set = {
         vars = {
             [name] = set_nv(name, value)
@@ -352,7 +352,7 @@ function spin.set(name, value)
     }})
 end
 
-function spin.set_multi(vars)
+function pub.set_multi(vars)
     must_have("vars", vars)
     local msg = {}
     for name, value in pairs(vars) do
@@ -361,11 +361,11 @@ function spin.set_multi(vars)
     table.insert(queue, { set = {vars=msg} })
 end
 
-function spin.silence()
+function pub.silence()
     table.insert(queue, "silence")
 end
 
-function spin.stop_music(name)
+function pub.stop_music(name)
     if name == nil then
         name = ""
     end
@@ -374,7 +374,7 @@ function spin.stop_music(name)
     }})
 end
 
-function spin.stop_vocal(name)
+function pub.stop_vocal(name)
     if name == nil then
         name = ""
     end
@@ -383,7 +383,7 @@ function spin.stop_vocal(name)
     }})
 end
 
-function spin.switch_updated(name, active)
+function pub.switch_updated(name, active)
     must_have("name", name)
     if active == nil then
         active = true
@@ -391,5 +391,7 @@ function spin.switch_updated(name, active)
     table.insert(queue, {switch_updated = {name=name, active=active}})
 end
 
-package.loaded["spin"] = spin
+package.loaded["spin"] = pub
+spin = pub
 
+return pub

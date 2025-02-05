@@ -89,7 +89,10 @@ impl Audio<'_> {
         }
 
         let mut channels: Vec<Option<ActiveAudio>> = Vec::new();
-        for _ in 0..opt.channels {
+        // FIXME: Number of channels should be configurable
+        let num_channels = 5;
+        sdl2::mixer::allocate_channels(num_channels);
+        for _ in 0..num_channels {
             channels.push(None);
         }
 

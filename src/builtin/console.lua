@@ -6,6 +6,7 @@ fault = spin.fault
 halt = spin.halt
 info = spin.info
 kill = spin.kill
+kill_group = spin.kill_group
 play_music = spin.play_music
 play_sound = spin.play_sound
 play_vocal = spin.play_vocal
