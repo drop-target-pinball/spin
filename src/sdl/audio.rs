@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+use serde::{Serialize, Deserialize};
 use sdl2;
 use sdl2::mixer;
 use sdl2::mixer::Channel;
@@ -7,7 +8,11 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 static MUSIC_FINISHED: AtomicBool = AtomicBool::new(false);
+
 const MAX_VOLUME: i32 = 128;
+const FREQUENCY: i32 = 44_100;
+const FORMAT: u16 = mixer::AUDIO_S16LSB;
+const CHUNK_SIZE: i32 = 1024;
 
 #[cfg(feature = "debug_audio")]
 macro_rules! debug_audio {
@@ -21,6 +26,23 @@ macro_rules! debug_audio {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Output {
+    #[default]
+    Mono,
+    Stereo,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct AudioConfig {
+    pub output: Output,
+    pub channels: i32,
+    pub with_mp3: bool,
+    pub with_ogg: bool,
+}
+
 struct ActiveAudio {
     name: String,
     chan: i32,
@@ -28,26 +50,6 @@ struct ActiveAudio {
     start_time: i64,
     priority: i32,
     notify: bool,
-}
-
-pub struct AudioOptions {
-    pub freq: i32,
-    pub format: u16,
-    pub channels: i32,
-    pub chunk_size: i32,
-    pub flags: mixer::InitFlag,
-}
-
-impl Default for AudioOptions {
-    fn default()-> Self {
-        Self {
-            freq: 44_100,
-            format: mixer::AUDIO_S16LSB,
-            channels: mixer::DEFAULT_CHANNELS,
-            chunk_size: 1_024,
-            flags: mixer::InitFlag::MP3 | mixer::InitFlag::OGG,
-        }
-    }
 }
 
 struct Sound {
@@ -61,7 +63,6 @@ struct Vocal {
 }
 
 pub struct Audio<'a> {
-    id: u8,
     music: HashMap<String,mixer::Music<'a>>,
     sounds: HashMap<String,Sound>,
     vocals: HashMap<String,Vocal>,
@@ -72,7 +73,7 @@ pub struct Audio<'a> {
 }
 
 impl Audio<'_> {
-    pub fn new(ctx: &sdl2::Sdl, id: u8, opt: AudioOptions) -> Self {
+    pub fn new(ctx: &sdl2::Sdl, conf: &AudioConfig) -> Self {
         let audio = match ctx.audio() {
             Ok(a) => a,
             Err(reason) => {
@@ -80,24 +81,36 @@ impl Audio<'_> {
             }
         };
 
-        if let Err(reason) = mixer::open_audio(opt.freq, opt.format, opt.channels, opt.chunk_size) {
+        let output_chans = match conf.output {
+            Output::Mono => 1,
+            Output::Stereo => 2
+        };
+
+        if let Err(reason) = mixer::open_audio(FREQUENCY, FORMAT, output_chans, CHUNK_SIZE) {
             panic!("unable to open mixer: {}", reason);
         }
 
-        if let Err(reason) = mixer::init(opt.flags) {
+        let mut flags = mixer::InitFlag::empty();
+        if conf.with_mp3 {
+            flags |= mixer::InitFlag::MP3;
+        }
+        if conf.with_ogg {
+            flags |= mixer::InitFlag::OGG;
+        }
+        if let Err(reason) = mixer::init(flags) {
             panic!("unable to initialize mixer: {}", reason);
         }
 
+        // Config specifies the number of sound channels only. Another one
+        // is then reserved for vocals hence the plus 1.
+        let sound_chans = conf.channels + 1;
         let mut channels: Vec<Option<ActiveAudio>> = Vec::new();
-        // FIXME: Number of channels should be configurable
-        let num_channels = 5;
-        sdl2::mixer::allocate_channels(num_channels);
-        for _ in 0..num_channels {
+        sdl2::mixer::allocate_channels(sound_chans);
+        for _ in 0..sound_chans {
             channels.push(None);
         }
 
         Self {
-            id,
             music: HashMap::new(),
             sounds: HashMap::new(),
             vocals: HashMap::new(),
@@ -220,9 +233,6 @@ impl Audio<'_> {
 
     fn init(&mut self, env: &mut Env) {
         for (name, music) in &env.conf.music {
-            if music.device_id != self.id {
-                continue
-            }
             let path = env.conf.data_dir.join(&music.path);
             match mixer::Music::from_file(&path) {
                 Err(e) => fault!(env.queue, "unable to load music '{}': {}", &name, &e),
@@ -233,9 +243,6 @@ impl Audio<'_> {
         }
 
         for (name, sound) in &env.conf.sounds {
-            if sound.device_id != self.id {
-                continue
-            }
             let path = env.conf.data_dir.join(&sound.path);
             match mixer::Chunk::from_file(&path) {
                 Err(e) => fault!(env.queue, "unable to load sound '{}': {}", &name, &e),
@@ -247,9 +254,6 @@ impl Audio<'_> {
         }
 
         for (name, vocal) in &env.conf.vocals {
-            if vocal.device_id != self.id {
-                continue
-            }
             let path = env.conf.data_dir.join(&vocal.path);
             match mixer::Chunk::from_file(&path) {
                 Err(e) => fault!(env.queue, "unable to load vocal '{}': {}", &name, &e),

@@ -38,9 +38,12 @@ pub fn main() -> ExitCode  {
 
     let mut e = Engine::new(&conf);
 
-    let dev_sdl = sdl::SdlDevice::default()
-        .with_audio(0,sdl::AudioOptions::default());
-    e.add_device(Box::new(dev_sdl));
+    #[cfg(feature = "sdl")] {
+        if let Some(sdl_conf) = &conf.sdl {
+            let device = crate::sdl::Device::new(sdl_conf);
+            e.add_device(Box::new(device));
+        }
+    }
 
     let store = builtin::Store::new();
     e.add_device(Box::new(store));
@@ -59,8 +62,10 @@ pub fn main() -> ExitCode  {
     e.run(cli.run_script);
     println!();
 
-    let tos = termios::Termios::from_fd(0).unwrap();
-    termios::tcsetattr(std::io::stdin().as_raw_fd(), termios::TCSADRAIN, &tos).unwrap();
+    if mode != config::RunMode::Release {
+        let tos = termios::Termios::from_fd(0).unwrap();
+        termios::tcsetattr(std::io::stdin().as_raw_fd(), termios::TCSADRAIN, &tos).unwrap();
+    }
 
     ExitCode::SUCCESS
 }

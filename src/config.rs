@@ -31,12 +31,29 @@ pub enum RunMode {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Renderer {
+    #[cfg(feature = "sdl")]
+    Sdl,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct Display {
+    pub renderer: Renderer,
+    pub width: u32,
+    pub height: u32,
+    pub layers: u32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Music {
     pub path: String,
     #[serde(default)]
     pub device_id: u8,
 }
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
@@ -63,14 +80,6 @@ pub struct Sound {
     pub debounce: f64,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct Std {
-    #[serde(default)]
-    pub config: Vec<String>,
-    #[serde(default)]
-    pub scripts: Vec<String>,
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
@@ -115,7 +124,11 @@ pub struct App {
     pub module_name: Option<String>,
 
     #[serde(default)]
+    pub displays: HashMap<String, Display>,
+    #[serde(default)]
     pub music: HashMap<String, Music>,
+    #[serde(default)]
+    pub renderers: Vec<Renderer>,
     #[serde(default)]
     pub namespaces: HashMap<String, HashMap<String, Var>>,
     #[serde(default)]
@@ -123,11 +136,15 @@ pub struct App {
     #[serde(default)]
     pub sounds: HashMap<String, Sound>,
     #[serde(default)]
-    pub std: Std,
+    pub std: Vec<String>,
     #[serde(default)]
     pub vocals: HashMap<String, Vocal>,
     #[serde(default)]
     pub vars: HashMap<String, Var>,
+
+    #[cfg(feature = "sdl")]
+    pub sdl: Option<crate::sdl::Config>,
+
 }
 
 impl App {
@@ -175,7 +192,7 @@ pub fn load(app_dir: &Path) -> Result<App> {
         std_config.insert(name, conf);
     }
 
-    for name in config.std.config {
+    for name in config.std {
         let Some(conf) = std_config.get(name.as_str()) else {
             return raise!(Error::Config, "no such standard library config: {}", name);
         };

@@ -7,15 +7,16 @@ use std::{
     time::{self, Duration},
 };
 use std::sync::Mutex;
+use std::collections::HashMap;
 
-pub struct Env<'e> {
-    pub conf: &'e config::App,
-    pub vars: &'e mut vars::Vars,
+pub struct Env<'a> {
+    pub conf: &'a config::App,
+    pub vars: &'a mut vars::Vars,
     pub queue: Queue,
 }
 
-impl<'e> Env<'e> {
-    pub fn new(conf: &'e config::App, vars: &'e mut vars::Vars, queue: Queue) -> Self {
+impl<'a> Env<'a> {
+    pub fn new(conf: &'a config::App, vars: &'a mut vars::Vars, queue: Queue) -> Self {
         Self { conf, vars, queue }
     }
 }
@@ -30,30 +31,40 @@ pub trait Device {
     fn process(&mut self, e: &mut Env, msg: &Message);
 }
 
-pub struct Engine<'e> {
+
+
+pub struct Engine<'a> {
     conf: config::App,
     vars_box: Arc<Mutex<vars::VarsBox>>,
     queue: Queue,
     script_env: script::Env,
 
     pub rx: Receiver<Message>,
-    devices: Vec<Box<dyn Device + 'e>>,
+    devices: Vec<Box<dyn Device + 'a>>,
+    displays: HashMap<String, Display<'a>>,
     shutdown: bool,
 }
 
-impl Engine<'_> {
+impl<'a> Engine<'a> {
     pub fn new(conf: &config::App) -> Self {
         let vars_box = vars::VarsBox{ vars: vars::Vars::new() };
         let arc_vars_box = Arc::new(Mutex::new(vars_box));
 
         let script_env = unwrap!(script::Env::new(conf, arc_vars_box.clone()));
         let (tx, rx) = mpsc::channel();
-        Engine {
+
+        let mut displays = HashMap::new();
+        for (name, c) in &conf.displays {
+            displays.insert(name.to_string(), Display::new(c.clone()));
+        }
+
+        Self {
             conf: conf.clone(),
             vars_box: arc_vars_box,
             queue: Queue::new(tx),
             rx,
             devices: Vec::new(),
+            displays,
             script_env,
             shutdown: false,
         }
@@ -131,7 +142,7 @@ impl Engine<'_> {
 
     fn process_queue_rust(&mut self, elapsed: time::Duration) -> Vec<Message> {
         let vars = &mut unwrap!(self.vars_box.lock()).vars;
-        let mut env = Env::new(&self.conf, vars, self.queue.clone());
+        let mut env: Env = Env::new(&self.conf, vars, self.queue.clone());
 
         env.vars.insert("elapsed".to_string(), vars::Value::Int(elapsed.as_millis() as i64));
 
