@@ -19,6 +19,10 @@ local function init()
         if type(mod) ~= "table" then
             error("module '" .. def.module .. "' did not return a table")
         end
+        script = mod[name]
+        if script == nil then
+            error("script '" .. name .. "' not found in module '" .. def.module .. "'")
+        end
         script_defs[name] = def
         scripts[name] = mod[name]
     end
@@ -75,7 +79,7 @@ local function service_coroutines(kind, msg)
             if script.can_resume(kind, msg) then
                 local running, result = coroutine.resume(script.co)
                 if not running and result ~= nil then
-                    error(result)
+                    error("in script '" .. name .. "': " .. result)
                 end
                 if running then
                     script.can_resume = result
@@ -127,7 +131,7 @@ end
 -------------------------------------------------------------------------------
 local function must_have(name, val)
     if val == nil then
-        error(name .. " is required")
+        error("'" .. name .. "' is required")
     end
 end
 
