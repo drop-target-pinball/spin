@@ -219,49 +219,43 @@ impl Audio<'_> {
     }
 
     fn init(&mut self, env: &mut Env) {
-        for music in &env.conf.music {
+        for (name, music) in &env.conf.music {
             if music.device_id != self.id {
                 continue
             }
             let path = env.conf.data_dir.join(&music.path);
             match mixer::Music::from_file(&path) {
-                Err(e) => fault!(env.queue, "unable to load music '{}': {}", &music.name, &e),
+                Err(e) => fault!(env.queue, "unable to load music '{}': {}", &name, &e),
                 Ok(m) => {
-                    if self.music.insert(music.name.clone(), m).is_some() {
-                        fault!(env.queue, "music already loaded '{}': {}", &music.name, &path.to_string_lossy());
-                    }
+                    self.music.insert(name.clone(), m);
                 }
             }
         }
 
-        for sound in &env.conf.sounds {
+        for (name, sound) in &env.conf.sounds {
             if sound.device_id != self.id {
                 continue
             }
             let path = env.conf.data_dir.join(&sound.path);
             match mixer::Chunk::from_file(&path) {
-                Err(e) => fault!(env.queue, "unable to load sound '{}': {}", &sound.name, &e),
+                Err(e) => fault!(env.queue, "unable to load sound '{}': {}", &name, &e),
                 Ok(chunk) => {
                     let s= Sound{conf: sound.clone(), chunk };
-                    if self.sounds.insert(sound.name.clone(), s).is_some() {
-                        alert!(env.queue, "sound already loaded '{}': {}", &sound.name, &path.to_string_lossy());
-                    }
+                    self.sounds.insert(name.clone(), s);
                 }
             };
         }
 
-        for vocal in &env.conf.vocals {
+        for (name, vocal) in &env.conf.vocals {
             if vocal.device_id != self.id {
                 continue
             }
             let path = env.conf.data_dir.join(&vocal.path);
             match mixer::Chunk::from_file(&path) {
-                Err(e) => fault!(env.queue, "unable to load vocal '{}': {}", &vocal.name, &e),
+                Err(e) => fault!(env.queue, "unable to load vocal '{}': {}", &name, &e),
                 Ok(chunk) => {
                     let entry = Vocal{conf: vocal.clone(), chunk };
-                    if self.vocals.insert(vocal.name.clone(), entry).is_some() {
-                        alert!(env.queue, "vocal already loaded '{}': {}", &vocal.name, &path.to_string_lossy());
-                    }
+                    self.vocals.insert(name.clone(), entry);
                 }
             };
         }

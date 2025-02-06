@@ -160,17 +160,24 @@ function pub.bool(name)
     must_have('name', name)
     local v = pub.vars[name]
     if v == nil then
-        error("undefined: " .. name)
+        error("undefined variable: " .. name)
     end
     if v["bool"] == nil then
-        error("not a bool: " .. name)
+        error("variable is not a bool: " .. name)
     end
     return v["bool"]
 end
 
 function pub.int(name)
     must_have('name', name)
-    return pub.vars[name]["int"]
+    local v = pub.vars[name]
+    if v == nil then
+        error("undefined variable: " .. name)
+    end
+    if v["int"] == nil then
+        error("variable is not an int: " .. name)
+    end
+    return v["int"]
 end
 
 -------------------------------------------------------------------------------

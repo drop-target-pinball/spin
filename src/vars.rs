@@ -54,7 +54,7 @@ fn update(env: &mut Env, name: &str, prev: Value, this: &Value) {
     env.queue.post(Message::Updated(msg));
 }
 
-pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, Vec<config::Var>>, name: &str, kind: &config::VarKind) {
+pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, HashMap<String, config::Var>>, name: &str, kind: &config::VarKind) {
     if vars.contains_key(name) {
         fault!(queue, "variable already defined: {}", name);
         return;
@@ -73,8 +73,8 @@ pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, Vec<c
                 }
             };
             let mut sub_vars = Vars::new();
-            for def in defs {
-                define(queue, &mut sub_vars, spaces, &def.name, &def.kind);
+            for (name, def) in defs {
+                define(queue, &mut sub_vars, spaces, &name, &def.kind);
             }
             Value::Vars(sub_vars)
         }

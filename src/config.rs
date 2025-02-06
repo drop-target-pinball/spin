@@ -33,10 +33,9 @@ pub enum RunMode {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Music {
-    pub name: String,
+    pub path: String,
     #[serde(default)]
     pub device_id: u8,
-    pub path: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -52,10 +51,9 @@ pub struct Script {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Sound {
-    pub name: String,
+    pub path: String,
     #[serde(default)]
     pub device_id: u8,
-    pub path: String,
     #[serde(default)]
     pub priority: i32,
     #[serde(default)]
@@ -63,19 +61,6 @@ pub struct Sound {
     #[serde(default)]
     /// Seconds
     pub debounce: f64,
-}
-
-impl Sound {
-    pub fn new(name: &str, path: &str) -> Sound {
-        Self {
-            name: name.to_string(),
-            device_id: 0,
-            path: path.to_string(),
-            priority: 0,
-            duck: 0.0,
-            debounce: 0.0,
-        }
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
@@ -99,25 +84,16 @@ pub enum VarKind {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct Namespace {
-    pub name: String,
-    pub vars: Vec<Var>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(deny_unknown_fields)]
 pub struct Var {
-    pub name: String,
     pub kind: VarKind,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Vocal {
-    pub name: String,
+    pub path: String,
     #[serde(default)]
     pub device_id: u8,
-    pub path: String,
     #[serde(default)]
     pub priority: i32,
     #[serde(default)]
@@ -139,19 +115,19 @@ pub struct App {
     pub module_name: Option<String>,
 
     #[serde(default)]
-    pub music: Vec<Music>,
+    pub music: HashMap<String, Music>,
     #[serde(default)]
-    pub namespaces: HashMap<String, Vec<Var>>,
+    pub namespaces: HashMap<String, HashMap<String, Var>>,
     #[serde(default)]
     pub scripts: HashMap<String, Script>,
     #[serde(default)]
-    pub sounds: Vec<Sound>,
+    pub sounds: HashMap<String, Sound>,
     #[serde(default)]
     pub std: Std,
     #[serde(default)]
-    pub vocals: Vec<Vocal>,
+    pub vocals: HashMap<String, Vocal>,
     #[serde(default)]
-    pub vars: Vec<Var>,
+    pub vars: HashMap<String, Var>,
 }
 
 impl App {

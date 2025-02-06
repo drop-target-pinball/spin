@@ -10,8 +10,8 @@ impl Store {
     }
 
     fn init(&mut self, env: &mut Env) {
-        for v in &env.conf.vars {
-            vars::define(&mut env.queue, env.vars, &env.conf.namespaces, &v.name, &v.kind);
+        for (name, v) in &env.conf.vars {
+            vars::define(&mut env.queue, env.vars, &env.conf.namespaces, &name, &v.kind);
         }
     }
 

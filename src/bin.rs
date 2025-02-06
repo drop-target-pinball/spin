@@ -44,7 +44,7 @@ pub fn main() -> ExitCode  {
 
     let store = builtin::Store::new();
     e.add_device(Box::new(store));
-    let validator = builtin::Validator::new();
+    let validator = builtin::Validator::default();
     e.add_device(Box::new(validator));
 
     if mode == config::RunMode::Release {

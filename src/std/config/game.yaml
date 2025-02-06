@@ -1,7 +1,7 @@
 vars:
-  - { name: credits, kind: !int 0 }
-  - { name: free_play, kind: !bool false }
-  - { name: game_active, kind: !bool false }
+  credits:      { kind: !int 0 }
+  free_play:    { kind: !bool false }
+  game_active:  { kind: !bool false }
 
 scripts:
   std_start_game:     { module: "std_game" }
