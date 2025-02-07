@@ -2,6 +2,7 @@ pub mod builtin;
 pub mod engine;
 pub mod error;
 pub mod message;
+pub mod render;
 pub mod config;
 pub mod vars;
 pub mod script;
