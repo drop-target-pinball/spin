@@ -43,7 +43,7 @@ pub struct AudioConfig {
     pub with_ogg: bool,
 }
 
-struct ActiveAudio {
+struct ActiveChan {
     name: String,
     chan: i32,
     duck: i32,
@@ -53,12 +53,12 @@ struct ActiveAudio {
 }
 
 struct Sound {
-    conf: config::Sound,
+    def: SoundDef,
     chunk: mixer::Chunk,
 }
 
 struct Vocal {
-    conf: config::Vocal,
+    def: VocalDef,
     chunk: mixer::Chunk
 }
 
@@ -66,21 +66,13 @@ pub struct Audio<'a> {
     music: HashMap<String,mixer::Music<'a>>,
     sounds: HashMap<String,Sound>,
     vocals: HashMap<String,Vocal>,
-    _audio: sdl2::AudioSubsystem,
 
-    music_playing: Option<ActiveAudio>,
-    active: Vec<Option<ActiveAudio>>,
+    music_playing: Option<ActiveChan>,
+    active: Vec<Option<ActiveChan>>,
 }
 
 impl Audio<'_> {
-    pub fn new(ctx: &sdl2::Sdl, conf: &AudioConfig) -> Self {
-        let audio = match ctx.audio() {
-            Ok(a) => a,
-            Err(reason) => {
-                panic!("unable to open SDL audio: {}", reason);
-            }
-        };
-
+    pub fn new(conf: &AudioConfig) -> Self {
         let output_chans = match conf.output {
             Output::Mono => 1,
             Output::Stereo => 2
@@ -104,7 +96,7 @@ impl Audio<'_> {
         // Config specifies the number of sound channels only. Another one
         // is then reserved for vocals hence the plus 1.
         let sound_chans = conf.channels + 1;
-        let mut channels: Vec<Option<ActiveAudio>> = Vec::new();
+        let mut channels: Vec<Option<ActiveChan>> = Vec::new();
         sdl2::mixer::allocate_channels(sound_chans);
         for _ in 0..sound_chans {
             channels.push(None);
@@ -114,14 +106,13 @@ impl Audio<'_> {
             music: HashMap::new(),
             sounds: HashMap::new(),
             vocals: HashMap::new(),
-            _audio: audio,
             music_playing: None,
             active: channels
         }
     }
 
     fn find_available_channel(&self, env: &mut Env, priority: i32) -> Option<i32> {
-        let mut opt_candidate: Option<&ActiveAudio> = None;
+        let mut opt_candidate: Option<&ActiveChan> = None;
 
         // First check if there are any open slots
         for i in 1..self.active.len() {
@@ -247,7 +238,7 @@ impl Audio<'_> {
             match mixer::Chunk::from_file(&path) {
                 Err(e) => fault!(env.queue, "unable to load sound '{}': {}", &name, &e),
                 Ok(chunk) => {
-                    let s= Sound{conf: sound.clone(), chunk };
+                    let s= Sound{def: sound.clone(), chunk };
                     self.sounds.insert(name.clone(), s);
                 }
             };
@@ -258,7 +249,7 @@ impl Audio<'_> {
             match mixer::Chunk::from_file(&path) {
                 Err(e) => fault!(env.queue, "unable to load vocal '{}': {}", &name, &e),
                 Ok(chunk) => {
-                    let entry = Vocal{conf: vocal.clone(), chunk };
+                    let entry = Vocal{def: vocal.clone(), chunk };
                     self.vocals.insert(name.clone(), entry);
                 }
             };
@@ -287,7 +278,7 @@ impl Audio<'_> {
             fault!(env.queue, "cannot play music: {}", e);
         }
 
-        let active = ActiveAudio{
+        let active = ActiveChan{
             name: cmd.name.clone(),
             chan: -1,
             duck: 0,
@@ -309,7 +300,7 @@ impl Audio<'_> {
                 // If this sound is already active, do nothing if within the
                 // debounce period
                 let delta = env.vars["elapsed"].as_int() - aa.start_time;
-                let debounce = sec_to_millis(sound.conf.debounce);
+                let debounce = sec_to_millis(sound.def.debounce);
                 if debounce > 0 && debounce > delta {
                     diag!(env.queue, "debounce: {}", cmd.name);
                     return
@@ -322,7 +313,7 @@ impl Audio<'_> {
         }
 
         if opt_chan_num.is_none() {
-            opt_chan_num = match self.find_available_channel(env, sound.conf.priority) {
+            opt_chan_num = match self.find_available_channel(env, sound.def.priority) {
                 Some(chan_num) => {
                     self.free_channel(env, chan_num);
                     self.active[chan_num as usize] = None;
@@ -343,11 +334,11 @@ impl Audio<'_> {
         debug_audio!(env.queue, "channel {} allocate: {}", chan_num, sound.conf.name);
         match sdl2::mixer::Channel(chan_num).play(&sound.chunk, cmd.loops) {
             Ok(_) => {
-                let active = ActiveAudio{
+                let active = ActiveChan{
                     name: cmd.name.clone(),
                     chan: chan_num,
-                    duck: scale_volume(MAX_VOLUME, sound.conf.duck),
-                    priority: sound.conf.priority,
+                    duck: scale_volume(MAX_VOLUME, sound.def.duck),
+                    priority: sound.def.priority,
                     start_time: env.vars["elapsed"].as_int(),
                     notify: cmd.notify
                 };
@@ -365,7 +356,7 @@ impl Audio<'_> {
         // Is a vocal already playing?
         if let Some(aa) = &self.active[0] {
             // Don't interrupt if it has a higher priority
-            if aa.priority > vocal.conf.priority {
+            if aa.priority > vocal.def.priority {
                 diag!(env.queue, "a higher priority vocal is already playing");
                 return
             }
@@ -375,11 +366,11 @@ impl Audio<'_> {
 
         match sdl2::mixer::Channel(0).play(&vocal.chunk, 0) {
             Ok(_) => {
-                let active = ActiveAudio{
+                let active = ActiveChan{
                     name: cmd.name.clone(),
                     chan: 0,
-                    duck: scale_volume(MAX_VOLUME, vocal.conf.duck),
-                    priority: vocal.conf.priority,
+                    duck: scale_volume(MAX_VOLUME, vocal.def.duck),
+                    priority: vocal.def.priority,
                     start_time: env.vars["elapsed"].as_int(),
                     notify: cmd.notify
                 };
@@ -412,7 +403,7 @@ impl Audio<'_> {
         self.active[0] = None;
     }
 
-    pub fn process(&mut self, _: &sdl2::Sdl, env: &mut Env, msg: &Message) {
+    pub fn process(&mut self, env: &mut Env, msg: &Message) {
         if MUSIC_FINISHED.load(Ordering::SeqCst) {
             MUSIC_FINISHED.store(false, Ordering::SeqCst);
             if let Some(playing) = &self.music_playing {

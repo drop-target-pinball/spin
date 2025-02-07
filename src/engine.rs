@@ -8,21 +8,29 @@ use std::{
 };
 use std::sync::Mutex;
 use std::collections::HashMap;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 pub struct Env<'a> {
-    pub conf: &'a config::App,
+    pub conf: &'a AppConfig,
     pub vars: &'a mut vars::Vars,
+    pub videos: &'a mut HashMap<String, Rc<RefCell<Video>>>,
     pub queue: Queue,
 }
 
 impl<'a> Env<'a> {
-    pub fn new(conf: &'a config::App, vars: &'a mut vars::Vars, queue: Queue) -> Self {
-        Self { conf, vars, queue }
+    pub fn new(
+        conf: &'a AppConfig,
+        vars: &'a mut vars::Vars,
+        videos: &'a mut HashMap<String, Rc<RefCell<Video>>>,
+        queue: Queue) -> Self
+    {
+        Self { conf, vars, videos, queue }
     }
 }
 
 pub struct State {
-    pub conf: config::App,
+    pub conf: AppConfig,
     pub vars_box: Arc<Mutex<vars::VarsBox>>,
     pub queue: Queue,
 }
@@ -31,31 +39,33 @@ pub trait Device {
     fn process(&mut self, e: &mut Env, msg: &Message);
 }
 
-
-
 pub struct Engine<'a> {
-    conf: config::App,
+    conf: AppConfig,
     vars_box: Arc<Mutex<vars::VarsBox>>,
     queue: Queue,
     script_env: script::Env,
 
     pub rx: Receiver<Message>,
     devices: Vec<Box<dyn Device + 'a>>,
-    displays: HashMap<String, Display<'a>>,
     shutdown: bool,
+
+    videos: HashMap<String, Rc<RefCell<Video>>>,
 }
 
 impl<'a> Engine<'a> {
-    pub fn new(conf: &config::App) -> Self {
+    pub fn new(conf: &AppConfig) -> Self {
         let vars_box = vars::VarsBox{ vars: vars::Vars::new() };
         let arc_vars_box = Arc::new(Mutex::new(vars_box));
 
         let script_env = unwrap!(script::Env::new(conf, arc_vars_box.clone()));
         let (tx, rx) = mpsc::channel();
 
-        let mut displays = HashMap::new();
-        for (name, c) in &conf.displays {
-            displays.insert(name.to_string(), Display::new(c.clone()));
+        let mut videos = HashMap::new();
+        for (name, c) in &conf.video {
+            videos.insert(
+                name.to_string(),
+                Rc::new(RefCell::new(Video::new(&c)))
+            );
         }
 
         Self {
@@ -64,7 +74,7 @@ impl<'a> Engine<'a> {
             queue: Queue::new(tx),
             rx,
             devices: Vec::new(),
-            displays,
+            videos,
             script_env,
             shutdown: false,
         }
@@ -93,8 +103,10 @@ impl<'a> Engine<'a> {
     }
 
     pub fn tick(&mut self, elapsed: time::Duration) {
+        self.queue.post(Message::Poll);
         self.process_queue(elapsed);
         self.queue.post(Message::Tick);
+        self.queue.post(Message::Present);
         self.process_queue(elapsed);
     }
 
@@ -142,8 +154,11 @@ impl<'a> Engine<'a> {
 
     fn process_queue_rust(&mut self, elapsed: time::Duration) -> Vec<Message> {
         let vars = &mut unwrap!(self.vars_box.lock()).vars;
-        let mut env: Env = Env::new(&self.conf, vars, self.queue.clone());
-
+        let mut env: Env = Env::new(
+            &self.conf, vars,
+            &mut self.videos,
+            self.queue.clone()
+        );
         env.vars.insert("elapsed".to_string(), vars::Value::Int(elapsed.as_millis() as i64));
 
         let mut messages: Vec<Message> = Vec::new();

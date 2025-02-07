@@ -4,7 +4,7 @@ use std::fs;
 use spin::prelude::*;
 
 pub fn main() -> ExitCode {
-    let conf = match config::load(&config::app_dir()) {
+    let conf = match load_config(&app_dir()) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("{}", e);

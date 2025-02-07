@@ -1,10 +1,8 @@
 use crate::prelude::*;
 use crate::sdl::audio::{Audio, AudioConfig};
-use crate::sdl::dmd::DmdConfig;
-use sdl2;
-use sdl2::pixels::PixelFormatEnum;
+use crate::sdl::dmd::{Dmd, DmdConfig};
+use sdl2::{self, AudioSubsystem, VideoSubsystem};
 use serde::{Serialize, Deserialize};
-use sdl2::surface::Surface;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
@@ -13,48 +11,64 @@ pub struct Config {
     pub dmd: Option<DmdConfig>,
 }
 
-pub struct Device<'a> {
-    ctx: sdl2::Sdl,
-    audio: Option<Audio<'a>>,
+pub struct Context {
+    pub sdl: sdl2::Sdl,
+    pub audio: AudioSubsystem,
+    pub video: VideoSubsystem,
 }
 
-impl Default for Device<'_> {
+impl Default for Context {
     fn default() -> Self {
-        match sdl2::init() {
-            Ok(ctx) => Self {
-                ctx,
-                audio: None,
-            },
-            Err(reason) => panic!("unable to initialize SDL: {}", reason),
-        }
+        let sdl = expect!(sdl2::init(), "unable to initialize SDL");
+        let audio = expect!(sdl.audio(), "unable to initialize audio");
+        let video = expect!(sdl.video(), "unable to initialize video");
+
+        Self { sdl, audio, video }
     }
 }
 
-impl<'a> Device<'a> {
-    pub fn new(conf: &Config) -> Self {
-        let ctx = expect!(sdl2::init(), "unable to initialize SDL");
+pub struct Device<'a> {
+    ctx: Context,
+    audio: Option<Audio<'a>>,
+    dmd: Option<Dmd>,
+}
 
-        let audio : Option<Audio<'a>> = match &conf.audio {
-            Some(c) => Some(Audio::new(&ctx,&c)),
+impl<'a> Device<'a> {
+    pub fn new(app_conf: &AppConfig, device_conf: &Config) -> Self {
+        let ctx = Context::default();
+        let audio : Option<Audio<'a>> = match &device_conf.audio {
+            Some(c) => Some(Audio::new(&c)),
             None => None,
         };
 
-        Self { ctx, audio }
+        let dmd = match &device_conf.dmd {
+            Some(c) => Some(Dmd::new(&ctx, &app_conf.video, &c)),
+            None => None,
+        };
+
+        Self { ctx, audio, dmd }
+    }
+
+    fn poll(&mut self, env: &mut Env) {
+        let mut pump = expect!(self.ctx.sdl.event_pump(), "unable to obtain SDL event pump");
+        for _ in pump.poll_iter() {
+            // do nothing for now
+        }
     }
 }
 
 impl crate::engine::Device for Device<'_> {
     fn process(&mut self, env: &mut Env, msg: &Message)  {
+        match msg {
+            Message::Poll => self.poll(env),
+            _ => (),
+        }
         if let Some(audio) = &mut self.audio {
-            audio.process(&self.ctx, env, msg);
+            audio.process(env, msg);
+        }
+        if let Some(dmd) = &mut self.dmd {
+            dmd.process(env, msg);
         }
     }
 }
 
-pub fn new_layer<'a>(conf: crate::config::Display) -> Layer<'a> {
-    Layer::Sdl(expect!(Surface::new(
-        conf.width,
-        conf.height,
-        PixelFormatEnum::RGBA8888,
-    ), "unable to create rendering surface"))
-}

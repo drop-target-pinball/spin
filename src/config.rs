@@ -31,24 +31,8 @@ pub enum RunMode {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "snake_case")]
-pub enum Renderer {
-    #[cfg(feature = "sdl")]
-    Sdl,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct Display {
-    pub renderer: Renderer,
-    pub width: u32,
-    pub height: u32,
-    pub layers: u32,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct Music {
+pub struct MusicDef {
     pub path: String,
     #[serde(default)]
     pub device_id: u8,
@@ -57,7 +41,7 @@ pub struct Music {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct Script {
+pub struct ScriptDef {
     pub module: String,
     #[serde(default)]
     pub group: String,
@@ -67,7 +51,7 @@ pub struct Script {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct Sound {
+pub struct SoundDef {
     pub path: String,
     #[serde(default)]
     pub device_id: u8,
@@ -93,13 +77,21 @@ pub enum VarKind {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct Var {
+pub struct VarDef {
     pub kind: VarKind,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct Vocal {
+pub struct VideoDef {
+    pub width: u32,
+    pub height: u32,
+    pub layers: u32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct VocalDef {
     pub path: String,
     #[serde(default)]
     pub device_id: u8,
@@ -111,7 +103,7 @@ pub struct Vocal {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct App {
+pub struct AppConfig {
     #[serde(skip)]
     pub mode: RunMode,
     #[serde(skip)]
@@ -124,30 +116,30 @@ pub struct App {
     pub module_name: Option<String>,
 
     #[serde(default)]
-    pub displays: HashMap<String, Display>,
+    pub displays: HashMap<String, VideoDef>,
     #[serde(default)]
-    pub music: HashMap<String, Music>,
+    pub music: HashMap<String, MusicDef>,
     #[serde(default)]
-    pub renderers: Vec<Renderer>,
+    pub namespaces: HashMap<String, HashMap<String, VarDef>>,
     #[serde(default)]
-    pub namespaces: HashMap<String, HashMap<String, Var>>,
+    pub scripts: HashMap<String, ScriptDef>,
     #[serde(default)]
-    pub scripts: HashMap<String, Script>,
-    #[serde(default)]
-    pub sounds: HashMap<String, Sound>,
+    pub sounds: HashMap<String, SoundDef>,
     #[serde(default)]
     pub std: Vec<String>,
     #[serde(default)]
-    pub vocals: HashMap<String, Vocal>,
+    pub vocals: HashMap<String, VocalDef>,
     #[serde(default)]
-    pub vars: HashMap<String, Var>,
+    pub vars: HashMap<String, VarDef>,
+    #[serde(default)]
+    pub video: HashMap<String, VideoDef>,
 
     #[cfg(feature = "sdl")]
     pub sdl: Option<crate::sdl::Config>,
 
 }
 
-impl App {
+impl AppConfig {
     pub fn is_develop(&self) -> bool {
         self.mode == RunMode::Develop
     }
@@ -163,7 +155,7 @@ pub fn app_dir() -> PathBuf {
     PathBuf::from(env::var_os("SPIN_DIR").unwrap_or(".".into()))
 }
 
-pub fn load(app_dir: &Path) -> Result<App> {
+pub fn load_config(app_dir: &Path) -> SpinResult<AppConfig> {
     let conf_dir = app_dir.join("config");
     let data_dir = app_dir.join("data");
     let scripts_dir = app_dir.join("scripts");
@@ -182,7 +174,7 @@ pub fn load(app_dir: &Path) -> Result<App> {
         builder = builder.admerge(Yaml::file(&file));
     }
 
-    let config: App = match builder.extract() {
+    let config: AppConfig = match builder.extract() {
         Ok(c) => c,
         Err(e) => return raise!(Error::Config, "{}", e),
     };
@@ -199,7 +191,7 @@ pub fn load(app_dir: &Path) -> Result<App> {
         builder = builder.adjoin(Yaml::string(conf));
     }
 
-    let mut config: App = match builder.extract() {
+    let mut config: AppConfig = match builder.extract() {
         Ok(c) => c,
         Err(e) => return raise!(Error::Config, "{}", e),
     };

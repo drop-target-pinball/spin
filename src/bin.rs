@@ -21,14 +21,14 @@ pub fn main() -> ExitCode  {
     let cli = Cli::parse();
 
     let mode = if cli.release {
-        config::RunMode::Release
+        RunMode::Release
     } else if cli.test {
-        config::RunMode::Test
+        RunMode::Test
     } else {
-        config::RunMode::Develop
+        RunMode::Develop
     };
 
-    let conf = match config::load(&config::app_dir()) {
+    let conf = match load_config(&app_dir()) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("{}", e);
@@ -40,7 +40,7 @@ pub fn main() -> ExitCode  {
 
     #[cfg(feature = "sdl")] {
         if let Some(sdl_conf) = &conf.sdl {
-            let device = crate::sdl::Device::new(sdl_conf);
+            let device = crate::sdl::Device::new(&conf, sdl_conf);
             e.add_device(Box::new(device));
         }
     }
@@ -50,7 +50,7 @@ pub fn main() -> ExitCode  {
     let validator = builtin::Validator::default();
     e.add_device(Box::new(validator));
 
-    if mode == config::RunMode::Release {
+    if mode == RunMode::Release {
         let logger = builtin::Logger::default();
         e.add_device(Box::new(logger));
     } else {
@@ -62,7 +62,7 @@ pub fn main() -> ExitCode  {
     e.run(cli.run_script);
     println!();
 
-    if mode != config::RunMode::Release {
+    if mode != RunMode::Release {
         let tos = termios::Termios::from_fd(0).unwrap();
         termios::tcsetattr(std::io::stdin().as_raw_fd(), termios::TCSADRAIN, &tos).unwrap();
     }

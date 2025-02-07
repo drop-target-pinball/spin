@@ -10,7 +10,7 @@ pub enum Error {
     ScriptExec(String),
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub type SpinResult<T> = std::result::Result<T, Error>;
 pub type FmtResult = std::result::Result<(), std::fmt::Error>;
 
 #[macro_export]

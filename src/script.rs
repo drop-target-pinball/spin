@@ -19,7 +19,7 @@ pub struct Env {
 }
 
 impl Env {
-    pub fn new(conf: &config::App, vars: Arc<Mutex<vars::VarsBox>>) -> Result<Env> {
+    pub fn new(conf: &AppConfig, vars: Arc<Mutex<vars::VarsBox>>) -> SpinResult<Env> {
         // Setup path for use when loading project-specific files
         let root = conf.app_dir.to_string_lossy();
         env::set_var("LUA_PATH",
@@ -56,7 +56,7 @@ impl Env {
         Ok(Env{lua, vars, spin, post})
     }
 
-    pub fn send_vars(&self) -> Result<()> {
+    pub fn send_vars(&self) -> SpinResult<()> {
         let vars = &mut unwrap!(self.vars.lock()).vars;
         let lua_vars= match self.lua.to_value(vars) {
             Ok(v) => v,
@@ -69,7 +69,7 @@ impl Env {
         }
     }
 
-    pub fn recv_vars(&self) -> Result<()> {
+    pub fn recv_vars(&self) -> SpinResult<()> {
         let vars_box = &mut unwrap!(self.vars.lock());
 
         let lua_vars: LuaValue = match self.spin.get("vars") {
@@ -89,7 +89,7 @@ impl Env {
         self.lua.load(data).set_name(name)
     }
 
-    pub fn exec(&self, name: &str, data: &[u8]) -> Result<()> {
+    pub fn exec(&self, name: &str, data: &[u8]) -> SpinResult<()> {
         let chunk = self.lua.load(data).set_name(name);
         match chunk.exec() {
             Ok(_) => Ok(()),
@@ -97,7 +97,7 @@ impl Env {
         }
     }
 
-    pub fn process(&self, msg: &Message) -> Result<Vec<Message>> {
+    pub fn process(&self, msg: &Message) -> SpinResult<Vec<Message>> {
         let lua_msg = match self.lua.to_value(&msg) {
             Ok(m) => m,
             Err(e) => return raise!(Error::ScriptExec, "cannot convert message to lua table: {}", e)

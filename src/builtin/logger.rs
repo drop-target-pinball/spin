@@ -46,66 +46,12 @@ where W: io::Write {
             Message::Note(_) => self.log(env, &msg.to_string()),
             _ => {
                 if env.conf.is_develop() {
-                    self.log(env, &format!("> {}", msg));
+                    let text: String = msg.to_string();
+                    if !text.is_empty() {
+                        self.log(env, &format!("> {}", text));
+                    }
                 }
             }
         }
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use core::time;
-
-    use super::*;
-
-    // #[test]
-    // fn test_note_info<'a>() {
-    //     let mut buf: Vec<u8> = Vec::new();
-    //     let mut e: Engine<'a> = Engine::default();
-    //     let logger = Logger::new(&mut buf);
-
-    //     e.add_device(Box::new(logger));
-
-    //     let q = e.queue();
-    //     info!(q, "this is a test");
-    //     e.tick(time::Duration::ZERO);
-
-    //     let want = "[     0.000] this is a test\n";
-    //     let have = String::from_utf8(buf).unwrap();
-    //     assert_eq!(have, want);
-    // }
-
-    // #[test]
-    // fn test_note_alert() {
-    //     let mut e = Engine::default();
-    //     let mut buf = Vec::new();
-    //     let logger= Box::new(Logger::new(&mut buf));
-    //     e.add_device(logger);
-
-    //     let q = e.queue();
-    //     alert!(q, "this is a test");
-    //     e.tick(time::Duration::ZERO);
-
-    //     let want = "[     0.000] (!) this is a test\n";
-    //     let have = String::from_utf8(buf).unwrap();
-    //     assert_eq!(have, want);
-    // }
-
-    // #[test]
-    // fn test_note_fault() {
-    //     let conf = config::new(config::RunMode::Release);
-    //     let mut e = Engine::new(&conf);
-    //     let mut buf = Vec::new();
-    //     let mut logger= Logger::new(&mut buf);
-    //     e.add_device(&mut logger);
-
-    //     let q = e.queue();
-    //     fault!(q, "this is a test");
-    //     e.tick(time::Duration::ZERO);
-
-    //     let want = "[     0.000] (*) this is a test\n";
-    //     let have = String::from_utf8(buf).unwrap();
-    //     assert_eq!(have, want);
-    // }
 }

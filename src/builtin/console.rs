@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use rustyline::{config, DefaultEditor, ExternalPrinter};
+use sdl2::sys::NeedNestedPrototypes;
 use std::{os::fd::AsRawFd, thread};
 use mlua::{Error, MultiValue};
 use ansi_term::Color;
@@ -73,9 +74,12 @@ impl Device for Console<'_> {
                     NoteKind::Fault => self.log(env, &format!("{}", BRIGHT_RED.bold().paint(msg.to_string()))),
                 }
             }
-            Message::Nop => (),
-            Message::Tick => (),
-            _ => self.log(env, &format!("{}", GRAY.bold().paint(msg.to_string()))),
+            _ => {
+                let text: String = msg.to_string();
+                if !text.is_empty() {
+                    self.log(env, &format!("{}", GRAY.bold().paint(text)));
+                }
+            }
         }
     }
 }
@@ -164,10 +168,8 @@ fn post(proc_env: &script::Env, state: &mut State, msg: Message) {
     };
     unwrap!(proc_env.recv_vars());
 
-    let vars = &mut unwrap!(state.vars_box.lock()).vars;
-    let eng_env = Env::new(&state.conf, vars, state.queue.clone());
-
+    let queue = state.queue.clone();
     for msg in messages {
-        eng_env.queue.post(msg);
+        queue.post(msg);
     }
 }

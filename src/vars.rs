@@ -40,7 +40,7 @@ impl fmt::Display for Value {
     }
 }
 
-pub type Namespaces = HashMap<String, Vec<config::Var>>;
+pub type Namespaces = HashMap<String, Vec<VarDef>>;
 pub type Vars = HashMap<String, Value>;
 
 fn update(env: &mut Env, name: &str, prev: Value, this: &Value) {
@@ -54,17 +54,17 @@ fn update(env: &mut Env, name: &str, prev: Value, this: &Value) {
     env.queue.post(Message::Updated(msg));
 }
 
-pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, HashMap<String, config::Var>>, name: &str, kind: &config::VarKind) {
+pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, HashMap<String, VarDef>>, name: &str, kind: &VarKind) {
     if vars.contains_key(name) {
         fault!(queue, "variable already defined: {}", name);
         return;
     }
     let value = match kind {
-        config::VarKind::Int(i) => Value::Int(*i),
-        config::VarKind::Float(f) => Value::Float(*f),
-        config::VarKind::String(s) => Value::String(s.clone()),
-        config::VarKind::Bool(b) => Value::Bool(*b),
-        config::VarKind::Namespace{name} => {
+        VarKind::Int(i) => Value::Int(*i),
+        VarKind::Float(f) => Value::Float(*f),
+        VarKind::String(s) => Value::String(s.clone()),
+        VarKind::Bool(b) => Value::Bool(*b),
+        VarKind::Namespace{name} => {
             let defs = match spaces.get(name) {
                 Some(v) => v,
                 None => {
