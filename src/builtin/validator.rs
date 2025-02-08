@@ -25,6 +25,8 @@ impl Validator {
 }
 
 impl Device for Validator {
+    fn init(&mut self, _: &mut Globals) {}
+
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {
             Message::PlayMusic(m) => self.validate_music(s, m),

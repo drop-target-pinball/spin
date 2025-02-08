@@ -14,7 +14,7 @@ local function halt()
     alive = {}
 end
 
-local function init()
+function pub._init()
     for name, def in pairs(pub.conf.scripts) do
         local mod = require(def.module)
         if type(mod) ~= "table" then
@@ -27,6 +27,7 @@ local function init()
         script_defs[name] = def
         scripts[name] = mod[name]
     end
+    return true
 end
 
 local function kill(name)
@@ -112,8 +113,6 @@ function pub.post(msg)
         kill(body.name)
     elseif kind == 'kill_group' then
         kill_group(body.name)
-    elseif kind == 'init' then
-        init()
     elseif kind == 'run' then
         run(body.name)
     end

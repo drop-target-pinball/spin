@@ -61,6 +61,16 @@ impl Env {
             return raise!(Error::ScriptEnv, "unable to set config: {}", e);
         }
 
+        let init: LuaFunction = match spin.get("_init") {
+            Ok(p) => p,
+            Err(_) => return raise!(Error::ScriptEnv, "'_init' not found in 'spin'")
+        };
+
+        match init.call::<bool>(()) {
+            Ok(r) => r,
+            Err(e) => return raise!(Error::ScriptExec, "_init failed: {}", e)
+        };
+
         drop(s);
         Ok(Env{lua, state, spin, render, post})
     }
@@ -81,15 +91,23 @@ impl Env {
     pub fn recv_vars(&self) -> SpinResult<()> {
         let state = &mut unwrap!(self.state.lock());
 
-        let lua_ops: LuaValue = match self.render.get("ops") {
+        let lua_ops: LuaTable = match self.render.get("ops") {
             Ok(v) => v,
             Err(e) => return raise!(Error::ScriptEnv, "unable to receive vars: {}", e)
         };
 
-        let ops: Vec<render::Instruction> = match self.lua.from_value(lua_ops) {
-            Ok(v) => v,
-            Err(e) => return raise!(Error::ScriptEnv, "unable to convert vars: {}", e)
-        };
+        let mut ops: Vec<render::Instruction> = Vec::new();
+        for v in lua_ops.sequence_values::<LuaValue>() {
+            match v {
+                Err(e) => return raise!(Error::ScriptExec, "expected table in ops: {}", e),
+                Ok(tbl) => {
+                    match self.lua.from_value(tbl) {
+                        Ok(o) => ops.push(o),
+                        Err(e) => return raise!(Error::ScriptExec, "invalid return value: {}", e),
+                    }
+                }
+            }
+        }
         state.render_list = ops;
         Ok(())
     }

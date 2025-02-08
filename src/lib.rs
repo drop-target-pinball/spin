@@ -21,15 +21,28 @@ pub mod prelude {
     pub use crate::script;
     pub use crate::{alert, diag, raise, fault, info, unwrap, expect};
 
-    pub use crate::Video;
+    pub use crate::{Device, Globals, Video};
     pub use crate::sec_to_millis;
 
     #[cfg(feature = "sdl")]
     pub use crate::sdl;
 }
 
+use crate::prelude::*;
+
 #[cfg(feature = "sdl")]
 pub type Video = crate::sdl::Video;
+
+pub struct Globals<'a> {
+    pub s: &'a mut State,
+    pub r: &'a mut render::State
+}
+
+pub trait Device {
+    fn init(&mut self, g: &mut Globals);
+    fn process(&mut self, s: &mut State, msg: &Message);
+    fn render(&mut self, s: &mut render::State);
+}
 
 #[macro_export]
 macro_rules! unwrap {

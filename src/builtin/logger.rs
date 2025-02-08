@@ -41,6 +41,8 @@ impl Default for Logger<io::Stdout> {
 
 impl<W> Device for Logger<W>
 where W: io::Write {
+    fn init(&mut self, _: &mut Globals) {}
+
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {
             Message::Note(_) => self.log(s, &msg.to_string()),

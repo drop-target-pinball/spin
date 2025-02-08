@@ -111,6 +111,45 @@ impl Audio<'_> {
         }
     }
 
+    pub fn init(&mut self, s: &mut State) {
+        for (name, music) in &s.conf.music {
+            let path = s.conf.data_dir.join(&music.path);
+            match mixer::Music::from_file(&path) {
+                Err(e) => fault!(s.queue, "unable to load music '{}': {}", &name, &e),
+                Ok(m) => {
+                    self.music.insert(name.clone(), m);
+                }
+            }
+        }
+
+        for (name, sound) in &s.conf.sounds {
+            let path = s.conf.data_dir.join(&sound.path);
+            match mixer::Chunk::from_file(&path) {
+                Err(e) => fault!(s.queue, "unable to load sound '{}': {}", &name, &e),
+                Ok(chunk) => {
+                    let s= Sound{def: sound.clone(), chunk };
+                    self.sounds.insert(name.clone(), s);
+                }
+            };
+        }
+
+        for (name, vocal) in &s.conf.vocals {
+            let path = s.conf.data_dir.join(&vocal.path);
+            match mixer::Chunk::from_file(&path) {
+                Err(e) => fault!(s.queue, "unable to load vocal '{}': {}", &name, &e),
+                Ok(chunk) => {
+                    let entry = Vocal{def: vocal.clone(), chunk };
+                    self.vocals.insert(name.clone(), entry);
+                }
+            };
+        }
+
+        fn music_finished() {
+            MUSIC_FINISHED.store(true, Ordering::SeqCst);
+        }
+        mixer::Music::hook_finished(music_finished);
+    }
+
     fn find_available_channel(&self, s: &mut State, priority: i32) -> Option<i32> {
         let mut opt_candidate: Option<&ActiveChan> = None;
 
@@ -220,45 +259,6 @@ impl Audio<'_> {
                 }
             }
         }
-    }
-
-    fn init(&mut self, s: &mut State) {
-        for (name, music) in &s.conf.music {
-            let path = s.conf.data_dir.join(&music.path);
-            match mixer::Music::from_file(&path) {
-                Err(e) => fault!(s.queue, "unable to load music '{}': {}", &name, &e),
-                Ok(m) => {
-                    self.music.insert(name.clone(), m);
-                }
-            }
-        }
-
-        for (name, sound) in &s.conf.sounds {
-            let path = s.conf.data_dir.join(&sound.path);
-            match mixer::Chunk::from_file(&path) {
-                Err(e) => fault!(s.queue, "unable to load sound '{}': {}", &name, &e),
-                Ok(chunk) => {
-                    let s= Sound{def: sound.clone(), chunk };
-                    self.sounds.insert(name.clone(), s);
-                }
-            };
-        }
-
-        for (name, vocal) in &s.conf.vocals {
-            let path = s.conf.data_dir.join(&vocal.path);
-            match mixer::Chunk::from_file(&path) {
-                Err(e) => fault!(s.queue, "unable to load vocal '{}': {}", &name, &e),
-                Ok(chunk) => {
-                    let entry = Vocal{def: vocal.clone(), chunk };
-                    self.vocals.insert(name.clone(), entry);
-                }
-            };
-        }
-
-        fn music_finished() {
-            MUSIC_FINISHED.store(true, Ordering::SeqCst);
-        }
-        mixer::Music::hook_finished(music_finished);
     }
 
     fn play_music(&mut self, s: &mut State, cmd: &PlayMusic) {
@@ -416,7 +416,6 @@ impl Audio<'_> {
         self.reap_channels(s);
         match msg {
             Message::Halt => self.silence(s),
-            Message::Init => self.init(s),
             Message::PlayMusic(m) => self.play_music(s, m),
             Message::PlaySound(m) => self.play_sound(s, m),
             Message::PlayVocal(m) => self.play_vocal(s, m),

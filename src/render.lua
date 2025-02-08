@@ -1,6 +1,6 @@
 local pub = {}
 
-local ops = {}
+pub.ops = {}
 
 function pub.gfx(device)
     local gfx = {
@@ -10,11 +10,13 @@ function pub.gfx(device)
     }
 
     local function insert_op(op_name, args)
-        table.insert(ops, {
+        table.insert(pub.ops, {
             device = gfx.device,
             layer = gfx.layer,
             priority = gfx.priority,
-            [op_name] = args
+            op = {
+                [op_name] = args
+            }
         })
     end
 
@@ -33,5 +35,6 @@ function pub.gfx(device)
 end
 
 package.loaded["_render"] = pub
+_render = pub
 
 return pub

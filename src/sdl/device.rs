@@ -57,7 +57,13 @@ impl<'a> Device<'a> {
     }
 }
 
-impl crate::engine::Device for Device<'_> {
+impl crate::Device for Device<'_> {
+    fn init(&mut self, g: &mut Globals) {
+        if let Some(audio) = &mut self.audio {
+            audio.init(g.s);
+        }
+    }
+
     fn process(&mut self, s: &mut State, msg: &Message)  {
         match msg {
             Message::Poll => self.poll(s),

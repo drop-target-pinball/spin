@@ -156,7 +156,6 @@ impl fmt::Display for Updated {
 #[serde(rename_all = "snake_case")]
 pub enum Message {
     Halt,
-    Init,
     Kill(Name),
     KillGroup(Name),
     Note(Note),
@@ -186,7 +185,6 @@ impl fmt::Display for Message {
     fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
         match &self {
             Message::Halt => write!(f, "halt"),
-            Message::Init => write!(f, "init"),
             Message::Kill(m) => write!(f, "kill: {}", m),
             Message::KillGroup(m) => write!(f, "kill_group: {}", m),
             Message::Note(m) => {

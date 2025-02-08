@@ -17,14 +17,11 @@ pub struct State {
     pub render_list: Vec<render::Instruction>,
 }
 
-pub trait Device {
-    fn process(&mut self, s: &mut State, msg: &Message);
-    fn render(&mut self, s: &mut render::State);
-}
 
 pub struct Engine<'a> {
     queue: Queue,
     state: Arc<Mutex<State>>,
+    r_state: render::State,
     script_env: script::Env,
 
     pub rx: Receiver<Message>,
@@ -52,6 +49,7 @@ impl<'a> Engine<'a> {
         Self {
             queue,
             state,
+            r_state: render::State::default(),
             rx,
             devices: Vec::new(),
             script_env,
@@ -72,9 +70,12 @@ impl<'a> Engine<'a> {
     }
 
     pub fn init(&mut self) {
-        self.queue.post(Message::Init);
-        self.process_queue(time::Duration::ZERO);
+        for d in &mut self.devices {
+            let mut s = unwrap!(self.state.lock());
+            d.init(&mut Globals { s: &mut s, r: &mut self.r_state });
+        }
         info!(self.queue, "ready");
+        self.process_queue(time::Duration::ZERO);
     }
 
     pub fn tick(&mut self, elapsed: time::Duration) {

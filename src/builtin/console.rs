@@ -64,6 +64,8 @@ impl Drop for Console<'_> {
 }
 
 impl Device for Console<'_> {
+    fn init(&mut self, _: &mut Globals) {}
+
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {
             Message::Note(n) => {
