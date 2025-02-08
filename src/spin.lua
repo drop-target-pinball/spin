@@ -1,6 +1,7 @@
 local pub = {
     conf = {},
     vars = {},
+    gfx = require("_render").gfx,
 }
 
 local script_defs = {}

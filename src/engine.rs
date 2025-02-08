@@ -14,6 +14,7 @@ pub struct State {
     pub conf: AppConfig,
     pub queue: Queue,
     pub vars: vars::Vars,
+    pub render_list: Vec<render::Instruction>,
 }
 
 pub trait Device {
@@ -44,6 +45,7 @@ impl<'a> Engine<'a> {
             conf,
             queue: queue.clone(),
             vars: vars::Vars::new(),
+            render_list: Vec::new(),
         }));
         let script_env = unwrap!(script::Env::new(state.clone()));
 

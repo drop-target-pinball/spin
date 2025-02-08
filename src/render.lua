@@ -32,6 +32,6 @@ function pub.gfx(device)
     return gfx
 end
 
-package.loaded["render"] = pub
+package.loaded["_render"] = pub
 
 return pub

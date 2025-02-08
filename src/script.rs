@@ -4,7 +4,8 @@ use std::env;
 use std::sync::{Arc, Mutex};
 use mlua::prelude::*;
 
-static SCRIPTS: [(&str, &[u8]); 4] = [
+static SCRIPTS: [(&str, &[u8]); 5] = [
+    ("render.lua", include_bytes!("render.lua")),
     ("spin.lua", include_bytes!("spin.lua")),
     ("std.lua", include_bytes!("std.lua")),
     ("message.lua", include_bytes!("message.lua")),
@@ -15,6 +16,7 @@ pub struct Env {
     lua: Lua,
     state: Arc<Mutex<State>>,
     spin: LuaTable,
+    render: LuaTable,
     post: LuaFunction,
 }
 
@@ -40,6 +42,11 @@ impl Env {
             Err(_) => return raise!(Error::ScriptEnv, "'spin' not found in globals")
         };
 
+        let render: LuaTable = match globals.get("_render") {
+            Ok(p) => p,
+            Err(_) => return raise!(Error::ScriptEnv, "'_render' not found in globals")
+        };
+
         let post: LuaFunction = match spin.get("post") {
             Ok(p) => p,
             Err(_) => return raise!(Error::ScriptEnv, "'post' not found in 'spin'")
@@ -55,7 +62,7 @@ impl Env {
         }
 
         drop(s);
-        Ok(Env{lua, state, spin, post})
+        Ok(Env{lua, state, spin, render, post})
     }
 
     pub fn send_vars(&self) -> SpinResult<()> {
@@ -72,18 +79,18 @@ impl Env {
     }
 
     pub fn recv_vars(&self) -> SpinResult<()> {
-        // let vars_box = &mut unwrap!(self.vars.lock());
+        let state = &mut unwrap!(self.state.lock());
 
-        // let lua_vars: LuaValue = match self.spin.get("vars") {
-        //     Ok(v) => v,
-        //     Err(e) => return raise!(Error::ScriptEnv, "unable to receive vars: {}", e)
-        // };
+        let lua_ops: LuaValue = match self.render.get("ops") {
+            Ok(v) => v,
+            Err(e) => return raise!(Error::ScriptEnv, "unable to receive vars: {}", e)
+        };
 
-        // let vars = match self.lua.from_value(lua_vars) {
-        //     Ok(v) => v,
-        //     Err(e) => return raise!(Error::ScriptEnv, "unable to convert vars: {}", e)
-        // };
-        // vars_box.vars = vars;
+        let ops: Vec<render::Instruction> = match self.lua.from_value(lua_ops) {
+            Ok(v) => v,
+            Err(e) => return raise!(Error::ScriptEnv, "unable to convert vars: {}", e)
+        };
+        state.render_list = ops;
         Ok(())
     }
 
