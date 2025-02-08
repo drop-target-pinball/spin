@@ -36,7 +36,7 @@ pub fn main() -> ExitCode  {
         }
     };
 
-    let mut e = Engine::new(&conf);
+    let mut e = Engine::new(conf.clone());
 
     #[cfg(feature = "sdl")] {
         if let Some(sdl_conf) = &conf.sdl {

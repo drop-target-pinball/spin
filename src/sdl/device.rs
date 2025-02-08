@@ -49,7 +49,7 @@ impl<'a> Device<'a> {
         Self { ctx, audio, dmd }
     }
 
-    fn poll(&mut self, env: &mut Env) {
+    fn poll(&mut self, _: &mut State) {
         let mut pump = expect!(self.ctx.sdl.event_pump(), "unable to obtain SDL event pump");
         for _ in pump.poll_iter() {
             // do nothing for now
@@ -58,16 +58,16 @@ impl<'a> Device<'a> {
 }
 
 impl crate::engine::Device for Device<'_> {
-    fn process(&mut self, env: &mut Env, msg: &Message)  {
+    fn process(&mut self, s: &mut State, msg: &Message)  {
         match msg {
-            Message::Poll => self.poll(env),
+            Message::Poll => self.poll(s),
             _ => (),
         }
         if let Some(audio) = &mut self.audio {
-            audio.process(env, msg);
+            audio.process(s, msg);
         }
         if let Some(dmd) = &mut self.dmd {
-            dmd.process(env, msg);
+            dmd.process(s, msg);
         }
     }
 }

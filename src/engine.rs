@@ -8,73 +8,51 @@ use std::{
 };
 use std::sync::Mutex;
 use std::collections::HashMap;
-use std::rc::Rc;
-use std::cell::RefCell;
 
-pub struct Env<'a> {
-    pub conf: &'a AppConfig,
-    pub vars: &'a mut vars::Vars,
-    pub videos: &'a mut HashMap<String, Rc<RefCell<Video>>>,
-    pub queue: Queue,
-}
-
-impl<'a> Env<'a> {
-    pub fn new(
-        conf: &'a AppConfig,
-        vars: &'a mut vars::Vars,
-        videos: &'a mut HashMap<String, Rc<RefCell<Video>>>,
-        queue: Queue) -> Self
-    {
-        Self { conf, vars, videos, queue }
-    }
-}
 
 pub struct State {
     pub conf: AppConfig,
-    pub vars_box: Arc<Mutex<vars::VarsBox>>,
     pub queue: Queue,
+    pub vars: vars::Vars,
 }
 
 pub trait Device {
-    fn process(&mut self, e: &mut Env, msg: &Message);
+    fn process(&mut self, e: &mut State, msg: &Message);
 }
 
 pub struct Engine<'a> {
-    conf: AppConfig,
-    vars_box: Arc<Mutex<vars::VarsBox>>,
     queue: Queue,
+    state: Arc<Mutex<State>>,
     script_env: script::Env,
 
     pub rx: Receiver<Message>,
     devices: Vec<Box<dyn Device + 'a>>,
     shutdown: bool,
-
-    videos: HashMap<String, Rc<RefCell<Video>>>,
 }
 
 impl<'a> Engine<'a> {
-    pub fn new(conf: &AppConfig) -> Self {
-        let vars_box = vars::VarsBox{ vars: vars::Vars::new() };
-        let arc_vars_box = Arc::new(Mutex::new(vars_box));
+    pub fn new(conf: AppConfig) -> Self {
 
-        let script_env = unwrap!(script::Env::new(conf, arc_vars_box.clone()));
         let (tx, rx) = mpsc::channel();
 
         let mut videos = HashMap::new();
         for (name, c) in &conf.video {
-            videos.insert(
-                name.to_string(),
-                Rc::new(RefCell::new(Video::new(&c)))
-            );
+            videos.insert(name.to_string(), Video::new(&c));
         }
 
+        let queue = Queue::new(tx);
+        let state = Arc::new(Mutex::new(State {
+            conf,
+            queue: queue.clone(),
+            vars: vars::Vars::new(),
+        }));
+        let script_env = unwrap!(script::Env::new(state.clone()));
+
         Self {
-            conf: conf.clone(),
-            vars_box: arc_vars_box,
-            queue: Queue::new(tx),
+            queue,
+            state,
             rx,
             devices: Vec::new(),
-            videos,
             script_env,
             shutdown: false,
         }
@@ -88,12 +66,8 @@ impl<'a> Engine<'a> {
         self.queue.clone()
     }
 
-    pub fn state(&self) -> State {
-        State {
-            conf: self.conf.clone(),
-            vars_box: self.vars_box.clone(),
-            queue: self.queue.clone(),
-        }
+    pub fn state(&self) -> Arc<Mutex<State>> {
+        self.state.clone()
     }
 
     pub fn init(&mut self) {
@@ -153,13 +127,8 @@ impl<'a> Engine<'a> {
     }
 
     fn process_queue_rust(&mut self, elapsed: time::Duration) -> Vec<Message> {
-        let vars = &mut unwrap!(self.vars_box.lock()).vars;
-        let mut env: Env = Env::new(
-            &self.conf, vars,
-            &mut self.videos,
-            self.queue.clone()
-        );
-        env.vars.insert("elapsed".to_string(), vars::Value::Int(elapsed.as_millis() as i64));
+        let mut state = &mut unwrap!(self.state.lock());
+        state.vars.insert("elapsed".to_string(), vars::Value::Int(elapsed.as_millis() as i64));
 
         let mut messages: Vec<Message> = Vec::new();
         loop {
@@ -171,11 +140,11 @@ impl<'a> Engine<'a> {
                 Err(TryRecvError::Disconnected) => panic!("channel closed"),
                 Ok(msg) => {
                     for dev in &mut self.devices {
-                        dev.process(&mut env, &msg);
+                        dev.process(&mut state, &msg);
                     }
                     match &msg {
                         Message::Note(n) => {
-                            if env.conf.is_release() && n.kind == NoteKind::Fault {
+                            if state.conf.is_release() && n.kind == NoteKind::Fault {
                                 self.shutdown = true
                             }
                         }

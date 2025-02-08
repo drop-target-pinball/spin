@@ -43,15 +43,15 @@ impl fmt::Display for Value {
 pub type Namespaces = HashMap<String, Vec<VarDef>>;
 pub type Vars = HashMap<String, Value>;
 
-fn update(env: &mut Env, name: &str, prev: Value, this: &Value) {
+fn update(s: &mut State, name: &str, prev: Value, this: &Value) {
     let msg = Updated{
         name: name.to_string(),
         was: prev,
         value: this.clone()
     };
 
-    env.vars.insert(name.to_string(), this.clone());
-    env.queue.post(Message::Updated(msg));
+    s.vars.insert(name.to_string(), this.clone());
+    s.queue.post(Message::Updated(msg));
 }
 
 pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, HashMap<String, VarDef>>, name: &str, kind: &VarKind) {
@@ -82,25 +82,25 @@ pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, HashM
     vars.insert(name.to_string(), value);
 }
 
-pub fn set(env: &mut Env, name: &str, this: &Value) {
-    let prev = match env.vars.get(name) {
+pub fn set(s: &mut State, name: &str, this: &Value) {
+    let prev = match s.vars.get(name) {
         Some(v) => v,
         None => {
-            fault!(env.queue, "variable not defined: {}", name);
+            fault!(s.queue, "variable not defined: {}", name);
             return;
         }
     };
 
     match (prev, this) {
-        (Value::Int(_), Value::Int(_)) => update(env, name, prev.clone(), this),
-        (Value::Float(_), Value::Float(_)) => update(env, name, prev.clone(), this),
-        (Value::String(_), Value::String(_)) => update(env, name, prev.clone(), this),
-        (Value::Bool(_), Value::Bool(_)) => update(env, name, prev.clone(), this),
+        (Value::Int(_), Value::Int(_)) => update(s, name, prev.clone(), this),
+        (Value::Float(_), Value::Float(_)) => update(s, name, prev.clone(), this),
+        (Value::String(_), Value::String(_)) => update(s, name, prev.clone(), this),
+        (Value::Bool(_), Value::Bool(_)) => update(s, name, prev.clone(), this),
         (Value::Vars(_), Value::Vars(_)) => {
-            fault!(env.queue, "cannot set vars '{}'", name);
+            fault!(s.queue, "cannot set vars '{}'", name);
         },
         (p, t) => {
-            fault!(env.queue, "invalid type, expected {}, got {}", p, t);
+            fault!(s.queue, "invalid type, expected {}, got {}", p, t);
         }
     }
 }

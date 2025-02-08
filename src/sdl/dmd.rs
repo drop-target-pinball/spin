@@ -75,7 +75,7 @@ impl Dmd {
         Self { video_def: video_def.clone(), conf: dmd_conf.clone(), canvas }
     }
 
-    fn present(&mut self, _: &mut Env) -> Result<(), String> {
+    fn present(&mut self, _: &mut State) -> Result<(), String> {
         let c = &mut self.canvas;
 
         let (win_w, win_h) = c.window().size();
@@ -108,9 +108,9 @@ impl Dmd {
         Ok(())
     }
 
-    pub fn process(&mut self, env: &mut Env, msg: &Message) {
+    pub fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {
-            Message::Present => expect!(self.present(env), "error while presenting DMD"),
+            Message::Present => expect!(self.present(s), "error while presenting DMD"),
             _ => (),
         }
     }

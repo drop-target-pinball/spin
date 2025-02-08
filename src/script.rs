@@ -13,15 +13,16 @@ static SCRIPTS: [(&str, &[u8]); 4] = [
 
 pub struct Env {
     lua: Lua,
-    vars: Arc<Mutex<vars::VarsBox>>,
+    state: Arc<Mutex<State>>,
     spin: LuaTable,
     post: LuaFunction,
 }
 
 impl Env {
-    pub fn new(conf: &AppConfig, vars: Arc<Mutex<vars::VarsBox>>) -> SpinResult<Env> {
+    pub fn new(state: Arc<Mutex<State>>) -> SpinResult<Env> {
+        let s = unwrap!(state.lock());
         // Setup path for use when loading project-specific files
-        let root = conf.app_dir.to_string_lossy();
+        let root = s.conf.app_dir.to_string_lossy();
         env::set_var("LUA_PATH",
         format!("{}/scripts/?.lua;{}/scripts/?/?.lua", root, root));
 
@@ -44,7 +45,7 @@ impl Env {
             Err(_) => return raise!(Error::ScriptEnv, "'post' not found in 'spin'")
         };
 
-        let lua_conf = match lua.to_value(&conf) {
+        let lua_conf = match lua.to_value(&s.conf) {
             Ok(v) => v,
             Err(e) => return raise!(Error::ScriptEnv, "unable to convert config: {}", e)
         };
@@ -53,11 +54,12 @@ impl Env {
             return raise!(Error::ScriptEnv, "unable to set config: {}", e);
         }
 
-        Ok(Env{lua, vars, spin, post})
+        drop(s);
+        Ok(Env{lua, state, spin, post})
     }
 
     pub fn send_vars(&self) -> SpinResult<()> {
-        let vars = &mut unwrap!(self.vars.lock()).vars;
+        let vars = &mut unwrap!(self.state.lock()).vars;
         let lua_vars= match self.lua.to_value(vars) {
             Ok(v) => v,
             Err(e) => return raise!(Error::ScriptEnv, "unable to convert vars: {}", e),
@@ -70,23 +72,23 @@ impl Env {
     }
 
     pub fn recv_vars(&self) -> SpinResult<()> {
-        let vars_box = &mut unwrap!(self.vars.lock());
+        // let vars_box = &mut unwrap!(self.vars.lock());
 
-        let lua_vars: LuaValue = match self.spin.get("vars") {
-            Ok(v) => v,
-            Err(e) => return raise!(Error::ScriptEnv, "unable to receive vars: {}", e)
-        };
+        // let lua_vars: LuaValue = match self.spin.get("vars") {
+        //     Ok(v) => v,
+        //     Err(e) => return raise!(Error::ScriptEnv, "unable to receive vars: {}", e)
+        // };
 
-        let vars = match self.lua.from_value(lua_vars) {
-            Ok(v) => v,
-            Err(e) => return raise!(Error::ScriptEnv, "unable to convert vars: {}", e)
-        };
-        vars_box.vars = vars;
+        // let vars = match self.lua.from_value(lua_vars) {
+        //     Ok(v) => v,
+        //     Err(e) => return raise!(Error::ScriptEnv, "unable to convert vars: {}", e)
+        // };
+        // vars_box.vars = vars;
         Ok(())
     }
 
-    pub fn load_string<'a>(&self, name: &str, data: &'a String) -> LuaChunk<'a> {
-        self.lua.load(data).set_name(name)
+    pub fn load_string(&self, name: &str, data: &str) -> LuaChunk {
+        self.lua.load(data.to_string()).set_name(name)
     }
 
     pub fn exec(&self, name: &str, data: &[u8]) -> SpinResult<()> {

@@ -111,7 +111,7 @@ impl Audio<'_> {
         }
     }
 
-    fn find_available_channel(&self, env: &mut Env, priority: i32) -> Option<i32> {
+    fn find_available_channel(&self, s: &mut State, priority: i32) -> Option<i32> {
         let mut opt_candidate: Option<&ActiveChan> = None;
 
         // First check if there are any open slots
@@ -149,14 +149,14 @@ impl Audio<'_> {
         // channel and return that.
         match opt_candidate {
             Some(aa) => {
-                diag!(env.queue, "a sound channel was interrupted to satisfy request");
+                diag!(s.queue, "a sound channel was interrupted to satisfy request");
                 Some(aa.chan)
             },
             None => None
         }
     }
 
-    fn free_channel(&self, env: &mut Env, num: i32) {
+    fn free_channel(&self, s: &mut State, num: i32) {
         let chan: Channel = Channel(num);
         if chan.is_playing() {
             chan.halt();
@@ -166,9 +166,9 @@ impl Audio<'_> {
         if aa.notify {
             let name = Name{name: aa.name.clone() };
             if num == 0 {
-                env.queue.post(Message::VocalEnded(name));
+                s.queue.post(Message::VocalEnded(name));
             } else {
-                env.queue.post(Message::SoundEnded(name));
+                s.queue.post(Message::SoundEnded(name));
             }
         }
     }
@@ -202,7 +202,7 @@ impl Audio<'_> {
         }
     }
 
-    fn reap_channels(&mut self, env: &mut Env) {
+    fn reap_channels(&mut self, s: &mut State) {
         for i in 0..self.active.len() {
             let chan = Channel(i as i32);
             match &self.active[i] {
@@ -214,7 +214,7 @@ impl Audio<'_> {
                 Some(_aa) => {
                     if !chan.is_playing() {
                         debug_audio!(env.queue, "channel {} reap: {}", _aa.chan, _aa.name);
-                        self.free_channel(env, i as i32);
+                        self.free_channel(s, i as i32);
                         self.active[i] = None;
                     }
                 }
@@ -222,21 +222,21 @@ impl Audio<'_> {
         }
     }
 
-    fn init(&mut self, env: &mut Env) {
-        for (name, music) in &env.conf.music {
-            let path = env.conf.data_dir.join(&music.path);
+    fn init(&mut self, s: &mut State) {
+        for (name, music) in &s.conf.music {
+            let path = s.conf.data_dir.join(&music.path);
             match mixer::Music::from_file(&path) {
-                Err(e) => fault!(env.queue, "unable to load music '{}': {}", &name, &e),
+                Err(e) => fault!(s.queue, "unable to load music '{}': {}", &name, &e),
                 Ok(m) => {
                     self.music.insert(name.clone(), m);
                 }
             }
         }
 
-        for (name, sound) in &env.conf.sounds {
-            let path = env.conf.data_dir.join(&sound.path);
+        for (name, sound) in &s.conf.sounds {
+            let path = s.conf.data_dir.join(&sound.path);
             match mixer::Chunk::from_file(&path) {
-                Err(e) => fault!(env.queue, "unable to load sound '{}': {}", &name, &e),
+                Err(e) => fault!(s.queue, "unable to load sound '{}': {}", &name, &e),
                 Ok(chunk) => {
                     let s= Sound{def: sound.clone(), chunk };
                     self.sounds.insert(name.clone(), s);
@@ -244,10 +244,10 @@ impl Audio<'_> {
             };
         }
 
-        for (name, vocal) in &env.conf.vocals {
-            let path = env.conf.data_dir.join(&vocal.path);
+        for (name, vocal) in &s.conf.vocals {
+            let path = s.conf.data_dir.join(&vocal.path);
             match mixer::Chunk::from_file(&path) {
-                Err(e) => fault!(env.queue, "unable to load vocal '{}': {}", &name, &e),
+                Err(e) => fault!(s.queue, "unable to load vocal '{}': {}", &name, &e),
                 Ok(chunk) => {
                     let entry = Vocal{def: vocal.clone(), chunk };
                     self.vocals.insert(name.clone(), entry);
@@ -261,7 +261,7 @@ impl Audio<'_> {
         mixer::Music::hook_finished(music_finished);
     }
 
-    fn play_music(&mut self, env: &mut Env, cmd: &PlayMusic) {
+    fn play_music(&mut self, s: &mut State, cmd: &PlayMusic) {
         let Some(music) = self.music.get(&cmd.name) else { return };
 
         if let Some(playing) = &self.music_playing {
@@ -275,7 +275,7 @@ impl Audio<'_> {
             loops = -1;
         }
         if let Err(e) = music.play(loops) {
-            fault!(env.queue, "cannot play music: {}", e);
+            fault!(s.queue, "cannot play music: {}", e);
         }
 
         let active = ActiveChan{
@@ -283,13 +283,13 @@ impl Audio<'_> {
             chan: -1,
             duck: 0,
             priority: 0,
-            start_time: env.vars["elapsed"].as_int(),
+            start_time: s.vars["elapsed"].as_int(),
             notify: cmd.notify
         };
         self.music_playing = Some(active);
     }
 
-    fn play_sound(&mut self, env: &mut Env, cmd: &PlaySound)  {
+    fn play_sound(&mut self, s: &mut State, cmd: &PlaySound)  {
         let Some(sound) = self.sounds.get(&cmd.name) else { return };
 
         let mut opt_chan_num: Option<i32> = None;
@@ -299,10 +299,10 @@ impl Audio<'_> {
             if aa.name == cmd.name {
                 // If this sound is already active, do nothing if within the
                 // debounce period
-                let delta = env.vars["elapsed"].as_int() - aa.start_time;
+                let delta = s.vars["elapsed"].as_int() - aa.start_time;
                 let debounce = sec_to_millis(sound.def.debounce);
                 if debounce > 0 && debounce > delta {
-                    diag!(env.queue, "debounce: {}", cmd.name);
+                    diag!(s.queue, "debounce: {}", cmd.name);
                     return
                 }
                 // Since the sound is already playing, this channel will
@@ -313,14 +313,14 @@ impl Audio<'_> {
         }
 
         if opt_chan_num.is_none() {
-            opt_chan_num = match self.find_available_channel(env, sound.def.priority) {
+            opt_chan_num = match self.find_available_channel(s, sound.def.priority) {
                 Some(chan_num) => {
-                    self.free_channel(env, chan_num);
+                    self.free_channel(s, chan_num);
                     self.active[chan_num as usize] = None;
                     Some(chan_num)
                 }
                 None => {
-                    diag!(env.queue, "no sound channels are available");
+                    diag!(s.queue, "no sound channels are available");
                     return;
                 }
             }
@@ -328,7 +328,7 @@ impl Audio<'_> {
 
         // There must be a channel number assigned by this point
         let chan_num = opt_chan_num.unwrap();
-        self.free_channel(env, chan_num);
+        self.free_channel(s, chan_num);
         self.active[chan_num as usize] = None;
 
         debug_audio!(env.queue, "channel {} allocate: {}", chan_num, sound.conf.name);
@@ -339,28 +339,28 @@ impl Audio<'_> {
                     chan: chan_num,
                     duck: scale_volume(MAX_VOLUME, sound.def.duck),
                     priority: sound.def.priority,
-                    start_time: env.vars["elapsed"].as_int(),
+                    start_time: s.vars["elapsed"].as_int(),
                     notify: cmd.notify
                 };
                 self.active[chan_num as usize] = Some(active);
             }
             Err(e) =>  {
-                fault!(env.queue, "cannot play sound: {}", e);
+                fault!(s.queue, "cannot play sound: {}", e);
             }
         };
     }
 
-    fn play_vocal(&mut self, env: &mut Env, cmd: &PlayVocal) {
+    fn play_vocal(&mut self, s: &mut State, cmd: &PlayVocal) {
         let Some(vocal) = self.vocals.get(&cmd.name) else { return };
 
         // Is a vocal already playing?
         if let Some(aa) = &self.active[0] {
             // Don't interrupt if it has a higher priority
             if aa.priority > vocal.def.priority {
-                diag!(env.queue, "a higher priority vocal is already playing");
+                diag!(s.queue, "a higher priority vocal is already playing");
                 return
             }
-            self.free_channel(env, 0);
+            self.free_channel(s, 0);
             self.active[0] = None
         }
 
@@ -371,21 +371,21 @@ impl Audio<'_> {
                     chan: 0,
                     duck: scale_volume(MAX_VOLUME, vocal.def.duck),
                     priority: vocal.def.priority,
-                    start_time: env.vars["elapsed"].as_int(),
+                    start_time: s.vars["elapsed"].as_int(),
                     notify: cmd.notify
                 };
                 self.active[0] = Some(active);
             },
-            Err(e) => fault!(env.queue, "cannot play vocal: {}", e),
+            Err(e) => fault!(s.queue, "cannot play vocal: {}", e),
         }
     }
 
-    fn silence(&mut self, env: &mut Env) {
-        self.stop_music(env, &Name{name: "".to_string()});
-        self.stop_vocal(env, &Name{name: "".to_string()});
+    fn silence(&mut self, s: &mut State) {
+        self.stop_music(s, &Name{name: "".to_string()});
+        self.stop_vocal(s, &Name{name: "".to_string()});
     }
 
-    fn stop_music(&mut self, _: &mut Env, cmd: &Name) {
+    fn stop_music(&mut self, _: &mut State, cmd: &Name) {
         let Some(playing) = &self.music_playing else { return };
         if !cmd.name.is_empty() && cmd.name != *playing.name {
             return
@@ -394,35 +394,35 @@ impl Audio<'_> {
         self.music_playing = None;
     }
 
-    fn stop_vocal(&mut self, env: &mut Env, cmd: &Name) {
+    fn stop_vocal(&mut self, s: &mut State, cmd: &Name) {
         let Some(playing) = &self.active[0] else { return };
         if !cmd.name.is_empty() && cmd.name != *playing.name {
             return
         }
-        self.free_channel(env, 0);
+        self.free_channel(s, 0);
         self.active[0] = None;
     }
 
-    pub fn process(&mut self, env: &mut Env, msg: &Message) {
+    pub fn process(&mut self, s: &mut State, msg: &Message) {
         if MUSIC_FINISHED.load(Ordering::SeqCst) {
             MUSIC_FINISHED.store(false, Ordering::SeqCst);
             if let Some(playing) = &self.music_playing {
                 if playing.notify {
-                    env.queue.post(Message::MusicEnded(Name{name: playing.name.to_string()}));
+                    s.queue.post(Message::MusicEnded(Name{name: playing.name.to_string()}));
                 }
                 self.music_playing = None;
             }
         }
-        self.reap_channels(env);
+        self.reap_channels(s);
         match msg {
-            Message::Halt => self.silence(env),
-            Message::Init => self.init(env),
-            Message::PlayMusic(m) => self.play_music(env, m),
-            Message::PlaySound(m) => self.play_sound(env, m),
-            Message::PlayVocal(m) => self.play_vocal(env, m),
-            Message::Silence => self.silence(env),
-            Message::StopMusic(m) => self.stop_music(env, m),
-            Message::StopVocal(m) => self.stop_vocal(env, m),
+            Message::Halt => self.silence(s),
+            Message::Init => self.init(s),
+            Message::PlayMusic(m) => self.play_music(s, m),
+            Message::PlaySound(m) => self.play_sound(s, m),
+            Message::PlayVocal(m) => self.play_vocal(s, m),
+            Message::Silence => self.silence(s),
+            Message::StopMusic(m) => self.stop_music(s, m),
+            Message::StopVocal(m) => self.stop_vocal(s, m),
             _ => ()
         }
         self.duck();
