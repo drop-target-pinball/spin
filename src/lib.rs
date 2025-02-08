@@ -12,10 +12,11 @@ pub mod sdl;
 
 pub mod prelude {
     pub use crate::builtin;
+    pub use crate::config::*;
     pub use crate::engine::*;
     pub use crate::error::*;
     pub use crate::message::*;
-    pub use crate::config::*;
+    pub use crate::render;
     pub use crate::vars;
     pub use crate::script;
     pub use crate::{alert, diag, raise, fault, info, unwrap, expect};

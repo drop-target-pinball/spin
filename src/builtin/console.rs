@@ -82,6 +82,8 @@ impl Device for Console<'_> {
             }
         }
     }
+
+    fn render(&mut self, _: &mut render::State) {}
 }
 
 fn run(mut editor: DefaultEditor, state: Arc<Mutex<State>>) {

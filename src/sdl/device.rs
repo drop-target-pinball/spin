@@ -70,5 +70,7 @@ impl crate::engine::Device for Device<'_> {
             dmd.process(s, msg);
         }
     }
+
+    fn render(&mut self, _: &mut render::State) {}
 }
 

@@ -33,4 +33,6 @@ impl Device for Validator {
             _ => ()
         }
     }
+
+    fn render(&mut self, _: &mut render::State) {}
 }

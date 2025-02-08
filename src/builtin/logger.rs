@@ -54,4 +54,6 @@ where W: io::Write {
             }
         }
     }
+
+    fn render(&mut self, _: &mut render::State) {}
 }

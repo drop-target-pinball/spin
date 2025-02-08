@@ -17,7 +17,8 @@ pub struct State {
 }
 
 pub trait Device {
-    fn process(&mut self, e: &mut State, msg: &Message);
+    fn process(&mut self, s: &mut State, msg: &Message);
+    fn render(&mut self, s: &mut render::State);
 }
 
 pub struct Engine<'a> {
@@ -32,14 +33,12 @@ pub struct Engine<'a> {
 
 impl<'a> Engine<'a> {
     pub fn new(conf: AppConfig) -> Self {
-
-        let (tx, rx) = mpsc::channel();
-
         let mut videos = HashMap::new();
         for (name, c) in &conf.video {
             videos.insert(name.to_string(), Video::new(&c));
         }
 
+        let (tx, rx) = mpsc::channel();
         let queue = Queue::new(tx);
         let state = Arc::new(Mutex::new(State {
             conf,

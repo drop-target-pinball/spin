@@ -1,14 +1,20 @@
+use crate::prelude::*;
+use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
+
+pub struct State {
+    pub videos: HashMap<String, Video>
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct RenderInstruction {
+pub struct Instruction {
     pub device: String,
     #[serde(default)]
     pub layer: u8,
     #[serde(default)]
     pub priority: i32,
-    pub op: RenderOp,
+    pub op: Op,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -31,7 +37,7 @@ pub struct Rect {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
-pub enum RenderOp {
+pub enum Op {
     Color(Color),
     FillRect(Rect)
 }

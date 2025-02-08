@@ -30,4 +30,6 @@ impl Device for Store {
             _ => (),
         }
     }
+
+    fn render(&mut self, _: &mut render::State) {}
 }
