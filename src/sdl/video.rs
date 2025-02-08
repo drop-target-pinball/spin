@@ -41,10 +41,9 @@ impl Video {
         unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::None));
     }
 
-    pub fn frame(&self) -> &SurfaceRef {
-        self.frame.surface()
+    pub fn frame(&self) -> &Canvas<Surface<'static>> {
+        &self.frame
     }
-
 }
 
 pub fn new_canvas(conf: &VideoDef) -> Canvas<Surface<'static>> {
@@ -54,4 +53,38 @@ pub fn new_canvas(conf: &VideoDef) -> Canvas<Surface<'static>> {
         PixelFormatEnum::RGBA8888,
     ), "unable to create rendering surface");
     expect!(surf.into_canvas(), "unable to create rendering canvas")
+}
+
+fn fill_rect(cvs: &mut Canvas<Surface<'static>>, rect: &render::Rect) {
+    unwrap!(cvs.fill_rect(Rect::new(
+        rect.x,
+        rect.y,
+        rect.w,
+        rect.h,
+    )));
+}
+
+fn set_color(cvs: &mut Canvas<Surface<'static>>, color: &render::Color) {
+    cvs.set_draw_color(Color{
+        r: color.r,
+        g: color.g,
+        b: color.b,
+        a: color.a
+    });
+}
+
+pub fn render(state: &mut render::State) {
+    for (name, video) in &mut state.videos {
+        for inst in &state.ops {
+            if inst.device != *name {
+                continue
+            }
+            let layer = video.layer(inst.layer);
+            match &inst.op {
+                render::Op::Color(color) => set_color(layer, color),
+                render::Op::FillRect(rect) => fill_rect(layer, rect),
+            }
+        }
+        video.flatten();
+    }
 }

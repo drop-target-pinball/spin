@@ -42,6 +42,7 @@ pub trait Device {
     fn init(&mut self, g: &mut Globals);
     fn process(&mut self, s: &mut State, msg: &Message);
     fn render(&mut self, s: &mut render::State);
+    fn present(&mut self, s: &render::State);
 }
 
 #[macro_export]

@@ -58,4 +58,5 @@ where W: io::Write {
     }
 
     fn render(&mut self, _: &mut render::State) {}
+    fn present(&mut self, _: &render::State) {}
 }

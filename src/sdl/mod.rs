@@ -16,7 +16,7 @@ fn default_alpha() -> u8 { 255 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct ColorConfig {
+pub struct ColorDef {
     #[serde(default)]
     pub r: u8,
     #[serde(default)]
@@ -27,13 +27,13 @@ pub struct ColorConfig {
     pub a: u8,
 }
 
-impl ColorConfig {
-    fn new(r: u8, g: u8, b: u8, a: u8) -> ColorConfig {
-        ColorConfig { r, g, b, a, }
+impl ColorDef {
+    fn new(r: u8, g: u8, b: u8, a: u8) -> ColorDef {
+        ColorDef { r, g, b, a, }
     }
 }
 
-impl Into<Color> for ColorConfig {
+impl Into<Color> for ColorDef {
     fn into(self) -> Color {
         Color{
             r: self.r,

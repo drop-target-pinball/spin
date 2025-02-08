@@ -3,12 +3,14 @@ use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 
 pub struct State {
+    pub ops: Vec<Instruction>,
     pub videos: HashMap<String, Video>
 }
 
 impl Default for State {
     fn default() -> State {
         State {
+            ops: Vec::new(),
             videos: HashMap::new(),
         }
     }
@@ -19,7 +21,7 @@ impl Default for State {
 pub struct Instruction {
     pub device: String,
     #[serde(default)]
-    pub layer: u8,
+    pub layer: usize,
     #[serde(default)]
     pub priority: i32,
     pub op: Op,
@@ -39,8 +41,8 @@ pub struct Color {
 pub struct Rect {
     pub x: i32,
     pub y: i32,
-    pub w: i32,
-    pub h: i32,
+    pub w: u32,
+    pub h: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

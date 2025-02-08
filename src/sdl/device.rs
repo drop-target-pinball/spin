@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use crate::sdl::audio::{Audio, AudioConfig};
 use crate::sdl::dmd::{Dmd, DmdConfig};
+use crate::sdl::video;
 use sdl2::{self, AudioSubsystem, VideoSubsystem};
 use serde::{Serialize, Deserialize};
 
@@ -72,11 +73,16 @@ impl crate::Device for Device<'_> {
         if let Some(audio) = &mut self.audio {
             audio.process(s, msg);
         }
-        if let Some(dmd) = &mut self.dmd {
-            dmd.process(s, msg);
-        }
     }
 
-    fn render(&mut self, _: &mut render::State) {}
+    fn render(&mut self, state: &mut render::State) {
+        video::render(state);
+    }
+
+    fn present(&mut self, state: &render::State) {
+        if let Some(dmd) = &mut self.dmd {
+            dmd.present(state);
+        }
+    }
 }
 

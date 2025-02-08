@@ -12,8 +12,8 @@ fn default_dot_size() -> u32 { 4 }
 fn default_padding() -> u32 { 1 }
 fn default_border_size() -> u32 { 20 }
 fn default_title() -> String { return "Dot Matrix Display".to_string() }
-fn default_panel_color() -> ColorConfig { ColorConfig::new(0x40, 0x40, 0x40, 0xff) }
-fn default_border_color() -> ColorConfig { ColorConfig::new(0x80, 0x80, 0x80, 0xff) }
+fn default_panel_color() -> ColorDef { ColorDef::new(0x40, 0x40, 0x40, 0xff) }
+fn default_border_color() -> ColorDef { ColorDef::new(0x80, 0x80, 0x80, 0xff) }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
@@ -24,11 +24,11 @@ pub struct DmdConfig {
     #[serde(default = "default_padding")]
     pub padding: u32,
     #[serde(default = "default_panel_color")]
-    pub panel_color: ColorConfig,
+    pub panel_color: ColorDef,
     #[serde(default = "default_border_size")]
     pub border_size: u32,
     #[serde(default = "default_border_color")]
-    pub border_color: ColorConfig,
+    pub border_color: ColorDef,
     #[serde(default = "default_title")]
     pub title: String,
 }
@@ -75,8 +75,10 @@ impl Dmd {
         Self { video_def: video_def.clone(), conf: dmd_conf.clone(), canvas }
     }
 
-    fn present(&mut self, _: &mut State) -> Result<(), String> {
+    pub fn present(&mut self, s: &render::State) -> Result<(), String> {
         let c = &mut self.canvas;
+
+        //let frame = s.videos[&self.conf.video].frame();
 
         let (win_w, win_h) = c.window().size();
         let panel_w = self.video_def.width;
@@ -106,13 +108,6 @@ impl Dmd {
         }
         self.canvas.present();
         Ok(())
-    }
-
-    pub fn process(&mut self, s: &mut State, msg: &Message) {
-        match msg {
-            Message::Present => expect!(self.present(s), "error while presenting DMD"),
-            _ => (),
-        }
     }
 }
 

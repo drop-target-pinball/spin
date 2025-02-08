@@ -9,14 +9,12 @@ use std::{
 use std::sync::Mutex;
 use std::collections::HashMap;
 
-
 pub struct State {
     pub conf: AppConfig,
     pub queue: Queue,
     pub vars: vars::Vars,
     pub render_list: Vec<render::Instruction>,
 }
-
 
 pub struct Engine<'a> {
     queue: Queue,
@@ -82,8 +80,25 @@ impl<'a> Engine<'a> {
         self.queue.post(Message::Poll);
         self.process_queue(elapsed);
         self.queue.post(Message::Tick);
-        self.queue.post(Message::Present);
         self.process_queue(elapsed);
+        self.render();
+        self.present();
+        self.process_queue(elapsed);
+    }
+
+    fn render(&mut self) {
+        let mut s = unwrap!(self.state.lock());
+        self.r_state.ops = std::mem::take(&mut s.render_list);
+        self.r_state.ops.sort_by_key(|e| e.priority);
+        for d in &mut self.devices {
+            d.render(&mut self.r_state);
+        }
+    }
+
+    fn present(&mut self) {
+        for d in &mut self.devices {
+            d.present(&mut self.r_state);
+        }
     }
 
     pub fn run(&mut self, init_script: Option<String>) {
