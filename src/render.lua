@@ -24,7 +24,12 @@ local dots = {
     255,
 }
 
-function pub.gfx(device)
+function pub.gfx(device, layer, priority)
+    check.nv("device", device)
+
+    layer = check.default(layer, 0)
+    layer = check.default(priority, 0)
+
     local gfx = {
         device = device,
         layer = 0,
@@ -40,6 +45,11 @@ function pub.gfx(device)
                 [op_name] = args
             }
         })
+    end
+
+    function gfx.clear()
+        gfx.dot_off()
+        gfx.fill_rect(0, 0, 128, 32)
     end
 
     function gfx.color(r, g, b, a)
@@ -66,6 +76,14 @@ function pub.gfx(device)
         end
         local v = dots[dot + 1]
         gfx.color(v, v, v)
+    end
+
+    function gfx.dot_on()
+        gfx.dot_color(15)
+    end
+
+    function gfx.dot_off()
+        gfx.dot_color(0)
     end
 
     function gfx.fill_rect(x, y, w, h)

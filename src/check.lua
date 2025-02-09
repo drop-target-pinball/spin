@@ -6,6 +6,13 @@ function pub.nv(name, value)
     end
 end
 
+function pub.default(value, default)
+    if value == nil then
+        return default
+    end
+    return value
+end
+
 package.loaded["check"] = pub
 
 return pub
