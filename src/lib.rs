@@ -22,7 +22,7 @@ pub mod prelude {
     pub use crate::{alert, diag, raise, fault, info, unwrap, expect};
 
     pub use crate::{Device, Globals, Video};
-    pub use crate::sec_to_millis;
+    pub use crate::{rgb_to_gray, sec_to_millis};
 
     #[cfg(feature = "sdl")]
     pub use crate::sdl;
@@ -43,6 +43,12 @@ pub trait Device {
     fn process(&mut self, s: &mut State, msg: &Message);
     fn render(&mut self, s: &mut render::State);
     fn present(&mut self, s: &render::State);
+}
+
+// https://stackoverflow.com/questions/42516203/converting-rgba-image-to-grayscale-golang
+pub fn rgb_to_gray(r: u8, g: u8, b: u8) -> u8 {
+	let lum = 0.299*(r as f64) + 0.587*(g as f64) + 0.114*(b as f64);
+	lum as u8
 }
 
 #[macro_export]
@@ -70,3 +76,14 @@ pub fn sec_to_millis(sec: f64) -> i64 {
     (sec * 1000_f64) as i64
 }
 
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+
+//     #[test]
+//     fn test_rgb_to_gray() {
+//         let have = rgb_to_gray(127, 127, 127);
+//         let want = 253;
+//         assert_eq!(have, want);
+//     }
+// }

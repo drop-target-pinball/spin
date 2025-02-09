@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use sdl2::surface::{Surface, SurfaceRef};
+use sdl2::surface::Surface;
 use sdl2::render::{BlendMode, Canvas};
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::rect::Rect;
@@ -29,20 +29,23 @@ impl Video {
     }
 
     pub fn flatten(&mut self) {
-        let frame_rect = Rect::new(0, 0, self.frame.surface().width(), self.frame.surface().height());
-        self.frame.set_draw_color(Color::BLACK);
-        self.frame.clear();
-        unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::Blend));
-        for layer in &mut self.layers {
-            unwrap!(layer.surface().blit(frame_rect, &mut self.frame.surface_mut(), frame_rect));
-            layer.set_draw_color(TRANSPARENT);
-            layer.clear();
-        }
-        unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::None));
+        // self.layers[0].clear();
+        // let frame_rect = Rect::new(0, 0, self.frame.surface().width(), self.frame.surface().height());
+        // self.frame.set_draw_color(Color::BLACK);
+        // self.frame.clear();
+        // unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::Blend));
+        // for layer in &mut self.layers {
+        //     unwrap!(layer.surface().blit(frame_rect, &mut self.frame.surface_mut(), frame_rect));
+        //     layer.set_draw_color(TRANSPARENT);
+        //     layer.clear();
+        // }
+        // unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::None));
     }
 
     pub fn frame(&self) -> &Canvas<Surface<'static>> {
-        &self.frame
+        // FIXME!!!!!!
+        // &self.frame
+        &self.layers[0]
     }
 }
 
@@ -50,7 +53,7 @@ pub fn new_canvas(conf: &VideoDef) -> Canvas<Surface<'static>> {
     let surf = expect!(Surface::new(
         conf.width,
         conf.height,
-        PixelFormatEnum::RGBA8888,
+        PixelFormatEnum::ABGR8888,
     ), "unable to create rendering surface");
     expect!(surf.into_canvas(), "unable to create rendering canvas")
 }

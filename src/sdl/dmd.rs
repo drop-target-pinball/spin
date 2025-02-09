@@ -4,6 +4,8 @@ use crate::sdl::*;
 
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
+use std::slice::from_raw_parts;
+use std::sync::Arc;
 use sdl2::video::Window;
 use sdl2::render::Canvas;
 use sdl2::rect::Rect;
@@ -78,7 +80,13 @@ impl Dmd {
     pub fn present(&mut self, s: &render::State) -> Result<(), String> {
         let c = &mut self.canvas;
 
-        //let frame = s.videos[&self.conf.video].frame();
+        let size = self.video_def.width * self.video_def.height * 4;
+        let raw_surface = s.videos[&self.conf.video].frame().surface().raw();
+
+        let data = unsafe {
+            let pixels =  (*raw_surface).pixels as *const u8 ;
+            from_raw_parts(pixels, size as usize)
+        };
 
         let (win_w, win_h) = c.window().size();
         let panel_w = self.video_def.width;
@@ -97,12 +105,13 @@ impl Dmd {
         c.fill_rect(Rect::new((win_w - border_size) as i32, 0, border_size, win_h))?;
 
         // Dots
-        for x in 0..panel_w {
-            for y in 0..panel_h {
+        for y in 0..panel_h {
+            for x in 0..panel_w {
                 let dx = border_size + self.conf.padding + (x * self.conf.padding) + (x * self.conf.dot_size);
                 let dy = border_size + self.conf.padding + (y * self.conf.padding) + (y * self.conf.dot_size);
-                let dot = 0;
-                c.set_draw_color(palettes::ORANGE[dot]);
+                let offset = ((y * self.video_def.width + x) * 4) as usize;
+                let dot = rgb_to_gray(data[offset+0] as u8, data[offset+1] as u8, data[offset+2] as u8) / 16;
+                c.set_draw_color(palettes::ORANGE[dot as usize]);
                 c.fill_rect(Rect::new(dx as i32, dy as i32, self.conf.dot_size, self.conf.dot_size))?;
             }
         }

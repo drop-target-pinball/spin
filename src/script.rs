@@ -4,11 +4,14 @@ use std::env;
 use std::sync::{Arc, Mutex};
 use mlua::prelude::*;
 
-static SCRIPTS: [(&str, &[u8]); 5] = [
+static SCRIPTS: [(&str, &[u8]); 7] = [
+    ("check.lua", include_bytes!("check.lua")),
     ("render.lua", include_bytes!("render.lua")),
     ("spin.lua", include_bytes!("spin.lua")),
     ("std.lua", include_bytes!("std.lua")),
     ("message.lua", include_bytes!("message.lua")),
+
+    ("diag.lua", include_bytes!("std/scripts/diag.lua")),
     ("game.lua", include_bytes!("std/scripts/game.lua")),
 ];
 
@@ -108,8 +111,11 @@ impl Env {
                 }
             }
         }
-        state.render_list = ops;
-        Ok(())
+        state.render_list = ops.clone();
+        match lua_ops.clear() {
+            Ok(()) => Ok(()),
+            Err(e) => raise!(Error::ScriptEnv, "unable to clear ops table: {}", e),
+        }
     }
 
     pub fn load_string(&self, name: &str, data: &str) -> LuaChunk {

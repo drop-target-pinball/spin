@@ -29,25 +29,30 @@ pub struct Engine<'a> {
 
 impl<'a> Engine<'a> {
     pub fn new(conf: AppConfig) -> Self {
+        let (tx, rx) = mpsc::channel();
+        let queue = Queue::new(tx);
+
         let mut videos = HashMap::new();
         for (name, c) in &conf.video {
             videos.insert(name.to_string(), Video::new(&c));
         }
+        let r_state = render::State{
+            ops: Vec::new(),
+            videos,
+        };
 
-        let (tx, rx) = mpsc::channel();
-        let queue = Queue::new(tx);
         let state = Arc::new(Mutex::new(State {
             conf,
             queue: queue.clone(),
             vars: vars::Vars::new(),
             render_list: Vec::new(),
         }));
-        let script_env = unwrap!(script::Env::new(state.clone()));
 
+        let script_env = unwrap!(script::Env::new(state.clone()));
         Self {
             queue,
             state,
-            r_state: render::State::default(),
+            r_state,
             rx,
             devices: Vec::new(),
             script_env,
@@ -87,12 +92,16 @@ impl<'a> Engine<'a> {
     }
 
     fn render(&mut self) {
+        if let Err(e) = self.script_env.recv_vars() {
+            fault!(self.queue, "{}", e);
+        }
         let mut s = unwrap!(self.state.lock());
         self.r_state.ops = std::mem::take(&mut s.render_list);
         self.r_state.ops.sort_by_key(|e| e.priority);
         for d in &mut self.devices {
             d.render(&mut self.r_state);
         }
+        self.r_state.ops.clear();
     }
 
     fn present(&mut self) {
@@ -190,9 +199,9 @@ impl<'a> Engine<'a> {
                 Err(e) => fault!(self.queue, "{}", e),
             }
         }
-        if let Err(e) = self.script_env.recv_vars() {
-            fault!(self.queue, "{}", e);
-        }
+        // if let Err(e) = self.script_env.recv_vars() {
+        //     fault!(self.queue, "{}", e);
+        // }
     }
 
 }

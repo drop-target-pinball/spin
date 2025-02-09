@@ -7,15 +7,6 @@ pub struct State {
     pub videos: HashMap<String, Video>
 }
 
-impl Default for State {
-    fn default() -> State {
-        State {
-            ops: Vec::new(),
-            videos: HashMap::new(),
-        }
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Instruction {
