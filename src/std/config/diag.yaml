@@ -1,2 +1,0 @@
-scripts:
-  dmd_gradient:     { module: "_diag" }

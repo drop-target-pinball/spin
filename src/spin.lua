@@ -1,3 +1,5 @@
+local check = require("check")
+
 local pub = {
     conf = {},
     vars = {},
@@ -129,12 +131,6 @@ function pub.post(msg)
 end
 
 -------------------------------------------------------------------------------
-local function must_have(name, val)
-    if val == nil then
-        error("'" .. name .. "' is required")
-    end
-end
-
 local function copy_opts(src, dest, ...)
     local arg = {...}
     if src == nil then
@@ -150,6 +146,15 @@ local function copy_opts(src, dest, ...)
     end
 end
 
+function pub.video(name)
+    check.nv("name", name)
+    local v = spin.conf.video[name]
+    if v == nil then
+        error("no such video: " .. name)
+    end
+    return v
+end
+
 -------------------------------------------------------------------------------
 local function extract_var(msg)
     local kind, value
@@ -161,7 +166,7 @@ local function extract_var(msg)
 end
 
 function pub.bool(name)
-    must_have('name', name)
+    check.nv('name', name)
     local v = pub.vars[name]
     if v == nil then
         error("undefined variable: " .. name)
@@ -173,7 +178,7 @@ function pub.bool(name)
 end
 
 function pub.int(name)
-    must_have('name', name)
+    check.nv('name', name)
     local v = pub.vars[name]
     if v == nil then
         error("undefined variable: " .. name)
@@ -210,14 +215,14 @@ function pub.wait(...)
 end
 
 function pub.for_any(name)
-    must_have("name", name)
+    check.nv("name", name)
     return function(kind)
         return kind == name
     end
 end
 
 function pub.for_switch(name, active)
-    must_have("name", name)
+    check.nv("name", name)
     if active == nil then
         active = true
     end
@@ -227,8 +232,8 @@ function pub.for_switch(name, active)
 end
 
 function pub.for_eq(name, value)
-    must_have("name", name)
-    must_have("value", value)
+    check.nv("name", name)
+    check.nv("value", value)
     return function (kind, msg)
         if kind == "updated" then
             local var_name, _, var_value = extract_var(msg)
@@ -267,16 +272,12 @@ function pub.halt()
 end
 
 function pub.kill(name)
-    if name == nil then
-        error('name is required')
-    end
+    check.nv("name", name)
     table.insert(queue, { kill = { name = name } })
 end
 
 function pub.kill_group(name)
-    if name == nil then
-        error('name is required')
-    end
+    check.nv("name", name)
     table.insert(queue, { kill_group = { name = name } })
 end
 
@@ -288,9 +289,7 @@ function pub.info(message)
 end
 
 function pub.play_music(name, opts)
-    if name == nil then
-        error("name is required")
-    end
+    check.nv("name", name)
     local msg = {
         name = name
     }
@@ -303,7 +302,7 @@ function pub.play_music(name, opts)
 end
 
 function pub.play_sound(name, opts)
-    must_have("name", name)
+    check.nv("name", name)
     local msg = { name = name }
     copy_opts(opts, msg,
         'loops',
@@ -313,9 +312,7 @@ function pub.play_sound(name, opts)
 end
 
 function pub.play_vocal(name, opts)
-    if name == nil then
-        error("name is required")
-    end
+    check.nv("name", name)
     local msg = { name = name }
     copy_opts(opts, msg,
         'loops',
@@ -325,20 +322,20 @@ function pub.play_vocal(name, opts)
 end
 
 function pub.rejected(reason)
-    must_have("reason", reason);
+    check.nv("reason", reason)
     table.insert(queue, { rejected = {reason=reason}})
 end
 
 function pub.run(name)
-    must_have("name", name);
+    check.nv("name", name)
     table.insert(queue, { run = {
         name = name
     }})
 end
 
 local function set_nv(name, value)
-    must_have('name', name)
-    must_have('value', value)
+    check.nv('name', name)
+    check.nv('value', value)
 
     if type(value) == "number" then
         if tonumber(tostring(value), 10) then
@@ -364,7 +361,7 @@ function pub.set(name, value)
 end
 
 function pub.set_multi(vars)
-    must_have("vars", vars)
+    check.nv("vars", vars)
     local msg = {}
     for name, value in pairs(vars) do
         msg[name] = set_nv(name, value)
@@ -395,7 +392,7 @@ function pub.stop_vocal(name)
 end
 
 function pub.switch_updated(name, active)
-    must_have("name", name)
+    check.nv("name", name)
     if active == nil then
         active = true
     end

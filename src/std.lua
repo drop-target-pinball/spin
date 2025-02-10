@@ -3,6 +3,7 @@ local pub = {}
 pub.ADD_PLAYER = "add_player"
 pub.CREDITS = "credits"
 pub.CREDITS_REQUIRED = "credits_required"
+pub.DMD = "dmd"
 pub.FREE_PLAY = "free_play"
 pub.GAME_ACTIVE = "game_active"
 pub.GAME_FULL = "game_full"

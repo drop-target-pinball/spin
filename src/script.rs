@@ -5,13 +5,13 @@ use std::sync::{Arc, Mutex};
 use mlua::prelude::*;
 
 static SCRIPTS: [(&str, &[u8]); 7] = [
+    ("std.lua", include_bytes!("std.lua")),
     ("check.lua", include_bytes!("check.lua")),
     ("render.lua", include_bytes!("render.lua")),
     ("spin.lua", include_bytes!("spin.lua")),
-    ("std.lua", include_bytes!("std.lua")),
     ("message.lua", include_bytes!("message.lua")),
 
-    ("diag.lua", include_bytes!("std/scripts/diag.lua")),
+    ("service.lua", include_bytes!("std/scripts/service.lua")),
     ("game.lua", include_bytes!("std/scripts/game.lua")),
 ];
 

@@ -10,6 +10,7 @@ const TRANSPARENT: Color = Color{r: 0, g: 0, b: 0, a: 0};
 pub struct Video {
     frame: Canvas<Surface<'static>>,
     layers: Vec<Canvas<Surface<'static>>>,
+    dirty: bool,
 }
 
 impl Video {
@@ -20,32 +21,35 @@ impl Video {
         }
         Video {
             frame: new_canvas(&conf),
-            layers
+            layers,
+            dirty: true
         }
     }
 
     pub fn layer(&mut self, i: usize) -> &mut Canvas<Surface<'static>> {
+        self.dirty = true;
         &mut self.layers[i]
     }
 
     pub fn flatten(&mut self) {
-        // self.layers[0].clear();
-        // let frame_rect = Rect::new(0, 0, self.frame.surface().width(), self.frame.surface().height());
-        // self.frame.set_draw_color(Color::BLACK);
-        // self.frame.clear();
-        // unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::Blend));
-        // for layer in &mut self.layers {
-        //     unwrap!(layer.surface().blit(frame_rect, &mut self.frame.surface_mut(), frame_rect));
-        //     layer.set_draw_color(TRANSPARENT);
-        //     layer.clear();
-        // }
-        // unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::None));
+        if !self.dirty {
+            return
+        }
+        let frame_rect = Rect::new(0, 0, self.frame.surface().width(), self.frame.surface().height());
+        self.frame.set_draw_color(Color::BLACK);
+        self.frame.clear();
+        unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::Blend));
+        for layer in &mut self.layers {
+            unwrap!(layer.surface().blit(frame_rect, &mut self.frame.surface_mut(), frame_rect));
+            layer.set_draw_color(TRANSPARENT);
+            layer.clear();
+        }
+        unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::None));
+        self.dirty = false;
     }
 
     pub fn frame(&self) -> &Canvas<Surface<'static>> {
-        // FIXME!!!!!!
-        // &self.frame
-        &self.layers[0]
+        &self.frame
     }
 }
 

@@ -11,10 +11,9 @@ use figment::providers::{Format, Yaml};
 
 use serde::{Serialize, Deserialize};
 
-const STD: [(&str, &str); 4] = [
-    ("diag", include_str!("std/config/diag.yaml")),
+const STD: [(&str, &str); 3] = [
+    ("service", include_str!("std/config/service.yaml")),
     ("game", include_str!("std/config/game.yaml")),
-    ("player", include_str!("std/config/player.yaml")),
     ("player_4", include_str!("std/config/player_4.yaml")),
 ];
 

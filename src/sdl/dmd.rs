@@ -5,7 +5,6 @@ use crate::sdl::*;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::slice::from_raw_parts;
-use std::sync::Arc;
 use sdl2::video::Window;
 use sdl2::render::Canvas;
 use sdl2::rect::Rect;
