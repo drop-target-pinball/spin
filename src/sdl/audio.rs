@@ -63,8 +63,8 @@ struct Vocal {
     chunk: mixer::Chunk
 }
 
-pub struct Audio<'a> {
-    music: HashMap<String,mixer::Music<'a>>,
+pub struct Audio {
+    music: HashMap<String,mixer::Music<'static>>,
     sounds: HashMap<String,Sound>,
     vocals: HashMap<String,Vocal>,
 
@@ -72,7 +72,7 @@ pub struct Audio<'a> {
     active: Vec<Option<ActiveChan>>,
 }
 
-impl<'a> Audio<'a> {
+impl Audio {
     pub fn new(conf: &AudioConfig) -> Self {
         let output_chans = match conf.output {
             Output::Mono => 1,
