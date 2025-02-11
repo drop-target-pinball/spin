@@ -31,14 +31,14 @@ impl<'a> Default for Context {
     }
 }
 
-pub struct Device<'a> {
+pub struct Device {
     ctx: Context,
     audio: Option<Audio>,
     dmd: Option<Dmd>,
-    renderer: Renderer<'a>,
+    renderer: Renderer,
 }
 
-impl<'a> Device<'a> {
+impl Device {
     pub fn new(app_conf: &AppConfig, device_conf: &Config) -> Self {
         let ctx = Context::default();
         let audio : Option<Audio> = match &device_conf.audio {
@@ -62,8 +62,8 @@ impl<'a> Device<'a> {
     }
 }
 
-impl<'a> crate::Device<'a> for Device<'a> {
-    fn init(&'a mut self, s: &mut State, _: &mut render::State) {
+impl crate::Device for Device {
+    fn init(&mut self, s: &mut State, _: &mut render::State) {
         if let Some(audio) = &mut self.audio {
             audio.init(s);
         }

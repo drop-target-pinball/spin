@@ -33,8 +33,8 @@ use crate::prelude::*;
 #[cfg(feature = "sdl")]
 pub type Video = crate::sdl::Video;
 
-pub trait Device<'a> {
-    fn init(&'a mut self, s: &mut State, r: &mut render::State);
+pub trait Device {
+    fn init(&mut self, s: &mut State, r: &mut render::State);
     fn process(&mut self, s: &mut State, msg: &Message);
     fn render(&mut self, s: &mut render::State);
     fn present(&mut self, s: &render::State);

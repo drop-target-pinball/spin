@@ -66,31 +66,31 @@ pub fn new_canvas(conf: &VideoDef) -> Canvas<Surface<'static>> {
     expect!(surf.into_canvas(), "unable to create rendering canvas")
 }
 
-pub struct Renderer<'a> {
+pub struct Renderer {
     ttf: ttf::Sdl2TtfContext,
-    fonts: HashMap<String, Font<'a, 'static>>,
+    // fonts: HashMap<String, Font<'a, 'static>>,
     // font: Option<&Font<'_, 'static>>
 }
 
-impl<'a> Default for Renderer<'a> {
-    fn default() -> Renderer<'a> {
+impl<'a> Default for Renderer {
+    fn default() -> Renderer {
         let ttf = expect!(ttf::init(), "unable to initialize TTF");
         Renderer {
             ttf,
-            fonts: HashMap::new(),
+            // fonts: HashMap::new(),
         }
     }
 }
 
-impl<'a> Renderer<'a> {
-    pub fn init(&'a mut self, s: &State) {
-        for (name, font_def) in &s.conf.fonts {
-            let path = s.conf.data_dir.join(&font_def.path);
-            match self.ttf.load_font(path, font_def.point_size) {
-                Err(e) => fault!(s.queue, "unable to load font '{}': {}", name, e),
-                Ok(f) => { self.fonts.insert(name.to_string(), f); },
-            }
-        }
+impl Renderer {
+    pub fn init(&mut self, s: &State) {
+        // for (name, font_def) in &s.conf.fonts {
+        //     let path = s.conf.data_dir.join(&font_def.path);
+        //     match self.ttf.load_font(path, font_def.point_size) {
+        //         Err(e) => fault!(s.queue, "unable to load font '{}': {}", name, e),
+        //         Ok(f) => { self.fonts.insert(name.to_string(), f); },
+        //     }
+        // }
     }
 
     fn draw_text(&self, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) {

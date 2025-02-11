@@ -16,8 +16,8 @@ impl Store {
     }
 }
 
-impl<'a> Device<'a> for Store {
-    fn init(&'a mut self, s: &mut State, _: &mut render::State) {
+impl Device for Store {
+    fn init(&mut self, s: &mut State, _: &mut render::State) {
         for (name, v) in &s.conf.vars {
             vars::define(&mut s.queue, &mut s.vars, &s.conf.namespaces, &name, &v.kind);
         }

@@ -39,9 +39,9 @@ impl Default for Logger<io::Stdout> {
     }
 }
 
-impl<'a, W> Device<'a> for Logger<W>
+impl<W> Device for Logger<W>
 where W: io::Write {
-    fn init(&'a mut self, _: &mut State, _: &mut render::State) {}
+    fn init(&mut self, _: &mut State, _: &mut render::State) {}
 
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {

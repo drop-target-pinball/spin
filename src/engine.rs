@@ -23,7 +23,7 @@ pub struct Engine<'a> {
     script_env: script::Env,
 
     pub rx: Receiver<Message>,
-    devices: Vec<Box<dyn Device<'a>>>,
+    devices: Vec<Box<dyn Device + 'a>>,
     shutdown: bool,
 }
 
@@ -61,7 +61,7 @@ impl<'a> Engine<'a> {
         }
     }
 
-    pub fn add_device(&mut self, d: Box<dyn Device<'a>>) {
+    pub fn add_device(&mut self, d: Box<dyn Device>) {
         self.devices.push(d)
     }
 
@@ -73,7 +73,7 @@ impl<'a> Engine<'a> {
         self.state.clone()
     }
 
-    pub fn init(&'a mut self) {
+    pub fn init(&mut self) {
         let mut s = unwrap!(self.state.lock());
         for d in &mut self.devices {
             d.init(&mut s, &mut self.r_state);
@@ -112,7 +112,7 @@ impl<'a> Engine<'a> {
         }
     }
 
-    pub fn run(&'a mut self, init_script: Option<String>) {
+    pub fn run(&mut self, init_script: Option<String>) {
         let run_start = time::Instant::now();
         let rate = Duration::from_micros(16670);
 
