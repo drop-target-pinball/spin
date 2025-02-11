@@ -4,7 +4,8 @@ use std::fs;
 use spin::prelude::*;
 
 pub fn main() -> ExitCode {
-    let conf = match load_config(&app_dir()) {
+    let dirs = Dirs::default();
+    let conf = match load_config(&dirs) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("{}", e);
@@ -25,8 +26,10 @@ pub fn main() -> ExitCode {
         ids.push(name);
     };
 
+    for v in conf.fonts.keys()   { add(&mut ids, v.into()) }
     for v in conf.music.keys()   { add(&mut ids, v.into()) }
     for v in conf.sounds.keys()  { add(&mut ids, v.into()) }
+    for v in conf.video.keys()   { add(&mut ids, v.into()) }
     for v in conf.vocals.keys()  { add(&mut ids, v.into()) }
 
     for (name, s) in conf.scripts {
@@ -45,7 +48,7 @@ pub fn main() -> ExitCode {
         return ExitCode::FAILURE;
     };
 
-    let id_file = conf.scripts_dir.join(format!("{}.lua", main_module));
+    let id_file = dirs.scripts.join(format!("{}.lua", main_module));
     match fs::write(id_file, &lua) {
         Ok(_) => ExitCode::SUCCESS,
         Err(e) => {

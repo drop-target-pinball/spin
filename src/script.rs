@@ -27,7 +27,7 @@ impl Env {
     pub fn new(state: Arc<Mutex<State>>) -> SpinResult<Env> {
         let s = unwrap!(state.lock());
         // Setup path for use when loading project-specific files
-        let root = s.conf.app_dir.to_string_lossy();
+        let root = s.runtime.dirs.app.to_string_lossy();
         env::set_var("LUA_PATH",
         format!("{}/scripts/?.lua;{}/scripts/?/?.lua", root, root));
 
@@ -62,6 +62,15 @@ impl Env {
 
         if let Err(e) = spin.set("conf", lua_conf) {
             return raise!(Error::ScriptEnv, "unable to set config: {}", e);
+        }
+
+        let lua_runtime = match lua.to_value(&s.runtime) {
+            Ok(v) => v,
+            Err(e) => return raise!(Error::ScriptEnv, "unable to convert runtime: {}", e)
+        };
+
+        if let Err(e) = spin.set("runtime", lua_runtime) {
+            return raise!(Error::ScriptEnv, "unable to set runtime: {}", e);
         }
 
         let init: LuaFunction = match spin.get("_init") {

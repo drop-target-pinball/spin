@@ -1,5 +1,5 @@
 use clap::{Parser, crate_name, crate_description, crate_version};
-use std::{os::fd::AsRawFd, process::ExitCode};
+use std::{env, os::fd::AsRawFd, process::ExitCode};
 
 use spin::prelude::*;
 
@@ -28,7 +28,8 @@ pub fn main() -> ExitCode  {
         RunMode::Develop
     };
 
-    let conf = match load_config(&app_dir()) {
+    let dirs = Dirs::default();
+    let conf = match load_config(&dirs) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("{}", e);
@@ -36,7 +37,16 @@ pub fn main() -> ExitCode  {
         }
     };
 
-    let mut e = Engine::new(conf.clone());
+    let runtime = Runtime {
+        prog_name: crate_name!().to_string(),
+        prog_description: crate_description!().to_string(),
+        prog_version: crate_version!().to_string(),
+        prog_date: env::var("SPIN_BUILD_DATE").unwrap_or_default(),
+        mode,
+        dirs,
+    };
+
+    let mut e = Engine::new(conf.clone(), runtime);
 
     #[cfg(feature = "sdl")] {
         if let Some(sdl_conf) = &conf.sdl {

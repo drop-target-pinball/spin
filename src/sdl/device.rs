@@ -16,7 +16,7 @@ pub struct Config {
 pub struct Context {
     pub sdl: sdl2::Sdl,
     pub audio: AudioSubsystem,
-    pub ttf: ttf::Sdl2TtfContext,
+    pub ttf: &'static ttf::Sdl2TtfContext,
     pub video: VideoSubsystem,
 }
 
@@ -24,10 +24,10 @@ impl Context {
     pub fn new() -> Context {
         let sdl = expect!(sdl2::init(), "unable to initialize SDL");
         let audio = expect!(sdl.audio(), "unable to initialize SDL audio");
-        let ttf = expect!(sdl2::ttf::init(), "unable to initialize SDL truetype");
+        let ttf = Box::new(expect!(sdl2::ttf::init(), "unable to initialize SDL truetype"));
         let video = expect!(sdl.video(), "unable to initialize SDL video");
 
-        Context { sdl, audio, ttf, video }
+        Context { sdl, audio, ttf: Box::leak(ttf), video }
     }
 }
 
@@ -35,7 +35,7 @@ pub struct Device {
     ctx: Context,
     audio: Option<Audio>,
     dmd: Option<Dmd>,
-    renderer: Renderer,
+    renderer: Renderer<'static>,
 }
 
 impl Device {
@@ -67,7 +67,7 @@ impl<'a> crate::Device for Device {
         if let Some(audio) = &mut self.audio {
             audio.init(s);
         }
-        self.renderer.init(s);
+        self.renderer.init(&self.ctx, s);
     }
 
     fn process(&mut self, s: &mut State, msg: &Message)  {

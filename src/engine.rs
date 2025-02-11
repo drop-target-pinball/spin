@@ -11,6 +11,7 @@ use std::collections::HashMap;
 
 pub struct State {
     pub conf: AppConfig,
+    pub runtime: Runtime,
     pub queue: Queue,
     pub vars: vars::Vars,
     pub render_list: Vec<render::Instruction>,
@@ -28,7 +29,7 @@ pub struct Engine<'a> {
 }
 
 impl<'a> Engine<'a> {
-    pub fn new(conf: AppConfig) -> Self {
+    pub fn new(conf: AppConfig, runtime: Runtime) -> Self {
         let (tx, rx) = mpsc::channel();
         let queue = Queue::new(tx);
 
@@ -44,6 +45,7 @@ impl<'a> Engine<'a> {
 
         let state = Arc::new(Mutex::new(State {
             conf,
+            runtime,
             queue: queue.clone(),
             vars: vars::Vars::new(),
             render_list: Vec::new(),
@@ -71,16 +73,6 @@ impl<'a> Engine<'a> {
 
     pub fn state(&self) -> Arc<Mutex<State>> {
         self.state.clone()
-    }
-
-    pub fn init(&mut self) {
-        let mut s = unwrap!(self.state.lock());
-        for d in &mut self.devices {
-            d.init(&mut s, &mut self.r_state);
-        }
-        drop(s);
-        info!(self.queue, "ready");
-        self.process_queue(time::Duration::ZERO);
     }
 
     pub fn tick(&mut self, elapsed: time::Duration) {
@@ -116,7 +108,13 @@ impl<'a> Engine<'a> {
         let run_start = time::Instant::now();
         let rate = Duration::from_micros(16670);
 
-        self.init();
+        self.process_queue(time::Duration::ZERO);
+        let mut s = unwrap!(self.state.lock());
+        for d in &mut self.devices {
+            d.init(&mut s, &mut self.r_state);
+        }
+        drop(s);
+        info!(self.queue, "ready");
 
         if let Some(init) = init_script {
             let msg = Name{name: init};
@@ -176,7 +174,7 @@ impl<'a> Engine<'a> {
                     }
                     match &msg {
                         Message::Note(n) => {
-                            if state.conf.is_release() && n.kind == NoteKind::Fault {
+                            if state.runtime.is_release() && n.kind == NoteKind::Fault {
                                 self.shutdown = true
                             }
                         }

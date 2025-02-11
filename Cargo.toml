@@ -1,9 +1,15 @@
 [package]
 name = "spin"
 description = "Super Pinball System"
-version = "0.1.0"
+version = "2.0.0"
+authors = ["Mike McGann"]
+repository = "https://github.com/drop-target-pinball/spin"
+readme = "README.md"
+license-file = "LICENSE"
+
 edition = "2021"
 default-run = "spin"
+
 
 [lib]
 name = "spin"
@@ -25,6 +31,7 @@ debug_fps = []
 
 [dependencies]
 ansi_term = "0.12.1"
+chrono = "0.4.39"
 clap = { version = "4.5.13", features = ["cargo", "derive"] }
 ctrlc = "3.4.5"
 figment = { version = "0.10.19", features = [ "yaml" ] }

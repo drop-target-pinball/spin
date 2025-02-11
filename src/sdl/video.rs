@@ -1,13 +1,15 @@
+use crate::font::FontConfig;
 use crate::prelude::*;
 use crate::render;
-use sdl2::ttf;
 use std::collections::HashMap;
+use std::fs::{self, File};
 use sdl2::surface::Surface;
 use sdl2::render::{BlendMode, Canvas};
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::rect::Rect;
 use sdl2::pixels::Color;
 use sdl2::ttf::Font;
+use super::Context;
 
 const TRANSPARENT: Color = Color{r: 0, g: 0, b: 0, a: 0};
 
@@ -66,36 +68,80 @@ pub fn new_canvas(conf: &VideoDef) -> Canvas<Surface<'static>> {
     expect!(surf.into_canvas(), "unable to create rendering canvas")
 }
 
-pub struct Renderer {
-    ttf: ttf::Sdl2TtfContext,
-    // fonts: HashMap<String, Font<'a, 'static>>,
-    // font: Option<&Font<'_, 'static>>
+struct FontWithConfig<'ttf> {
+    font: Font<'ttf, 'static>,
+    conf: FontConfig,
 }
 
-impl<'a> Default for Renderer {
-    fn default() -> Renderer {
-        let ttf = expect!(ttf::init(), "unable to initialize TTF");
+pub struct Renderer<'ttf> {
+    fonts: HashMap<String, FontWithConfig<'ttf>>,
+    font: Option<String>,
+    color: Color,
+}
+
+impl<'ttf> Default for Renderer<'ttf> {
+    fn default() -> Renderer<'ttf> {
         Renderer {
-            ttf,
-            // fonts: HashMap::new(),
+            fonts: HashMap::new(),
+            font: None,
+            color: Color::BLACK,
         }
     }
 }
 
-impl Renderer {
-    pub fn init(&mut self, s: &State) {
-        // for (name, font_def) in &s.conf.fonts {
-        //     let path = s.conf.data_dir.join(&font_def.path);
-        //     match self.ttf.load_font(path, font_def.point_size) {
-        //         Err(e) => fault!(s.queue, "unable to load font '{}': {}", name, e),
-        //         Ok(f) => { self.fonts.insert(name.to_string(), f); },
-        //     }
-        // }
+impl<'ttf> Renderer<'ttf> {
+    pub fn init(&mut self, ctx: &Context, s: &State) {
+        for (name, font_def) in &s.conf.fonts {
+            let path = s.runtime.dirs.data.join(&font_def.path);
+            let font = match ctx.ttf.load_font(&path, font_def.point_size) {
+                Ok(f) => f,
+                Err(e) => {
+                    fault!(s.queue, "unable to load font '{}': {}", name, e);
+                    return
+                }
+            };
+
+            let mut conf_path = path.clone();
+            conf_path.set_extension("ttf.json");
+            let conf = {
+                match File::open(&conf_path) {
+                    Ok(f) => {
+                        match serde_yml::from_reader(f) {
+                            Ok(c) => c,
+                            Err(_) => FontConfig::default()
+                        }
+                    }
+                    Err(_) => FontConfig::default()
+                }
+            };
+            self.fonts.insert(name.clone(), FontWithConfig{font, conf});
+        }
     }
 
-    fn draw_text(&self, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) {
-        // let Some(f) = self.font else { return Ok(()) };
-        // let surf = f.render(args.text)?;
+    fn draw_text(&self, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> SpinResult<()> {
+        let Some(name) = &self.font else { return Ok(()) };
+        let fc = &self.fonts[name];
+        let text = match fc.font.render(&args.text).solid(self.color) {
+            Ok(s) => s,
+            Err(e) => return raise!(Error::RenderError, "{}", e)
+        };
+
+        let x = if args.center_x {
+            ((cvs.surface().width() - text.width()) / 2) as i32
+        } else {
+            args.x
+        };
+
+        let y = fc.conf.offset_y + if args.center_y {
+            ((cvs.surface().height() - text.height()) / 2) as i32
+        } else {
+            args.y
+        };
+
+        match text.blit(text.rect(), cvs.surface_mut(), Rect::new(x, y, text.width(), text.height())) {
+            Ok(_) => Ok(()),
+            Err(e) => return raise!(Error::RenderError, "{}", e)
+        }
     }
 
     fn fill_rect(&self, cvs: &mut Canvas<Surface<'static>>, rect: &render::Rect) {
@@ -107,29 +153,30 @@ impl Renderer {
         )));
     }
 
-    fn set_color(&self, cvs: &mut Canvas<Surface<'static>>, color: &render::Color) {
-        cvs.set_draw_color(Color{
+    fn set_color(&mut self, cvs: &mut Canvas<Surface<'static>>, color: &render::Color) {
+        let c = Color{
             r: color.r,
             g: color.g,
             b: color.b,
             a: color.a
-        });
+        };
+        cvs.set_draw_color(c);
+        self.color = c;
     }
 
     fn set_font(&mut self, name: &str) -> SpinResult<()> {
-        Ok(())
-        // if self.fonts.contains_key(name) {
-        //     self.font = Some(&self.font[name]);
-        //     Ok(())
-        // } else {
-        //     raise!(Error::RenderError, "no such font: {}", name)
-        // }
+        if self.fonts.contains_key(name) {
+            self.font = Some(name.to_string());
+            Ok(())
+        } else {
+            raise!(Error::RenderError, "no such font: {}", name)
+        }
     }
 
     pub fn render_instruction(&mut self, layer: &mut Canvas<Surface<'static>>, inst: &render::Instruction) -> SpinResult<()> {
         match &inst.op {
             render::Op::Color(color) => self.set_color(layer, color),
-            render::Op::DrawText(args) => self.draw_text(layer, args),
+            render::Op::DrawText(args) => self.draw_text(layer, args)?,
             render::Op::Font(name) => self.set_font(name)?,
             render::Op::FillRect(rect) => self.fill_rect(layer, rect),
         }

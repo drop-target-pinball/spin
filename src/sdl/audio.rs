@@ -114,7 +114,7 @@ impl Audio {
 
     pub fn init(&mut self, s: &mut State) {
         for (name, music) in &s.conf.music {
-            let path = s.conf.data_dir.join(&music.path);
+            let path = s.runtime.dirs.data.join(&music.path);
             match mixer::Music::from_file(&path) {
                 Err(e) => fault!(s.queue, "unable to load music '{}': {}", &name, &e),
                 Ok(m) => {
@@ -124,7 +124,7 @@ impl Audio {
         }
 
         for (name, sound) in &s.conf.sounds {
-            let path = s.conf.data_dir.join(&sound.path);
+            let path = s.runtime.dirs.data.join(&sound.path);
             match mixer::Chunk::from_file(&path) {
                 Err(e) => fault!(s.queue, "unable to load sound '{}': {}", &name, &e),
                 Ok(chunk) => {
@@ -135,7 +135,7 @@ impl Audio {
         }
 
         for (name, vocal) in &s.conf.vocals {
-            let path = s.conf.data_dir.join(&vocal.path);
+            let path = s.runtime.dirs.data.join(&vocal.path);
             match mixer::Chunk::from_file(&path) {
                 Err(e) => fault!(s.queue, "unable to load vocal '{}': {}", &name, &e),
                 Ok(chunk) => {

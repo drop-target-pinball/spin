@@ -86,6 +86,27 @@ function pub.gfx(device, layer, priority)
         gfx.dot_color(0)
     end
 
+    function gfx.draw_text(x, y, text)
+        check.nv("x", x)
+        check.nv("y", y)
+        check.nv("text", text)
+        insert_op("draw_text", {
+            x=math.floor(x),
+            y=math.floor(y),
+            text=text,
+        })
+    end
+
+    function gfx.draw_text_y(y, text)
+        check.nv("y", y)
+        check.nv("text", text)
+        insert_op("draw_text", {
+            y=math.floor(y),
+            center_x=true,
+            text=text,
+        })
+    end
+
     function gfx.fill_rect(x, y, w, h)
         check.nv("x", x)
         check.nv("y", y)
@@ -97,6 +118,11 @@ function pub.gfx(device, layer, priority)
             w=math.floor(w),
             h=math.floor(h)
         })
+    end
+
+    function gfx.font(name)
+        check.nv("name", name)
+        insert_op("font", name)
     end
 
     return gfx

@@ -17,7 +17,7 @@ impl<W> Logger<W>
         // debug mode and simply write to standard error when in
         // production mode
         if let Err(e) = self.checked_log(s, text) {
-            if s.conf.is_develop() {
+            if s.runtime.is_develop() {
                 panic!("fault: unable to log: {}", e)
             } else {
                 eprintln!("fault: unable to log: {}", e)
@@ -47,7 +47,7 @@ where W: io::Write {
         match msg {
             Message::Note(_) => self.log(s, &msg.to_string()),
             _ => {
-                if s.conf.is_develop() {
+                if s.runtime.is_develop() {
                     let text: String = msg.to_string();
                     if !text.is_empty() {
                         self.log(s, &format!("> {}", text));

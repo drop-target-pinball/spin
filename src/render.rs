@@ -32,8 +32,14 @@ pub struct Color {
 #[serde(deny_unknown_fields)]
 pub struct DrawText {
     pub text: String,
+    #[serde(default)]
     pub x: i32,
+    #[serde(default)]
     pub y: i32,
+    #[serde(default)]
+    pub center_x: bool,
+    #[serde(default)]
+    pub center_y: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

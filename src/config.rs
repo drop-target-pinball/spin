@@ -17,7 +17,7 @@ const STD: [(&str, &str); 3] = [
     ("player_4", include_str!("std/config/player_4.yaml")),
 ];
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone, Copy, PartialEq)]
 pub enum RunMode {
     /// Without pinball machine
     #[default]
@@ -111,15 +111,6 @@ pub struct VocalDef {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct AppConfig {
-    #[serde(skip)]
-    pub mode: RunMode,
-    #[serde(skip)]
-    pub app_dir: PathBuf,
-    #[serde(skip)]
-    pub data_dir: PathBuf,
-    #[serde(skip)]
-    pub scripts_dir: PathBuf,
-
     pub module_name: Option<String>,
 
     #[serde(default)]
@@ -148,7 +139,18 @@ pub struct AppConfig {
 
 }
 
-impl AppConfig {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct Runtime {
+    pub prog_name: String,
+    pub prog_description: String,
+    pub prog_version: String,
+    pub prog_date: String,
+    pub mode: RunMode,
+    pub dirs: Dirs,
+}
+
+impl Runtime {
     pub fn is_develop(&self) -> bool {
         self.mode == RunMode::Develop
     }
@@ -159,23 +161,41 @@ impl AppConfig {
 }
 
 // ----------------------------------------------------------------------------
-
-pub fn app_dir() -> PathBuf {
-    PathBuf::from(env::var_os("SPIN_DIR").unwrap_or(".".into()))
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct Dirs {
+    pub app: PathBuf,
+    pub conf: PathBuf,
+    pub data: PathBuf,
+    pub scripts: PathBuf
 }
 
-pub fn load_config(app_dir: &Path) -> SpinResult<AppConfig> {
-    let conf_dir = app_dir.join("config");
-    let data_dir = app_dir.join("data");
-    let scripts_dir = app_dir.join("scripts");
+impl Dirs {
+    pub fn new(app_dir: &Path) -> Dirs {
+        Dirs {
+            app: app_dir.to_path_buf(),
+            conf: app_dir.join("config"),
+            data: app_dir.join("data"),
+            scripts: app_dir.join("scripts"),
+        }
+    }
+}
 
-    let files = match find_files(&conf_dir) {
+impl Default for Dirs {
+    fn default() -> Dirs {
+        let app_dir = PathBuf::from(env::var_os("SPIN_DIR").unwrap_or(".".into()));
+        Dirs::new(&app_dir)
+    }
+}
+
+pub fn load_config(dirs: &Dirs) -> SpinResult<AppConfig> {
+    let files = match find_files(&dirs.conf) {
         Ok(f) => f,
-        Err(e) => return raise!(Error::Config, "{}: {}", conf_dir.to_string_lossy(), e)
+        Err(e) => return raise!(Error::Config, "{}: {}", dirs.conf.to_string_lossy(), e)
     };
 
     if files.is_empty() {
-        return raise!(Error::Config, "no configuration files found in '{}'", conf_dir.to_string_lossy());
+        return raise!(Error::Config, "no configuration files found in '{}'", dirs.conf.to_string_lossy());
     }
 
     let mut builder = Figment::new();
@@ -200,14 +220,10 @@ pub fn load_config(app_dir: &Path) -> SpinResult<AppConfig> {
         builder = builder.adjoin(Yaml::string(conf));
     }
 
-    let mut config: AppConfig = match builder.extract() {
+    let config: AppConfig = match builder.extract() {
         Ok(c) => c,
         Err(e) => return raise!(Error::Config, "{}", e),
     };
-
-    config.app_dir = PathBuf::from(app_dir);
-    config.data_dir = data_dir;
-    config.scripts_dir = scripts_dir;
 
     Ok(config)
 }
