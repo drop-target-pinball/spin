@@ -32,6 +32,13 @@ pub enum RunMode {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
+pub struct FontDef {
+    pub path: String,
+    pub point_size: u16,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct MusicDef {
     pub path: String,
     #[serde(default)]
@@ -117,6 +124,8 @@ pub struct AppConfig {
 
     #[serde(default)]
     pub displays: HashMap<String, VideoDef>,
+    #[serde(default)]
+    pub fonts: HashMap<String, FontDef>,
     #[serde(default)]
     pub music: HashMap<String, MusicDef>,
     #[serde(default)]

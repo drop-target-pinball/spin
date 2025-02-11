@@ -24,8 +24,8 @@ impl Validator {
     }
 }
 
-impl Device for Validator {
-    fn init(&mut self, _: &mut Globals) {}
+impl<'a> Device<'a> for Validator {
+    fn init(&mut self, _: &mut State, _: &mut render::State) {}
 
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {

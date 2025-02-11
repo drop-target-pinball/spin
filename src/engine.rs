@@ -23,7 +23,7 @@ pub struct Engine<'a> {
     script_env: script::Env,
 
     pub rx: Receiver<Message>,
-    devices: Vec<Box<dyn Device + 'a>>,
+    devices: Vec<Box<dyn Device<'a>>>,
     shutdown: bool,
 }
 
@@ -37,6 +37,7 @@ impl<'a> Engine<'a> {
             videos.insert(name.to_string(), Video::new(&c));
         }
         let r_state = render::State{
+            queue: queue.clone(),
             ops: Vec::new(),
             videos,
         };
@@ -60,7 +61,7 @@ impl<'a> Engine<'a> {
         }
     }
 
-    pub fn add_device(&mut self, d: Box<dyn Device>) {
+    pub fn add_device(&mut self, d: Box<dyn Device<'a>>) {
         self.devices.push(d)
     }
 
@@ -72,11 +73,12 @@ impl<'a> Engine<'a> {
         self.state.clone()
     }
 
-    pub fn init(&mut self) {
+    pub fn init(&'a mut self) {
+        let mut s = unwrap!(self.state.lock());
         for d in &mut self.devices {
-            let mut s = unwrap!(self.state.lock());
-            d.init(&mut Globals { s: &mut s, r: &mut self.r_state });
+            d.init(&mut s, &mut self.r_state);
         }
+        drop(s);
         info!(self.queue, "ready");
         self.process_queue(time::Duration::ZERO);
     }
@@ -110,7 +112,7 @@ impl<'a> Engine<'a> {
         }
     }
 
-    pub fn run(&mut self, init_script: Option<String>) {
+    pub fn run(&'a mut self, init_script: Option<String>) {
         let run_start = time::Instant::now();
         let rate = Duration::from_micros(16670);
 
@@ -131,6 +133,7 @@ impl<'a> Engine<'a> {
         //     panic!("unable to set signal handler: {}", e);
         // }
 
+        self.tick(run_start.elapsed());
         while /*running.load(Ordering::SeqCst) &&*/ !self.shutdown {
             let frame_start = time::Instant::now();
             self.tick(run_start.elapsed());
@@ -138,6 +141,9 @@ impl<'a> Engine<'a> {
             let frame_time = frame_start.elapsed();
             if let Some(remaining) = rate.checked_sub(frame_time) {
                 thread::sleep(remaining);
+            } else {
+                #[cfg(feature = "debug_fps")]
+                diag!(self.queue, "late frame: {} ms", frame_time.as_millis());
             }
         }
 

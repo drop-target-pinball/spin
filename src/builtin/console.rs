@@ -63,8 +63,8 @@ impl Drop for Console<'_> {
     }
 }
 
-impl Device for Console<'_> {
-    fn init(&mut self, _: &mut Globals) {}
+impl<'a> Device<'a> for Console<'_> {
+    fn init(&'a mut self, _: &mut State, _: &mut render::State) {}
 
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {

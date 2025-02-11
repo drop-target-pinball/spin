@@ -21,6 +21,7 @@ path = "src/tools/id-gen.rs"
 default = ["sdl"]
 sdl = ["dep:sdl2"]
 debug_audio = []
+debug_fps = []
 
 [dependencies]
 ansi_term = "0.12.1"

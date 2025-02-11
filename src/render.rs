@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 
 pub struct State {
+    pub queue: Queue,
     pub ops: Vec<Instruction>,
     pub videos: HashMap<String, Video>
 }
@@ -29,6 +30,14 @@ pub struct Color {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
+pub struct DrawText {
+    pub text: String,
+    pub x: i32,
+    pub y: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct Rect {
     pub x: i32,
     pub y: i32,
@@ -40,5 +49,7 @@ pub struct Rect {
 #[serde(rename_all = "snake_case")]
 pub enum Op {
     Color(Color),
+    DrawText(DrawText),
+    Font(String),
     FillRect(Rect)
 }

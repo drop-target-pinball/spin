@@ -3,6 +3,9 @@ pub enum Error {
     #[error("configuration error: {0}")]
     Config(String),
 
+    #[error("rendering error: {0}")]
+    RenderError(String),
+
     #[error("invalid script environment: {0}")]
     ScriptEnv(String),
 
