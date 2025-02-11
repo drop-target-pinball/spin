@@ -7,6 +7,7 @@ use sdl2::mixer::Channel;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
+
 static MUSIC_FINISHED: AtomicBool = AtomicBool::new(false);
 
 const MAX_VOLUME: i32 = 128;
@@ -62,8 +63,8 @@ struct Vocal {
     chunk: mixer::Chunk
 }
 
-pub struct Audio {
-    music: HashMap<String,mixer::Music<'static>>,
+pub struct Audio<'a> {
+    music: HashMap<String,mixer::Music<'a>>,
     sounds: HashMap<String,Sound>,
     vocals: HashMap<String,Vocal>,
 
@@ -71,7 +72,7 @@ pub struct Audio {
     active: Vec<Option<ActiveChan>>,
 }
 
-impl Audio {
+impl<'a> Audio<'a> {
     pub fn new(conf: &AudioConfig) -> Self {
         let output_chans = match conf.output {
             Output::Mono => 1,

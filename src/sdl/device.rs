@@ -20,29 +20,29 @@ pub struct Context {
     pub video: VideoSubsystem,
 }
 
-impl<'a> Default for Context {
-    fn default() -> Self {
+impl Context {
+    pub fn new() -> Context {
         let sdl = expect!(sdl2::init(), "unable to initialize SDL");
-        let audio = expect!(sdl.audio(), "unable to initialize audio");
-        let ttf = expect!(ttf::init(), "unable to initialize TTF");
-        let video = expect!(sdl.video(), "unable to initialize video");
+        let audio = expect!(sdl.audio(), "unable to initialize SDL audio");
+        let ttf = expect!(sdl2::ttf::init(), "unable to initialize SDL truetype");
+        let video = expect!(sdl.video(), "unable to initialize SDL video");
 
-        Self { sdl, audio, ttf, video }
+        Context { sdl, audio, ttf, video }
     }
 }
 
-pub struct Device {
+pub struct Device<'a> {
     ctx: Context,
-    audio: Option<Audio>,
+    audio: Option<Audio<'a>>,
     dmd: Option<Dmd>,
     renderer: Renderer,
 }
 
-impl Device {
+impl<'a> Device<'a> {
     pub fn new(app_conf: &AppConfig, device_conf: &Config) -> Self {
-        let ctx = Context::default();
-        let audio : Option<Audio> = match &device_conf.audio {
-            Some(c) => Some(Audio::new(&c)),
+        let ctx = Context::new();
+        let audio = match &device_conf.audio {
+            Some(conf) => Some(Audio::new(&conf)),
             None => None,
         };
 
@@ -62,7 +62,7 @@ impl Device {
     }
 }
 
-impl crate::Device for Device {
+impl<'a> crate::Device for Device<'a> {
     fn init(&mut self, s: &mut State, _: &mut render::State) {
         if let Some(audio) = &mut self.audio {
             audio.init(s);
