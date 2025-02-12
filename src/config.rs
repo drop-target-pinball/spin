@@ -39,12 +39,28 @@ pub struct FontDef {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
+pub struct KeyDef {
+    pub key: String,
+    #[serde(default)]
+    pub shift: bool,
+    pub down: Option<Message>,
+    pub up: Option<Message>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct MusicDef {
     pub path: String,
     #[serde(default)]
     pub device_id: u8,
 }
 
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct RunGroup {
+    parent: Option<String>
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
@@ -71,6 +87,36 @@ pub struct SoundDef {
     pub debounce: f64,
 }
 
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum SwitchNormally {
+    #[default]
+    Open,
+    Closed
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Component {
+    Jumper(String),
+    Transistor(String),
+    Wire(String),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct SwitchDef {
+    pub name: String,
+    pub address: String,
+    #[serde(default)]
+    pub normally: SwitchNormally,
+    pub sort_name: Option<String>,
+    pub manual_name: Option<String>,
+    #[serde(default)]
+    pub unused: bool,
+    #[serde(default)]
+    pub components: Vec<Component>,
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
@@ -118,15 +164,21 @@ pub struct AppConfig {
     #[serde(default)]
     pub fonts: HashMap<String, FontDef>,
     #[serde(default)]
+    pub keyboard: Vec<KeyDef>,
+    #[serde(default)]
     pub music: HashMap<String, MusicDef>,
     #[serde(default)]
     pub namespaces: HashMap<String, HashMap<String, VarDef>>,
+    #[serde(default)]
+    pub run_groups: HashMap<String, RunGroup>,
     #[serde(default)]
     pub scripts: HashMap<String, ScriptDef>,
     #[serde(default)]
     pub sounds: HashMap<String, SoundDef>,
     #[serde(default)]
     pub std: Vec<String>,
+    #[serde(default)]
+    pub switches: HashMap<String, SwitchDef>,
     #[serde(default)]
     pub vocals: HashMap<String, VocalDef>,
     #[serde(default)]

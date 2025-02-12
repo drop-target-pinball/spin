@@ -20,3 +20,11 @@ scripts:
   start_service:  { module: "_game" }
   add_player:     { module: "_game" }
 
+run_groups:
+  service: {}
+  main: {}
+  game: { parent: main }
+  turn: { parent: game }
+  ball: { parent: turn }
+  mode: { parent: ball }
+

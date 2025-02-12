@@ -50,6 +50,7 @@ function pub.gfx(device, layer, priority)
     function gfx.clear()
         gfx.dot_off()
         gfx.fill_rect(0, 0, 128, 32)
+        gfx.dot_on()
     end
 
     function gfx.color(r, g, b, a)
@@ -104,6 +105,15 @@ function pub.gfx(device, layer, priority)
             y=math.floor(y),
             center_x=true,
             text=text,
+        })
+    end
+
+    function gfx.draw_centered_text(text)
+        check.nv("text", text)
+        insert_op("draw_text", {
+            center_x=true,
+            center_y=true,
+            text=text
         })
     end
 

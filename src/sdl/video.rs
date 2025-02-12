@@ -2,7 +2,7 @@ use crate::font::FontConfig;
 use crate::prelude::*;
 use crate::render;
 use std::collections::HashMap;
-use std::fs::{self, File};
+use std::fs::File;
 use sdl2::surface::Surface;
 use sdl2::render::{BlendMode, Canvas};
 use sdl2::pixels::PixelFormatEnum;
@@ -132,7 +132,7 @@ impl<'ttf> Renderer<'ttf> {
             args.x
         };
 
-        let y = fc.conf.offset_y + if args.center_y {
+        let y = /*fc.conf.offset_y +*/ if args.center_y {
             ((cvs.surface().height() - text.height()) / 2) as i32
         } else {
             args.y
