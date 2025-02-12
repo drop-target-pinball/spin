@@ -3,6 +3,10 @@ use std::fmt::{Result, Write};
 use std::fs;
 use spin::prelude::*;
 
+static MESSAGES: [&str; 1] = [
+    "switch_updated"
+];
+
 pub fn main() -> ExitCode {
     let dirs = Dirs::default();
     let conf = match load_config(&dirs) {
@@ -32,6 +36,7 @@ pub fn main() -> ExitCode {
     for v in conf.switches.keys()   { add(&mut ids, v.into()) }
     for v in conf.video.keys()      { add(&mut ids, v.into()) }
     for v in conf.vocals.keys()     { add(&mut ids, v.into()) }
+    for v in MESSAGES               { add(&mut ids, v.into()) }
 
     for (name, s) in conf.scripts {
         add(&mut ids, name);

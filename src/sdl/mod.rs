@@ -3,11 +3,13 @@ use serde::{Serialize, Deserialize};
 mod audio;
 mod device;
 mod dmd;
+mod input;
 mod video;
 
 pub use crate::sdl::audio::*;
 pub use crate::sdl::device::*;
 pub use crate::sdl::dmd::*;
+pub use crate::sdl::input::*;
 pub use crate::sdl::video::*;
 
 use sdl2::pixels::Color;

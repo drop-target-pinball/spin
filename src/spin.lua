@@ -36,13 +36,19 @@ local function kill(name)
     if alive[name] == nil then
         return
     end
+    table.insert(queue, { script_killed = {name = name} })
     alive[name] = nil
 end
 
 local function kill_group(group)
     for name, def in pairs(pub.conf.scripts) do
-        if def.group == group then
+        if def.group == group and alive[name] ~= nil then
             kill(name)
+        end
+    end
+    for name, def in pairs(pub.conf.run_groups) do
+        if group == def.parent then
+            kill_group(name)
         end
     end
 end
@@ -55,12 +61,8 @@ local function run(name)
 
     -- See if this script, when run, replaces all scripts in the group
     local this_def = script_defs[name]
-    if this_def.replace and this_def.group ~= "" then
-        for name, def in pairs(pub.conf.scripts) do
-            if def.group == this_def.group then
-                kill(name)
-            end
-        end
+    if this_def.replace and this_def.group ~= nil then
+        kill_group(this_def.group)
     end
 
     -- Create the coroutine and place it in the alive table. Set the wait
@@ -80,8 +82,9 @@ local function service_coroutines(kind, msg)
             }})
             alive[name] = nil
         else
-            if script.can_resume(kind, msg) then
-                local running, result = coroutine.resume(script.co)
+            local yes, r_kind, r_msg = script.can_resume(kind, msg)
+            if yes then
+                local running, result = coroutine.resume(script.co, r_kind, r_msg)
                 if not running and result ~= nil then
                     error("in script '" .. name .. "': " .. result)
                 end
@@ -198,16 +201,17 @@ function pub.sleep(secs)
     local millis = secs * 1000
     local wake_at = pub.int('elapsed') + millis
     coroutine.yield(function ()
-        return pub.int('elapsed') >= wake_at
+        return pub.int('elapsed') >= wake_at, 'wake'
     end)
 end
 
 function pub.wait(...)
     local conds = {...}
-    coroutine.yield(function(kind, msg)
+    return coroutine.yield(function(kind, msg)
         for i, cond in ipairs(conds) do
-            if cond(kind, msg) then
-                return true
+            local result, r_kind, r_msg = cond(kind, msg)
+            if result then
+                return true, r_kind, r_msg
             end
         end
         return false
@@ -217,7 +221,7 @@ end
 function pub.for_any(name)
     check.nv("name", name)
     return function(kind)
-        return kind == name
+        return kind == name, kind, msg
     end
 end
 
@@ -227,7 +231,7 @@ function pub.for_switch(name, active)
         active = true
     end
     return function (kind, msg)
-        return kind == "switch_updated" and msg.name == name and msg.active == active
+        return kind == "switch_updated" and msg.name == name and msg.active == active, kind, msg
     end
 end
 
@@ -237,12 +241,22 @@ function pub.for_eq(name, value)
     return function (kind, msg)
         if kind == "updated" then
             local var_name, _, var_value = extract_var(msg)
-            return var_name == name and var_value == value
+            return var_name == name and var_value == value, kind, msg
         else
             return false
         end
     end
 end
+
+function pub.for_time(secs)
+    check.nv("secs", secs)
+    local millis = secs * 1000
+    local wake_at = pub.int('elapsed') + millis
+    return function (kind, msg)
+        return pub.int('elapsed') >= wake_at, 'wake'
+    end
+end
+
 
 -------------------------------------------------------------------------------
 function pub.alert(message)

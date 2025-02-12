@@ -167,6 +167,7 @@ pub enum Message {
     Poll,
     Rejected(Rejected),
     ScriptEnded(Name),
+    ScriptKilled(Name),
     Set(Vars),
     Shutdown,
     Silence,
@@ -178,6 +179,7 @@ pub enum Message {
     Tick,
     Updated(Updated),
     VocalEnded(Name),
+    Wake,
 }
 
 impl fmt::Display for Message {
@@ -202,6 +204,7 @@ impl fmt::Display for Message {
             Message::Poll => Ok(()),
             Message::Rejected(m) => write!(f, "rejected: {}", m),
             Message::ScriptEnded(m) => write!(f, "script_ended: {}", m),
+            Message::ScriptKilled(m) => write!(f, "script_killed: {}", m),
             Message::Set(m) => write!(f, "set: {}", m),
             Message::Run(m) => write!(f, "run: {}", m),
             Message::Shutdown => write!(f, "shutdown"),
@@ -213,6 +216,7 @@ impl fmt::Display for Message {
             Message::Tick => Ok(()),
             Message::Updated(m) => write!(f, "updated: {}", m),
             Message::VocalEnded(m) => write!(f, "vocal_ended: {}", m),
+            Message::Wake => Ok(()),
         }
     }
 }

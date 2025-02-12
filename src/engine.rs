@@ -116,6 +116,9 @@ impl<'a> Engine<'a> {
         drop(s);
         info!(self.queue, "ready");
 
+        #[cfg(feature = "debug_fps")]
+        diag!(self.queue, "debug_fps enabled");
+
         if let Some(init) = init_script {
             let msg = Name{name: init};
             self.queue.post(Message::Run(msg));

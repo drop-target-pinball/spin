@@ -2,6 +2,7 @@ use crate::prelude::*;
 use crate::sdl::audio::{Audio, AudioConfig};
 use crate::sdl::dmd::{Dmd, DmdConfig};
 use crate::sdl::video::Renderer;
+use super::input::Input;
 use sdl2::{self, AudioSubsystem, VideoSubsystem};
 use sdl2::ttf;
 use serde::{Serialize, Deserialize};
@@ -35,6 +36,7 @@ pub struct Device {
     ctx: Context,
     audio: Option<Audio>,
     dmd: Option<Dmd>,
+    input: Input,
     renderer: Renderer<'static>,
 }
 
@@ -51,13 +53,16 @@ impl Device {
             None => None,
         };
 
-        Self { ctx, audio, dmd, renderer: Renderer::default() }
+        let input = Input::new(app_conf);
+        let renderer = Renderer::default();
+
+        Self { ctx, audio, dmd, input, renderer }
     }
 
-    fn poll(&mut self, _: &mut State) {
+    fn poll(&mut self, s: &mut State) {
         let mut pump = expect!(self.ctx.sdl.event_pump(), "unable to obtain SDL event pump");
-        for _ in pump.poll_iter() {
-            // do nothing for now
+        for event in pump.poll_iter() {
+           self.input.event(s, &event);
         }
     }
 }

@@ -42,7 +42,7 @@ pub struct FontDef {
 pub struct KeyDef {
     pub key: String,
     #[serde(default)]
-    pub shift: bool,
+    pub left_shift: bool,
     pub down: Option<Message>,
     pub up: Option<Message>,
 }
@@ -67,7 +67,7 @@ pub struct RunGroup {
 pub struct ScriptDef {
     pub module: String,
     #[serde(default)]
-    pub group: String,
+    pub group: Option<String>,
     #[serde(default)]
     pub replace: bool,
 }
