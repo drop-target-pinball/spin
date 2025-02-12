@@ -49,6 +49,15 @@ pub struct KeyDef {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
+pub struct MatrixDef {
+    #[serde(default)]
+    pub rows: Vec<Vec<Component>>,
+    #[serde(default)]
+    pub columns: Vec<Vec<Component>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct MusicDef {
     pub path: String,
     #[serde(default)]
@@ -165,6 +174,8 @@ pub struct AppConfig {
     pub fonts: HashMap<String, FontDef>,
     #[serde(default)]
     pub keyboard: Vec<KeyDef>,
+    #[serde(default)]
+    pub matrices: HashMap<String, MatrixDef>,
     #[serde(default)]
     pub music: HashMap<String, MusicDef>,
     #[serde(default)]
