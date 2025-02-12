@@ -31,6 +31,62 @@ pub enum RunMode {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum DriverKind {
+    Flasher,
+    Lamp,
+    Magnet,
+    Motor,
+    Solenoid,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum ColorName {
+    Blue,
+    Green,
+    Orange,
+    Red,
+    White,
+    Yellow
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Shape {
+    Rect,
+    Circle
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct Layout {
+    pub shape: Shape,
+    pub x: i32,
+    pub y: i32,
+    pub w: u32,
+    pub h: u32,
+    #[serde(default)]
+    pub color_name: Option<ColorName>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct DriverDef {
+    pub address: String,
+    pub name: String,
+    pub kind: DriverKind,
+    pub sort_name: Option<String>,
+    pub manual_name: Option<String>,
+    #[serde(default)]
+    pub unused: bool,
+    #[serde(default)]
+    pub components: Vec<Component>,
+    #[serde(default)]
+    pub layout: Vec<Layout>
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct FontDef {
     pub path: String,
@@ -170,6 +226,8 @@ pub struct AppConfig {
 
     #[serde(default)]
     pub displays: HashMap<String, VideoDef>,
+    #[serde(default)]
+    pub drivers: HashMap<String, DriverDef>,
     #[serde(default)]
     pub fonts: HashMap<String, FontDef>,
     #[serde(default)]
