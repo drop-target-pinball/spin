@@ -40,8 +40,8 @@ pub fn main() -> ExitCode {
 
     for (name, s) in conf.scripts {
         add(&mut ids, name);
-        if !s.group.is_empty() {
-            add(&mut ids, s.group);
+        if let Some(group) = s.group {
+            add(&mut ids, group);
         }
     }
 
