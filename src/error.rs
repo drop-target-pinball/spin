@@ -10,7 +10,10 @@ pub enum Error {
     InvalidFormat(String),
 
     #[error("rendering error: {0}")]
-    RenderError(String),
+    Render(String),
+
+    #[error("presentation error: {0}")]
+    Present(String),
 
     #[error("invalid script environment: {0}")]
     ScriptEnv(String),
@@ -19,7 +22,7 @@ pub enum Error {
     ScriptExec(String),
 }
 
-pub type SpinResult<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[macro_export]
 macro_rules! raise {
@@ -36,6 +39,11 @@ macro_rules! chain {
             Err(e) => return Err($err(e.to_string())),
         }
     };
+}
 
-
+#[macro_export]
+macro_rules! try_present {
+    ($expr:expr) => {
+        chain!($expr, Error::Present)
+    }
 }

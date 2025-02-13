@@ -91,7 +91,9 @@ impl<'a> crate::Device for Device {
 
     fn present(&mut self, state: &render::State) {
         if let Some(dmd) = &mut self.dmd {
-            unwrap!(dmd.present(state));
+            if let Err(e) = dmd.present(state) {
+                fault!(state.queue, "{}", e);
+            }
         }
     }
 }

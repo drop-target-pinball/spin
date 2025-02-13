@@ -86,7 +86,7 @@ struct BitmapFont {
 }
 
 impl BitmapFont {
-    pub fn load(path: &Path) -> SpinResult<BitmapFont> {
+    pub fn load(path: &Path) -> Result<BitmapFont> {
         let data = match std::fs::read(path) {
             Ok(d) => d,
             Err(e) => return raise!(Error::Load, "unable to load '{}': {}", path.to_string_lossy(), e),
@@ -113,7 +113,7 @@ impl BitmapFont {
 
     const HEADER_SIZE: usize = 16;
 
-    pub fn decode_dmd(data: &[u8]) -> SpinResult<Vec<Surface<'static>>> {
+    pub fn decode_dmd(data: &[u8]) -> Result<Vec<Surface<'static>>> {
         if data.len() < Self::HEADER_SIZE {
             return raise!(Error::InvalidFormat, "invalid DMD");
         }
@@ -129,8 +129,8 @@ impl BitmapFont {
 
         let mut frames =Vec::new();
         for _ in 0..n_frames {
-            let surface = chain!(Surface::new(width, height, PixelFormatEnum::RGB888), Error::RenderError);
-            let mut canvas = chain!(surface.into_canvas(), Error::RenderError);
+            let surface = chain!(Surface::new(width, height, PixelFormatEnum::RGB888), Error::Render);
+            let mut canvas = chain!(surface.into_canvas(), Error::Render);
             let start = Self::HEADER_SIZE as u32 + (n_frames * width * height);
             for y in 0..width {
                 for x in 0..height {
@@ -140,7 +140,7 @@ impl BitmapFont {
                     // the lower nibble to the higher nibble.
                     let dot = dot <<4 + dot;
                     canvas.set_draw_color(Color{r: dot, g: dot, b: dot, a: 0xff});
-                    chain!(canvas.draw_point(Point::new(x as i32, y as i32)), Error::RenderError);
+                    chain!(canvas.draw_point(Point::new(x as i32, y as i32)), Error::Render);
                 }
             }
             frames.push(canvas.into_surface());
@@ -182,9 +182,9 @@ impl<'ttf> Renderer<'ttf> {
         }
     }
 
-    fn draw_text(&self, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> SpinResult<()> {
+    fn draw_text(&self, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> Result<()> {
         let Some(name) = &self.font else {
-            return raise!(Error::RenderError, "no font has been set");
+            return raise!(Error::Render, "no font has been set");
         };
 
         if let Some(font) = self.ttf_fonts.get(name) {
@@ -192,14 +192,14 @@ impl<'ttf> Renderer<'ttf> {
         } else if let Some(font) = self.bit_fonts.get(name)  {
             self.draw_text_bit(font, cvs, args)
         } else {
-            raise!(Error::RenderError, "no such font: {}", name)
+            raise!(Error::Render, "no such font: {}", name)
         }
     }
 
-    fn draw_text_ttf(&self, font: &Font<'ttf, 'static>, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> SpinResult<()> {
+    fn draw_text_ttf(&self, font: &Font<'ttf, 'static>, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> Result<()> {
         let text = match font.render(&args.text).solid(self.color) {
             Ok(s) => s,
-            Err(e) => return raise!(Error::RenderError, "{}", e)
+            Err(e) => return raise!(Error::Render, "{}", e)
         };
 
         let x = if args.center_x {
@@ -216,16 +216,16 @@ impl<'ttf> Renderer<'ttf> {
 
         match text.blit(text.rect(), cvs.surface_mut(), Rect::new(x, y, text.width(), text.height())) {
             Ok(_) => Ok(()),
-            Err(e) => return raise!(Error::RenderError, "{}", e)
+            Err(e) => return raise!(Error::Render, "{}", e)
         }
     }
 
-    fn draw_text_bit(&self, font: &BitmapFont, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> SpinResult<()> {
+    fn draw_text_bit(&self, font: &BitmapFont, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> Result<()> {
         for c in args.text.chars() {
             let Some(tile) = font.tile_map.get(&c.to_string()) else { continue };
             let src_rect = Rect::new(tile.x, tile.y, tile.w, tile.h);
             let dst_rect = Rect::new(args.x + tile.offset_x, args.y, tile.w, tile.h);
-            chain!(font.surface.blit(src_rect, cvs.surface_mut(), dst_rect), Error::RenderError);
+            chain!(font.surface.blit(src_rect, cvs.surface_mut(), dst_rect), Error::Render);
         }
         Ok(())
     }
@@ -251,16 +251,16 @@ impl<'ttf> Renderer<'ttf> {
         self.color = c;
     }
 
-    fn set_font(&mut self, name: &str) -> SpinResult<()> {
+    fn set_font(&mut self, name: &str) -> Result<()> {
         if self.ttf_fonts.contains_key(name) {
             self.font = Some(name.to_string());
             Ok(())
         } else {
-            raise!(Error::RenderError, "no such font: {}", name)
+            raise!(Error::Render, "no such font: {}", name)
         }
     }
 
-    pub fn render_instruction(&mut self, layer: &mut Canvas<Surface<'static>>, inst: &render::Instruction) -> SpinResult<()> {
+    pub fn render_instruction(&mut self, layer: &mut Canvas<Surface<'static>>, inst: &render::Instruction) -> Result<()> {
         match &inst.op {
             render::Op::Color(color) => self.set_color(layer, color),
             render::Op::DrawText(args) => self.draw_text(layer, args)?,

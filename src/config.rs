@@ -322,7 +322,7 @@ impl Default for Dirs {
     }
 }
 
-pub fn load_config(dirs: &Dirs) -> SpinResult<AppConfig> {
+pub fn load_config(dirs: &Dirs) -> Result<AppConfig> {
     let files = match find_files(&dirs.conf) {
         Ok(f) => f,
         Err(e) => return raise!(Error::Config, "{}: {}", dirs.conf.to_string_lossy(), e)

@@ -76,7 +76,7 @@ impl Dmd {
         Self { video_def: video_def.clone(), conf: dmd_conf.clone(), canvas }
     }
 
-    pub fn present(&mut self, s: &render::State) -> Result<(), String> {
+    pub fn present(&mut self, s: &render::State) -> Result<()> {
         let c = &mut self.canvas;
 
         let size = self.video_def.width * self.video_def.height * 4;
@@ -98,10 +98,10 @@ impl Dmd {
         // Borders
         let border_size = self.conf.border_size;
         c.set_draw_color(self.conf.border_color);
-        c.fill_rect(Rect::new(0, 0, win_w, border_size))?;
-        c.fill_rect(Rect::new(0, (win_h - border_size) as i32, win_w, border_size))?;
-        c.fill_rect(Rect::new(0, 0, border_size, win_h))?;
-        c.fill_rect(Rect::new((win_w - border_size) as i32, 0, border_size, win_h))?;
+        try_present!(c.fill_rect(Rect::new(0, 0, win_w, border_size)));
+        try_present!(c.fill_rect(Rect::new(0, (win_h - border_size) as i32, win_w, border_size)));
+        try_present!(c.fill_rect(Rect::new(0, 0, border_size, win_h)));
+        try_present!(c.fill_rect(Rect::new((win_w - border_size) as i32, 0, border_size, win_h)));
 
         // Dots
         for y in 0..panel_h {
@@ -111,7 +111,7 @@ impl Dmd {
                 let offset = ((y * self.video_def.width + x) * 4) as usize;
                 let dot = rgb_to_gray(data[offset+0] as u8, data[offset+1] as u8, data[offset+2] as u8) / 16;
                 c.set_draw_color(palettes::ORANGE[dot as usize]);
-                c.fill_rect(Rect::new(dx as i32, dy as i32, self.conf.dot_size, self.conf.dot_size))?;
+                try_present!(c.fill_rect(Rect::new(dx as i32, dy as i32, self.conf.dot_size, self.conf.dot_size)));
             }
         }
         self.canvas.present();
