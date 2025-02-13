@@ -15,7 +15,6 @@ pub mod prelude {
     pub use crate::builtin;
     pub use crate::config::*;
     pub use crate::engine::*;
-    pub use crate::error::*;
     pub use crate::message::*;
     pub use crate::render;
     pub use crate::vars;
@@ -31,8 +30,10 @@ pub mod prelude {
 
 use crate::prelude::*;
 
+pub use crate::error::{Error, Result};
+
 #[cfg(feature = "sdl")]
-pub type Video = crate::sdl::Video;
+pub type Video = crate::sdl::video::Video;
 
 pub trait Device {
     fn init(&mut self, s: &mut State, r: &mut render::State);

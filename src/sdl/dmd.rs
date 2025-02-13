@@ -1,5 +1,3 @@
-use crate::prelude::*;
-
 use crate::sdl::*;
 
 use serde::{Serialize, Deserialize};
@@ -76,7 +74,7 @@ impl Dmd {
         Self { video_def: video_def.clone(), conf: dmd_conf.clone(), canvas }
     }
 
-    pub fn present(&mut self, s: &render::State) -> Result<()> {
+    pub fn present(&mut self, s: &render::State) -> crate::Result<()> {
         let c = &mut self.canvas;
 
         let size = self.video_def.width * self.video_def.height * 4;

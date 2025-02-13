@@ -20,8 +20,12 @@ name = "spin"
 path = "src/bin.rs"
 
 [[bin]]
-name = "id-gen"
-path = "src/tools/id-gen.rs"
+name = "spin-id-gen"
+path = "src/tools/spin-id-gen.rs"
+
+[[bin]]
+name = "spin-dmd-font"
+path = "src/tools/spin-dmd-font.rs"
 
 [features]
 default = ["sdl"]

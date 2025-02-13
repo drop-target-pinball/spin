@@ -1,15 +1,16 @@
 use crate::prelude::*;
+use crate::{Error, Result};
 use crate::render;
 use std::collections::HashMap;
 use sdl2::surface::Surface;
 use sdl2::render::{BlendMode, Canvas};
 use sdl2::pixels::PixelFormatEnum;
-use sdl2::rect::{Point, Rect};
+use sdl2::rect::Rect;
 use sdl2::pixels::Color;
 use sdl2::ttf::Font;
-use super::Context;
 use serde::{Serialize, Deserialize};
 use std::path::Path;
+use super::Context;
 
 const TRANSPARENT: Color = Color{r: 0, g: 0, b: 0, a: 0};
 
@@ -91,7 +92,7 @@ impl BitmapFont {
             Ok(d) => d,
             Err(e) => return raise!(Error::Init, "unable to load '{}': {}", path.to_string_lossy(), e),
         };
-        let mut frames = Self::decode_dmd(&data)?;
+        let mut frames = super::decode_dmd(&data)?;
 
         let mut info_path = path.to_path_buf();
         info_path.set_extension("dmd.json");
@@ -109,43 +110,6 @@ impl BitmapFont {
             tile_map,
             tracking: 0,
         })
-    }
-
-    const HEADER_SIZE: usize = 16;
-
-    pub fn decode_dmd(data: &[u8]) -> Result<Vec<Surface<'static>>> {
-        if data.len() < Self::HEADER_SIZE {
-            return raise!(Error::InvalidFormat, "invalid DMD");
-        }
-        // let header = u32::from_le_bytes(unwrap!(data[0..4].try_into()));
-        let n_frames = u32::from_le_bytes(unwrap!(data[4..8].try_into()));
-        let width = u32::from_le_bytes(unwrap!(data[8..12].try_into()));
-        let height = u32::from_le_bytes(unwrap!(data[12..16].try_into()));
-
-        let total_size = Self::HEADER_SIZE as u32 + (width * height * n_frames);
-        if total_size as usize != data.len() {
-            return raise!(Error::InvalidFormat, "invalid DMD size, expected {}, got {}", total_size, data.len());
-        }
-
-        let mut frames =Vec::new();
-        for i in 0..n_frames {
-            let surface = chain!(Surface::new(width, height, PixelFormatEnum::RGB888), Error::Render);
-            let mut canvas = chain!(surface.into_canvas(), Error::Render);
-            let start = Self::HEADER_SIZE as u32 + (i * width * height);
-            for y in 0..width {
-                for x in 0..height {
-                    let idx = (x * width) + y + start;
-                    let dot = data[idx as usize];
-			        // Values in file are going to be between 0x0 and 0xf. Copy
-                    // the lower nibble to the higher nibble.
-                    let dot = dot <<4 | dot;
-                    canvas.set_draw_color(Color{r: dot, g: dot, b: dot, a: 0xff});
-                    chain!(canvas.draw_point(Point::new(x as i32, y as i32)), Error::Render);
-                }
-            }
-            frames.push(canvas.into_surface());
-        }
-        Ok(frames)
     }
 }
 
@@ -249,13 +213,13 @@ impl<'ttf> Renderer<'ttf> {
     }
 
     fn draw_text_bit(&self, font: &BitmapFont, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> Result<()> {
-        println!("DRAWING!!!");
+        let mut x = args.x;
         for c in args.text.chars() {
             let Some(tile) = font.tile_map.get(&c.to_string()) else { continue };
-            println!("GOT TILE");
             let src_rect = Rect::new(tile.x, tile.y, tile.w, tile.h);
-            let dst_rect = Rect::new(args.x + tile.offset_x, args.y, tile.w, tile.h);
+            let dst_rect = Rect::new(x + tile.offset_x, args.y, tile.w, tile.h);
             chain!(font.surface.blit(src_rect, cvs.surface_mut(), dst_rect), Error::Render);
+            x += tile.w as i32;
         }
         Ok(())
     }

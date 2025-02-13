@@ -3,6 +3,7 @@ use crate::prelude::*;
 use std::env;
 use std::sync::{Arc, Mutex};
 use mlua::prelude::*;
+use crate::{Error, Result};
 
 static SCRIPTS: [(&str, &[u8]); 7] = [
     ("std.lua", include_bytes!("std.lua")),

@@ -8,6 +8,7 @@ use std::env;
 use std::collections::HashMap;
 use figment::Figment;
 use figment::providers::{Format, Yaml};
+use crate::{Error, Result};
 
 use serde::{Serialize, Deserialize};
 
