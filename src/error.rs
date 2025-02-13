@@ -3,8 +3,8 @@ pub enum Error {
     #[error("configuration error: {0}")]
     Config(String),
 
-    #[error("{0}")]
-    Load(String),
+    #[error("initialization error: {0}")]
+    Init(String),
 
     #[error("invalid format: {0}")]
     InvalidFormat(String),

@@ -90,7 +90,7 @@ pub struct DriverDef {
 #[serde(deny_unknown_fields)]
 pub struct FontDef {
     pub path: String,
-    pub point_size: u16,
+    pub point_size: Option<u16>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

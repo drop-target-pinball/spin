@@ -114,6 +114,7 @@ impl Dmd {
                 try_present!(c.fill_rect(Rect::new(dx as i32, dy as i32, self.conf.dot_size, self.conf.dot_size)));
             }
         }
+
         self.canvas.present();
         Ok(())
     }

@@ -89,20 +89,20 @@ impl BitmapFont {
     pub fn load(path: &Path) -> Result<BitmapFont> {
         let data = match std::fs::read(path) {
             Ok(d) => d,
-            Err(e) => return raise!(Error::Load, "unable to load '{}': {}", path.to_string_lossy(), e),
+            Err(e) => return raise!(Error::Init, "unable to load '{}': {}", path.to_string_lossy(), e),
         };
         let mut frames = Self::decode_dmd(&data)?;
 
         let mut info_path = path.to_path_buf();
-        info_path.set_extension(".dmd.json");
+        info_path.set_extension("dmd.json");
         let info_text = match std::fs::read_to_string(&info_path) {
             Ok(i) => i,
-            Err(e) => return raise!(Error::Load, "unable to load '{}': {}", info_path.to_string_lossy(), e),
+            Err(e) => return raise!(Error::Init, "unable to load '{}': {}", info_path.to_string_lossy(), e),
         };
 
         let tile_map: HashMap<String, Tile> = match serde_json::from_str(&info_text) {
             Ok(i) => i,
-            Err(e) => return raise!(Error::Load, "unable to parse '{}': {}", info_path.to_string_lossy(), e),
+            Err(e) => return raise!(Error::Init, "unable to parse '{}': {}", info_path.to_string_lossy(), e),
         };
         Ok(BitmapFont {
             surface: frames.remove(0),
@@ -128,17 +128,17 @@ impl BitmapFont {
         }
 
         let mut frames =Vec::new();
-        for _ in 0..n_frames {
+        for i in 0..n_frames {
             let surface = chain!(Surface::new(width, height, PixelFormatEnum::RGB888), Error::Render);
             let mut canvas = chain!(surface.into_canvas(), Error::Render);
-            let start = Self::HEADER_SIZE as u32 + (n_frames * width * height);
+            let start = Self::HEADER_SIZE as u32 + (i * width * height);
             for y in 0..width {
                 for x in 0..height {
                     let idx = (x * width) + y + start;
                     let dot = data[idx as usize];
 			        // Values in file are going to be between 0x0 and 0xf. Copy
                     // the lower nibble to the higher nibble.
-                    let dot = dot <<4 + dot;
+                    let dot = dot <<4 | dot;
                     canvas.set_draw_color(Color{r: dot, g: dot, b: dot, a: 0xff});
                     chain!(canvas.draw_point(Point::new(x as i32, y as i32)), Error::Render);
                 }
@@ -151,7 +151,7 @@ impl BitmapFont {
 
 pub struct Renderer<'ttf> {
     ttf_fonts: HashMap<String, Font<'ttf, 'static>>,
-    bit_fonts: HashMap<String, BitmapFont>,
+    bmp_fonts: HashMap<String, BitmapFont>,
     font: Option<String>,
     color: Color,
 }
@@ -160,7 +160,7 @@ impl<'ttf> Default for Renderer<'ttf> {
     fn default() -> Renderer<'ttf> {
         Renderer {
             ttf_fonts: HashMap::new(),
-            bit_fonts: HashMap::new(),
+            bmp_fonts: HashMap::new(),
             font: None,
             color: Color::BLACK,
         }
@@ -171,14 +171,42 @@ impl<'ttf> Renderer<'ttf> {
     pub fn init(&mut self, ctx: &Context, s: &State) {
         for (name, font_def) in &s.conf.fonts {
             let path = s.runtime.dirs.data.join(&font_def.path);
-            let font = match ctx.ttf.load_font(&path, font_def.point_size) {
-                Ok(f) => f,
-                Err(e) => {
-                    fault!(s.queue, "unable to load font '{}': {}", name, e);
-                    return
+            let ext = path.extension().unwrap_or_default();
+
+            let result = {
+                if ext == "ttf" {
+                    self.load_ttf_font(ctx, s, name, font_def)
+                } else if ext == "dmd" {
+                    self.load_bmp_font(s, name, font_def)
+                } else {
+                    raise!(Error::Init, "invalid file extension for font: '{}'", font_def.path)
                 }
             };
-            self.ttf_fonts.insert(name.clone(), font);
+            if let Err(e) = result {
+                fault!(s.queue, "{}", e);
+            }
+        }
+    }
+
+    fn load_ttf_font(&mut self, ctx: &Context, s: &State, name: &str, font_def: &FontDef) -> Result<()> {
+        let path = s.runtime.dirs.data.join(&font_def.path);
+        match ctx.ttf.load_font(&path, font_def.point_size.unwrap_or(8)) {
+            Ok(f) => {
+                self.ttf_fonts.insert(name.to_string(), f);
+                Ok(())
+            }
+            Err(e) => raise!(Error::Init, "unable to load font '{}': {}", path.to_string_lossy(), e),
+        }
+    }
+
+    fn load_bmp_font(&mut self, s: &State, name: &str, font_def: &FontDef) -> Result<()> {
+        let path = s.runtime.dirs.data.join(&font_def.path);
+        match BitmapFont::load(&path) {
+            Ok(f) => {
+                self.bmp_fonts.insert(name.to_string(), f);
+                Ok(())
+            }
+            Err(e) => raise!(Error::Init, "unable to load font '{}': {}", path.to_string_lossy(), e),
         }
     }
 
@@ -189,7 +217,7 @@ impl<'ttf> Renderer<'ttf> {
 
         if let Some(font) = self.ttf_fonts.get(name) {
             self.draw_text_ttf(font, cvs, args)
-        } else if let Some(font) = self.bit_fonts.get(name)  {
+        } else if let Some(font) = self.bmp_fonts.get(name)  {
             self.draw_text_bit(font, cvs, args)
         } else {
             raise!(Error::Render, "no such font: {}", name)
@@ -221,8 +249,10 @@ impl<'ttf> Renderer<'ttf> {
     }
 
     fn draw_text_bit(&self, font: &BitmapFont, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> Result<()> {
+        println!("DRAWING!!!");
         for c in args.text.chars() {
             let Some(tile) = font.tile_map.get(&c.to_string()) else { continue };
+            println!("GOT TILE");
             let src_rect = Rect::new(tile.x, tile.y, tile.w, tile.h);
             let dst_rect = Rect::new(args.x + tile.offset_x, args.y, tile.w, tile.h);
             chain!(font.surface.blit(src_rect, cvs.surface_mut(), dst_rect), Error::Render);
@@ -253,6 +283,9 @@ impl<'ttf> Renderer<'ttf> {
 
     fn set_font(&mut self, name: &str) -> Result<()> {
         if self.ttf_fonts.contains_key(name) {
+            self.font = Some(name.to_string());
+            Ok(())
+        } else if self.bmp_fonts.contains_key(name) {
             self.font = Some(name.to_string());
             Ok(())
         } else {
