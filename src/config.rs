@@ -34,9 +34,9 @@ pub enum RunMode {
 #[serde(rename_all = "snake_case")]
 pub enum DriverKind {
     Flasher,
+    General,
+    Gi,
     Lamp,
-    Magnet,
-    Motor,
     Solenoid,
 }
 
@@ -91,6 +91,17 @@ pub struct DriverDef {
 pub struct FontDef {
     pub path: String,
     pub point_size: u16,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct FlipperDef {
+    pub address_power: String,
+    pub address_hold: String,
+    pub name: String,
+    pub sort_name: Option<String>,
+    #[serde(default)]
+    pub components: Vec<Component>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -228,6 +239,8 @@ pub struct AppConfig {
     pub displays: HashMap<String, VideoDef>,
     #[serde(default)]
     pub drivers: HashMap<String, DriverDef>,
+    #[serde(default)]
+    pub flippers: HashMap<String, FlipperDef>,
     #[serde(default)]
     pub fonts: HashMap<String, FontDef>,
     #[serde(default)]
