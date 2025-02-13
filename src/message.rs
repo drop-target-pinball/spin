@@ -26,7 +26,7 @@ pub struct PlayMusic {
 }
 
 impl fmt::Display for PlayMusic {
-    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)?;
         if self.loops != 0 {
             write!(f, ", loops={}", self.loops)?;
@@ -51,7 +51,7 @@ pub struct PlaySound {
 }
 
 impl fmt::Display for PlaySound {
-    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)?;
         if self.loops != 0 {
             write!(f, ", loops={}", self.loops)?;
@@ -71,7 +71,7 @@ pub struct PlayVocal {
 }
 
 impl fmt::Display for PlayVocal {
-    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.name)?;
         if self.notify {
             write!(f, ", notify={}", self.notify)?;
@@ -86,7 +86,7 @@ pub struct Name {
 }
 
 impl fmt::Display for Name {
-    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if !self.name.is_empty() {
             write!(f, "{}", self.name)
         } else {
@@ -107,7 +107,7 @@ pub struct Rejected {
 }
 
 impl fmt::Display for Rejected {
-    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.reason)
     }
 }
@@ -119,7 +119,7 @@ pub struct SwitchUpdated {
 }
 
 impl fmt::Display for SwitchUpdated {
-    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} active={}", self.name, self.active)
     }
 }
@@ -130,7 +130,7 @@ pub struct Vars {
 }
 
 impl fmt::Display for Vars {
-    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut nvs: Vec<String> = Vec::new();
         for (name, val) in &self.vars {
             nvs.push(format!("{}={}", name, val));
@@ -147,7 +147,7 @@ pub struct Updated {
 }
 
 impl fmt::Display for Updated {
-    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}={} (was={})", self.name, self.value, self.was)
     }
 }
@@ -183,7 +183,7 @@ pub enum Message {
 }
 
 impl fmt::Display for Message {
-    fn fmt(&self, f: &mut fmt::Formatter) -> FmtResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self {
             Message::Halt => write!(f, "halt"),
             Message::Kill(m) => write!(f, "kill: {}", m),
