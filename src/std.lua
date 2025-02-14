@@ -13,6 +13,7 @@ pub.PLAYER_COUNT = "player_count"
 pub.START_BUTTON = "start_button"
 pub.START_SERVICE = "start_service"
 pub.START_GAME = "start_game"
+pub.TICK = "tick"
 
 package.loaded["std"] = pub
 

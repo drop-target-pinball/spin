@@ -38,21 +38,22 @@ impl Video {
         &mut self.layers[i]
     }
 
-    pub fn flatten(&mut self) {
+    pub fn flatten(&mut self) -> Result<()> {
         if !self.dirty {
-            return
+            return Ok(())
         }
         let frame_rect = Rect::new(0, 0, self.frame.surface().width(), self.frame.surface().height());
         self.frame.set_draw_color(Color::BLACK);
         self.frame.clear();
-        unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::Blend));
+        try_render!(self.frame.surface_mut().set_blend_mode(BlendMode::Blend));
         for layer in &mut self.layers {
-            unwrap!(layer.surface().blit(frame_rect, &mut self.frame.surface_mut(), frame_rect));
+            try_render!(layer.surface().blit(frame_rect, &mut self.frame.surface_mut(), frame_rect));
             layer.set_draw_color(TRANSPARENT);
             layer.clear();
         }
-        unwrap!(self.frame.surface_mut().set_blend_mode(BlendMode::None));
+        try_render!(self.frame.surface_mut().set_blend_mode(BlendMode::None));
         self.dirty = false;
+        Ok(())
     }
 
     pub fn frame(&self) -> &Canvas<Surface<'static>> {
@@ -267,7 +268,7 @@ impl<'ttf> Renderer<'ttf> {
         Ok(())
     }
 
-    pub fn render(&mut self, state: &mut render::State) {
+    pub fn render(&mut self, state: &mut render::State) -> Result<()> {
         for (name, video) in &mut state.videos {
             for inst in &state.ops {
                 if inst.device != *name {
@@ -278,7 +279,8 @@ impl<'ttf> Renderer<'ttf> {
                     fault!(state.queue, "{}", e);
                 }
             }
-            video.flatten();
+            video.flatten()?;
         }
+        Ok(())
     }
 }

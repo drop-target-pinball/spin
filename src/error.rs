@@ -47,3 +47,10 @@ macro_rules! try_present {
         chain!($expr, Error::Present)
     }
 }
+
+#[macro_export]
+macro_rules! try_render {
+    ($expr:expr) => {
+        chain!($expr, Error::Render)
+    }
+}

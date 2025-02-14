@@ -86,7 +86,9 @@ impl<'a> crate::Device for Device {
     }
 
     fn render(&mut self, state: &mut render::State) {
-        self.renderer.render(state);
+        if let Err(e) = self.renderer.render(state) {
+            fault!(state.queue, "{}", e);
+        }
     }
 
     fn present(&mut self, state: &render::State) {
