@@ -1,0 +1,2 @@
+scripts:
+  score_draw:   { module: "_dmd", group: "game" }

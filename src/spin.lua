@@ -158,6 +158,44 @@ function pub.video(name)
     return v
 end
 
+local function set_nv(name, value)
+    check.nv('name', name)
+    check.nv('value', value)
+
+    if type(value) == "number" then
+        if tonumber(tostring(value), 10) then
+            return { int = value }
+        else
+            return { float = value }
+        end
+    elseif type(value) == "boolean" then
+        return { bool = value }
+    elseif type(value) == "string" then
+        return { string = value }
+    end
+
+    error("unsupported type: " .. value)
+end
+
+-------------------------------------------------------------------------------
+function pub.format_score(score)
+    check.nv("score", score)
+    if score == 0 then
+        return "00"
+    end
+    local s_score = tostring(score)
+    local f_score = ""
+    local n_digits = 0
+    for i=#s_score,1,-1 do
+        f_score = string.sub(s_score, i, i) .. f_score
+        n_digits = n_digits + 1
+        if n_digits % 3 == 0 and i > 1 then
+            f_score = "," .. f_score
+        end
+    end
+    return f_score
+end
+
 -------------------------------------------------------------------------------
 local function extract_var(msg)
     local kind, value
@@ -168,28 +206,64 @@ local function extract_var(msg)
     return msg.name, kind, value
 end
 
+function pub.ns(ns_name)
+    local vars = nil
+    if ns_name == nil then
+        vars = pub.vars
+    else
+        local ns = pub.vars[ns_name]
+        if ns == nil or ns.vars == nil then
+            error("not a namespace: " .. ns_name)
+        end
+        vars = ns.vars
+    end
+
+    return {
+        bool = function(name)
+            check.nv('name', name)
+            local v = vars[name]
+            if v == nil then
+                error("undefined variable: " .. name)
+            end
+            if v["bool"] == nil then
+                error("variable is not a bool: " .. name)
+            end
+            return v["bool"]
+        end,
+        int = function(name)
+            check.nv('name', name)
+            local v = vars[name]
+            if v == nil then
+                error("undefined variable: " .. name)
+            end
+            if v["int"] == nil then
+                error("variable is not an int: " .. name)
+            end
+            return v["int"]
+        end,
+        set = function(name, value)
+            check.nv(name, "name")
+            check.nv(value, "value")
+            table.insert(queue, { set = {
+                ns = ns_name,
+                vars = {
+                    [name] = set_nv(name, value)
+                }
+            }})
+        end
+    }
+end
+
 function pub.bool(name)
-    check.nv('name', name)
-    local v = pub.vars[name]
-    if v == nil then
-        error("undefined variable: " .. name)
-    end
-    if v["bool"] == nil then
-        error("variable is not a bool: " .. name)
-    end
-    return v["bool"]
+    return pub.ns().bool(name)
 end
 
 function pub.int(name)
-    check.nv('name', name)
-    local v = pub.vars[name]
-    if v == nil then
-        error("undefined variable: " .. name)
-    end
-    if v["int"] == nil then
-        error("variable is not an int: " .. name)
-    end
-    return v["int"]
+    return pub.ns().int(name)
+end
+
+function pub.player()
+    return pub.ns("player_" .. pub.int("player"))
 end
 
 -------------------------------------------------------------------------------
@@ -347,27 +421,22 @@ function pub.run(name)
     }})
 end
 
-local function set_nv(name, value)
-    check.nv('name', name)
-    check.nv('value', value)
-
-    if type(value) == "number" then
-        if tonumber(tostring(value), 10) then
-            return { int = value }
-        else
-            return { float = value }
-        end
-    elseif type(value) == "boolean" then
-        return { bool = value }
-    elseif type(value) == "string" then
-        return { string = value }
-    end
-
-    error("unsupported type: " .. value)
+function pub.set(name, value)
+    check.nv(name, "name")
+    check.nv(value, "value")
+    table.insert(queue, { set = {
+        vars = {
+            [name] = set_nv(name, value)
+        }
+    }})
 end
 
-function pub.set(name, value)
+function pub.set_ns(ns, name, value)
+    check.nv(ns, "ns")
+    check.nv(name, "name")
+    check.nv(value, "value")
     table.insert(queue, { set = {
+        ns = ns,
         vars = {
             [name] = set_nv(name, value)
         }

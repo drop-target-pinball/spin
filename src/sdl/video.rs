@@ -46,10 +46,11 @@ impl Video {
         self.frame.set_draw_color(Color::BLACK);
         self.frame.clear();
         try_render!(self.frame.surface_mut().set_blend_mode(BlendMode::Blend));
+
         for layer in &mut self.layers {
             try_render!(layer.surface().blit(frame_rect, &mut self.frame.surface_mut(), frame_rect));
-            layer.set_draw_color(TRANSPARENT);
-            layer.clear();
+            // layer.set_draw_color(Color::BLACK);
+            // layer.clear();
         }
         try_render!(self.frame.surface_mut().set_blend_mode(BlendMode::None));
         self.dirty = false;
@@ -78,13 +79,14 @@ struct Tile {
     y: i32,
     w: u32,
     h: u32,
+    #[serde(default)]
     offset_x: i32,
 }
 
 struct BitmapFont {
     surface: Surface<'static>,
     tile_map: HashMap<String, Tile>,
-    tracking: i32,
+    // tracking: i32,
 }
 
 impl BitmapFont {
@@ -109,7 +111,7 @@ impl BitmapFont {
         Ok(BitmapFont {
             surface: frames.remove(0),
             tile_map,
-            tracking: 0,
+            // tracking: 0,
         })
     }
 }
@@ -214,11 +216,31 @@ impl<'ttf> Renderer<'ttf> {
     }
 
     fn draw_text_bit(&self, font: &BitmapFont, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> Result<()> {
-        let mut x = args.x;
+        let (mut w, mut h) = (0, 0);
+        for c in args.text.chars() {
+            if let Some(tile) = font.tile_map.get(&c.to_string()) {
+                w = w + tile.w;
+                h = h + tile.h;
+            }
+        }
+
+
+        let mut x = if args.center_x {
+            ((cvs.surface().width() - w) / 2) as i32
+        } else {
+            args.x
+        };
+
+        let y = if args.center_y {
+            ((cvs.surface().height() - h) / 2) as i32
+        } else {
+            args.y
+        };
+
         for c in args.text.chars() {
             let Some(tile) = font.tile_map.get(&c.to_string()) else { continue };
             let src_rect = Rect::new(tile.x, tile.y, tile.w, tile.h);
-            let dst_rect = Rect::new(x + tile.offset_x, args.y, tile.w, tile.h);
+            let dst_rect = Rect::new(x + tile.offset_x, y, tile.w, tile.h);
             chain!(font.surface.blit(src_rect, cvs.surface_mut(), dst_rect), Error::Render);
             x += tile.w as i32;
         }
@@ -274,6 +296,10 @@ impl<'ttf> Renderer<'ttf> {
                 if inst.device != *name {
                     continue
                 }
+
+                #[cfg(feature = "debug_render")]
+                diag!(state.queue, "render: {:?}", inst);
+
                 let layer = video.layer(inst.layer);
                 if let Err(e) = self.render_instruction(layer, inst) {
                     fault!(state.queue, "{}", e);

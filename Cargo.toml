@@ -32,6 +32,7 @@ default = ["sdl"]
 sdl = ["dep:sdl2"]
 debug_audio = []
 debug_fps = []
+debug_render = []
 
 [dependencies]
 ansi_term = "0.12.1"

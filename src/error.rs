@@ -6,8 +6,17 @@ pub enum Error {
     #[error("initialization error: {0}")]
     Init(String),
 
+    #[error("invalid argument: {0}")]
+    InvalidArgument(String),
+
     #[error("invalid format: {0}")]
     InvalidFormat(String),
+
+    #[error("invalid type: expected {0}, got {1}")]
+    InvalidType(String, String),
+
+    #[error("not defined: {0}")]
+    NotDefined(String),
 
     #[error("rendering error: {0}")]
     Render(String),

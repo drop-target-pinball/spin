@@ -12,7 +12,8 @@ use crate::{Error, Result};
 
 use serde::{Serialize, Deserialize};
 
-const STD: [(&str, &str); 3] = [
+const STD: [(&str, &str); 4] = [
+    ("dmd", include_str!("std/config/dmd.yaml")),
     ("service", include_str!("std/config/service.yaml")),
     ("game", include_str!("std/config/game.yaml")),
     ("player_4", include_str!("std/config/player_4.yaml")),

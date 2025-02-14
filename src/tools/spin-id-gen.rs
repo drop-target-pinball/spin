@@ -34,9 +34,17 @@ pub fn main() -> ExitCode {
     for v in conf.music.keys()      { add(&mut ids, v.into()) }
     for v in conf.sounds.keys()     { add(&mut ids, v.into()) }
     for v in conf.switches.keys()   { add(&mut ids, v.into()) }
+    for v in conf.vars.keys()       { add(&mut ids, v.into()) }
     for v in conf.video.keys()      { add(&mut ids, v.into()) }
     for v in conf.vocals.keys()     { add(&mut ids, v.into()) }
-    for v in MESSAGES               { add(&mut ids, v.into()) }
+    for v in MESSAGES                  { add(&mut ids, v.into()) }
+
+    for (name, vars) in conf.namespaces {
+        add(&mut ids, name);
+        for v in vars.keys() {
+            add(&mut ids, v.to_string());
+        }
+    }
 
     for (name, s) in conf.scripts {
         add(&mut ids, name);

@@ -126,12 +126,16 @@ impl fmt::Display for SwitchUpdated {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Vars {
+    pub ns: Option<String>,
     pub vars: HashMap<String, vars::Value>
 }
 
 impl fmt::Display for Vars {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut nvs: Vec<String> = Vec::new();
+        if let Some(ns) = &self.ns {
+            nvs.push(format!("ns={}", ns));
+        }
         for (name, val) in &self.vars {
             nvs.push(format!("{}={}", name, val));
         }

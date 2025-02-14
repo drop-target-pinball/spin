@@ -5,15 +5,16 @@ use std::sync::{Arc, Mutex};
 use mlua::prelude::*;
 use crate::{Error, Result};
 
-static SCRIPTS: [(&str, &[u8]); 7] = [
+static SCRIPTS: [(&str, &[u8]); 8] = [
     ("std.lua", include_bytes!("std.lua")),
     ("check.lua", include_bytes!("check.lua")),
     ("render.lua", include_bytes!("render.lua")),
     ("spin.lua", include_bytes!("spin.lua")),
     ("message.lua", include_bytes!("message.lua")),
 
-    ("service.lua", include_bytes!("std/scripts/service.lua")),
+    ("dmd.lua", include_bytes!("std/scripts/dmd.lua")),
     ("game.lua", include_bytes!("std/scripts/game.lua")),
+    ("service.lua", include_bytes!("std/scripts/service.lua")),
 ];
 
 pub struct Env {
@@ -114,9 +115,10 @@ impl Env {
             match v {
                 Err(e) => return raise!(Error::ScriptExec, "expected table in ops: {}", e),
                 Ok(tbl) => {
+                    let tbl_msg = tbl.clone();
                     match self.lua.from_value(tbl) {
                         Ok(o) => ops.push(o),
-                        Err(e) => return raise!(Error::ScriptExec, "invalid return value: {}", e),
+                        Err(e) => return raise!(Error::ScriptExec, "invalid return value: {}\n{}", e, value_to_string(&tbl_msg)),
                     }
                 }
             }
@@ -173,4 +175,26 @@ impl Env {
         }
         Ok(msgs)
     }
+}
+
+fn value_to_string(val: &LuaValue) -> String {
+    let mut s = String::new();
+    match val {
+        LuaValue::Table(tbl) => {
+            let mut kvs = Vec::new();
+            for pair in tbl.pairs::<LuaValue, LuaValue>() {
+                let (k, v) = pair.unwrap();
+                kvs.push(format!("{} = {}", value_to_string(&k), value_to_string(&v)));
+            }
+            s += &format!("{{ {} }}", kvs.join(", "));
+        },
+        LuaValue::Boolean(b) => s += &format!("{}", b),
+        LuaValue::Error(e) => s += &format!("error({})", e.to_string()),
+        LuaValue::Function(_) => s += &format!("function()"),
+        LuaValue::Integer(i) => s += &format!("{}", i),
+        LuaValue::Number(n) => s += &format!("{}", n),
+        LuaValue::String(st) => s += &format!("'{}'", st.to_string_lossy()),
+        _ => s += "other",
+    }
+    s
 }

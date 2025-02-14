@@ -28,12 +28,12 @@ function pub.gfx(device, layer, priority)
     check.nv("device", device)
 
     layer = check.default(layer, 0)
-    layer = check.default(priority, 0)
+    priority = check.default(priority, 0)
 
     local gfx = {
         device = device,
-        layer = 0,
-        priority = 0,
+        layer = layer,
+        priority = priority,
     }
 
     local function insert_op(op_name, args)
@@ -48,7 +48,13 @@ function pub.gfx(device, layer, priority)
     end
 
     function gfx.clear()
-        gfx.dot_off()
+        gfx.color(0, 0, 0, 255)
+        gfx.fill_rect(0, 0, 128, 32)
+        gfx.dot_on()
+    end
+
+    function gfx.release()
+        gfx.color(0, 0, 0, 0)
         gfx.fill_rect(0, 0, 128, 32)
         gfx.dot_on()
     end
@@ -98,13 +104,23 @@ function pub.gfx(device, layer, priority)
         })
     end
 
+    function gfx.draw_text_x(x, text)
+        check.nv("x", x)
+        check.nv("text", text)
+        insert_op("draw_text", {
+            x=math.floor(x),
+            center_y=true,
+            text=tostring(text),
+        })
+    end
+
     function gfx.draw_text_y(y, text)
         check.nv("y", y)
         check.nv("text", text)
         insert_op("draw_text", {
             y=math.floor(y),
             center_x=true,
-            text=text,
+            text=tostring(text),
         })
     end
 

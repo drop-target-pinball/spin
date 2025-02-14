@@ -11,7 +11,10 @@ impl Store {
 
     fn set(&self, s: &mut State, msg: &Vars) {
         for (name, value) in &msg.vars {
-            vars::set(s, &name, &value);
+            match vars::set(&mut s.vars, &msg.ns, &name, &value) {
+                Ok(msg) => s.queue.post(Message::Updated(msg)),
+                Err(e) => fault!(s.queue, "{}", e),
+            }
         }
     }
 }

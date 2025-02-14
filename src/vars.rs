@@ -1,5 +1,5 @@
 use crate::prelude::*;
-
+use crate::{Result, Error};
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::fmt;
@@ -26,6 +26,16 @@ impl Value {
             _ =>  panic!("not an integer: {}", self)
         }
     }
+
+    pub fn kind(&self) -> &str {
+        match self {
+            Self::Int(_) => "int",
+            Self::Float(_) => "float",
+            Self::String(_) => "string",
+            Self::Bool(_) => "bool",
+            Self::Vars(_) => "vars",
+        }
+    }
 }
 
 impl fmt::Display for Value {
@@ -43,15 +53,15 @@ impl fmt::Display for Value {
 pub type Namespaces = HashMap<String, Vec<VarDef>>;
 pub type Vars = HashMap<String, Value>;
 
-fn update(s: &mut State, name: &str, prev: Value, this: &Value) {
+fn update(vars: &mut HashMap<String, Value>, name: &str, prev: Value, this: &Value) -> Result<Updated> {
     let msg = Updated{
         name: name.to_string(),
         was: prev,
         value: this.clone()
     };
 
-    s.vars.insert(name.to_string(), this.clone());
-    s.queue.post(Message::Updated(msg));
+    vars.insert(name.to_string(), this.clone());
+    Ok(msg)
 }
 
 pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, HashMap<String, VarDef>>, name: &str, kind: &VarKind) {
@@ -82,25 +92,40 @@ pub fn define(queue: &mut Queue, vars: &mut Vars, spaces: &HashMap<String, HashM
     vars.insert(name.to_string(), value);
 }
 
-pub fn set(s: &mut State, name: &str, this: &Value) {
-    let prev = match s.vars.get(name) {
+fn set_var(vars: &mut HashMap<String, Value>, name: &str, this: &Value) -> Result<Updated> {
+    let prev = match vars.get(name) {
         Some(v) => v,
-        None => {
-            fault!(s.queue, "variable not defined: {}", name);
-            return;
-        }
+        None => return Err(Error::NotDefined(name.to_string())),
     };
 
     match (prev, this) {
-        (Value::Int(_), Value::Int(_)) => update(s, name, prev.clone(), this),
-        (Value::Float(_), Value::Float(_)) => update(s, name, prev.clone(), this),
-        (Value::String(_), Value::String(_)) => update(s, name, prev.clone(), this),
-        (Value::Bool(_), Value::Bool(_)) => update(s, name, prev.clone(), this),
+        (Value::Int(_), Value::Int(_)) => update(vars, name, prev.clone(), this),
+        (Value::Float(_), Value::Float(_)) => update(vars, name, prev.clone(), this),
+        (Value::String(_), Value::String(_)) => update(vars, name, prev.clone(), this),
+        (Value::Bool(_), Value::Bool(_)) => update(vars, name, prev.clone(), this),
         (Value::Vars(_), Value::Vars(_)) => {
-            fault!(s.queue, "cannot set vars '{}'", name);
+            raise!(Error::InvalidArgument, "cannot set '{}', use set_ns instead", name)
         },
-        (p, t) => {
-            fault!(s.queue, "invalid type, expected {}, got {}", p, t);
+        (p, t) => Err(Error::InvalidType(p.kind().to_string(), t.kind().to_string())),
+    }
+}
+
+pub fn set(vars: &mut HashMap<String, Value>, maybe_ns: &Option<String>, name: &str, this: &Value) -> Result<Updated> {
+    let ns= match maybe_ns {
+        Some(ns) => ns,
+        None => return set_var(vars, name, this)
+    };
+    let Some(ns_val) = vars.get_mut(ns) else {
+        return raise!(Error::InvalidArgument, "no such namespace: {}", ns);
+    };
+
+    let ns_kind = ns_val.kind().to_string();
+    match { ns_val } {
+        &mut Value::Vars(ref mut sub_vars) => {
+            set_var(sub_vars, name, this)
+        }
+        _ => {
+            Err(Error::InvalidType("vars".to_string(), ns_kind))
         }
     }
 }
