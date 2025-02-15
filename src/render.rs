@@ -28,18 +28,16 @@ pub struct Color {
     pub a: u8,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct DrawText {
-    pub text: String,
-    #[serde(default)]
-    pub x: i32,
-    #[serde(default)]
-    pub y: i32,
-    #[serde(default)]
-    pub center_x: bool,
-    #[serde(default)]
-    pub center_y: bool,
+#[cfg(feature = "sdl")]
+impl Color {
+    pub fn to_sdl(&self) -> sdl2::pixels::Color {
+        sdl2::pixels::Color {
+            r: self.r,
+            g: self.g,
+            b: self.b,
+            a: self.a,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -51,11 +49,45 @@ pub struct Rect {
     pub h: u32,
 }
 
+#[cfg(feature = "sdl")]
+impl Rect {
+    pub fn to_sdl(&self) -> sdl2::rect::Rect {
+        sdl2::rect::Rect::new(
+            self.x,
+            self.y,
+            self.w,
+            self.h,
+        )
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct FillRect {
+    pub rect: Rect,
+    pub color: Color,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct DrawText {
+    pub text: String,
+    pub font: String,
+    pub color: Color,
+    #[serde(default)]
+    pub x: i32,
+    #[serde(default)]
+    pub y: i32,
+    #[serde(default)]
+    pub center_x: bool,
+    #[serde(default)]
+    pub center_y: bool,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum Op {
-    Color(Color),
     DrawText(DrawText),
-    Font(String),
-    FillRect(Rect)
+    FillRect(FillRect),
+    New(Color),
 }

@@ -86,7 +86,7 @@ local function service_coroutines(kind, msg)
             if yes then
                 local running, result = coroutine.resume(script.co, r_kind, r_msg)
                 if not running and result ~= nil then
-                    error("in script '" .. name .. "': " .. result)
+                    error(debug.traceback(script.co, "in script '" .. name .. "': " .. result))
                 end
                 if running then
                     script.can_resume = result
@@ -481,6 +481,8 @@ function pub.switch_updated(name, active)
     end
     table.insert(queue, {switch_updated = {name=name, active=active}})
 end
+
+-------------------------------------------------------------------------------
 
 package.loaded["spin"] = pub
 spin = pub

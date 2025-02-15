@@ -24,6 +24,15 @@ local dots = {
     255,
 }
 
+local function unpack_color(color)
+    check.nv("color", color)
+    local r = math.floor(check.default(color.r, 0))
+    local g = math.floor(check.default(color.g, 0))
+    local b = math.floor(check.default(color.b, 0))
+    local a = math.floor(check.default(color.a, 255))
+    return r, g, b, a
+end
+
 function pub.gfx(device, layer, priority)
     check.nv("device", device)
 
@@ -34,7 +43,14 @@ function pub.gfx(device, layer, priority)
         device = device,
         layer = layer,
         priority = priority,
+
+        color = {r=255, g=255, b=255, a=255},
+        font = "",
     }
+
+    gfx.BLACK       = { r = 0,   g = 0,   b = 0,   a = 255 }
+    gfx.CLEAR       = { r = 0,   g = 0,   b = 0,   a = 0   }
+    gfx.FULL        = { r = 255, g = 255, b = 255, a = 255 }
 
     local function insert_op(op_name, args)
         table.insert(pub.ops, {
@@ -47,50 +63,14 @@ function pub.gfx(device, layer, priority)
         })
     end
 
-    function gfx.clear()
-        gfx.color(0, 0, 0, 255)
-        gfx.fill_rect(0, 0, 128, 32)
-        gfx.dot_on()
-    end
-
-    function gfx.release()
-        gfx.color(0, 0, 0, 0)
-        gfx.fill_rect(0, 0, 128, 32)
-        gfx.dot_on()
-    end
-
-    function gfx.color(r, g, b, a)
-        check.nv("r", r)
-        check.nv("g", g)
-        check.nv("b", b)
-        if a == nil then
-            a = 255
-        end
-        insert_op('color', {
-            r=math.floor(r),
-            g=math.floor(g),
-            b=math.floor(b),
-            a=math.floor(a)
+    function gfx.new(color)
+        local r, g, b, a = unpack_color(color)
+        insert_op('new', {
+            r=r,
+            g=g,
+            b=b,
+            a=a
         })
-    end
-
-    function gfx.dot_color(dot)
-        check.nv("dot", dot)
-        if dot < 0 then
-            dot = 0
-        elseif dot > 15 then
-            dot = 15
-        end
-        local v = dots[dot + 1]
-        gfx.color(v, v, v)
-    end
-
-    function gfx.dot_on()
-        gfx.dot_color(15)
-    end
-
-    function gfx.dot_off()
-        gfx.dot_color(0)
     end
 
     function gfx.draw_text(x, y, text)
@@ -101,6 +81,8 @@ function pub.gfx(device, layer, priority)
             x=math.floor(x),
             y=math.floor(y),
             text=text,
+            color=gfx.color,
+            font=gfx.font,
         })
     end
 
@@ -111,6 +93,8 @@ function pub.gfx(device, layer, priority)
             x=math.floor(x),
             center_y=true,
             text=tostring(text),
+            color=gfx.color,
+            font=gfx.font,
         })
     end
 
@@ -121,6 +105,8 @@ function pub.gfx(device, layer, priority)
             y=math.floor(y),
             center_x=true,
             text=tostring(text),
+            color=gfx.color,
+            font=gfx.font,
         })
     end
 
@@ -129,7 +115,9 @@ function pub.gfx(device, layer, priority)
         insert_op("draw_text", {
             center_x=true,
             center_y=true,
-            text=text
+            text=text,
+            color=gfx.color,
+            font=gfx.font,
         })
     end
 
@@ -142,15 +130,10 @@ function pub.gfx(device, layer, priority)
             x=math.floor(x),
             y=math.floor(y),
             w=math.floor(w),
-            h=math.floor(h)
+            h=math.floor(h),
+            color=gfx.color,
         })
     end
-
-    function gfx.font(name)
-        check.nv("name", name)
-        insert_op("font", name)
-    end
-
     return gfx
 end
 

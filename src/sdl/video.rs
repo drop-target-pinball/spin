@@ -12,8 +12,6 @@ use serde::{Serialize, Deserialize};
 use std::path::Path;
 use super::Context;
 
-const TRANSPARENT: Color = Color{r: 0, g: 0, b: 0, a: 0};
-
 pub struct Video {
     frame: Canvas<Surface<'static>>,
     layers: Vec<Canvas<Surface<'static>>>,
@@ -49,8 +47,6 @@ impl Video {
 
         for layer in &mut self.layers {
             try_render!(layer.surface().blit(frame_rect, &mut self.frame.surface_mut(), frame_rect));
-            // layer.set_draw_color(Color::BLACK);
-            // layer.clear();
         }
         try_render!(self.frame.surface_mut().set_blend_mode(BlendMode::None));
         self.dirty = false;
@@ -119,8 +115,6 @@ impl BitmapFont {
 pub struct Renderer<'ttf> {
     ttf_fonts: HashMap<String, Font<'ttf, 'static>>,
     bmp_fonts: HashMap<String, BitmapFont>,
-    font: Option<String>,
-    color: Color,
 }
 
 impl<'ttf> Default for Renderer<'ttf> {
@@ -128,8 +122,6 @@ impl<'ttf> Default for Renderer<'ttf> {
         Renderer {
             ttf_fonts: HashMap::new(),
             bmp_fonts: HashMap::new(),
-            font: None,
-            color: Color::BLACK,
         }
     }
 }
@@ -178,21 +170,17 @@ impl<'ttf> Renderer<'ttf> {
     }
 
     fn draw_text(&self, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> Result<()> {
-        let Some(name) = &self.font else {
-            return raise!(Error::Render, "no font has been set");
-        };
-
-        if let Some(font) = self.ttf_fonts.get(name) {
+        if let Some(font) = self.ttf_fonts.get(&args.font) {
             self.draw_text_ttf(font, cvs, args)
-        } else if let Some(font) = self.bmp_fonts.get(name)  {
+        } else if let Some(font) = self.bmp_fonts.get(&args.font)  {
             self.draw_text_bit(font, cvs, args)
         } else {
-            raise!(Error::Render, "no such font: {}", name)
+            raise!(Error::Render, "no such font: {}", args.font)
         }
     }
 
     fn draw_text_ttf(&self, font: &Font<'ttf, 'static>, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> Result<()> {
-        let text = match font.render(&args.text).solid(self.color) {
+        let text = match font.render(&args.text).solid(args.color.to_sdl()) {
             Ok(s) => s,
             Err(e) => return raise!(Error::Render, "{}", e)
         };
@@ -247,45 +235,23 @@ impl<'ttf> Renderer<'ttf> {
         Ok(())
     }
 
-
-    fn fill_rect(&self, cvs: &mut Canvas<Surface<'static>>, rect: &render::Rect) {
-        unwrap!(cvs.fill_rect(Rect::new(
-            rect.x,
-            rect.y,
-            rect.w,
-            rect.h,
-        )));
+    fn new(&self, cvs: &mut Canvas<Surface<'static>>, color: &render::Color) -> Result<()> {
+        cvs.set_draw_color(color.to_sdl());
+        try_render!(cvs.fill_rect(Rect::new(0, 0, cvs.surface().width(), cvs.surface().height())));
+        Ok(())
     }
 
-    fn set_color(&mut self, cvs: &mut Canvas<Surface<'static>>, color: &render::Color) {
-        let c = Color{
-            r: color.r,
-            g: color.g,
-            b: color.b,
-            a: color.a
-        };
-        cvs.set_draw_color(c);
-        self.color = c;
-    }
-
-    fn set_font(&mut self, name: &str) -> Result<()> {
-        if self.ttf_fonts.contains_key(name) {
-            self.font = Some(name.to_string());
-            Ok(())
-        } else if self.bmp_fonts.contains_key(name) {
-            self.font = Some(name.to_string());
-            Ok(())
-        } else {
-            raise!(Error::Render, "no such font: {}", name)
-        }
+    fn fill_rect(&self, cvs: &mut Canvas<Surface<'static>>, args: &render::FillRect) -> Result<()> {
+        cvs.set_draw_color(args.color.to_sdl());
+        try_render!(cvs.fill_rect(args.rect.to_sdl()));
+        Ok(())
     }
 
     pub fn render_instruction(&mut self, layer: &mut Canvas<Surface<'static>>, inst: &render::Instruction) -> Result<()> {
         match &inst.op {
-            render::Op::Color(color) => self.set_color(layer, color),
             render::Op::DrawText(args) => self.draw_text(layer, args)?,
-            render::Op::Font(name) => self.set_font(name)?,
-            render::Op::FillRect(rect) => self.fill_rect(layer, rect),
+            render::Op::New(color) => self.new(layer, color)?,
+            render::Op::FillRect(args) => self.fill_rect(layer, args)?,
         }
         Ok(())
     }

@@ -33,7 +33,7 @@ impl Env {
         env::set_var("LUA_PATH",
         format!("{}/scripts/?.lua;{}/scripts/?/?.lua", root, root));
 
-        let lua = Lua::new();
+        let lua = unsafe { Lua::unsafe_new() };
         for (name, data) in SCRIPTS {
             let chunk = lua.load(data).set_name(name);
             if let Err(e) = chunk.exec() {
