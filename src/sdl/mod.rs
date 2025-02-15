@@ -8,7 +8,9 @@ use sdl2::surface::Surface;
 mod audio;
 mod device;
 mod dmd;
+mod image;
 mod input;
+mod monitor;
 pub mod video;
 
 pub use crate::sdl::audio::*;

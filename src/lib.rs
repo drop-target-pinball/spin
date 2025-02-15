@@ -19,7 +19,9 @@ pub mod prelude {
     pub use crate::render;
     pub use crate::vars;
     pub use crate::script;
-    pub use crate::{alert, diag, raise, fault, info, unwrap, expect, chain, try_present, try_render};
+    pub use crate::{alert, diag, raise, fault, info};
+    pub use crate::{unwrap, expect, chain};
+    pub use crate::{try_init, try_present, try_render};
 
     pub use crate::{Device, Video};
     pub use crate::{rgb_to_gray, sec_to_millis};

@@ -46,11 +46,11 @@ pub fn main() -> ExitCode  {
         dirs,
     };
 
-    let mut e = Engine::new(conf.clone(), runtime);
+    let mut e = Engine::new(conf.clone(), runtime.clone());
 
     #[cfg(feature = "sdl")] {
-        if let Some(sdl_conf) = &conf.sdl {
-            let device = crate::sdl::Device::new(&conf, sdl_conf);
+        if conf.sdl.is_some() {
+            let device = crate::sdl::Device::new(&conf, &runtime);
             e.add_device(Box::new(device));
         }
     }

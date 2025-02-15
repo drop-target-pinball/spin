@@ -51,6 +51,13 @@ macro_rules! chain {
 }
 
 #[macro_export]
+macro_rules! try_init {
+    ($expr:expr) => {
+        chain!($expr, Error::Init)
+    }
+}
+
+#[macro_export]
 macro_rules! try_present {
     ($expr:expr) => {
         chain!($expr, Error::Present)

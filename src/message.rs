@@ -102,6 +102,38 @@ pub struct Note {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PulseDriver {
+    pub name: String,
+    /// Milliseconds
+    pub time: Option<u32>,
+}
+
+impl fmt::Display for PulseDriver {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)?;
+        if let Some(t) = self.time {
+            write!(f, "time={}", t)?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PwmDriver {
+    pub name: String,
+    /// Milliseconds
+    pub time_on: u32,
+    /// Milliseconds
+    pub time_off: u32,
+}
+
+impl fmt::Display for PwmDriver {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}, time_on={}, time_off={}", self.name, self.time_on, self.time_off)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Rejected {
     pub reason: String,
 }
@@ -169,13 +201,17 @@ pub enum Message {
     PlaySound(PlaySound),
     PlayVocal(PlayVocal),
     Poll,
+    PulseDriver(PulseDriver),
+    PwmDriver(PwmDriver),
     Rejected(Rejected),
     ScriptEnded(Name),
     ScriptKilled(Name),
     Set(Vars),
     Shutdown,
+    StartDriver(Name),
     Silence,
     SoundEnded(Name),
+    StopDriver(Name),
     StopMusic(Name),
     StopVocal(Name),
     SwitchUpdated(SwitchUpdated),
@@ -206,12 +242,16 @@ impl fmt::Display for Message {
             Message::PlaySound(m) => write!(f, "play_sound: {}", m),
             Message::PlayVocal(m) => write!(f, "play_vocal: {}", m),
             Message::Poll => Ok(()),
+            Message::PulseDriver(m) => write!(f, "pulse_driver: {}", m),
+            Message::PwmDriver(m) => write!(f, "pwm_driver: {}", m),
             Message::Rejected(m) => write!(f, "rejected: {}", m),
+            Message::Run(m) => write!(f, "run: {}", m),
             Message::ScriptEnded(m) => write!(f, "script_ended: {}", m),
             Message::ScriptKilled(m) => write!(f, "script_killed: {}", m),
             Message::Set(m) => write!(f, "set: {}", m),
-            Message::Run(m) => write!(f, "run: {}", m),
             Message::Shutdown => write!(f, "shutdown"),
+            Message::StartDriver(m) => write!(f, "start_driver: {}", m),
+            Message::StopDriver(m) => write!(f, "stop_driver: {}", m),
             Message::Silence => write!(f, "silence"),
             Message::SoundEnded(m) => write!(f, "sound_ended: {}", m),
             Message::StopMusic(m) => write!(f, "stop_music: {}", m),

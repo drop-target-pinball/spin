@@ -456,6 +456,20 @@ function pub.silence()
     table.insert(queue, "silence")
 end
 
+function pub.start_driver(name)
+    check.nv("name", name, "string")
+    table.insert(queue, { start_driver = {
+        name = name
+    }})
+end
+
+function pub.stop_driver(name)
+    check.nv("name", name, "string")
+    table.insert(queue, { stop_driver = {
+        name = name
+    }})
+end
+
 function pub.stop_music(name)
     if name == nil then
         name = ""
