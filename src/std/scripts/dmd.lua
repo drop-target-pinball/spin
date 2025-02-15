@@ -44,9 +44,28 @@ local function score_multi_draw(gfx)
         end
     end
 
+    local dmd = spin.video(std.DMD)
+
     local score_1 = spin.ns(std.PLAYER_1).int(std.SCORE)
     gfx.font = font_for(1, score_1)
     gfx.draw_text(0, 0, spin.format_score(score_1))
+
+    local score_2 = spin.ns(std.PLAYER_2).int(std.SCORE)
+    gfx.font = font_for(2, score_2)
+    gfx.draw_text(dmd.width + 1, 0, spin.format_score(score_2), {right=true})
+
+    if spin.int(std.PLAYER_COUNT) >= 3 then
+        local score_3 = spin.ns(std.PLAYER_3).int(std.SCORE)
+        gfx.font = font_for(3, score_3)
+        gfx.draw_text(0, dmd.height - 6, spin.format_score(score_3), {bottom=true})
+    end
+
+    if spin.int(std.PLAYER_COUNT) >= 4 then
+        local score_4 = spin.ns(std.PLAYER_4).int(std.SCORE)
+        gfx.font = font_for(4, score_4)
+        gfx.draw_text(dmd.width + 1, dmd.height -6, spin.format_score(score_4), {right=true, bottom=true})
+    end
+
     score_footer(gfx)
 end
 
@@ -63,7 +82,7 @@ function pub.score_draw()
     end
 end
 
-package.loaded["_dmd"] = pub
+package.loaded["std_dmd"] = pub
 
 return pub
 

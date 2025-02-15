@@ -1,2 +1,2 @@
 scripts:
-  score_draw:   { module: "_dmd", group: "game" }
+  score_draw:   { module: "std_dmd", group: "game" }

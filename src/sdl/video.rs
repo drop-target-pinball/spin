@@ -204,25 +204,32 @@ impl<'ttf> Renderer<'ttf> {
     }
 
     fn draw_text_bit(&self, font: &BitmapFont, cvs: &mut Canvas<Surface<'static>>, args: &render::DrawText) -> Result<()> {
-        let (mut w, mut h) = (0, 0);
+        let (mut text_w, mut text_h) = (0, 0);
         for c in args.text.chars() {
             if let Some(tile) = font.tile_map.get(&c.to_string()) {
-                w = w + tile.w;
-                h = h + tile.h;
+                text_w = text_w + tile.w;
+                text_h = tile.h;
             }
         }
 
-
         let mut x = if args.center_x {
-            ((cvs.surface().width() - w) / 2) as i32
+            ((cvs.surface().width() - text_w) / 2) as i32
         } else {
-            args.x
+            if args.right {
+                args.x - text_w as i32
+            } else {
+                args.x
+            }
         };
 
         let y = if args.center_y {
-            ((cvs.surface().height() - h) / 2) as i32
+            ((cvs.surface().height() - text_h) / 2) as i32
         } else {
-            args.y
+            if args.bottom {
+                args.y - text_h as i32
+            } else {
+                args.y
+            }
         };
 
         for c in args.text.chars() {

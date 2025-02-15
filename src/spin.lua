@@ -422,8 +422,8 @@ function pub.run(name)
 end
 
 function pub.set(name, value)
-    check.nv(name, "name")
-    check.nv(value, "value")
+    check.nv("name", name, "string")
+    check.nv("value", value)
     table.insert(queue, { set = {
         vars = {
             [name] = set_nv(name, value)

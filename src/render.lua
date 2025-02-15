@@ -73,52 +73,70 @@ function pub.gfx(device, layer, priority)
         })
     end
 
-    function gfx.draw_text(x, y, text)
+    function gfx.draw_text(x, y, text, opts)
         check.nv("x", x)
         check.nv("y", y)
         check.nv("text", text)
-        insert_op("draw_text", {
-            x=math.floor(x),
-            y=math.floor(y),
+
+        local msg = {
+            x=math.tointeger(x),
+            y=math.tointeger(y),
             text=text,
             color=gfx.color,
             font=gfx.font,
-        })
+        }
+        check.copy_opts(opts, msg,
+            {"right", "bool"},
+            {"bottom", "bool"}
+        )
+        insert_op("draw_text", msg)
     end
 
-    function gfx.draw_text_x(x, text)
-        check.nv("x", x)
-        check.nv("text", text)
-        insert_op("draw_text", {
-            x=math.floor(x),
+    function gfx.draw_text_x(x, text, opts)
+        check.nv("x", x, "number")
+        check.nv("text", text, "string")
+
+        local msg = {
+            x=math.tointeger(x),
             center_y=true,
             text=tostring(text),
-            color=gfx.color,
-            font=gfx.font,
+            color=check.nv("gfx.color", gfx.color),
+            font=check.nv("gfx.font", gfx.font),
+        }
+        check.copy_opts(opts, msg, {
+            {"right", "bool"},
         })
+        insert_op("draw_text", msg)
     end
 
-    function gfx.draw_text_y(y, text)
-        check.nv("y", y)
-        check.nv("text", text)
-        insert_op("draw_text", {
-            y=math.floor(y),
+    function gfx.draw_text_y(y, text, opts)
+        check.nv("y", y, "number")
+        check.nv("text", text, "string")
+
+        local msg = {
+            y=math.tointeger(y),
             center_x=true,
             text=tostring(text),
-            color=gfx.color,
-            font=gfx.font,
+            color=check.nv("gfx.color", gfx.color),
+            font=check.nv("gfx.font", gfx.font),
+        }
+        check.copy_opts(opts, msg, {
+            {"bottom", "bool"}
         })
+        insert_op("draw_text", msg)
     end
 
     function gfx.draw_centered_text(text)
-        check.nv("text", text)
-        insert_op("draw_text", {
+        check.nv("text", text, "string")
+
+        local msg = {
             center_x=true,
             center_y=true,
             text=text,
             color=gfx.color,
             font=gfx.font,
-        })
+        }
+        insert_op("draw_text", msg)
     end
 
     function gfx.fill_rect(x, y, w, h)

@@ -82,6 +82,10 @@ pub struct DrawText {
     pub center_x: bool,
     #[serde(default)]
     pub center_y: bool,
+    #[serde(default)]
+    pub right: bool,
+    #[serde(default)]
+    pub bottom: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
