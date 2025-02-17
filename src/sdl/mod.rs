@@ -36,7 +36,7 @@ pub struct ColorDef {
 }
 
 impl ColorDef {
-    fn new(r: u8, g: u8, b: u8, a: u8) -> ColorDef {
+    pub fn new(r: u8, g: u8, b: u8, a: u8) -> ColorDef {
         ColorDef { r, g, b, a, }
     }
 }

@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 
 pub struct State {
+    pub elapsed: i64,
     pub queue: Queue,
     pub ops: Vec<Instruction>,
     pub videos: HashMap<String, Video>
@@ -30,6 +31,10 @@ pub struct Color {
 
 #[cfg(feature = "sdl")]
 impl Color {
+    pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
+        Self { r: r, g: g, b: b, a: a }
+    }
+
     pub fn to_sdl(&self) -> sdl2::pixels::Color {
         sdl2::pixels::Color {
             r: self.r,

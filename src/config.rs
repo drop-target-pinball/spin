@@ -1,6 +1,8 @@
 
 use crate::prelude::*;
+use crate::sdl::ColorDef;
 
+use std::cmp::Ordering;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
@@ -8,6 +10,7 @@ use std::env;
 use std::collections::HashMap;
 use figment::Figment;
 use figment::providers::{Format, Yaml};
+use sdl2::pixels::Color;
 use crate::{Error, Result};
 
 use serde::{Serialize, Deserialize};
@@ -51,6 +54,19 @@ pub enum ColorName {
     Red,
     White,
     Yellow
+}
+
+impl ColorName {
+    pub fn to_color(&self) -> render::Color {
+        match self {
+            Self::Blue => render::Color::new(0, 0, 255, 255),
+            Self::Green => render::Color::new(0, 255, 0, 255),
+            Self::Orange => render::Color::new(255, 165, 0, 255),
+            Self::Red => render::Color::new(255, 0, 0, 255),
+            Self::White => render::Color::new(255, 255, 255, 255),
+            Self::Yellow => render::Color::new(255, 255, 0, 255),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

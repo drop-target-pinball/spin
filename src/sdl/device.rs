@@ -1,10 +1,12 @@
 use crate::prelude::*;
+use crate::{Error, Result};
 use crate::sdl::audio::{Audio, AudioConfig};
 use crate::sdl::dmd::{Dmd, DmdConfig};
 use crate::sdl::video::Renderer;
 use crate::sdl::image::{Image, ImageConfig};
 use crate::sdl::monitor::{Monitor, MonitorConfig};
 use super::input::Input;
+use super::monitor;
 use sdl2::{self, AudioSubsystem, VideoSubsystem};
 use sdl2::ttf;
 use serde::{Serialize, Deserialize};
@@ -41,7 +43,7 @@ pub struct Device {
     audio: Option<Audio>,
     dmd: Option<Dmd>,
     input: Input,
-    image: Option<Image>,
+    _image: Option<Image>,
     monitor: Option<Monitor>,
     renderer: Renderer<'static>,
 }
@@ -71,15 +73,10 @@ impl Device {
         let input = Input::new(app_conf);
         let renderer = Renderer::default();
 
-        Self { ctx, audio, dmd, input, image, monitor, renderer }
+        Self { ctx, audio, dmd, input, _image: image, monitor, renderer }
     }
 
-    fn poll(&mut self, s: &mut State) {
-        let mut pump = expect!(self.ctx.sdl.event_pump(), "unable to obtain SDL event pump");
-        for event in pump.poll_iter() {
-           self.input.event(s, &event);
-        }
-    }
+
 }
 
 impl<'a> crate::Device for Device {
@@ -87,16 +84,26 @@ impl<'a> crate::Device for Device {
         if let Some(audio) = &mut self.audio {
             audio.init(s);
         }
+        if let Some(monitor) = &mut self.monitor {
+            monitor.init(s);
+        }
         self.renderer.init(&self.ctx, s);
     }
 
-    fn process(&mut self, s: &mut State, msg: &Message)  {
-        match msg {
-            Message::Poll => self.poll(s),
-            _ => (),
+    fn poll(&mut self, s: &mut State) -> Result<()> {
+        let mut pump = try_device!(self.ctx.sdl.event_pump());
+        for event in pump.poll_iter() {
+           self.input.event(s, &event);
         }
+        Ok(())
+    }
+
+    fn process(&mut self, s: &mut State, msg: &Message)  {
         if let Some(audio) = &mut self.audio {
             audio.process(s, msg);
+        }
+        if let Some(monitor) = &mut self.monitor {
+            monitor.process(s, msg);
         }
     }
 

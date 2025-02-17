@@ -409,6 +409,14 @@ function pub.play_vocal(name, opts)
     table.insert(queue, { play_vocal = msg })
 end
 
+function pub.pulse_driver(name, time)
+    check.nv("name", name, "string")
+    table.insert(queue, { pulse_driver = {
+        name = name,
+        time = time,
+    }})
+end
+
 function pub.rejected(reason)
     check.nv("reason", reason)
     table.insert(queue, { rejected = {reason=reason}})

@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::Result;
 
 #[derive(Default)]
 pub struct Store {
@@ -25,6 +26,8 @@ impl Device for Store {
             vars::define(&mut s.queue, &mut s.vars, &s.conf.namespaces, &name, &v.kind);
         }
     }
+
+    fn poll(&mut self, _: &mut State) -> Result<()> { Ok(()) }
 
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {

@@ -21,7 +21,7 @@ pub mod prelude {
     pub use crate::script;
     pub use crate::{alert, diag, raise, fault, info};
     pub use crate::{unwrap, expect, chain};
-    pub use crate::{try_init, try_present, try_render};
+    pub use crate::{try_device, try_init, try_present, try_render};
 
     pub use crate::{Device, Video};
     pub use crate::{rgb_to_gray, sec_to_millis};
@@ -39,6 +39,7 @@ pub type Video = crate::sdl::video::Video;
 
 pub trait Device {
     fn init(&mut self, s: &mut State, r: &mut render::State);
+    fn poll(&mut self, s: &mut State) -> error::Result<()>;
     fn process(&mut self, s: &mut State, msg: &Message);
     fn render(&mut self, s: &mut render::State);
     fn present(&mut self, s: &render::State);

@@ -3,6 +3,9 @@ pub enum Error {
     #[error("configuration error: {0}")]
     Config(String),
 
+    #[error("device error: {0}")]
+    Device(String),
+
     #[error("initialization error: {0}")]
     Init(String),
 
@@ -48,6 +51,13 @@ macro_rules! chain {
             Err(e) => return Err($err(e.to_string())),
         }
     };
+}
+
+#[macro_export]
+macro_rules! try_device {
+    ($expr:expr) => {
+        chain!($expr, Error::Init)
+    }
 }
 
 #[macro_export]

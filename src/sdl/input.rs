@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use sdl2::keyboard::{Keycode, Mod};
-use sdl2::event::Event;
+use sdl2::event::{Event, WindowEvent};
 use std::collections::HashMap;
 
 
@@ -52,6 +52,17 @@ impl Input {
             },
             Event::KeyUp { timestamp: _, window_id: _, keycode, scancode: _, keymod, repeat } => {
                 self.key(s, keycode, keymod, *repeat, false);
+            }
+            Event::Window { timestamp: _, window_id: _, win_event } => {
+                match win_event {
+                    WindowEvent::Close => {
+                        s.queue.post(Message::Shutdown);
+                    },
+                    _ => (),
+                }
+            }
+            Event::Quit { .. } => {
+                s.queue.post(Message::Shutdown);
             }
             _ => ()
         }

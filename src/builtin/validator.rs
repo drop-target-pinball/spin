@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::Result;
 
 #[derive(Default)]
 pub struct Validator {
@@ -26,6 +27,7 @@ impl Validator {
 
 impl Device for Validator {
     fn init(&mut self, _: &mut State, _: &mut render::State) {}
+    fn poll(&mut self, _: &mut State) -> Result<()> { Ok(()) }
 
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {

@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::Result;
 use std::io;
 
 pub struct Logger<W> {
@@ -42,6 +43,7 @@ impl Default for Logger<io::Stdout> {
 impl<W> Device for Logger<W>
 where W: io::Write {
     fn init(&mut self, _: &mut State, _: &mut render::State) {}
+    fn poll(&mut self, _: &mut State) -> Result<()> { Ok(()) }
 
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {

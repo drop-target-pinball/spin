@@ -1,7 +1,9 @@
 use crate::prelude::*;
+use crate::{Result, Error};
+
 use rustyline::{config, DefaultEditor, ExternalPrinter};
 use std::{os::fd::AsRawFd, thread};
-use mlua::{Error, MultiValue};
+use mlua::MultiValue;
 use ansi_term::Color;
 use termios::Termios;
 use std::path::PathBuf;
@@ -65,6 +67,7 @@ impl Drop for Console<'_> {
 
 impl Device for Console<'_> {
     fn init(&mut self, _: &mut State, _: &mut render::State) {}
+    fn poll(&mut self, _: &mut State) -> Result<()> { Ok(()) }
 
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {
@@ -146,7 +149,7 @@ fn run(mut editor: DefaultEditor, state: Arc<Mutex<State>>) {
                     post(&script_env, &queue, Message::Nop);
                     break;
                 }
-                Err(Error::SyntaxError {
+                Err(mlua::Error::SyntaxError {
                     incomplete_input: true,
                     ..
                 }) => {

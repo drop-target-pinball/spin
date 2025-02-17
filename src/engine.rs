@@ -38,6 +38,7 @@ impl<'a> Engine<'a> {
             videos.insert(name.to_string(), Video::new(&c));
         }
         let r_state = render::State{
+            elapsed: 0,
             queue: queue.clone(),
             ops: Vec::new(),
             videos,
@@ -76,20 +77,30 @@ impl<'a> Engine<'a> {
     }
 
     pub fn tick(&mut self, elapsed: time::Duration) {
-        self.queue.post(Message::Poll);
+        self.poll();
         self.process_queue(elapsed);
         self.queue.post(Message::Tick);
         self.process_queue(elapsed);
-        self.render();
+        self.render(elapsed);
         self.present();
         self.process_queue(elapsed);
     }
 
-    fn render(&mut self) {
+    fn poll(&mut self) {
+        let mut s = self.state.lock().unwrap();
+        for d in &mut self.devices {
+            if let Err(e) = d.poll(&mut s) {
+                fault!(s.queue, "{}", e);
+            }
+        }
+    }
+
+    fn render(&mut self, elapsed: time::Duration) {
         if let Err(e) = self.script_env.recv_vars() {
             fault!(self.queue, "{}", e);
         }
         let mut s = unwrap!(self.state.lock());
+        self.r_state.elapsed = elapsed.as_millis() as i64;
         self.r_state.ops = std::mem::take(&mut s.render_list);
         self.r_state.ops.sort_by_key(|e| e.priority);
         for d in &mut self.devices {
