@@ -8,8 +8,8 @@ static MESSAGES: [&str; 1] = [
 ];
 
 pub fn main() -> ExitCode {
-    let dirs = Dirs::default();
-    let conf = match load_config(&dirs) {
+    let runtime = Runtime::new(Dirs::default());
+    let conf = match load_config(&runtime) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("{}", e);
@@ -62,7 +62,7 @@ pub fn main() -> ExitCode {
         return ExitCode::FAILURE;
     };
 
-    let id_file = dirs.scripts.join(format!("{}.lua", main_module));
+    let id_file = runtime.dirs.scripts.join(format!("{}.lua", main_module));
     match fs::write(id_file, &lua) {
         Ok(_) => ExitCode::SUCCESS,
         Err(e) => {

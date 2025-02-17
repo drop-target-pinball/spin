@@ -1,8 +1,6 @@
 
 use crate::prelude::*;
-use crate::sdl::ColorDef;
 
-use std::cmp::Ordering;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
@@ -10,7 +8,6 @@ use std::env;
 use std::collections::HashMap;
 use figment::Figment;
 use figment::providers::{Format, Yaml};
-use sdl2::pixels::Color;
 use crate::{Error, Result};
 
 use serde::{Serialize, Deserialize};
@@ -29,10 +26,13 @@ pub enum RunMode {
     Develop,
 
     /// With pinball machine
-    Test,
+    PlayTest,
 
     /// Headless via systemd
-    Release
+    Release,
+
+    /// Integration tests
+    AutoTest
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -164,6 +164,8 @@ pub struct ScriptDef {
     pub group: Option<String>,
     #[serde(default)]
     pub replace: bool,
+    #[serde(default)]
+    pub test: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -294,21 +296,40 @@ pub struct AppConfig {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Runtime {
+    pub debug_config: bool,
     pub prog_name: String,
     pub prog_description: String,
     pub prog_version: String,
     pub prog_date: String,
     pub mode: RunMode,
     pub dirs: Dirs,
+    pub error: Option<String>
 }
 
 impl Runtime {
+    pub fn new(dirs: Dirs) -> Runtime {
+        Runtime {
+            debug_config: false,
+            prog_name: "".to_string(),
+            prog_description: "".to_string(),
+            prog_version: "".to_string(),
+            prog_date: "".to_string(),
+            mode: RunMode::Develop,
+            dirs,
+            error: None,
+        }
+    }
+
     pub fn is_develop(&self) -> bool {
         self.mode == RunMode::Develop
     }
 
     pub fn is_release(&self) -> bool {
         self.mode == RunMode::Release
+    }
+
+    pub fn is_shutdown_on_fault(&self) -> bool {
+        return self.mode == RunMode::Release || self.mode == RunMode::AutoTest
     }
 }
 
@@ -340,19 +361,27 @@ impl Default for Dirs {
     }
 }
 
-pub fn load_config(dirs: &Dirs) -> Result<AppConfig> {
-    let files = match find_files(&dirs.conf) {
+pub fn load_config(runtime: &Runtime) -> Result<AppConfig> {
+    let files = match find_files(&runtime.dirs.conf) {
         Ok(f) => f,
-        Err(e) => return raise!(Error::Config, "{}: {}", dirs.conf.to_string_lossy(), e)
+        Err(e) => return raise!(Error::Config, "{}: {}", runtime.dirs.conf.to_string_lossy(), e)
     };
 
     if files.is_empty() {
-        return raise!(Error::Config, "no configuration files found in '{}'", dirs.conf.to_string_lossy());
+        return raise!(Error::Config, "no configuration files found in '{}'", runtime.dirs.conf.to_string_lossy());
     }
 
     let mut builder = Figment::new();
     for file in files {
+        if runtime.debug_config {
+            println!("loading: {}", file.to_string_lossy());
+        }
         builder = builder.admerge(Yaml::file(&file));
+        if runtime.debug_config {
+            if let Err(e) = builder.extract::<AppConfig>() {
+                return raise!(Error::Config, "{}", e);
+            }
+        }
     }
 
     let config: AppConfig = match builder.extract() {
@@ -366,10 +395,18 @@ pub fn load_config(dirs: &Dirs) -> Result<AppConfig> {
     }
 
     for name in config.std {
+        if runtime.debug_config {
+            println!("loading: {}", name);
+        }
         let Some(conf) = std_config.get(name.as_str()) else {
             return raise!(Error::Config, "no such standard library config: {}", name);
         };
         builder = builder.adjoin(Yaml::string(conf));
+        if runtime.debug_config {
+            if let Err(e) = builder.extract::<AppConfig>() {
+                return raise!(Error::Config, "{}", e);
+            }
+        }
     }
 
     let config: AppConfig = match builder.extract() {

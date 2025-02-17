@@ -21,6 +21,8 @@ scripts:
   start_service:  { module: "_game" }
   add_player:     { module: "_game" }
 
+  test_start_service_no_credits:   { module: "_game_test", test: true }
+
 
 run_groups:
   service: {}

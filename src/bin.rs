@@ -5,6 +5,10 @@ use spin::prelude::*;
 
 #[derive(Parser)]
 struct Cli {
+    #[arg(long)]
+    /// print filenames of config files being loaded
+    debug_config: bool,
+
     #[arg(short, long)]
     /// testing mode - enable hardware devices
     test: bool,
@@ -23,27 +27,27 @@ pub fn main() -> ExitCode  {
     let mode = if cli.release {
         RunMode::Release
     } else if cli.test {
-        RunMode::Test
+        RunMode::PlayTest
     } else {
         RunMode::Develop
     };
 
     let dirs = Dirs::default();
-    let conf = match load_config(&dirs) {
+    let mut runtime = Runtime::new(dirs);
+
+    runtime.debug_config = cli.debug_config;
+    runtime.prog_name = crate_name!().to_string();
+    runtime.prog_description = crate_description!().to_string();
+    runtime.prog_version = crate_version!().to_string();
+    runtime.prog_date = env::var("SPIN_BUILD_DATE").unwrap_or_default();
+    runtime.mode = mode;
+
+    let conf = match load_config(&runtime) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("{}", e);
             return ExitCode::FAILURE;
         }
-    };
-
-    let runtime = Runtime {
-        prog_name: crate_name!().to_string(),
-        prog_description: crate_description!().to_string(),
-        prog_version: crate_version!().to_string(),
-        prog_date: env::var("SPIN_BUILD_DATE").unwrap_or_default(),
-        mode,
-        dirs,
     };
 
     let mut e = Engine::new(conf.clone(), runtime.clone());

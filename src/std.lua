@@ -24,11 +24,14 @@ pub.PLAYER_2 = "player_2"
 pub.PLAYER_3 = "player_3"
 pub.PLAYER_4 = "player_4"
 pub.PLAYER_COUNT = "player_count"
+pub.REJECTED = "rejected"
 pub.SCORE = "score"
 pub.START_BUTTON = "start_button"
 pub.START_SERVICE = "start_service"
 pub.START_GAME = "start_game"
+pub.TEST_OK = "test_ok"
 pub.TICK = "tick"
+pub.WAKE = "wake"
 
 package.loaded["std"] = pub
 

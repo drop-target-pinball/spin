@@ -25,7 +25,8 @@ pub struct Engine<'a> {
 
     pub rx: Receiver<Message>,
     devices: Vec<Box<dyn Device + 'a>>,
-    shutdown: bool,
+    pub main: String,
+    pub shutdown: bool,
 }
 
 impl<'a> Engine<'a> {
@@ -60,6 +61,7 @@ impl<'a> Engine<'a> {
             rx,
             devices: Vec::new(),
             script_env,
+            main: "".to_string(),
             shutdown: false,
         }
     }
@@ -76,6 +78,11 @@ impl<'a> Engine<'a> {
         self.state.clone()
     }
 
+    pub fn error(&self) -> Option<String> {
+        let s = self.state.lock().unwrap();
+        s.runtime.error.clone()
+    }
+
     pub fn tick(&mut self, elapsed: time::Duration) {
         self.poll();
         self.process_queue(elapsed);
@@ -84,6 +91,13 @@ impl<'a> Engine<'a> {
         self.render(elapsed);
         self.present();
         self.process_queue(elapsed);
+    }
+
+    pub fn init(&mut self) {
+        let mut s = self.state.lock().unwrap();
+        for d in &mut self.devices {
+            d.init(&mut s, &mut self.r_state);
+        }
     }
 
     fn poll(&mut self) {
@@ -120,11 +134,7 @@ impl<'a> Engine<'a> {
         let rate = Duration::from_micros(16670);
 
         self.process_queue(time::Duration::ZERO);
-        let mut s = unwrap!(self.state.lock());
-        for d in &mut self.devices {
-            d.init(&mut s, &mut self.r_state);
-        }
-        drop(s);
+        self.init();
         info!(self.queue, "ready");
 
         #[cfg(feature = "debug_fps")]
@@ -188,11 +198,27 @@ impl<'a> Engine<'a> {
                     }
                     match &msg {
                         Message::Note(n) => {
-                            if state.runtime.is_release() && n.kind == NoteKind::Fault {
+                            if state.runtime.is_shutdown_on_fault() && n.kind == NoteKind::Fault {
+                                state.runtime.error = Some(n.message.clone());
                                 self.shutdown = true
                             }
                         }
                         Message::Shutdown => self.shutdown = true,
+                        Message::ScriptEnded(m) => {
+                            if m.name == self.main {
+                                self.shutdown = true
+                            }
+                        },
+                        Message::Halt => {
+                            // clear queue
+                            loop {
+                                match self.rx.try_recv() {
+                                    Err(TryRecvError::Empty) => break,
+                                    Err(TryRecvError::Disconnected) => panic!("channel closed"),
+                                    _ => ()
+                                }
+                            }
+                        }
                         _ => (),
                     }
                     messages.push(msg);
