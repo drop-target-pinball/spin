@@ -6,7 +6,6 @@ use crate::sdl::video::Renderer;
 use crate::sdl::image::{Image, ImageConfig};
 use crate::sdl::monitor::{Monitor, MonitorConfig};
 use super::input::Input;
-use super::monitor;
 use sdl2::{self, AudioSubsystem, VideoSubsystem};
 use sdl2::ttf;
 use serde::{Serialize, Deserialize};

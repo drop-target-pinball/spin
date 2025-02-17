@@ -14,6 +14,18 @@ function pub.ok()
     spin.post(std.TEST_OK)
 end
 
+function pub.wait(timeout, desc, ...)
+    check.nv("timeout", timeout, "number")
+    check.nv("desc", desc, "string")
+    local conds = {...}
+    table.insert(conds, spin.for_time(timeout))
+    kind, msg = spin.wait(table.unpack(conds))
+    if kind == std.WAKE then
+        error("test timeout waiting for: " .. desc)
+    end
+    return kind, msg
+end
+
 
 package.loaded["test"] = pub
 return pub

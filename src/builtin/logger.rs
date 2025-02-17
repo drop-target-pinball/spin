@@ -49,10 +49,10 @@ where W: io::Write {
         match msg {
             Message::Note(_) => self.log(s, &msg.to_string()),
             _ => {
-                if s.runtime.is_develop() {
+                if s.runtime.is_develop() || s.runtime.is_auto_test() {
                     let text: String = msg.to_string();
                     if !text.is_empty() {
-                        self.log(s, &format!("> {}", text));
+                        self.log(s, &format!("{}", text));
                     }
                 }
             }

@@ -320,6 +320,10 @@ impl Runtime {
         }
     }
 
+    pub fn is_auto_test(&self) -> bool {
+        self.mode == RunMode::AutoTest
+    }
+
     pub fn is_develop(&self) -> bool {
         self.mode == RunMode::Develop
     }

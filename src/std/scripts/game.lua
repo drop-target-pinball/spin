@@ -38,11 +38,9 @@ function pub.start_service()
 end
 
 function pub.start_game()
-    spin.set_multi({
-        [std.PLAYER_COUNT] = 1,
-        [std.PLAYER] = 1,
-        [std.GAME_ACTIVE] = true
-    })
+    spin.set(std.PLAYER_COUNT, 1)
+    spin.set(std.PLAYER, 1)
+    spin.set(std.GAME_ACTIVE, true)
 end
 
 function pub.add_player()

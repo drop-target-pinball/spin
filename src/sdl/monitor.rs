@@ -23,15 +23,17 @@ pub struct MonitorConfig {
 struct DriverState {
     on: bool,
     last_update: i64,
-    proc_schedule: u32,
-    proc_cycle_seconds: u8,
-    proc_now: bool,
+    // proc_schedule: u32,
+    // proc_cycle_seconds: u8,
+    // proc_now: bool,
     pulse: bool,
-    pulse_expire: i64,
+    pwm: bool,
+    pwm_on: i64,
+    pwm_off: i64,
+    expire: i64,
 }
 
 pub struct Monitor {
-    conf: MonitorConfig,
     canvas: Canvas<Window>,
     playfield: Texture<'static>,
     states: HashMap<String, DriverState>,
@@ -62,7 +64,6 @@ impl Monitor {
         canvas.window_mut().show();
 
         Ok(Monitor{
-            conf: conf.clone(),
             canvas,
             playfield: pf_texture,
             states: HashMap::new(),
@@ -70,7 +71,7 @@ impl Monitor {
          })
     }
 
-    fn start_driver(&mut self, s: &mut State, elapsed: i64, msg: &Name) {
+    fn start_driver(&mut self, elapsed: i64, msg: &Name) {
         let mut maybe_ds = self.states.get_mut(&msg.name);
         let Some(ds) = maybe_ds.as_mut() else { return };
         ds.on = true;
@@ -78,24 +79,36 @@ impl Monitor {
         ds.pulse = false;
     }
 
-    fn stop_driver(&mut self, s: &mut State, elapsed: i64, msg: &Name) {
+    fn stop_driver(&mut self, elapsed: i64, msg: &Name) {
         let mut maybe_ds = self.states.get_mut(&msg.name);
         let Some(ds) = maybe_ds.as_mut() else { return };
         ds.on = false;
         ds.last_update = elapsed;
         ds.pulse = true;
+        ds.pwm = false;
     }
 
-    fn pulse_driver(&mut self, s: &mut State, elapsed: i64, msg: &PulseDriver) {
+    fn pulse_driver(&mut self, elapsed: i64, msg: &PulseDriver) {
         let mut maybe_ds = self.states.get_mut(&msg.name);
         let Some(ds) = maybe_ds.as_mut() else { return };
         ds.on = true;
         ds.last_update = elapsed;
         ds.pulse = true;
-        ds.pulse_expire = elapsed + ( 4 * match msg.time {
+        ds.expire = elapsed + ( 4 * match msg.time {
             Some(t) => t as i64,
             None => 25,
         });
+    }
+
+    fn pwm_driver(&mut self, elapsed: i64, msg: &PwmDriver) {
+        let mut maybe_ds = self.states.get_mut(&msg.name);
+        let Some(ds) = maybe_ds.as_mut() else { return };
+        ds.on = true;
+        ds.last_update = elapsed;
+        ds.pwm = true;
+        ds.pwm_on = msg.time_on as i64;
+        ds.pwm_off = msg.time_off as i64;
+        ds.expire = elapsed +  ds.pwm_on;
     }
 
     pub fn init(&mut self, s: &mut State) {
@@ -110,9 +123,10 @@ impl Monitor {
         let elapsed = s.vars.get("elapsed").unwrap_or(&Value::Int(0)).as_int();
 
         match msg {
-            Message::StartDriver(m) => self.start_driver(s, elapsed, &m),
-            Message::StopDriver(m) => self.stop_driver(s, elapsed, &m),
-            Message::PulseDriver(m) => self.pulse_driver(s, elapsed, &m),
+            Message::StartDriver(m) => self.start_driver(elapsed, &m),
+            Message::StopDriver(m) => self.stop_driver(elapsed, &m),
+            Message::PulseDriver(m) => self.pulse_driver(elapsed, &m),
+            Message::PwmDriver(m) => self.pwm_driver(elapsed, &m),
             _ => (),
         }
     }
@@ -120,15 +134,18 @@ impl Monitor {
     pub fn present(&mut self, s: &render::State) -> Result<()> {
         try_present!(self.canvas.copy(&self.playfield, None, None));
         for (name, ds) in &mut self.states {
-            let mut alpha_pct = 1.0;
-            if !ds.on {
-                continue
-            }
-            if ds.pulse && s.elapsed >= ds.pulse_expire {
+            let alpha_pct = 1.0;
+            if ds.pulse && s.elapsed >= ds.expire {
                 ds.on = false;
                 continue
             }
-            draw_layout(&mut self.canvas, &self.layouts[name], alpha_pct)?;
+            if ds.pwm && s.elapsed >= ds.expire {
+                ds.on = !ds.on;
+                ds.expire = s.elapsed + if ds.on { ds.pwm_on } else { ds.pwm_off };
+            }
+            if ds.on {
+                draw_layout(&mut self.canvas, &self.layouts[name], alpha_pct)?;
+            }
         }
         self.canvas.present();
         Ok(())

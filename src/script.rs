@@ -45,7 +45,7 @@ impl Env {
                 return raise!(Error::ScriptExec, "{}", e);
             }
         }
-        if s.runtime.is_develop() {
+        if !s.runtime.is_release() {
             for (name, data) in TEST_SCRIPTS {
                 let chunk = lua.load(data).set_name(name);
                 if let Err(e) = chunk.exec() {

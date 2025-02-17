@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::{Result, Error};
+use crate::Result;
 
 use rustyline::{config, DefaultEditor, ExternalPrinter};
 use std::{os::fd::AsRawFd, thread};

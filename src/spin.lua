@@ -417,6 +417,18 @@ function pub.pulse_driver(name, time)
     }})
 end
 
+function pub.pwm_driver(name, time_on, time_off)
+    check.nv("name", name, "string")
+    check.nv("time_on", time_on, "number")
+    time_off = check.default(time_off, time_on)
+    table.insert(queue, { pwm_driver = {
+        name = name,
+        time_on = time_on,
+        time_off = time_off,
+    }})
+end
+
+
 function pub.rejected(reason)
     check.nv("reason", reason)
     table.insert(queue, { rejected = {reason=reason}})

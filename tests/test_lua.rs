@@ -3,15 +3,17 @@ use std::time::{Duration, Instant};
 use std::thread;
 
 fn run_lua_test(eng: &mut Engine, name: &str) -> Option<String> {
-    let queue = eng.queue();
-    queue.post(Message::Halt);
-    queue.post(Message::Run(Name{name: name.to_string()}));
-    let mut i = 0;
-
     let run_start = Instant::now();
     let rate = Duration::from_micros(16670);
     eng.main = name.to_string();
+    eng.shutdown = false;
 
+    let queue = eng.queue();
+    queue.post(Message::Halt);
+    eng.tick(run_start.elapsed());
+    queue.post(Message::Run(Name{name: name.to_string()}));
+
+    let mut i = 0;
     while !eng.shutdown {
         i = i + 1;
         if i > 60 * 60 * 5 {
@@ -30,7 +32,8 @@ fn run_lua_test(eng: &mut Engine, name: &str) -> Option<String> {
 
 #[test]
 pub fn test_lua() {
-    let runtime = Runtime::new(Dirs::default());
+    let mut runtime = Runtime::new(Dirs::default());
+    runtime.mode = RunMode::AutoTest;
     let conf = match load_config(&runtime) {
         Ok(c) => c,
         Err(e) => panic!("{}", e),
@@ -62,15 +65,15 @@ pub fn test_lua() {
             continue
         }
 
-        print!("running test: {}... ", name);
+        println!("running test: {}", name);
         match run_lua_test(&mut eng, &name) {
             None => {
-                println!("pass");
+                println!("pass: {}", name);
                 test_count += 1;
                 test_passed += 1;
             },
             Some(e) => {
-                println!("fail: {}", e);
+                println!("fail: {}, reason: {}", name, e);
                 test_count += 1;
                 test_failed += 1;
             }
