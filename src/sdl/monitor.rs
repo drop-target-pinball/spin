@@ -4,7 +4,6 @@ use crate::vars::Value;
 
 use std::collections::HashMap;
 use sdl2::gfx::primitives::DrawRenderer;
-use sdl2::libc::Elf32_Addr;
 use sdl2::pixels::Color;
 use serde::{Serialize, Deserialize};
 use sdl2::video::Window;
@@ -142,7 +141,6 @@ impl Monitor {
 
     pub fn process(&mut self, s: &mut State, msg: &Message) {
         let elapsed = s.vars.get("elapsed").unwrap_or(&Value::Int(0)).as_int();
-
         match msg {
             Message::ScheduleDriver(m) => self.schedule_driver(elapsed, &m),
             Message::StartDriver(m) => self.start_driver(&m),
