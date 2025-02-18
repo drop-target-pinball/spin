@@ -105,7 +105,7 @@ pub struct Note {
 pub struct PulseDriver {
     pub name: String,
     /// Milliseconds
-    pub time: Option<u32>,
+    pub time: Option<i64>,
 }
 
 impl fmt::Display for PulseDriver {
@@ -122,9 +122,9 @@ impl fmt::Display for PulseDriver {
 pub struct PwmDriver {
     pub name: String,
     /// Milliseconds
-    pub time_on: u32,
+    pub time_on: i64,
     /// Milliseconds
-    pub time_off: u32,
+    pub time_off: i64,
 }
 
 impl fmt::Display for PwmDriver {
@@ -143,6 +143,24 @@ impl fmt::Display for Rejected {
         write!(f, "{}", self.reason)
     }
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ScheduleDriver {
+    pub name: String,
+    pub schedule: Vec<(bool, i64)>,
+}
+
+impl fmt::Display for ScheduleDriver {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} schedule={{{}}}", self.name,
+            self.schedule
+                .iter()
+                .map(|s| format!("({}, {})", s.0, s.1))
+                .collect::<Vec<String>>()
+                .join(", "))
+    }
+}
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SwitchUpdated {
@@ -206,6 +224,7 @@ pub enum Message {
     ScriptEnded(Name),
     ScriptKilled(Name),
     Set(Vars),
+    ScheduleDriver(ScheduleDriver),
     Shutdown,
     StartDriver(Name),
     Silence,
@@ -244,6 +263,7 @@ impl fmt::Display for Message {
             Message::PwmDriver(m) => write!(f, "pwm_driver: {}", m),
             Message::Rejected(m) => write!(f, "rejected: {}", m),
             Message::Run(m) => write!(f, "run: {}", m),
+            Message::ScheduleDriver(m) => write!(f, "schedule_driver: {}", m),
             Message::ScriptEnded(m) => write!(f, "script_ended: {}", m),
             Message::ScriptKilled(m) => write!(f, "script_killed: {}", m),
             Message::Set(m) => write!(f, "set: {}", m),

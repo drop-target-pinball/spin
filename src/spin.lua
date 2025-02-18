@@ -376,6 +376,20 @@ function pub.info(message)
     }})
 end
 
+function pub.blink_driver(name)
+    check.nv("name", name)
+    table.insert(queue, { schedule_driver = {
+        name = name,
+        cycle_time = 1000,
+        schedule = {
+            {true, 125}, {false, 125},
+            {true, 125}, {false, 125},
+            {true, 125}, {false, 125},
+            {true, 125}, {false, 125},
+        }
+    }})
+end
+
 function pub.play_music(name, opts)
     check.nv("name", name)
     local msg = {

@@ -11,6 +11,8 @@ pub mod script;
 #[cfg(feature = "sdl")]
 pub mod sdl;
 
+const DEFAULT_PULSE_TIME: i64 = 25;
+
 pub mod prelude {
     pub use crate::builtin;
     pub use crate::config::*;

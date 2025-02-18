@@ -1,9 +1,10 @@
-use crate::prelude::*;
+use crate::{prelude::*, DEFAULT_PULSE_TIME};
 use crate::error::{Error, Result};
 use crate::vars::Value;
 
 use std::collections::HashMap;
 use sdl2::gfx::primitives::DrawRenderer;
+use sdl2::libc::Elf32_Addr;
 use sdl2::pixels::Color;
 use serde::{Serialize, Deserialize};
 use sdl2::video::Window;
@@ -20,16 +21,22 @@ pub struct MonitorConfig {
 }
 
 #[derive(Default)]
+enum DriverMode {
+    #[default]
+    Off,
+    On,
+    Pulse,
+    Schedule
+}
+
+#[derive(Default)]
 struct DriverState {
-    on: bool,
-    last_update: i64,
-    // proc_schedule: u32,
-    // proc_cycle_seconds: u8,
-    // proc_now: bool,
-    pulse: bool,
-    pwm: bool,
-    pwm_on: i64,
-    pwm_off: i64,
+    on_now: bool,
+    start: i64,
+    cycle_len: i64,
+    mode: DriverMode,
+    schedule: Vec<(bool, i64)>,
+    pos: usize,
     expire: i64,
 }
 
@@ -71,44 +78,58 @@ impl Monitor {
          })
     }
 
-    fn start_driver(&mut self, elapsed: i64, msg: &Name) {
+    fn start_driver(&mut self, msg: &Name) {
         let mut maybe_ds = self.states.get_mut(&msg.name);
         let Some(ds) = maybe_ds.as_mut() else { return };
-        ds.on = true;
-        ds.last_update = elapsed;
-        ds.pulse = false;
+        ds.mode = DriverMode::On;
+        ds.on_now = true;
     }
 
-    fn stop_driver(&mut self, elapsed: i64, msg: &Name) {
+    fn stop_driver(&mut self, msg: &Name) {
         let mut maybe_ds = self.states.get_mut(&msg.name);
         let Some(ds) = maybe_ds.as_mut() else { return };
-        ds.on = false;
-        ds.last_update = elapsed;
-        ds.pulse = true;
-        ds.pwm = false;
+        ds.mode = DriverMode::Off;
+        ds.on_now = false;
     }
 
     fn pulse_driver(&mut self, elapsed: i64, msg: &PulseDriver) {
         let mut maybe_ds = self.states.get_mut(&msg.name);
         let Some(ds) = maybe_ds.as_mut() else { return };
-        ds.on = true;
-        ds.last_update = elapsed;
-        ds.pulse = true;
-        ds.expire = elapsed + ( 4 * match msg.time {
-            Some(t) => t as i64,
-            None => 25,
-        });
+        ds.mode = DriverMode::Pulse;
+        ds.on_now = true;
+        ds.start = elapsed;
+        ds.expire = elapsed + match msg.time {
+            Some(t) => t,
+            None => DEFAULT_PULSE_TIME,
+        };
     }
 
     fn pwm_driver(&mut self, elapsed: i64, msg: &PwmDriver) {
         let mut maybe_ds = self.states.get_mut(&msg.name);
         let Some(ds) = maybe_ds.as_mut() else { return };
-        ds.on = true;
-        ds.last_update = elapsed;
-        ds.pwm = true;
-        ds.pwm_on = msg.time_on as i64;
-        ds.pwm_off = msg.time_off as i64;
-        ds.expire = elapsed +  ds.pwm_on;
+        ds.mode = DriverMode::Schedule;
+        ds.start = elapsed;
+        ds.schedule = vec![
+            (true, msg.time_on),
+            (false, msg.time_off),
+        ];
+        ds.pos = 0;
+        ds.on_now = true;
+    }
+
+    fn schedule_driver(&mut self, elapsed: i64, msg: &ScheduleDriver) {
+        let mut maybe_ds = self.states.get_mut(&msg.name);
+        let Some(ds) = maybe_ds.as_mut() else { return };
+        ds.mode = DriverMode::Schedule;
+        ds.cycle_len = msg.schedule
+            .iter()
+            .map(|s| s.1)
+            .sum();
+        ds.start = elapsed / ds.cycle_len * ds.cycle_len;
+        ds.schedule = msg.schedule.clone();
+        ds.pos = find_schedule_pos(elapsed % ds.cycle_len, &ds.schedule);
+        ds.on_now = ds.schedule[ds.pos].0;
+
     }
 
     pub fn init(&mut self, s: &mut State) {
@@ -123,8 +144,9 @@ impl Monitor {
         let elapsed = s.vars.get("elapsed").unwrap_or(&Value::Int(0)).as_int();
 
         match msg {
-            Message::StartDriver(m) => self.start_driver(elapsed, &m),
-            Message::StopDriver(m) => self.stop_driver(elapsed, &m),
+            Message::ScheduleDriver(m) => self.schedule_driver(elapsed, &m),
+            Message::StartDriver(m) => self.start_driver(&m),
+            Message::StopDriver(m) => self.stop_driver( &m),
             Message::PulseDriver(m) => self.pulse_driver(elapsed, &m),
             Message::PwmDriver(m) => self.pwm_driver(elapsed, &m),
             _ => (),
@@ -135,15 +157,17 @@ impl Monitor {
         try_present!(self.canvas.copy(&self.playfield, None, None));
         for (name, ds) in &mut self.states {
             let alpha_pct = 1.0;
-            if ds.pulse && s.elapsed >= ds.expire {
-                ds.on = false;
-                continue
+            match ds.mode {
+                DriverMode::Off => ds.on_now = false,
+                DriverMode::On => ds.on_now = true,
+                DriverMode::Pulse => ds.on_now = s.elapsed >= ds.expire,
+                DriverMode::Schedule => {
+                    let cycle_pos = s.elapsed & ds.cycle_len;
+                    ds.pos = find_schedule_pos(cycle_pos, &ds.schedule);
+                    ds.on_now = ds.schedule[ds.pos].0;
+                }
             }
-            if ds.pwm && s.elapsed >= ds.expire {
-                ds.on = !ds.on;
-                ds.expire = s.elapsed + if ds.on { ds.pwm_on } else { ds.pwm_off };
-            }
-            if ds.on {
+            if ds.on_now {
                 draw_layout(&mut self.canvas, &self.layouts[name], alpha_pct)?;
             }
         }
@@ -186,3 +210,15 @@ fn draw_layout(cvs: &mut Canvas<Window>, layouts: &Vec<Layout>, alpha_pct: f64) 
     }
     Ok(())
 }
+
+fn find_schedule_pos(cycle_pos: i64, sched: &Vec<(bool, i64)>) -> usize {
+    let mut cycle_pos = cycle_pos;
+    for (pos, s) in sched.iter().enumerate() {
+        if cycle_pos - s.1 <= 0 {
+            return pos
+        }
+        cycle_pos -= s.1;
+    }
+    0
+}
+
