@@ -331,6 +331,18 @@ function pub.for_time(secs)
     end
 end
 
+function pub.for_script(name)
+    check.nv("name", name)
+    return function (kind, msg)
+        return kind == "script_ended" and msg.name == name
+    end
+end
+
+function pub.forever()
+    return function()
+        return false
+    end
+end
 
 -------------------------------------------------------------------------------
 function pub.alert(message)
