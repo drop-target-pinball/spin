@@ -49,7 +49,7 @@ impl Console<'_> {
     }
 
     fn checked_log(&mut self, s: &mut State, text: &str) -> rustyline::Result<()> {
-        let elapsed = s.vars["elapsed"].as_int();
+        let elapsed = s.vars["elapsed"].as_i64();
         let fmt_uptime = format!("[{:10.3}]", elapsed as f64 / 1000.0);
         self.out.print(format!("{} {}\n", Color::Blue.bold().paint(fmt_uptime), text))?;
         Ok(())

@@ -4,11 +4,6 @@ use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::fmt;
 
-#[derive(Debug)]
-pub struct VarsBox {
-    pub vars: Vars
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum Value {
@@ -20,10 +15,16 @@ pub enum Value {
 }
 
 impl Value {
-    pub fn as_int(&self) -> i64 {
+    pub fn as_f64(&self) -> f64 {
+        match self {
+            Value::Float(f) => *f,
+            _ => panic!("not a float: {}", self),
+        }
+    }
+    pub fn as_i64(&self) -> i64 {
         match self {
             Value::Int(i) => *i,
-            _ =>  panic!("not an integer: {}", self)
+            _ => panic!("not an integer: {}", self)
         }
     }
 

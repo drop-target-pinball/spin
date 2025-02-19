@@ -284,7 +284,7 @@ impl Audio {
             chan: -1,
             duck: 0,
             priority: 0,
-            start_time: s.vars["elapsed"].as_int(),
+            start_time: s.vars["elapsed"].as_i64(),
             notify: cmd.notify
         };
         self.music_playing = Some(active);
@@ -300,7 +300,7 @@ impl Audio {
             if aa.name == cmd.name {
                 // If this sound is already active, do nothing if within the
                 // debounce period
-                let delta = s.vars["elapsed"].as_int() - aa.start_time;
+                let delta = s.vars["elapsed"].as_i64() - aa.start_time;
                 let debounce = sec_to_millis(sound.def.debounce);
                 if debounce > 0 && debounce > delta {
                     diag!(s.queue, "debounce: {}", cmd.name);
@@ -340,7 +340,7 @@ impl Audio {
                     chan: chan_num,
                     duck: scale_volume(MAX_VOLUME, sound.def.duck),
                     priority: sound.def.priority,
-                    start_time: s.vars["elapsed"].as_int(),
+                    start_time: s.vars["elapsed"].as_i64(),
                     notify: cmd.notify
                 };
                 self.active[chan_num as usize] = Some(active);
@@ -372,7 +372,7 @@ impl Audio {
                     chan: 0,
                     duck: scale_volume(MAX_VOLUME, vocal.def.duck),
                     priority: vocal.def.priority,
-                    start_time: s.vars["elapsed"].as_int(),
+                    start_time: s.vars["elapsed"].as_i64(),
                     notify: cmd.notify
                 };
                 self.active[0] = Some(active);

@@ -214,6 +214,24 @@ pub struct SwitchDef {
     pub components: Vec<Component>,
 }
 
+fn default_step() -> i64 { -1 }
+fn default_tick() -> f64 { 1000.0 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct TimerDef {
+    pub var: String,
+    pub start: i64,
+    #[serde(default)]
+    pub end: i64,
+    #[serde(default = "default_step")]
+    pub step: i64,
+    #[serde(default = "default_tick")]
+    pub tick: f64,
+    #[serde(default)]
+    pub group: String,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum VarKind {
@@ -281,6 +299,8 @@ pub struct AppConfig {
     pub std: Vec<String>,
     #[serde(default)]
     pub switches: HashMap<String, SwitchDef>,
+    #[serde(default)]
+    pub timers: HashMap<String, TimerDef>,
     #[serde(default)]
     pub vocals: HashMap<String, VocalDef>,
     #[serde(default)]

@@ -454,10 +454,17 @@ function pub.pwm_driver(name, time_on, time_off)
     }})
 end
 
-
 function pub.rejected(reason)
     check.nv("reason", reason)
     table.insert(queue, { rejected = {reason=reason}})
+end
+
+
+function pub.reset_timer(name)
+    check.nv("name", name, "string")
+    table.insert(queue, { reset_timer = {
+        name = name
+    }})
 end
 
 function pub.run(name)
@@ -509,6 +516,13 @@ function pub.start_driver(name)
     }})
 end
 
+function pub.start_timer(name)
+    check.nv("name", name, "string")
+    table.insert(queue, { start_timer = {
+        name = name
+    }})
+end
+
 function pub.stop_driver(name)
     check.nv("name", name, "string")
     table.insert(queue, { stop_driver = {
@@ -521,6 +535,13 @@ function pub.stop_music(name)
         name = ""
     end
     table.insert(queue, { stop_music = {
+        name = name
+    }})
+end
+
+function pub.stop_timer(name)
+    check.nv("name", name, "string")
+    table.insert(queue, { stop_timer = {
         name = name
     }})
 end

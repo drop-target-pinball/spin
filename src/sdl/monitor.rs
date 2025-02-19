@@ -140,7 +140,7 @@ impl Monitor {
     }
 
     pub fn process(&mut self, s: &mut State, msg: &Message) {
-        let elapsed = s.vars.get("elapsed").unwrap_or(&Value::Int(0)).as_int();
+        let elapsed = s.vars.get("elapsed").unwrap_or(&Value::Int(0)).as_i64();
         match msg {
             Message::ScheduleDriver(m) => self.schedule_driver(elapsed, &m),
             Message::StartDriver(m) => self.start_driver(&m),
