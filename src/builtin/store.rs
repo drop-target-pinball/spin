@@ -54,6 +54,11 @@ impl Store {
         self.set_var(s, &None, &def.var.clone(), &vars::Value::Int(def.start));
     }
 
+    fn kill_group(&mut self, s: &mut State, msg: &Name) {
+        let groups = timers_for_group(&s.conf, &msg.name);
+        self.timers.retain(|k, _| !groups.contains(k));
+    }
+
     fn halt(&mut self) {
         self.timers.clear();
     }
@@ -120,6 +125,7 @@ impl Device for Store {
     fn process(&mut self, s: &mut State, msg: &Message) {
         match msg {
             Message::Halt => self.halt(),
+            Message::KillGroup(m) => self.kill_group(s, m),
             Message::ResetTimer(m) => self.reset_timer(s, m),
             Message::Set(m) => self.set_vars(s, m),
             Message::StartTimer(m) => self.start_timer(s, m),
@@ -131,4 +137,23 @@ impl Device for Store {
 
     fn render(&mut self, _: &mut render::State) {}
     fn present(&mut self, _: &render::State) {}
+}
+
+fn timers_for_group(conf: &AppConfig, kill_group: &str) -> Vec<String> {
+    let mut timer_names = Vec::new();
+    for (name, def) in &conf.timers {
+        if let Some(group) = &def.group {
+            if group == kill_group {
+                timer_names.push(name.clone());
+            }
+        }
+    }
+    for (rg_name, def) in &conf.run_groups {
+        if let Some(parent) = &def.parent {
+            if parent == kill_group {
+                timer_names.extend(timers_for_group(conf, &rg_name));
+            }
+        }
+    }
+    timer_names
 }

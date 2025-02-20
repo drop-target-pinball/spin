@@ -153,7 +153,7 @@ pub struct MusicDef {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct RunGroup {
-    parent: Option<String>
+    pub parent: Option<String>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -463,3 +463,5 @@ fn find_files(dir: &Path) -> io::Result<Vec<PathBuf>> {
     }
     Ok(files)
 }
+
+

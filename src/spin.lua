@@ -226,40 +226,51 @@ function pub.ns(ns_name)
         vars = ns.vars
     end
 
-    return {
-        bool = function(name)
-            check.nv('name', name)
-            local v = vars[name]
-            if v == nil then
-                error("undefined variable: " .. name)
-            end
-            if v["bool"] == nil then
-                error("variable is not a bool: " .. name)
-            end
-            return v["bool"]
-        end,
-        int = function(name)
-            check.nv('name', name)
-            local v = vars[name]
-            if v == nil then
-                error("undefined variable: " .. name)
-            end
-            if v["int"] == nil then
-                error("variable is not an int: " .. name)
-            end
-            return v["int"]
-        end,
-        set = function(name, value)
-            check.nv(name, "name")
-            check.nv(value, "value")
-            table.insert(queue, { set = {
-                ns = ns_name,
-                vars = {
-                    [name] = set_nv(name, value)
-                }
-            }})
+    local ns = {}
+
+    function ns.add_int(name, value)
+        check.nv("name", name, "string")
+        check.nv("value", value, "number")
+        local old = ns.int(name)
+        ns.set(name, old + value)
+    end
+
+    function ns.bool(name)
+        check.nv('name', name)
+        local v = vars[name]
+        if v == nil then
+            error("undefined variable: " .. name)
         end
-    }
+        if v["bool"] == nil then
+            error("variable is not a bool: " .. name)
+        end
+        return v["bool"]
+    end
+
+    function ns.int(name)
+        check.nv('name', name)
+        local v = vars[name]
+        if v == nil then
+            error("undefined variable: " .. name)
+        end
+        if v["int"] == nil then
+            error("variable is not an int: " .. name)
+        end
+        return v["int"]
+    end
+
+    function ns.set(name, value)
+        check.nv("name", name, "string")
+        check.nv("value", value)
+        table.insert(queue, { set = {
+            ns = ns_name,
+            vars = {
+                [name] = set_nv(name, value)
+            }
+        }})
+    end
+
+    return ns
 end
 
 function pub.bool(name)
