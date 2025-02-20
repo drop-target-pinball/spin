@@ -10,9 +10,9 @@ function pub.press(name)
     spin.switch_updated(name, false)
 end
 
-function pub.ok()
-    spin.post(std.TEST_OK)
-end
+--function pub.ok()
+    -- spin.post(std.TEST_OK)
+--end
 
 function pub.wait(timeout, desc, ...)
     check.nv("timeout", timeout, "number")

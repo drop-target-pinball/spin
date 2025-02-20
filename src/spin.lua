@@ -1,4 +1,5 @@
 local check = require("check")
+local std = require("std")
 
 local pub = {
     conf = {},
@@ -297,6 +298,29 @@ function pub.for_any(name)
     return function(kind)
         return kind == name, kind, msg
     end
+end
+
+function pub.for_ball(name, time)
+    check.nv("name", name, "string")
+    check.nv("time", time, "number")
+
+    local here = false
+    local expires = 0
+    local time_ms = time * 1000
+    return function(kind, msg)
+        local now = spin.int('elapsed')
+        if kind == std.SWITCH_UPDATED and msg.name == name and msg.active then
+            here = true
+            expires = now + time_ms
+        elseif kind == std.SWITCH_UPDATED and msg.name == name and not msg.active then
+            here = false
+            expires = 0
+        elseif kind == std.TICK and here and now >= expires then
+            return true, std.BALL_ARRIVED, { name = name }
+        end
+        return false, kind, msg
+    end
+
 end
 
 function pub.for_switch(name, active)

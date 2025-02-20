@@ -1,8 +1,8 @@
 namespaces:
   player:
     score:                      { kind: !int 0 }
+    extra_balls:                { kind: !int 0 }
     extra_balls_awarded:        { kind: !int 0 }
-    total_extra_balls_awarded:  { kind: !int 0 }
     replay_awarded:             { kind: !bool false }
 
 
@@ -24,8 +24,8 @@ scripts:
   test_start_service_no_credits:    { module: "_game_test", test: true }
   test_start_service_player_4:      { module: "_game_test", test: true }
 
+
 run_groups:
-  service: {}
   main: {}
   game: { parent: main }
   turn: { parent: game }

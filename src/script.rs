@@ -5,12 +5,11 @@ use std::sync::{Arc, Mutex};
 use mlua::prelude::*;
 use crate::{Error, Result};
 
-static SCRIPTS: [(&str, &[u8]); 9] = [
+static SCRIPTS: [(&str, &[u8]); 8] = [
     ("std.lua", include_bytes!("std.lua")),
     ("check.lua", include_bytes!("check.lua")),
     ("render.lua", include_bytes!("render.lua")),
     ("spin.lua", include_bytes!("spin.lua")),
-    ("message.lua", include_bytes!("message.lua")),
     ("test.lua", include_bytes!("test.lua")),
 
     ("dmd.lua", include_bytes!("std/scripts/dmd.lua")),

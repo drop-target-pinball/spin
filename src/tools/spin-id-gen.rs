@@ -32,6 +32,7 @@ pub fn main() -> ExitCode {
 
     for v in conf.fonts.keys()      { add(&mut ids, v.into()) }
     for v in conf.music.keys()      { add(&mut ids, v.into()) }
+    for v in conf.run_groups.keys() { add(&mut ids, v.into()) }
     for v in conf.sounds.keys()     { add(&mut ids, v.into()) }
     for v in conf.switches.keys()   { add(&mut ids, v.into()) }
     for v in conf.vars.keys()       { add(&mut ids, v.into()) }

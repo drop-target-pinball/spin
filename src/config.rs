@@ -228,8 +228,8 @@ pub struct TimerDef {
     pub step: i64,
     #[serde(default = "default_tick")]
     pub tick: f64,
-    #[serde(default)]
-    pub group: String,
+    pub group: Option<String>,
+    pub expire_delay: Option<f64>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

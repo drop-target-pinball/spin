@@ -5,6 +5,7 @@ use std::collections::HashMap;
 struct Timer {
     def: TimerDef,
     last_update: i64,
+    expire_at: Option<i64>,
 }
 
 #[derive(Default)]
@@ -38,6 +39,7 @@ impl Store {
         let timer = Timer{
             def: def.clone(),
             last_update: elapsed,
+            expire_at: None,
         };
         self.timers.insert(msg.name.clone(), timer);
         self.set_var(s, &None, &def.var.clone(), &vars::Value::Int(def.start));
@@ -63,6 +65,12 @@ impl Store {
         let mut expired: Vec<String> = Vec::new();
 
         for (name, timer) in &mut self.timers {
+            if let Some(expire_at) = timer.expire_at {
+                if now >= expire_at {
+                    expired.push(name.clone());
+                }
+                continue;
+            }
             let tick_ms = (timer.def.tick * 1000.0) as i64;
             let mut delta = now - timer.last_update;
             let orig =  s.vars.get(&timer.def.var).unwrap().as_i64();
@@ -83,7 +91,11 @@ impl Store {
                 timer.last_update = now;
             }
             if curr == timer.def.end {
-                expired.push(name.clone());
+                if let Some(delay) = timer.def.expire_delay {
+                    timer.expire_at = Some(now + (delay * 1000.0) as i64);
+                } else {
+                    expired.push(name.clone());
+                }
             }
         }
         for (name, val) in updates {
