@@ -436,10 +436,10 @@ function pub.blink_driver(name)
         name = name,
         cycle_time = 1000,
         schedule = {
-            {true, 125}, {false, 125},
-            {true, 125}, {false, 125},
-            {true, 125}, {false, 125},
-            {true, 125}, {false, 125},
+            {true, 0.125}, {false, 0.125},
+            {true, 0.125}, {false, 0.125},
+            {true, 0.125}, {false, 0.125},
+            {true, 0.125}, {false, 0.125},
         }
     }})
 end
@@ -513,6 +513,15 @@ function pub.run(name)
     check.nv("name", name)
     table.insert(queue, { run = {
         name = name
+    }})
+end
+
+function pub.schedule_driver(name, schedule)
+    check.nv("name", name)
+    table.insert(queue, { schedule_driver = {
+        name = name,
+        cycle_time = 1000,
+        schedule = schedule,
     }})
 end
 

@@ -19,7 +19,7 @@ pub struct MonitorConfig {
     pub playfield: String
 }
 
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 enum DriverMode {
     #[default]
     Off,
@@ -34,9 +34,10 @@ struct DriverState {
     start: i64,
     cycle_len: i64,
     mode: DriverMode,
-    schedule: Vec<(bool, i64)>,
+    schedule: Vec<(bool, f64)>,
     pos: usize,
     expire: i64,
+    alpha_pct: f64,
 }
 
 pub struct Monitor {
@@ -97,7 +98,7 @@ impl Monitor {
         ds.mode = DriverMode::Pulse;
         ds.on_now = true;
         ds.start = elapsed;
-        ds.expire = elapsed + match msg.time {
+        ds.expire = elapsed + 10 * match msg.time {
             Some(t) => t,
             None => DEFAULT_PULSE_TIME,
         };
@@ -120,10 +121,10 @@ impl Monitor {
         let mut maybe_ds = self.states.get_mut(&msg.name);
         let Some(ds) = maybe_ds.as_mut() else { return };
         ds.mode = DriverMode::Schedule;
-        ds.cycle_len = msg.schedule
+        ds.cycle_len = (msg.schedule
             .iter()
             .map(|s| s.1)
-            .sum();
+            .sum::<f64>() * 1000.0) as i64;
         ds.start = elapsed / ds.cycle_len * ds.cycle_len;
         ds.schedule = msg.schedule.clone();
         ds.pos = find_schedule_pos(elapsed % ds.cycle_len, &ds.schedule);
@@ -154,19 +155,24 @@ impl Monitor {
     pub fn present(&mut self, s: &render::State) -> Result<()> {
         try_present!(self.canvas.copy(&self.playfield, None, None));
         for (name, ds) in &mut self.states {
-            let alpha_pct = 1.0;
-            match ds.mode {
-                DriverMode::Off => ds.on_now = false,
-                DriverMode::On => ds.on_now = true,
-                DriverMode::Pulse => ds.on_now = s.elapsed >= ds.expire,
-                DriverMode::Schedule => {
-                    let cycle_pos = s.elapsed & ds.cycle_len;
-                    ds.pos = find_schedule_pos(cycle_pos, &ds.schedule);
-                    ds.on_now = ds.schedule[ds.pos].0;
+            #[cfg(feature = "debug_monitor")] {
+                ds.mode = DriverMode::On;
+            }
+
+            if ds.mode != DriverMode::Pulse {
+                update_state(s, ds);
+                if ds.on_now {
+                   draw_layout(&mut self.canvas, &self.layouts[name], ds.alpha_pct)?;
                 }
             }
-            if ds.on_now {
-                draw_layout(&mut self.canvas, &self.layouts[name], alpha_pct)?;
+        }
+
+        for (name, ds) in &mut self.states {
+            if ds.mode == DriverMode::Pulse {
+                update_state(s, ds);
+                if ds.on_now {
+                   draw_layout(&mut self.canvas, &self.layouts[name], ds.alpha_pct)?;
+                }
             }
         }
         self.canvas.present();
@@ -174,12 +180,34 @@ impl Monitor {
     }
 }
 
+fn update_state(s: &render::State, ds: &mut DriverState) {
+    ds.alpha_pct = 0.625;
+    match ds.mode {
+        DriverMode::Off => ds.on_now = false,
+        DriverMode::On => ds.on_now = true,
+        DriverMode::Pulse => {
+            if s.elapsed < ds.expire {
+                ds.on_now = true;
+                let progress = (s.elapsed - ds.start) as f64;
+                ds.alpha_pct = 1.0 - (progress / (ds.expire - ds.start) as f64);
+            } else {
+                ds.on_now = false;
+                ds.mode = DriverMode::Off;
+            }
+        }
+        DriverMode::Schedule => {
+            let cycle_pos = s.elapsed & ds.cycle_len;
+            ds.pos = find_schedule_pos(cycle_pos, &ds.schedule);
+            ds.on_now = ds.schedule[ds.pos].0;
+        }
+    }
+}
 
 fn draw_layout(cvs: &mut Canvas<Window>, layouts: &Vec<Layout>, alpha_pct: f64) -> Result<()> {
     for layout in layouts {
         let color_name = layout.color_name.as_ref().unwrap_or(&ColorName::White);
         let mut color = color_name.to_color().to_sdl();
-        color.a = (0xa0 as f64 * alpha_pct) as u8;
+        color.a = (0xff as f64 * alpha_pct) as u8;
         match layout.shape {
             Shape::Circle => {
                 let r = std::cmp::max(layout.w, layout.h) as i16;
@@ -209,13 +237,14 @@ fn draw_layout(cvs: &mut Canvas<Window>, layouts: &Vec<Layout>, alpha_pct: f64) 
     Ok(())
 }
 
-fn find_schedule_pos(cycle_pos: i64, sched: &Vec<(bool, i64)>) -> usize {
+fn find_schedule_pos(cycle_pos: i64, sched: &Vec<(bool, f64)>) -> usize {
     let mut cycle_pos = cycle_pos;
     for (pos, s) in sched.iter().enumerate() {
-        if cycle_pos - s.1 <= 0 {
+        let time_ms = (s.1 * 1000.0) as i64;
+        if cycle_pos - time_ms <= 0 {
             return pos
         }
-        cycle_pos -= s.1;
+        cycle_pos -= time_ms;
     }
     0
 }

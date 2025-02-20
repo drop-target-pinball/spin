@@ -30,6 +30,7 @@ pub fn main() -> ExitCode {
         ids.push(name);
     };
 
+    for v in conf.drivers.keys()    { add(&mut ids, v.into()) }
     for v in conf.fonts.keys()      { add(&mut ids, v.into()) }
     for v in conf.music.keys()      { add(&mut ids, v.into()) }
     for v in conf.run_groups.keys() { add(&mut ids, v.into()) }

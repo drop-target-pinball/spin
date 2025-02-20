@@ -51,6 +51,7 @@ pub enum ColorName {
     Blue,
     Green,
     Orange,
+    Pink,
     Red,
     White,
     Yellow
@@ -62,6 +63,7 @@ impl ColorName {
             Self::Blue => render::Color::new(0, 0, 255, 255),
             Self::Green => render::Color::new(0, 255, 0, 255),
             Self::Orange => render::Color::new(255, 165, 0, 255),
+            Self::Pink => render::Color::new(255, 105, 180, 255 ),
             Self::Red => render::Color::new(255, 0, 0, 255),
             Self::White => render::Color::new(255, 255, 255, 255),
             Self::Yellow => render::Color::new(255, 255, 0, 255),

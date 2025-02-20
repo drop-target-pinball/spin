@@ -121,10 +121,10 @@ impl fmt::Display for PulseDriver {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PwmDriver {
     pub name: String,
-    /// Milliseconds
-    pub time_on: i64,
-    /// Milliseconds
-    pub time_off: i64,
+    /// Seconds
+    pub time_on: f64,
+    /// Seconds
+    pub time_off: f64,
 }
 
 impl fmt::Display for PwmDriver {
@@ -147,7 +147,7 @@ impl fmt::Display for Rejected {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ScheduleDriver {
     pub name: String,
-    pub schedule: Vec<(bool, i64)>,
+    pub schedule: Vec<(bool, f64)>,
 }
 
 impl fmt::Display for ScheduleDriver {
