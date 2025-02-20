@@ -215,7 +215,7 @@ pub struct SwitchDef {
 }
 
 fn default_step() -> i64 { -1 }
-fn default_tick() -> f64 { 1000.0 }
+fn default_tick() -> f64 { 1.0 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]

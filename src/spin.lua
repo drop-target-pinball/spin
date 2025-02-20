@@ -12,6 +12,13 @@ local scripts = {}
 local alive = {}
 local queue = {}
 
+-- Colors
+pub.BLACK       = { r = 0,   g = 0,   b = 0,   a = 255 }
+pub.CLEAR       = { r = 0,   g = 0,   b = 0,   a = 0   }
+pub.FULL        = { r = 255, g = 255, b = 255, a = 255 }
+pub.OFF         = pub.BLACK
+pub.ON          = pub.FULL
+
 -------------------------------------------------------------------------------
 local function halt()
     alive = {}

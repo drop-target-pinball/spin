@@ -188,13 +188,21 @@ impl<'ttf> Renderer<'ttf> {
         let x = if args.center_x {
             ((cvs.surface().width() - text.width()) / 2) as i32
         } else {
-            args.x
+            if args.right {
+               args.x - text.width() as i32
+            } else {
+                args.x
+            }
         };
 
         let y = if args.center_y {
             ((cvs.surface().height() - text.height()) / 2) as i32
         } else {
-            args.y
+            if args.bottom {
+                args.y - text.height() as i32
+            } else {
+                args.y
+            }
         };
 
         match text.blit(text.rect(), cvs.surface_mut(), Rect::new(x, y, text.width(), text.height())) {
