@@ -106,21 +106,21 @@ impl<'a> crate::Device for Device {
         }
     }
 
-    fn render(&mut self, state: &mut render::State) {
-        if let Err(e) = self.renderer.render(state) {
-            fault!(state.queue, "{}", e);
+    fn render(&mut self, s: &mut State, rs: &mut render::State) {
+        if let Err(e) = self.renderer.render(s, rs) {
+            fault!(s.queue, "{}", e);
         }
     }
 
-    fn present(&mut self, state: &render::State) {
+    fn present(&mut self, s: &mut State, rs: &render::State) {
         if let Some(dmd) = &mut self.dmd {
-            if let Err(e) = dmd.present(state) {
-                fault!(state.queue, "{}", e);
+            if let Err(e) = dmd.present(rs) {
+                fault!(s.queue, "{}", e);
             }
         }
         if let Some(monitor) = &mut self.monitor {
-            if let Err(e) = monitor.present(state) {
-                fault!(state.queue, "{}", e);
+            if let Err(e) = monitor.present(s.elapsed, s) {
+                fault!(s.queue, "{}", e);
             }
         }
     }

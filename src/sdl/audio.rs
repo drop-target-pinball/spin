@@ -284,7 +284,7 @@ impl Audio {
             chan: -1,
             duck: 0,
             priority: 0,
-            start_time: s.vars["elapsed"].as_i64(),
+            start_time: s.elapsed,
             notify: cmd.notify
         };
         self.music_playing = Some(active);
@@ -300,7 +300,7 @@ impl Audio {
             if aa.name == cmd.name {
                 // If this sound is already active, do nothing if within the
                 // debounce period
-                let delta = s.vars["elapsed"].as_i64() - aa.start_time;
+                let delta = s.elapsed - aa.start_time;
                 let debounce = sec_to_millis(sound.def.debounce);
                 if debounce > 0 && debounce > delta {
                     diag!(s.queue, "debounce: {}", cmd.name);
@@ -340,7 +340,7 @@ impl Audio {
                     chan: chan_num,
                     duck: scale_volume(MAX_VOLUME, sound.def.duck),
                     priority: sound.def.priority,
-                    start_time: s.vars["elapsed"].as_i64(),
+                    start_time: s.elapsed,
                     notify: cmd.notify
                 };
                 self.active[chan_num as usize] = Some(active);
@@ -372,7 +372,7 @@ impl Audio {
                     chan: 0,
                     duck: scale_volume(MAX_VOLUME, vocal.def.duck),
                     priority: vocal.def.priority,
-                    start_time: s.vars["elapsed"].as_i64(),
+                    start_time: s.elapsed,
                     notify: cmd.notify
                 };
                 self.active[0] = Some(active);
@@ -404,6 +404,14 @@ impl Audio {
         self.active[0] = None;
     }
 
+    fn halt(&mut self, s: &mut State) {
+        self.silence(s);
+    }
+
+    fn reset(&mut self, s: &mut State) {
+        self.halt(s);
+    }
+
     pub fn process(&mut self, s: &mut State, msg: &Message) {
         if MUSIC_FINISHED.load(Ordering::SeqCst) {
             MUSIC_FINISHED.store(false, Ordering::SeqCst);
@@ -416,10 +424,11 @@ impl Audio {
         }
         self.reap_channels(s);
         match msg {
-            Message::Halt => self.silence(s),
+            Message::Halt => self.halt(s),
             Message::PlayMusic(m) => self.play_music(s, m),
             Message::PlaySound(m) => self.play_sound(s, m),
             Message::PlayVocal(m) => self.play_vocal(s, m),
+            Message::Reset => self.reset(s),
             Message::Silence => self.silence(s),
             Message::StopMusic(m) => self.stop_music(s, m),
             Message::StopVocal(m) => self.stop_vocal(s, m),

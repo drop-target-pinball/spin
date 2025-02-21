@@ -49,6 +49,7 @@ pub enum DriverKind {
 #[serde(rename_all = "snake_case")]
 pub enum ColorName {
     Blue,
+    Cyan,
     Green,
     Orange,
     Pink,
@@ -61,6 +62,7 @@ impl ColorName {
     pub fn to_color(&self) -> render::Color {
         match self {
             Self::Blue => render::Color::new(0, 0, 255, 255),
+            Self::Cyan => render::Color::new(0, 255, 255, 255),
             Self::Green => render::Color::new(0, 255, 0, 255),
             Self::Orange => render::Color::new(255, 165, 0, 255),
             Self::Pink => render::Color::new(255, 105, 180, 255 ),
@@ -75,7 +77,8 @@ impl ColorName {
 #[serde(rename_all = "snake_case")]
 pub enum Shape {
     Rect,
-    Circle
+    Circle,
+    Diamond,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -213,6 +216,8 @@ pub struct SwitchDef {
     #[serde(default)]
     pub unused: bool,
     #[serde(default)]
+    pub layout: Vec<Layout>,
+    #[serde(default)]
     pub components: Vec<Component>,
 }
 
@@ -333,7 +338,7 @@ impl Runtime {
         Runtime {
             debug_config: false,
             prog_name: "PROG".to_string(),
-            prog_description: "PROGRAM".to_string(),
+            prog_description: "NAME".to_string(),
             prog_version: "ERSION".to_string(),
             prog_date: "DATE".to_string(),
             mode: RunMode::Develop,

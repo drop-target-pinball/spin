@@ -57,12 +57,18 @@ impl Input {
                 match win_event {
                     WindowEvent::Close => {
                         s.queue.post(Message::Shutdown);
+                        if s.runtime.is_auto_test() {
+                            std::process::exit(1);
+                        }
                     },
                     _ => (),
                 }
             }
             Event::Quit { .. } => {
                 s.queue.post(Message::Shutdown);
+                if s.runtime.is_auto_test() {
+                    std::process::exit(1);
+                }
             }
             _ => ()
         }

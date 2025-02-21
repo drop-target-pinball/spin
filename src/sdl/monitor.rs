@@ -1,6 +1,5 @@
 use crate::{prelude::*, DEFAULT_PULSE_TIME};
 use crate::error::{Error, Result};
-use crate::vars::Value;
 
 use std::collections::HashMap;
 use sdl2::gfx::primitives::DrawRenderer;
@@ -141,7 +140,7 @@ impl Monitor {
     }
 
     pub fn process(&mut self, s: &mut State, msg: &Message) {
-        let elapsed = s.vars.get("elapsed").unwrap_or(&Value::Int(0)).as_i64();
+        let elapsed = s.elapsed;
         match msg {
             Message::ScheduleDriver(m) => self.schedule_driver(elapsed, &m),
             Message::StartDriver(m) => self.start_driver(&m),
@@ -152,7 +151,7 @@ impl Monitor {
         }
     }
 
-    pub fn present(&mut self, s: &render::State) -> Result<()> {
+    pub fn present(&mut self, elapsed: i64, s: &State) -> Result<()> {
         try_present!(self.canvas.copy(&self.playfield, None, None));
         for (name, ds) in &mut self.states {
             #[cfg(feature = "debug_monitor")] {
@@ -160,7 +159,7 @@ impl Monitor {
             }
 
             if ds.mode != DriverMode::Pulse {
-                update_state(s, ds);
+                update_state(elapsed, ds);
                 if ds.on_now {
                    draw_layout(&mut self.canvas, &self.layouts[name], ds.alpha_pct)?;
                 }
@@ -169,26 +168,33 @@ impl Monitor {
 
         for (name, ds) in &mut self.states {
             if ds.mode == DriverMode::Pulse {
-                update_state(s, ds);
+                update_state(elapsed, ds);
                 if ds.on_now {
                    draw_layout(&mut self.canvas, &self.layouts[name], ds.alpha_pct)?;
                 }
             }
         }
+
+        #[cfg(feature = "debug_monitor")] {
+            for (_, def) in &s.conf.switches {
+                draw_layout(&mut self.canvas, &def.layout, 0.9)?;
+            }
+        }
+
         self.canvas.present();
         Ok(())
     }
 }
 
-fn update_state(s: &render::State, ds: &mut DriverState) {
+fn update_state(elapsed: i64, ds: &mut DriverState) {
     ds.alpha_pct = 0.625;
     match ds.mode {
         DriverMode::Off => ds.on_now = false,
         DriverMode::On => ds.on_now = true,
         DriverMode::Pulse => {
-            if s.elapsed < ds.expire {
+            if elapsed < ds.expire {
                 ds.on_now = true;
-                let progress = (s.elapsed - ds.start) as f64;
+                let progress = (elapsed - ds.start) as f64;
                 ds.alpha_pct = 1.0 - (progress / (ds.expire - ds.start) as f64);
             } else {
                 ds.on_now = false;
@@ -196,7 +202,7 @@ fn update_state(s: &render::State, ds: &mut DriverState) {
             }
         }
         DriverMode::Schedule => {
-            let cycle_pos = s.elapsed & ds.cycle_len;
+            let cycle_pos = elapsed & ds.cycle_len;
             ds.pos = find_schedule_pos(cycle_pos, &ds.schedule);
             ds.on_now = ds.schedule[ds.pos].0;
         }
@@ -231,6 +237,15 @@ fn draw_layout(cvs: &mut Canvas<Window>, layouts: &Vec<Layout>, alpha_pct: f64) 
                 try_present!(cvs.draw_rect(Rect::new(
                     layout.x, layout.y,
                     layout.w, layout.h)));
+            }
+            Shape::Diamond => {
+                let (x, y, w, h) = (layout.x as i16, layout.y as i16, layout.w as i16, layout.h as i16);
+                let hx = x + (w / 2);
+                let hy = y + (h / 2);
+                let px: [i16; 4] = [x, hx, x + w, hx];
+                let py: [i16; 4] = [hy, y, hy, y + h];
+                try_present!(cvs.filled_polygon(&px, &py, color));
+                try_present!(cvs.aa_polygon(&px, &py, Color::BLACK));
             }
         }
     }

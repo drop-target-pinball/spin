@@ -27,8 +27,7 @@ impl<W> Logger<W>
     }
 
     fn checked_log(&mut self, s: &mut State, text: &str) -> io::Result<()> {
-        let elapsed = s.vars["elapsed"].as_i64();
-        let fmt_uptime = format!("[{:10.3}]", elapsed as f64 / 1000.0);
+        let fmt_uptime = format!("[{:10.3}]", s.elapsed as f64 / 1000.0);
         writeln!(self.out, "{} {}", fmt_uptime, text)
     }
 }
@@ -59,6 +58,6 @@ where W: io::Write {
         }
     }
 
-    fn render(&mut self, _: &mut render::State) {}
-    fn present(&mut self, _: &render::State) {}
+    fn render(&mut self, _: &mut State, _: &mut render::State) {}
+    fn present(&mut self, _: &mut State, _: &render::State) {}
 }

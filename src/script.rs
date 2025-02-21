@@ -135,7 +135,7 @@ impl Env {
                 }
             }
         }
-        state.render_list = ops.clone();
+        state.render_ops = ops.clone();
         match lua_ops.clear() {
             Ok(()) => Ok(()),
             Err(e) => raise!(Error::ScriptEnv, "unable to clear ops table: {}", e),
@@ -155,12 +155,19 @@ impl Env {
     }
 
     pub fn process(&self, msg: &Message) -> Result<Vec<Message>> {
+        let elapsed = self.state.lock().unwrap().elapsed;
+
+        let lua_elapsed = match self.lua.to_value(&elapsed) {
+            Ok(m) => m,
+            Err(e) => return raise!(Error::ScriptExec, "cannot convert elapsed to a lua value: {}", e)
+        };
+
         let lua_msg = match self.lua.to_value(&msg) {
             Ok(m) => m,
             Err(e) => return raise!(Error::ScriptExec, "cannot convert message to lua table: {}", e)
         };
 
-        let results = match self.post.call::<LuaMultiValue>(&lua_msg) {
+        let results = match self.post.call::<LuaMultiValue>((&lua_elapsed, &lua_msg)) {
             Ok(r) => r,
             Err(e) => return raise!(Error::ScriptExec, "{}", e)
         };

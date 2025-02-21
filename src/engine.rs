@@ -10,11 +10,12 @@ use std::sync::Mutex;
 use std::collections::HashMap;
 
 pub struct State {
+    pub elapsed: i64,
     pub conf: AppConfig,
     pub runtime: Runtime,
     pub queue: Queue,
     pub vars: vars::Vars,
-    pub render_list: Vec<render::Instruction>,
+    pub render_ops: Vec<render::Instruction>,
 }
 
 pub struct Engine<'a> {
@@ -22,9 +23,9 @@ pub struct Engine<'a> {
     state: Arc<Mutex<State>>,
     r_state: render::State,
     script_env: script::Env,
+    devices: Vec<Box<dyn Device + 'a>>,
 
     pub rx: Receiver<Message>,
-    devices: Vec<Box<dyn Device + 'a>>,
     pub main: String,
     pub shutdown: bool,
 }
@@ -38,19 +39,15 @@ impl<'a> Engine<'a> {
         for (name, c) in &conf.video {
             videos.insert(name.to_string(), Video::new(&c));
         }
-        let r_state = render::State{
-            elapsed: 0,
-            queue: queue.clone(),
-            ops: Vec::new(),
-            videos,
-        };
+        let r_state = render::State{videos};
 
         let state = Arc::new(Mutex::new(State {
+            elapsed: 0,
             conf,
             runtime,
             queue: queue.clone(),
             vars: vars::Vars::new(),
-            render_list: Vec::new(),
+            render_ops: Vec::new(),
         }));
 
         let script_env = unwrap!(script::Env::new(state.clone()));
@@ -84,24 +81,23 @@ impl<'a> Engine<'a> {
     }
 
     pub fn tick(&mut self, elapsed: time::Duration) {
-        self.poll();
-        self.process_queue(elapsed);
+        self.poll(elapsed);
         self.queue.post(Message::Tick);
-        self.process_queue(elapsed);
-        self.render(elapsed);
+        self.process_queue();
+        self.render();
         self.present();
-        self.process_queue(elapsed);
     }
 
     pub fn init(&mut self) {
-        let mut s = self.state.lock().unwrap();
+        let mut s: std::sync::MutexGuard<'_, State> = self.state.lock().unwrap();
         for d in &mut self.devices {
             d.init(&mut s, &mut self.r_state);
         }
     }
 
-    fn poll(&mut self) {
+    fn poll(&mut self, elapsed: time::Duration) {
         let mut s = self.state.lock().unwrap();
+        s.elapsed = elapsed.as_millis() as i64;
         for d in &mut self.devices {
             if let Err(e) = d.poll(&mut s) {
                 fault!(s.queue, "{}", e);
@@ -109,23 +105,22 @@ impl<'a> Engine<'a> {
         }
     }
 
-    fn render(&mut self, elapsed: time::Duration) {
+    fn render(&mut self) {
         if let Err(e) = self.script_env.recv_vars() {
             fault!(self.queue, "{}", e);
         }
         let mut s = unwrap!(self.state.lock());
-        self.r_state.elapsed = elapsed.as_millis() as i64;
-        self.r_state.ops = std::mem::take(&mut s.render_list);
-        self.r_state.ops.sort_by_key(|e| e.priority);
+        s.render_ops.sort_by_key(|e| e.priority);
         for d in &mut self.devices {
-            d.render(&mut self.r_state);
+            d.render(&mut s,&mut self.r_state);
         }
-        self.r_state.ops.clear();
+        s.render_ops.clear();
     }
 
     fn present(&mut self) {
+        let mut s = unwrap!(self.state.lock());
         for d in &mut self.devices {
-            d.present(&mut self.r_state);
+            d.present(&mut s, &mut self.r_state);
         }
     }
 
@@ -133,7 +128,7 @@ impl<'a> Engine<'a> {
         let run_start = time::Instant::now();
         let rate = Duration::from_micros(16670);
 
-        self.process_queue(time::Duration::ZERO);
+        self.process_queue();
         self.init();
         info!(self.queue, "ready");
 
@@ -175,15 +170,13 @@ impl<'a> Engine<'a> {
         }
     }
 
-    fn process_queue(&mut self, elapsed: time::Duration) {
-        let messages = self.process_queue_rust(elapsed);
+    fn process_queue(&mut self) {
+        let messages = self.process_queue_rust();
         self.process_queue_lua(messages);
     }
 
-    fn process_queue_rust(&mut self, elapsed: time::Duration) -> Vec<Message> {
+    fn process_queue_rust(&mut self) -> Vec<Message> {
         let mut state = &mut unwrap!(self.state.lock());
-        state.vars.insert("elapsed".to_string(), vars::Value::Int(elapsed.as_millis() as i64));
-
         let mut messages: Vec<Message> = Vec::new();
         loop {
             if self.shutdown {

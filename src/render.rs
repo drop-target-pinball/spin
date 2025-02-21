@@ -3,9 +3,6 @@ use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 
 pub struct State {
-    pub elapsed: i64,
-    pub queue: Queue,
-    pub ops: Vec<Instruction>,
     pub videos: HashMap<String, Video>
 }
 

@@ -9,7 +9,7 @@ fn run_lua_test(eng: &mut Engine, name: &str) -> Option<String> {
     eng.shutdown = false;
 
     let queue = eng.queue();
-    queue.post(Message::Halt);
+    queue.post(Message::Reset);
     eng.tick(run_start.elapsed());
     queue.post(Message::Run(Name{name: name.to_string()}));
 
@@ -59,11 +59,14 @@ pub fn main() {
     let mut test_passed = 0;
     let mut test_failed = 0;
 
-    for (name, def) in conf.scripts {
-        if !def.test {
-            continue
-        }
+    let mut scripts = conf.scripts
+        .iter()
+        .filter(|i| i.1.test)
+        .map(|(n, _)| n.clone())
+        .collect::<Vec<String>>();
+    scripts.sort();
 
+    for name in scripts {
         println!("running test: {}", name);
         match run_lua_test(&mut eng, &name) {
             None => {

@@ -43,8 +43,8 @@ pub trait Device {
     fn init(&mut self, s: &mut State, r: &mut render::State);
     fn poll(&mut self, s: &mut State) -> error::Result<()>;
     fn process(&mut self, s: &mut State, msg: &Message);
-    fn render(&mut self, s: &mut render::State);
-    fn present(&mut self, s: &render::State);
+    fn render(&mut self, s: &mut State, rs: &mut render::State);
+    fn present(&mut self, s: &mut State, rs: &render::State);
 }
 
 // https://stackoverflow.com/questions/42516203/converting-rgba-image-to-grayscale-golang

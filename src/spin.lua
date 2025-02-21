@@ -5,6 +5,7 @@ local pub = {
     conf = {},
     vars = {},
     gfx = require("_render").gfx,
+    elapsed = 0,
 }
 
 local script_defs = {}
@@ -21,6 +22,10 @@ pub.ON          = pub.FULL
 
 -------------------------------------------------------------------------------
 local function halt()
+    alive = {}
+end
+
+local function reset()
     alive = {}
 end
 
@@ -104,7 +109,8 @@ local function service_coroutines(kind, msg)
     end
 end
 
-function pub.post(msg)
+function pub.post(elapsed, msg)
+    pub.elapsed = elapsed
     local kind = ""
     local body = nil
     if type(msg) == "string" then
@@ -122,6 +128,8 @@ function pub.post(msg)
 
     if kind == 'halt' then
         halt()
+    elseif kind == 'reset' then
+        reset()
     elseif kind == 'kill' then
         kill(body.name)
     elseif kind == 'kill_group' then
@@ -292,9 +300,9 @@ end
 
 function pub.sleep(secs)
     local millis = secs * 1000
-    local wake_at = pub.int('elapsed') + millis
+    local wake_at = pub.elapsed + millis
     coroutine.yield(function ()
-        return pub.int('elapsed') >= wake_at, 'wake'
+        return pub.elapsed >= wake_at, 'wake'
     end)
 end
 
@@ -326,7 +334,7 @@ function pub.for_ball(name, time)
     local expires = 0
     local time_ms = time * 1000
     return function(kind, msg)
-        local now = spin.int('elapsed')
+        local now = spin.elapsed
         if kind == std.SWITCH_UPDATED and msg.name == name and msg.active then
             here = true
             expires = now + time_ms
@@ -367,9 +375,9 @@ end
 function pub.for_time(secs)
     check.nv("secs", secs)
     local millis = secs * 1000
-    local wake_at = pub.int('elapsed') + millis
+    local wake_at = pub.elapsed + millis
     return function (kind, msg)
-        return pub.int('elapsed') >= wake_at, 'wake'
+        return pub.elapsed >= wake_at, 'wake'
     end
 end
 

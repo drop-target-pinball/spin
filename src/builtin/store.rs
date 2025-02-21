@@ -35,10 +35,9 @@ impl Store {
 
     fn start_timer(&mut self, s: &mut State, msg: &Name) {
         let Some(def) = s.conf.timers.get(&msg.name) else { return };
-        let elapsed = s.vars["elapsed"].as_i64();
         let timer = Timer{
             def: def.clone(),
-            last_update: elapsed,
+            last_update: s.elapsed,
             expire_at: None,
         };
         self.timers.insert(msg.name.clone(), timer);
@@ -63,8 +62,16 @@ impl Store {
         self.timers.clear();
     }
 
+    fn reset(&mut self, s: &mut State) {
+        self.halt();
+        s.vars = HashMap::new();
+        for (name, v) in &s.conf.vars {
+            vars::define(&mut s.queue, &mut s.vars, &s.conf.namespaces, &name, &v.kind);
+        }
+    }
+
     fn tick(&mut self, s: &mut State) {
-        let now = s.vars["elapsed"].as_i64();
+        let now = s.elapsed;
 
         let mut updates: Vec<(String, vars::Value)> = Vec::new();
         let mut expired: Vec<String> = Vec::new();
@@ -115,9 +122,7 @@ impl Store {
 
 impl Device for Store {
     fn init(&mut self, s: &mut State, _: &mut render::State) {
-        for (name, v) in &s.conf.vars {
-            vars::define(&mut s.queue, &mut s.vars, &s.conf.namespaces, &name, &v.kind);
-        }
+        self.reset(s);
     }
 
     fn poll(&mut self, _: &mut State) -> Result<()> { Ok(()) }
@@ -126,6 +131,7 @@ impl Device for Store {
         match msg {
             Message::Halt => self.halt(),
             Message::KillGroup(m) => self.kill_group(s, m),
+            Message::Reset => self.reset(s),
             Message::ResetTimer(m) => self.reset_timer(s, m),
             Message::Set(m) => self.set_vars(s, m),
             Message::StartTimer(m) => self.start_timer(s, m),
@@ -135,8 +141,8 @@ impl Device for Store {
         }
     }
 
-    fn render(&mut self, _: &mut render::State) {}
-    fn present(&mut self, _: &render::State) {}
+    fn render(&mut self, _: &mut State,  _: &mut render::State) {}
+    fn present(&mut self, _: &mut State, _: &render::State) {}
 }
 
 fn timers_for_group(conf: &AppConfig, kill_group: &str) -> Vec<String> {

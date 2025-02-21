@@ -56,6 +56,25 @@ impl Video {
     pub fn frame(&self) -> &Canvas<Surface<'static>> {
         &self.frame
     }
+
+    pub fn reset(&mut self) {
+        let layer0 = &mut self.layers[0];
+        layer0.set_draw_color(Color::BLACK);
+        layer0.clear();
+        for i in 1..self.layers.len() {
+            let layer = &mut self.layers[i];
+            layer.set_draw_color(Color{r: 0, g: 0, b: 0, a: 0});
+            layer.clear();
+        }
+    }
+
+    // pub fn process(&mut self, s: &mut State, msg: &Message) {
+    //     match msg {
+    //         Message::Reset => self.reset(),
+    //         _ => (),
+    //     }
+    // }
+
 }
 
 pub fn new_canvas(conf: &VideoDef) -> Canvas<Surface<'static>> {
@@ -271,19 +290,19 @@ impl<'ttf> Renderer<'ttf> {
         Ok(())
     }
 
-    pub fn render(&mut self, state: &mut render::State) -> Result<()> {
-        for (name, video) in &mut state.videos {
-            for inst in &state.ops {
+    pub fn render(&mut self, s: &mut State, rs: &mut render::State) -> Result<()> {
+        for (name, video) in &mut rs.videos {
+            for inst in &s.render_ops {
                 if inst.device != *name {
                     continue
                 }
 
                 #[cfg(feature = "debug_render")]
-                diag!(state.queue, "render: {:?}", inst);
+                diag!(rs.queue, "render: {:?}", inst);
 
                 let layer = video.layer(inst.layer);
                 if let Err(e) = self.render_instruction(layer, inst) {
-                    fault!(state.queue, "{}", e);
+                    fault!(s.queue, "{}", e);
                 }
             }
             video.flatten()?;

@@ -49,8 +49,7 @@ impl Console<'_> {
     }
 
     fn checked_log(&mut self, s: &mut State, text: &str) -> rustyline::Result<()> {
-        let elapsed = s.vars["elapsed"].as_i64();
-        let fmt_uptime = format!("[{:10.3}]", elapsed as f64 / 1000.0);
+        let fmt_uptime = format!("[{:10.3}]", s.elapsed as f64 / 1000.0);
         self.out.print(format!("{} {}\n", Color::Blue.bold().paint(fmt_uptime), text))?;
         Ok(())
     }
@@ -88,8 +87,8 @@ impl Device for Console<'_> {
         }
     }
 
-    fn render(&mut self, _: &mut render::State) {}
-    fn present(&mut self, _: &render::State) {}
+    fn render(&mut self, _: &mut State, _: &mut render::State) {}
+    fn present(&mut self, _: &mut State, _: &render::State) {}
 }
 
 fn run(mut editor: DefaultEditor, state: Arc<Mutex<State>>) {
