@@ -72,7 +72,7 @@ end
 function pub.score_draw()
     while true do
         local gfx = spin.gfx(std.DMD)
-        gfx.new(gfx.BLACK)
+        gfx.new(spin.OFF)
         if spin.int(std.PLAYER_COUNT) == 1 then
             score_single_draw(gfx)
         else
