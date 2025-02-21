@@ -376,7 +376,7 @@ end
 function pub.for_script(name)
     check.nv("name", name)
     return function (kind, msg)
-        return kind == "script_ended" and msg.name == name
+        return (kind == "script_ended" or kind == "script_killed") and msg.name == name
     end
 end
 

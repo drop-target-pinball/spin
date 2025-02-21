@@ -332,10 +332,10 @@ impl Runtime {
     pub fn new(dirs: Dirs) -> Runtime {
         Runtime {
             debug_config: false,
-            prog_name: "".to_string(),
-            prog_description: "".to_string(),
-            prog_version: "".to_string(),
-            prog_date: "".to_string(),
+            prog_name: "PROG".to_string(),
+            prog_description: "PROGRAM".to_string(),
+            prog_version: "ERSION".to_string(),
+            prog_date: "DATE".to_string(),
             mode: RunMode::Develop,
             dirs,
             error: None,

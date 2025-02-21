@@ -27,6 +27,11 @@ path = "src/tools/spin-id-gen.rs"
 name = "spin-dmd-font"
 path = "src/tools/spin-dmd-font.rs"
 
+[[test]]
+name = "lua-tests"
+path = "tests/test_lua.rs"
+harness = false
+
 [features]
 default = ["sdl"]
 sdl = ["dep:sdl2"]

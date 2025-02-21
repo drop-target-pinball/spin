@@ -30,8 +30,7 @@ fn run_lua_test(eng: &mut Engine, name: &str) -> Option<String> {
     eng.error()
 }
 
-#[test]
-pub fn test_lua() {
+pub fn main() {
     let mut runtime = Runtime::new(Dirs::default());
     runtime.mode = RunMode::AutoTest;
     let conf = match load_config(&runtime) {
