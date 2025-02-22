@@ -43,7 +43,8 @@ pub struct Monitor {
     canvas: Canvas<Window>,
     playfield: Texture<'static>,
     states: HashMap<String, DriverState>,
-    layouts: HashMap<String, Vec<Layout>>
+    driver_layouts: HashMap<String, Vec<Layout>>,
+    switch_layouts: HashMap<String, Vec<Layout>>,
 }
 
 impl Monitor {
@@ -73,7 +74,8 @@ impl Monitor {
             canvas,
             playfield: pf_texture,
             states: HashMap::new(),
-            layouts: HashMap::new(),
+            driver_layouts: HashMap::new(),
+            switch_layouts: HashMap::new(),
          })
     }
 
@@ -142,8 +144,10 @@ impl Monitor {
     pub fn init(&mut self, s: &mut State) {
         for (name, def) in &s.conf.drivers {
             self.states.insert(name.to_string(), DriverState::default());
-            self.layouts.insert(name.to_string(), def.layout.clone());
-
+            self.driver_layouts.insert(name.to_string(), def.layout.clone());
+        }
+        for (name, def) in &s.conf.switches {
+            self.switch_layouts.insert(name.to_string(), def.layout.clone());
         }
     }
 
@@ -161,7 +165,7 @@ impl Monitor {
         }
     }
 
-    pub fn present(&mut self, elapsed: i64, _: &State) -> Result<()> {
+    pub fn present(&mut self, elapsed: i64, s: &State) -> Result<()> {
         try_present!(self.canvas.copy(&self.playfield, None, None));
         for (name, ds) in &mut self.states {
             #[cfg(feature = "debug_monitor")] {
@@ -171,7 +175,7 @@ impl Monitor {
             if ds.mode != DriverMode::Pulse {
                 update_state(elapsed, ds);
                 if ds.on_now {
-                   draw_layout(&mut self.canvas, &self.layouts[name], ds.alpha_pct)?;
+                   draw_layout(&mut self.canvas, &self.driver_layouts[name], ds.alpha_pct)?;
                 }
             }
         }
@@ -180,7 +184,7 @@ impl Monitor {
             if ds.mode == DriverMode::Pulse {
                 update_state(elapsed, ds);
                 if ds.on_now {
-                   draw_layout(&mut self.canvas, &self.layouts[name], ds.alpha_pct)?;
+                   draw_layout(&mut self.canvas, &self.driver_layouts[name], ds.alpha_pct)?;
                 }
             }
         }
@@ -189,6 +193,12 @@ impl Monitor {
             for (_, def) in &s.conf.switches {
                 draw_layout(&mut self.canvas, &def.layout, 0.9)?;
             }
+        }
+
+        for (name, sw) in &s.switches {
+            if !sw.active { continue }
+            let Some(layout) = self.switch_layouts.get(name) else { continue };
+            draw_layout(&mut self.canvas, layout, 0.9)?;
         }
 
         self.canvas.present();

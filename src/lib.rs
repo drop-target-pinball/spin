@@ -14,7 +14,7 @@ pub mod sdl;
 const DEFAULT_PULSE_TIME: i64 = 25;
 
 pub mod prelude {
-    pub use crate::builtin;
+    pub use crate::builtin::*;
     pub use crate::config::*;
     pub use crate::engine::*;
     pub use crate::message::*;
@@ -25,7 +25,7 @@ pub mod prelude {
     pub use crate::{unwrap, expect, chain};
     pub use crate::{try_device, try_init, try_present, try_render};
 
-    pub use crate::{Device, Video};
+    pub use crate::{Device, State, Switch, Video};
     pub use crate::{rgb_to_gray, sec_to_millis};
 
     #[cfg(feature = "sdl")]
@@ -34,10 +34,27 @@ pub mod prelude {
 
 use crate::prelude::*;
 
+use std::collections::HashMap;
 pub use crate::error::{Error, Result};
+
 
 #[cfg(feature = "sdl")]
 pub type Video = crate::sdl::video::Video;
+
+pub struct Switch {
+    pub active: bool,
+    pub last_update: i64,
+}
+
+pub struct State {
+    pub elapsed: i64,
+    pub conf: AppConfig,
+    pub runtime: Runtime,
+    pub queue: Queue,
+    pub vars: vars::Vars,
+    pub render_ops: Vec<render::Instruction>,
+    pub switches: HashMap<String, Switch>,
+}
 
 pub trait Device {
     fn init(&mut self, s: &mut State, r: &mut render::State);

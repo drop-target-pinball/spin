@@ -9,15 +9,6 @@ use std::{
 use std::sync::Mutex;
 use std::collections::HashMap;
 
-pub struct State {
-    pub elapsed: i64,
-    pub conf: AppConfig,
-    pub runtime: Runtime,
-    pub queue: Queue,
-    pub vars: vars::Vars,
-    pub render_ops: Vec<render::Instruction>,
-}
-
 pub struct Engine<'a> {
     queue: Queue,
     state: Arc<Mutex<State>>,
@@ -41,6 +32,14 @@ impl<'a> Engine<'a> {
         }
         let r_state = render::State{videos};
 
+        let mut switches = HashMap::new();
+        for name in conf.switches.keys() {
+            switches.insert(name.clone(), Switch{
+                active: false,
+                last_update: 0
+            });
+        }
+
         let state = Arc::new(Mutex::new(State {
             elapsed: 0,
             conf,
@@ -48,6 +47,7 @@ impl<'a> Engine<'a> {
             queue: queue.clone(),
             vars: vars::Vars::new(),
             render_ops: Vec::new(),
+            switches
         }));
 
         let script_env = unwrap!(script::Env::new(state.clone()));

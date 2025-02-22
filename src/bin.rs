@@ -59,17 +59,24 @@ pub fn main() -> ExitCode  {
         }
     }
 
-    let store = builtin::Store::new();
+    let store = Store::new();
     e.add_device(Box::new(store));
-    let validator = builtin::Validator::default();
+    let validator = Validator::default();
     e.add_device(Box::new(validator));
 
     if mode == RunMode::Release {
-        let logger = builtin::Logger::default();
+        let logger = Logger::default();
         e.add_device(Box::new(logger));
     } else {
-        let console = builtin::Console::new(e.state());
+        let console = Console::new(e.state());
         e.add_device(Box::new(console));
+    }
+
+    if mode == RunMode::Develop || mode == RunMode::AutoTest {
+        if let Some(mock_conf) = conf.mock {
+            let mock_device = mock::Device::new(&mock_conf);
+            e.add_device(Box::new(mock_device));
+        }
     }
 
     info!(e.queue(), "{}: {}, version {}", crate_name!(), crate_description!(), crate_version!());

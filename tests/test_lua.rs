@@ -47,11 +47,11 @@ pub fn main() {
         }
     }
 
-    let store = builtin::Store::new();
+    let store = Store::new();
     eng.add_device(Box::new(store));
-    let validator = builtin::Validator::default();
+    let validator = Validator::default();
     eng.add_device(Box::new(validator));
-    let logger = builtin::Logger::default();
+    let logger = Logger::default();
     eng.add_device(Box::new(logger));
     eng.init();
 

@@ -280,40 +280,24 @@ pub struct VocalDef {
 pub struct AppConfig {
     pub module_name: Option<String>,
 
-    #[serde(default)]
-    pub displays: HashMap<String, VideoDef>,
-    #[serde(default)]
-    pub drivers: HashMap<String, DriverDef>,
-    #[serde(default)]
-    pub flippers: HashMap<String, FlipperDef>,
-    #[serde(default)]
-    pub fonts: HashMap<String, FontDef>,
-    #[serde(default)]
-    pub keyboard: Vec<KeyDef>,
-    #[serde(default)]
-    pub matrices: HashMap<String, MatrixDef>,
-    #[serde(default)]
-    pub music: HashMap<String, MusicDef>,
-    #[serde(default)]
-    pub namespaces: HashMap<String, HashMap<String, VarDef>>,
-    #[serde(default)]
-    pub run_groups: HashMap<String, RunGroup>,
-    #[serde(default)]
-    pub scripts: HashMap<String, ScriptDef>,
-    #[serde(default)]
-    pub sounds: HashMap<String, SoundDef>,
-    #[serde(default)]
-    pub std: Vec<String>,
-    #[serde(default)]
-    pub switches: HashMap<String, SwitchDef>,
-    #[serde(default)]
-    pub timers: HashMap<String, TimerDef>,
-    #[serde(default)]
-    pub vocals: HashMap<String, VocalDef>,
-    #[serde(default)]
-    pub vars: HashMap<String, VarDef>,
-    #[serde(default)]
-    pub video: HashMap<String, VideoDef>,
+    #[serde(default)] pub displays: HashMap<String, VideoDef>,
+    #[serde(default)] pub drivers: HashMap<String, DriverDef>,
+    #[serde(default)] pub flippers: HashMap<String, FlipperDef>,
+    #[serde(default)] pub fonts: HashMap<String, FontDef>,
+    #[serde(default)] pub keyboard: Vec<KeyDef>,
+    #[serde(default)] pub matrices: HashMap<String, MatrixDef>,
+    #[serde(default)] pub mock: Option<mock::Config>,
+    #[serde(default)] pub music: HashMap<String, MusicDef>,
+    #[serde(default)] pub namespaces: HashMap<String, HashMap<String, VarDef>>,
+    #[serde(default)] pub run_groups: HashMap<String, RunGroup>,
+    #[serde(default)] pub scripts: HashMap<String, ScriptDef>,
+    #[serde(default)] pub sounds: HashMap<String, SoundDef>,
+    #[serde(default)] pub std: Vec<String>,
+    #[serde(default)] pub switches: HashMap<String, SwitchDef>,
+    #[serde(default)] pub timers: HashMap<String, TimerDef>,
+    #[serde(default)] pub vocals: HashMap<String, VocalDef>,
+    #[serde(default)] pub vars: HashMap<String, VarDef>,
+    #[serde(default)] pub video: HashMap<String, VideoDef>,
 
     #[cfg(feature = "sdl")]
     pub sdl: Option<crate::sdl::Config>,
