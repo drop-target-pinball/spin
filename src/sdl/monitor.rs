@@ -128,7 +128,15 @@ impl Monitor {
         ds.schedule = msg.schedule.clone();
         ds.pos = find_schedule_pos(elapsed % ds.cycle_len, &ds.schedule);
         ds.on_now = ds.schedule[ds.pos].0;
+    }
 
+    fn reset_lights(&mut self, s: &State) {
+        for (name, state) in &mut self.states {
+            let def = &s.conf.drivers[name];
+            if def.kind == DriverKind::Lamp {
+                state.mode = DriverMode::Off;
+            }
+        }
     }
 
     pub fn init(&mut self, s: &mut State) {
@@ -147,11 +155,13 @@ impl Monitor {
             Message::StopDriver(m) => self.stop_driver( &m),
             Message::PulseDriver(m) => self.pulse_driver(elapsed, &m),
             Message::PwmDriver(m) => self.pwm_driver(elapsed, &m),
+            Message::Reset => self.reset_lights(s),
+            Message::ResetLights => self.reset_lights(s),
             _ => (),
         }
     }
 
-    pub fn present(&mut self, elapsed: i64, s: &State) -> Result<()> {
+    pub fn present(&mut self, elapsed: i64, _: &State) -> Result<()> {
         try_present!(self.canvas.copy(&self.playfield, None, None));
         for (name, ds) in &mut self.states {
             #[cfg(feature = "debug_monitor")] {

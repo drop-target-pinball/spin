@@ -509,6 +509,13 @@ function pub.rejected(reason)
     table.insert(queue, { rejected = {reason=reason}})
 end
 
+function pub.reset()
+    table.insert(queue, "reset")
+end
+
+function pub.reset_lights()
+    table.insert(queue, "reset_lights")
+end
 
 function pub.reset_timer(name)
     check.nv("name", name, "string")

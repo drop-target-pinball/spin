@@ -196,6 +196,11 @@ impl<'a> Engine<'a> {
                                 self.shutdown = true
                             }
                         }
+                        Message::Reset => {
+                            for v in &mut self.r_state.videos.values_mut() {
+                                v.reset();
+                            }
+                        }
                         Message::Shutdown => self.shutdown = true,
                         Message::ScriptEnded(m) => {
                             if m.name == self.main {

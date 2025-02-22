@@ -66,15 +66,9 @@ impl Video {
             layer.set_draw_color(Color{r: 0, g: 0, b: 0, a: 0});
             layer.clear();
         }
+        self.dirty = true;
+        self.flatten().unwrap();
     }
-
-    // pub fn process(&mut self, s: &mut State, msg: &Message) {
-    //     match msg {
-    //         Message::Reset => self.reset(),
-    //         _ => (),
-    //     }
-    // }
-
 }
 
 pub fn new_canvas(conf: &VideoDef) -> Canvas<Surface<'static>> {
