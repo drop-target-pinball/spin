@@ -27,11 +27,8 @@ pub enum Error {
     #[error("presentation error: {0}")]
     Present(String),
 
-    #[error("invalid script environment: {0}")]
-    ScriptEnv(String),
-
-    #[error("{0}")]
-    ScriptExec(String),
+    #[error("script error: {0}")]
+    Script(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -78,5 +75,12 @@ macro_rules! try_present {
 macro_rules! try_render {
     ($expr:expr) => {
         chain!($expr, Error::Render)
+    }
+}
+
+#[macro_export]
+macro_rules! try_script {
+    ($expr:expr) => {
+        chain!($expr, Error::Script)
     }
 }

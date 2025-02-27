@@ -23,7 +23,7 @@ pub mod prelude {
     pub use crate::script;
     pub use crate::{alert, diag, raise, fault, info};
     pub use crate::{unwrap, expect, chain};
-    pub use crate::{try_device, try_init, try_present, try_render};
+    pub use crate::{try_device, try_init, try_present, try_render, try_script};
 
     pub use crate::{Device, State, Switch, Video};
     pub use crate::{rgb_to_gray, sec_to_millis};
@@ -35,12 +35,16 @@ pub mod prelude {
 use crate::prelude::*;
 
 use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
+
 pub use crate::error::{Error, Result};
 
 
 #[cfg(feature = "sdl")]
 pub type Video = crate::sdl::video::Video;
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct Switch {
     pub active: bool,
     pub last_update: i64,

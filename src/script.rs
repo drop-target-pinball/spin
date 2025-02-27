@@ -40,106 +40,68 @@ impl Env {
         let lua = unsafe { Lua::unsafe_new() };
         for (name, data) in SCRIPTS {
             let chunk = lua.load(data).set_name(name);
-            if let Err(e) = chunk.exec() {
-                return raise!(Error::ScriptExec, "{}", e);
-            }
+            try_script!(chunk.exec());
         }
         if !s.runtime.is_release() {
             for (name, data) in TEST_SCRIPTS {
                 let chunk = lua.load(data).set_name(name);
-                if let Err(e) = chunk.exec() {
-                    return raise!(Error::ScriptExec, "{}", e);
-                }
+                try_script!(chunk.exec());
             }
         }
 
         let globals = lua.globals();
-        let spin: LuaTable = match globals.get("spin") {
-            Ok(p) => p,
-            Err(_) => return raise!(Error::ScriptEnv, "'spin' not found in globals")
-        };
+        let spin: LuaTable = try_script!(globals.get("spin"));
+        let render: LuaTable = try_script!(globals.get("_render"));
+        let post: LuaFunction = try_script!(spin.get("post"));
 
-        let render: LuaTable = match globals.get("_render") {
-            Ok(p) => p,
-            Err(_) => return raise!(Error::ScriptEnv, "'_render' not found in globals")
-        };
+        let lua_conf = try_script!(lua.to_value(&s.conf));
+        try_script!(spin.set("conf", lua_conf));
 
-        let post: LuaFunction = match spin.get("post") {
-            Ok(p) => p,
-            Err(_) => return raise!(Error::ScriptEnv, "'post' not found in 'spin'")
-        };
+        let lua_runtime = try_script!(lua.to_value(&s.runtime));
+        try_script!(spin.set("runtime", lua_runtime));
 
-        let lua_conf = match lua.to_value(&s.conf) {
-            Ok(v) => v,
-            Err(e) => return raise!(Error::ScriptEnv, "unable to convert config: {}", e)
-        };
+        let lua_switches = try_script!(lua.to_value(&s.switches));
+        try_script!(spin.set("switches", lua_switches));
 
-        if let Err(e) = spin.set("conf", lua_conf) {
-            return raise!(Error::ScriptEnv, "unable to set config: {}", e);
-        }
-
-        let lua_runtime = match lua.to_value(&s.runtime) {
-            Ok(v) => v,
-            Err(e) => return raise!(Error::ScriptEnv, "unable to convert runtime: {}", e)
-        };
-
-        if let Err(e) = spin.set("runtime", lua_runtime) {
-            return raise!(Error::ScriptEnv, "unable to set runtime: {}", e);
-        }
-
-        let init: LuaFunction = match spin.get("_init") {
-            Ok(p) => p,
-            Err(_) => return raise!(Error::ScriptEnv, "'_init' not found in 'spin'")
-        };
-
-        match init.call::<bool>(()) {
-            Ok(r) => r,
-            Err(e) => return raise!(Error::ScriptExec, "_init failed: {}", e)
-        };
+        let init: LuaFunction = try_script!(spin.get("_init"));
+        try_script!(init.call::<bool>(()));
 
         drop(s);
         Ok(Env{lua, state, spin, render, post})
     }
 
     pub fn send_vars(&self) -> Result<()> {
-        let vars = &mut unwrap!(self.state.lock()).vars;
-        let lua_vars= match self.lua.to_value(vars) {
-            Ok(v) => v,
-            Err(e) => return raise!(Error::ScriptEnv, "unable to convert vars: {}", e),
-        };
+        let s  = &mut self.state.lock().unwrap();
 
-        match self.spin.set("vars", &lua_vars) {
-            Ok(()) => Ok(()),
-            Err(e) => raise!(Error::ScriptEnv, "unable to send vars: {}", e)
-        }
+        let lua_vars = try_script!(self.lua.to_value(&s.vars));
+        try_script!(self.spin.set("vars", &lua_vars));
+
+        let lua_switches = try_script!(self.lua.to_value(&s.switches));
+        try_script!(self.spin.set("switches", lua_switches));
+
+        Ok(())
     }
 
     pub fn recv_vars(&self) -> Result<()> {
         let state = &mut unwrap!(self.state.lock());
 
-        let lua_ops: LuaTable = match self.render.get("ops") {
-            Ok(v) => v,
-            Err(e) => return raise!(Error::ScriptEnv, "unable to receive vars: {}", e)
-        };
-
+        let lua_ops: LuaTable = try_script!(self.render.get("ops"));
         let mut ops: Vec<render::Instruction> = Vec::new();
         for v in lua_ops.sequence_values::<LuaValue>() {
             match v {
-                Err(e) => return raise!(Error::ScriptExec, "expected table in ops: {}", e),
+                Err(e) => return raise!(Error::Script, "expected table in ops: {}", e),
                 Ok(tbl) => {
                     let tbl_msg = tbl.clone();
                     match self.lua.from_value(tbl) {
                         Ok(o) => ops.push(o),
-                        Err(e) => return raise!(Error::ScriptExec, "invalid return value: {}\n{}", e, value_to_string(&tbl_msg)),
+                        Err(e) => return raise!(Error::Script, "invalid return value: {}\n{}", e, value_to_string(&tbl_msg)),
                     }
                 }
             }
         }
         state.render_ops = ops.clone();
-        match lua_ops.clear() {
-            Ok(()) => Ok(()),
-            Err(e) => raise!(Error::ScriptEnv, "unable to clear ops table: {}", e),
-        }
+        try_script!(lua_ops.clear());
+        Ok(())
     }
 
     pub fn load_string(&self, name: &str, data: &str) -> LuaChunk {
@@ -148,46 +110,33 @@ impl Env {
 
     pub fn exec(&self, name: &str, data: &[u8]) -> Result<()> {
         let chunk = self.lua.load(data).set_name(name);
-        match chunk.exec() {
-            Ok(_) => Ok(()),
-            Err(e) => raise!(Error::ScriptExec, "{}", e)
-        }
+        try_script!(chunk.exec());
+        Ok(())
     }
 
     pub fn process(&self, msg: &Message) -> Result<Vec<Message>> {
         let elapsed = self.state.lock().unwrap().elapsed;
 
-        let lua_elapsed = match self.lua.to_value(&elapsed) {
-            Ok(m) => m,
-            Err(e) => return raise!(Error::ScriptExec, "cannot convert elapsed to a lua value: {}", e)
-        };
+        let lua_elapsed = try_script!(self.lua.to_value(&elapsed));
+        let lua_msg = try_script!(self.lua.to_value(&msg));
 
-        let lua_msg = match self.lua.to_value(&msg) {
-            Ok(m) => m,
-            Err(e) => return raise!(Error::ScriptExec, "cannot convert message to lua table: {}", e)
-        };
-
-        let results = match self.post.call::<LuaMultiValue>((&lua_elapsed, &lua_msg)) {
-            Ok(r) => r,
-            Err(e) => return raise!(Error::ScriptExec, "{}", e)
-        };
-
+        let results = try_script!(self.post.call::<LuaMultiValue>((&lua_elapsed, &lua_msg)));
         let result = &results[0];
         let rets = match result {
             LuaValue::Table(t) => t,
             LuaValue::Nil => return Ok(Vec::new()),
-            _ => return raise!(Error::ScriptExec, "invalid lua return type: {:?}", result)
+            _ => return raise!(Error::Script, "invalid lua return type: {:?}", result)
         };
 
         let mut msgs: Vec<Message> = Vec::new();
 
         for ret in rets.sequence_values::<LuaValue>() {
             match ret {
-                Err(e) => return raise!(Error::ScriptExec, "expected table in returns: {}", e),
+                Err(e) => return raise!(Error::Script, "expected table in returns: {}", e),
                 Ok(tbl) => {
                     match self.lua.from_value(tbl) {
                         Ok(m) => msgs.push(m),
-                        Err(e) => return raise!(Error::ScriptExec, "invalid return value: {}", e),
+                        Err(e) => return raise!(Error::Script, "invalid return value: {}", e),
                     }
                 }
             }
