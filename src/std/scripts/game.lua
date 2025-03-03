@@ -13,7 +13,7 @@ local function assert_open_spot()
 end
 
 local function accept_payment()
-    if vars.free_play then
+    if settings.free_play then
         return true
     end
     if settings.credits == 0 then

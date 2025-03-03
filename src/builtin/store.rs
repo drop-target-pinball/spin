@@ -75,6 +75,7 @@ impl Store {
         for (name, v) in &s.conf.settings {
             vars::define(&mut s.queue, &mut s.settings, &name, &v.kind);
         }
+        s.players = Vec::new();
         let max_players = s.conf.max_players;
         for _ in 0..max_players {
             let mut vars = vars::Vars::new();

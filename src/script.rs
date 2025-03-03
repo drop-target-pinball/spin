@@ -55,8 +55,16 @@ impl Env {
         let render: LuaTable = try_script!(globals.get("_render"));
         let post: LuaFunction = try_script!(spin.get("post"));
 
-        let lua_conf = try_script!(lua.to_value(&s.conf));
-        try_script!(spin.set("conf", lua_conf));
+        let lua_conf: LuaTable = try_script!(spin.get("conf"));
+        let conf_value: LuaValue = try_script!(lua.to_value(&s.conf));
+        let conf_table = match conf_value {
+            LuaValue::Table(t) => t,
+            _ => return raise!(Error::Script, "not a table"),
+        };
+        for pair in  conf_table.pairs::<String, LuaValue>() {
+            let (k, v) = try_script!(pair);
+            try_script!(lua_conf.set(k, v));
+        }
 
         let lua_runtime = try_script!(lua.to_value(&s.runtime));
         try_script!(spin.set("runtime", lua_runtime));
@@ -138,7 +146,6 @@ impl Env {
         };
 
         let mut msgs: Vec<Message> = Vec::new();
-
         for ret in rets.sequence_values::<LuaValue>() {
             match ret {
                 Err(e) => return raise!(Error::Script, "expected table in returns: {}", e),
