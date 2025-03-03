@@ -16,6 +16,11 @@ silence = spin.silence
 stop_music = spin.stop_music
 stop_vocal = spin.stop_vocal
 
+conf = spin.conf
+vars = spin.vars
+settings = spin.settings
+players = spin.players
+
 function credit(num)
     if num == nil then
         num = 1

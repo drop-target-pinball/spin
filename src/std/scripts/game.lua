@@ -1,11 +1,11 @@
 local spin = require("spin")
-local vars, settings = spin.vars, spin.settings
+local conf, vars, settings = spin.conf, spin.vars, spin.settings
 local std = require("std")
 
 local pub = {}
 
 local function assert_open_spot()
-    if vars.player_count >= spin.conf.max_players then
+    if vars.player_count >= conf.max_players then
         spin.rejected(std.GAME_FULL)
         return false
     end

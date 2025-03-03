@@ -3,26 +3,8 @@ local std = require("std")
 
 local queue = {}
 
-local function set_nv(name, value)
-    check.nv('name', name)
-    check.nv('value', value)
 
-    if type(value) == "number" then
-        if tonumber(tostring(value), 10) then
-            return { int = value }
-        else
-            return { float = value }
-        end
-    elseif type(value) == "boolean" then
-        return { bool = value }
-    elseif type(value) == "string" then
-        return { string = value }
-    end
-
-    error("unsupported type: " .. value)
-end
-
-local function new_vars_table(params)
+local function to_vars_table(tbl, params)
     local meta = {}
     local label = check.nv("label", params.label, "string")
     local namespace = check.nv("namespace", params.namespace, "string")
@@ -79,9 +61,7 @@ local function new_vars_table(params)
         return next, raw, nil
     end
 
-    local tbl = {}
     setmetatable(tbl, meta)
-    return tbl
 end
 
 local pub = {
@@ -91,6 +71,9 @@ local pub = {
     raw_vars = {},
     raw_settings = {},
     raw_players = {},
+    vars = {},
+    settings = {},
+    players = {},
 }
 
 local script_defs = {}
@@ -127,22 +110,22 @@ function pub._init()
         scripts[name] = mod[name]
     end
 
-    pub.vars = new_vars_table({
+   to_vars_table(pub.vars, {
         label="var",
         namespace="var",
         conf=pub.conf.vars,
         raw=pub.raw_vars
     })
-    pub.settings = new_vars_table({
+    to_vars_table(pub.settings, {
         label="setting",
         namespace="setting",
         conf=pub.conf.settings,
         raw=pub.raw_settings,
     })
-    pub.players = {}
     for i=1,pub.conf.max_players do
         pub.raw_players[i] = {}
-        pub.players[i] = new_vars_table({
+        pub.players[i] = {}
+        to_vars_table(pub.players[i], {
             label="player var",
             namespace="player",
             player=i,

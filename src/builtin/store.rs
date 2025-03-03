@@ -22,7 +22,7 @@ impl Store {
 
     fn set_var(&self, s: &mut State, ns: Namespace, name: &str, value: &vars::Value) {
         let result = match ns {
-            Namespace::Player(i) => vars::set(&mut s.players[i], ns, name, value),
+            Namespace::Player(i) => vars::set(&mut s.players[i-1], ns, name, value),
             Namespace::Setting => vars::set(&mut s.settings, ns, name, value),
             Namespace::Var => vars::set(&mut s.vars, ns, name, value),
         };
