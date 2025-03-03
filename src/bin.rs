@@ -22,6 +22,14 @@ struct Cli {
 }
 
 pub fn main() -> ExitCode  {
+    // let msg = Set{
+    //     namespace: Namespace::Var,
+    //     name: "foo".to_string(),
+    //     value: vars::Value::String("bar".to_string()),
+    // };
+    // println!("{}", serde_json::to_string(&msg).unwrap());
+    // return ExitCode::SUCCESS;
+
     let cli = Cli::parse();
 
     let mode = if cli.release {

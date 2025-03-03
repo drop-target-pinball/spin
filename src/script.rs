@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 use std::env;
 use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
 use mlua::prelude::*;
 use crate::{Error, Result};
 
@@ -73,12 +74,19 @@ impl Env {
     pub fn send_vars(&self) -> Result<()> {
         let s  = &mut self.state.lock().unwrap();
 
-        let lua_vars = try_script!(self.lua.to_value(&s.vars));
-        try_script!(self.spin.set("vars", &lua_vars));
+        let mut vars: LuaTable = try_script!(self.spin.get("raw_vars"));
+        let mut settings: LuaTable = try_script!(self.spin.get("raw_settings"));
+        let players: LuaTable = try_script!(self.spin.get("raw_players"));
+
+        try_script!(send_var_group(&s.vars, &mut vars));
+        try_script!(send_var_group(&s.settings, &mut settings));
+        for (i, player) in s.players.iter().enumerate() {
+            let mut lua_player: LuaTable = try_script!(players.get(i + 1));
+            try_script!(send_var_group(&player, &mut lua_player));
+        }
 
         let lua_switches = try_script!(self.lua.to_value(&s.switches));
         try_script!(self.spin.set("switches", lua_switches));
-
         Ok(())
     }
 
@@ -101,6 +109,7 @@ impl Env {
         }
         state.render_ops = ops.clone();
         try_script!(lua_ops.clear());
+
         Ok(())
     }
 
@@ -143,6 +152,19 @@ impl Env {
         }
         Ok(msgs)
     }
+}
+
+fn send_var_group(vars: &HashMap<String,vars::Value>, lua_table: &mut LuaTable) -> Result<()> {
+    for (name, value) in vars {
+        let name = name.to_string();
+        match value {
+            vars::Value::Int(i) => try_script!(lua_table.set(name, *i)),
+            vars::Value::Float(f) => try_script!(lua_table.set(name, *f)),
+            vars::Value::String(s) => try_script!(lua_table.set(name, s.clone())),
+            vars::Value::Bool(b) => try_script!(lua_table.set(name, *b)),
+        }
+    }
+    Ok(())
 }
 
 fn value_to_string(val: &LuaValue) -> String {

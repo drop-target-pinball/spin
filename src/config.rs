@@ -12,11 +12,10 @@ use crate::{Error, Result};
 
 use serde::{Serialize, Deserialize};
 
-const STD: [(&str, &str); 4] = [
+const STD: [(&str, &str); 3] = [
     ("dmd", include_str!("std/config/dmd.yaml")),
     ("service", include_str!("std/config/service.yaml")),
     ("game", include_str!("std/config/game.yaml")),
-    ("player_4", include_str!("std/config/player_4.yaml")),
 ];
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone, Copy, PartialEq)]
@@ -246,7 +245,6 @@ pub enum VarKind {
     Float(f64),
     String(String),
     Bool(bool),
-    Namespace{name: String},
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -275,10 +273,15 @@ pub struct VocalDef {
     pub duck: f64
 }
 
+fn default_max_players() -> usize { 4 }
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct AppConfig {
     pub module_name: Option<String>,
+
+    #[serde(default = "default_max_players")]
+    pub max_players: usize,
 
     #[serde(default)] pub displays: HashMap<String, VideoDef>,
     #[serde(default)] pub drivers: HashMap<String, DriverDef>,
@@ -288,9 +291,10 @@ pub struct AppConfig {
     #[serde(default)] pub matrices: HashMap<String, MatrixDef>,
     #[serde(default)] pub mock: Option<mock::Config>,
     #[serde(default)] pub music: HashMap<String, MusicDef>,
-    #[serde(default)] pub namespaces: HashMap<String, HashMap<String, VarDef>>,
+    #[serde(default)] pub player: HashMap<String, VarDef>,
     #[serde(default)] pub run_groups: HashMap<String, RunGroup>,
     #[serde(default)] pub scripts: HashMap<String, ScriptDef>,
+    #[serde(default)] pub settings: HashMap<String, VarDef>,
     #[serde(default)] pub sounds: HashMap<String, SoundDef>,
     #[serde(default)] pub std: Vec<String>,
     #[serde(default)] pub switches: HashMap<String, SwitchDef>,

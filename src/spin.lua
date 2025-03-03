@@ -1,17 +1,101 @@
 local check = require("check")
 local std = require("std")
 
+local queue = {}
+
+local function set_nv(name, value)
+    check.nv('name', name)
+    check.nv('value', value)
+
+    if type(value) == "number" then
+        if tonumber(tostring(value), 10) then
+            return { int = value }
+        else
+            return { float = value }
+        end
+    elseif type(value) == "boolean" then
+        return { bool = value }
+    elseif type(value) == "string" then
+        return { string = value }
+    end
+
+    error("unsupported type: " .. value)
+end
+
+local function new_vars_table(params)
+    local meta = {}
+    local label = check.nv("label", params.label, "string")
+    local namespace = check.nv("namespace", params.namespace, "string")
+    local conf = check.nv("conf", params.conf, "table")
+    local raw = check.nv("raw", params.raw, "table")
+    local player = params.player
+
+    function meta.__index(_, name)
+        local val = raw[name]
+        if val == nil then
+            error("no such " .. label .. ": " .. name)
+        end
+        return val
+    end
+
+    function meta.__newindex(_, name, val)
+        local def = conf[name]
+        if def == nil then
+            error("no such " .. label .. ": " .. name)
+        end
+        local u_val = nil
+        if def.kind.int ~= nil then
+            u_val = { int = math.tointeger(val) }
+        elseif def.kind.float ~= nil then
+            u_val = { float = tonumber(val) }
+        elseif def.kind.string ~= nil then
+            u_val = { string = tostring(val) }
+        elseif def.kind.bool ~= nil then
+            if type(val) ~= "boolean" then
+                error("not a boolean: " .. name .. " = " ..val)
+            end
+            u_val = { bool = val }
+        else
+            error("unexpected type: " .. name .. " = " .. val)
+        end
+
+        local ns_val = {}
+        if namespace == "player" then
+            ns_val = { player = player }
+        else
+            ns_val = namespace
+        end
+        local msg = {
+            set = {
+                namespace = ns_val,
+                name = name,
+                value = u_val,
+            }
+        }
+        table.insert(queue, msg)
+    end
+
+    function meta.__pairs(_)
+        return next, raw, nil
+    end
+
+    local tbl = {}
+    setmetatable(tbl, meta)
+    return tbl
+end
+
 local pub = {
     conf = {},
-    vars = {},
     gfx = require("_render").gfx,
     elapsed = 0,
+    raw_vars = {},
+    raw_settings = {},
+    raw_players = {},
 }
 
 local script_defs = {}
 local scripts = {}
 local alive = {}
-local queue = {}
 
 -- Colors
 pub.BLACK       = { r = 0,   g = 0,   b = 0,   a = 255 }
@@ -35,12 +119,36 @@ function pub._init()
         if type(mod) ~= "table" then
             error("module '" .. def.module .. "' did not return a table")
         end
-        script = mod[name]
+        local script = mod[name]
         if script == nil then
             error("script '" .. name .. "' not found in module '" .. def.module .. "'")
         end
         script_defs[name] = def
         scripts[name] = mod[name]
+    end
+
+    pub.vars = new_vars_table({
+        label="var",
+        namespace="var",
+        conf=pub.conf.vars,
+        raw=pub.raw_vars
+    })
+    pub.settings = new_vars_table({
+        label="setting",
+        namespace="setting",
+        conf=pub.conf.settings,
+        raw=pub.raw_settings,
+    })
+    pub.players = {}
+    for i=1,pub.conf.max_players do
+        pub.raw_players[i] = {}
+        pub.players[i] = new_vars_table({
+            label="player var",
+            namespace="player",
+            player=i,
+            conf=pub.conf.player,
+            raw=pub.raw_players[i],
+        })
     end
     return true
 end
@@ -174,25 +282,6 @@ function pub.video(name)
     return v
 end
 
-local function set_nv(name, value)
-    check.nv('name', name)
-    check.nv('value', value)
-
-    if type(value) == "number" then
-        if tonumber(tostring(value), 10) then
-            return { int = value }
-        else
-            return { float = value }
-        end
-    elseif type(value) == "boolean" then
-        return { bool = value }
-    elseif type(value) == "string" then
-        return { string = value }
-    end
-
-    error("unsupported type: " .. value)
-end
-
 -------------------------------------------------------------------------------
 function pub.format_score(score)
     check.nv("score", score)
@@ -222,75 +311,8 @@ local function extract_var(msg)
     return msg.name, kind, value
 end
 
-function pub.ns(ns_name)
-    local vars = nil
-    if ns_name == nil then
-        vars = pub.vars
-    else
-        local ns = pub.vars[ns_name]
-        if ns == nil or ns.vars == nil then
-            error("not a namespace: " .. ns_name)
-        end
-        vars = ns.vars
-    end
-
-    local ns = {}
-
-    function ns.add_int(name, value)
-        check.nv("name", name, "string")
-        check.nv("value", value, "number")
-        local old = ns.int(name)
-        ns.set(name, old + value)
-    end
-
-    function ns.bool(name)
-        check.nv('name', name)
-        local v = vars[name]
-        if v == nil then
-            error("undefined variable: " .. name)
-        end
-        if v["bool"] == nil then
-            error("variable is not a bool: " .. name)
-        end
-        return v["bool"]
-    end
-
-    function ns.int(name)
-        check.nv('name', name)
-        local v = vars[name]
-        if v == nil then
-            error("undefined variable: " .. name)
-        end
-        if v["int"] == nil then
-            error("variable is not an int: " .. name)
-        end
-        return v["int"]
-    end
-
-    function ns.set(name, value)
-        check.nv("name", name, "string")
-        check.nv("value", value)
-        table.insert(queue, { set = {
-            ns = ns_name,
-            vars = {
-                [name] = set_nv(name, value)
-            }
-        }})
-    end
-
-    return ns
-end
-
-function pub.bool(name)
-    return pub.ns().bool(name)
-end
-
-function pub.int(name)
-    return pub.ns().int(name)
-end
-
 function pub.player()
-    return pub.ns("player_" .. pub.int("player"))
+    return pub.players[pub.vars.player]
 end
 
 -------------------------------------------------------------------------------
@@ -540,36 +562,15 @@ function pub.schedule_driver(name, schedule)
     }})
 end
 
-function pub.set(name, value)
-    check.nv("name", name, "string")
-    check.nv("value", value)
-    table.insert(queue, { set = {
-        vars = {
-            [name] = set_nv(name, value)
-        }
-    }})
-end
-
-function pub.set_ns(ns, name, value)
-    check.nv(ns, "ns")
-    check.nv(name, "name")
-    check.nv(value, "value")
-    table.insert(queue, { set = {
-        ns = ns,
-        vars = {
-            [name] = set_nv(name, value)
-        }
-    }})
-end
-
-function pub.set_multi(vars)
-    check.nv("vars", vars)
-    local msg = {}
-    for name, value in pairs(vars) do
-        msg[name] = set_nv(name, value)
-    end
-    table.insert(queue, { set = {vars=msg} })
-end
+-- function pub.set(name, value)
+--     check.nv("name", name, "string")
+--     check.nv("value", value)
+--     table.insert(queue, { set = {
+--         vars = {
+--             [name] = set_nv(name, value)
+--         }
+--     }})
+-- end
 
 function pub.silence()
     table.insert(queue, "silence")

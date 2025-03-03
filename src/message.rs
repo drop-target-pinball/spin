@@ -3,15 +3,23 @@ use crate::prelude::*;
 use serde::{Serialize, Deserialize};
 use std::sync::mpsc::Sender;
 use std::fmt;
-use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Copy, Clone)]
 #[serde(rename_all = "snake_case")]
-pub enum NoteKind {
-    Alert,
-    Diag,
-    Fault,
-    Info,
+pub enum Namespace {
+    Player(usize),
+    Setting,
+    Var,
+}
+
+impl fmt::Display for Namespace {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Player(p) => write!(f, "player #{}", p),
+            Self::Setting => write!(f, "setting"),
+            Self::Var => write!(f, "var"),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -95,6 +103,15 @@ impl fmt::Display for Name {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, PartialEq, Copy, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum NoteKind {
+    Alert,
+    Diag,
+    Fault,
+    Info,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Note {
     pub kind: NoteKind,
@@ -161,6 +178,18 @@ impl fmt::Display for ScheduleDriver {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Set {
+    pub namespace: Namespace,
+    pub name: String,
+    pub value: vars::Value,
+}
+
+impl fmt::Display for Set {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} {}={}", self.namespace, self.name, self.value)
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SwitchUpdated {
@@ -175,26 +204,8 @@ impl fmt::Display for SwitchUpdated {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Vars {
-    pub ns: Option<String>,
-    pub vars: HashMap<String, vars::Value>
-}
-
-impl fmt::Display for Vars {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut nvs: Vec<String> = Vec::new();
-        if let Some(ns) = &self.ns {
-            nvs.push(format!("ns={}", ns));
-        }
-        for (name, val) in &self.vars {
-            nvs.push(format!("{}={}", name, val));
-        }
-        write!(f, "{}", nvs.join(", "))
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Updated {
+    pub namespace: Namespace,
     pub name: String,
     pub was: vars::Value,
     pub value: vars::Value,
@@ -203,6 +214,19 @@ pub struct Updated {
 impl fmt::Display for Updated {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}={} (was={})", self.name, self.value, self.was)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Var {
+    pub namespace: Namespace,
+    pub name: String,
+    pub value: vars::Value,
+}
+
+impl fmt::Display for Var {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} {}={}", self.namespace, self.name, self.value)
     }
 }
 
@@ -226,8 +250,8 @@ pub enum Message {
     ResetTimer(Name),
     ScriptEnded(Name),
     ScriptKilled(Name),
-    Set(Vars),
     ScheduleDriver(ScheduleDriver),
+    Set(Set),
     Shutdown,
     StartDriver(Name),
     StartTimer(Name),
@@ -242,6 +266,7 @@ pub enum Message {
     Tick,
     TimerExpired(Name),
     Updated(Updated),
+    Var(Var),
     VocalEnded(Name),
     Wake,
 }
@@ -289,6 +314,7 @@ impl fmt::Display for Message {
             Message::Tick => Ok(()),
             Message::TimerExpired(m) => write!(f, "timer_expired: {}", m),
             Message::Updated(m) => write!(f, "updated: {}", m),
+            Message::Var(m) => write!(f, "var: {}", m),
             Message::VocalEnded(m) => write!(f, "vocal_ended: {}", m),
             Message::Wake => Ok(()),
         }

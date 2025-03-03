@@ -20,16 +20,19 @@ impl Store {
         }
     }
 
-    fn set_var(&self, s: &mut State, ns: &Option<String>, name: &str, value: &vars::Value) {
-        match vars::set(&mut s.vars, &ns, &name, &value) {
-            Ok(msg) => s.queue.post(Message::Updated(msg)),
+    fn set_var(&self, s: &mut State, ns: Namespace, name: &str, value: &vars::Value) {
+        let result = match ns {
+            Namespace::Player(i) => vars::set(&mut s.players[i], ns, name, value),
+            Namespace::Setting => vars::set(&mut s.settings, ns, name, value),
+            Namespace::Var => vars::set(&mut s.vars, ns, name, value),
+        };
+        match result {
+            Ok(maybe_msg) => {
+                if let Some(msg) = maybe_msg {
+                    s.queue.post(Message::Updated(msg));
+                }
+            }
             Err(e) => fault!(s.queue, "{}", e),
-        }
-    }
-
-    fn set_vars(&self, s: &mut State, msg: &Vars) {
-        for (name, value) in &msg.vars {
-            self.set_var(s, &msg.ns, name, value);
         }
     }
 
@@ -41,7 +44,7 @@ impl Store {
             expire_at: None,
         };
         self.timers.insert(msg.name.clone(), timer);
-        self.set_var(s, &None, &def.var.clone(), &vars::Value::Int(def.start));
+        self.set_var(s, Namespace::Var, &def.var.clone(), &vars::Value::Int(def.start));
     }
 
     fn stop_timer(&mut self, msg: &Name) {
@@ -50,7 +53,7 @@ impl Store {
 
     fn reset_timer(&mut self, s: &mut State, msg: &Name) {
         let Some(def) = s.conf.timers.get(&msg.name) else { return };
-        self.set_var(s, &None, &def.var.clone(), &vars::Value::Int(def.start));
+        self.set_var(s, Namespace::Var, &def.var.clone(), &vars::Value::Int(def.start));
     }
 
     fn kill_group(&mut self, s: &mut State, msg: &Name) {
@@ -66,7 +69,19 @@ impl Store {
         self.halt();
         s.vars = HashMap::new();
         for (name, v) in &s.conf.vars {
-            vars::define(&mut s.queue, &mut s.vars, &s.conf.namespaces, &name, &v.kind);
+            vars::define(&mut s.queue, &mut s.vars, &name, &v.kind);
+        }
+        s.settings = HashMap::new();
+        for (name, v) in &s.conf.settings {
+            vars::define(&mut s.queue, &mut s.settings, &name, &v.kind);
+        }
+        let max_players = s.conf.max_players;
+        for _ in 0..max_players {
+            let mut vars = vars::Vars::new();
+            for (name, v) in &s.conf.player {
+                vars::define(&mut s.queue, &mut vars, name, &v.kind);
+            }
+            s.players.push(vars);
         }
     }
 
@@ -111,7 +126,7 @@ impl Store {
             }
         }
         for (name, val) in updates {
-            self.set_var(s, &None, &name, &val);
+            self.set_var(s, Namespace::Var, &name, &val);
         }
         for name in expired {
             self.timers.remove(&name);
@@ -133,7 +148,7 @@ impl Device for Store {
             Message::KillGroup(m) => self.kill_group(s, m),
             Message::Reset => self.reset(s),
             Message::ResetTimer(m) => self.reset_timer(s, m),
-            Message::Set(m) => self.set_vars(s, m),
+            Message::Set(m) => self.set_var(s, m.namespace, &m.name, &m.value),
             Message::StartTimer(m) => self.start_timer(s, m),
             Message::StopTimer(m) => self.stop_timer(m),
             Message::Tick => self.tick(s),

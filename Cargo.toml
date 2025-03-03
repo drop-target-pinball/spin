@@ -36,6 +36,7 @@ harness = false
 default = ["sdl"]
 sdl = ["dep:sdl2"]
 debug_audio = []
+debug_faults = []
 debug_fps = []
 debug_monitor = []
 debug_render = []

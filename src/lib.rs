@@ -56,6 +56,8 @@ pub struct State {
     pub runtime: Runtime,
     pub queue: Queue,
     pub vars: vars::Vars,
+    pub players: Vec<vars::Vars>,
+    pub settings: vars::Vars,
     pub render_ops: Vec<render::Instruction>,
     pub switches: HashMap<String, Switch>,
 }

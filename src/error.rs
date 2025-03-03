@@ -29,6 +29,9 @@ pub enum Error {
 
     #[error("script error: {0}")]
     Script(String),
+
+    #[error("unexpected type: {0}")]
+    UnexpectedType(String)
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -40,12 +43,24 @@ macro_rules! raise {
     };
 }
 
+#[cfg(not(feature = "debug_faults"))]
 #[macro_export]
 macro_rules! chain {
     ($expr:expr, $err:expr) => {
         match $expr {
             Ok(v) => v,
             Err(e) => return Err($err(e.to_string())),
+        }
+    };
+}
+
+#[cfg(feature = "debug_faults")]
+#[macro_export]
+macro_rules! chain {
+    ($expr:expr, $err:expr) => {
+        match $expr {
+            Ok(v) => v,
+            Err(e) => panic!("{}", e.to_string()),
         }
     };
 }

@@ -1,14 +1,16 @@
-namespaces:
-  player:
-    score:                      { kind: !int 0 }
-    extra_balls:                { kind: !int 0 }
-    extra_balls_awarded:        { kind: !int 0 }
-    replay_awarded:             { kind: !bool false }
+player:
+  score:                      { kind: !int 0 }
+  extra_balls:                { kind: !int 0 }
+  extra_balls_awarded:        { kind: !int 0 }
+  replay_awarded:             { kind: !bool false }
+
+
+settings:
+  credits:        { kind: !int 0 }
+  free_play:      { kind: !bool false }
 
 
 vars:
-  credits:        { kind: !int 0 }
-  free_play:      { kind: !bool false }
   game_active:    { kind: !bool false }
   player:         { kind: !int 1 }
   ball:           { kind: !int 1 }

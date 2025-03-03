@@ -46,6 +46,8 @@ impl<'a> Engine<'a> {
             runtime,
             queue: queue.clone(),
             vars: vars::Vars::new(),
+            players: Vec::new(),
+            settings: vars::Vars::new(),
             render_ops: Vec::new(),
             switches
         }));

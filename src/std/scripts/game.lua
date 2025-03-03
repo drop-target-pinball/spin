@@ -1,10 +1,11 @@
 local spin = require("spin")
+local vars, settings = spin.vars, spin.settings
 local std = require("std")
 
 local pub = {}
 
 local function assert_open_spot()
-    if spin.int(std.PLAYER_COUNT) >= spin.int(std.MAX_PLAYERS) then
+    if vars.player_count >= spin.conf.max_players then
         spin.rejected(std.GAME_FULL)
         return false
     end
@@ -12,15 +13,14 @@ local function assert_open_spot()
 end
 
 local function accept_payment()
-    if spin.bool(std.FREE_PLAY) then
+    if vars.free_play then
         return true
     end
-    local credits = spin.int(std.CREDITS)
-    if credits == 0 then
+    if settings.credits == 0 then
         spin.rejected(std.CREDITS_REQUIRED)
         return false
     end
-    spin.set(std.CREDITS, credits - 1)
+    settings.credits = settings.credits - 1
     return true
 end
 
@@ -28,7 +28,7 @@ function pub.start_service()
     while true do
         spin.wait(spin.for_switch(std.START_BUTTON))
         if assert_open_spot() and accept_payment() then
-            if spin.bool(std.GAME_ACTIVE) then
+            if vars.game_active then
                 spin.run(std.ADD_PLAYER)
             else
                 spin.run(std.START_GAME)
@@ -38,17 +38,16 @@ function pub.start_service()
 end
 
 function pub.start_game()
-    spin.set(std.PLAYER_COUNT, 1)
-    spin.set(std.PLAYER, 1)
-    spin.set(std.GAME_ACTIVE, true)
+    vars.player_count = 1
+    vars.player = 1
+    vars.game_active = true
 end
 
 function pub.add_player()
     if not assert_open_spot() then
         return
     end
-    local new_count = spin.int(std.PLAYER_COUNT) + 1
-    spin.set(std.PLAYER_COUNT, new_count)
+    vars.player_count = vars.player_count + 1
 end
 
 package.loaded["_game"] = pub

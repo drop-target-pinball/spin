@@ -33,3 +33,13 @@ function start()
     press(std.START_BUTTON)
 end
 
+function list(tbl)
+    for k, v in pairs(tbl) do
+        if type(v) == "string" then
+            print(k .. " = \"" .. v .. "\"")
+        else
+            print(k .. " = " .. tostring(v))
+        end
+    end
+end
+
