@@ -90,7 +90,7 @@ impl Env {
         try_script!(send_var_group(&s.settings, &mut settings));
         for (i, player) in s.players.iter().enumerate() {
             let mut lua_player: LuaTable = try_script!(players.get(i + 1));
-            try_script!(send_var_group(&player, &mut lua_player));
+            try_script!(send_var_group(player, &mut lua_player));
         }
 
         let lua_switches = try_script!(self.lua.to_value(&s.switches));
@@ -186,8 +186,8 @@ fn value_to_string(val: &LuaValue) -> String {
             s += &format!("{{ {} }}", kvs.join(", "));
         },
         LuaValue::Boolean(b) => s += &format!("{}", b),
-        LuaValue::Error(e) => s += &format!("error({})", e.to_string()),
-        LuaValue::Function(_) => s += &format!("function()"),
+        LuaValue::Error(e) => s += &format!("error({})", e),
+        LuaValue::Function(_) => s += "function()",
         LuaValue::Integer(i) => s += &format!("{}", i),
         LuaValue::Number(n) => s += &format!("{}", n),
         LuaValue::String(st) => s += &format!("'{}'", st.to_string_lossy()),

@@ -25,7 +25,7 @@ impl Video {
             layers.push(new_canvas(conf));
         }
         Video {
-            frame: new_canvas(&conf),
+            frame: new_canvas(conf),
             layers,
             dirty: true
         }
@@ -46,7 +46,7 @@ impl Video {
         try_render!(self.frame.surface_mut().set_blend_mode(BlendMode::Blend));
 
         for layer in &mut self.layers {
-            try_render!(layer.surface().blit(frame_rect, &mut self.frame.surface_mut(), frame_rect));
+            try_render!(layer.surface().blit(frame_rect, self.frame.surface_mut(), frame_rect));
         }
         try_render!(self.frame.surface_mut().set_blend_mode(BlendMode::None));
         self.dirty = false;
@@ -125,18 +125,10 @@ impl BitmapFont {
     }
 }
 
+#[derive(Default)]
 pub struct Renderer<'ttf> {
     ttf_fonts: HashMap<String, Font<'ttf, 'static>>,
     bmp_fonts: HashMap<String, BitmapFont>,
-}
-
-impl<'ttf> Default for Renderer<'ttf> {
-    fn default() -> Renderer<'ttf> {
-        Renderer {
-            ttf_fonts: HashMap::new(),
-            bmp_fonts: HashMap::new(),
-        }
-    }
 }
 
 impl<'ttf> Renderer<'ttf> {
@@ -200,27 +192,23 @@ impl<'ttf> Renderer<'ttf> {
 
         let x = if args.center_x {
             ((cvs.surface().width() - text.width()) / 2) as i32
+        } else if args.right {
+            args.x - text.width() as i32
         } else {
-            if args.right {
-               args.x - text.width() as i32
-            } else {
-                args.x
-            }
+            args.x
         };
 
         let y = if args.center_y {
             ((cvs.surface().height() - text.height()) / 2) as i32
+        } else if args.bottom {
+            args.y - text.height() as i32
         } else {
-            if args.bottom {
-                args.y - text.height() as i32
-            } else {
-                args.y
-            }
+            args.y
         };
 
         match text.blit(text.rect(), cvs.surface_mut(), Rect::new(x, y, text.width(), text.height())) {
             Ok(_) => Ok(()),
-            Err(e) => return raise!(Error::Render, "{}", e)
+            Err(e) => raise!(Error::Render, "{}", e)
         }
     }
 
@@ -228,29 +216,25 @@ impl<'ttf> Renderer<'ttf> {
         let (mut text_w, mut text_h) = (0, 0);
         for c in args.text.chars() {
             if let Some(tile) = font.tile_map.get(&c.to_string()) {
-                text_w = text_w + tile.w;
+                text_w += tile.w;
                 text_h = tile.h;
             }
         }
 
         let mut x = if args.center_x {
             ((cvs.surface().width() - text_w) / 2) as i32
+        } else if args.right {
+            args.x - text_w as i32
         } else {
-            if args.right {
-                args.x - text_w as i32
-            } else {
-                args.x
-            }
+            args.x
         };
 
         let y = if args.center_y {
             ((cvs.surface().height() - text_h) / 2) as i32
+        } else if args.bottom {
+            args.y - text_h as i32
         } else {
-            if args.bottom {
-                args.y - text_h as i32
-            } else {
-                args.y
-            }
+            args.y
         };
 
         for c in args.text.chars() {
@@ -263,7 +247,7 @@ impl<'ttf> Renderer<'ttf> {
         Ok(())
     }
 
-    fn new(&self, cvs: &mut Canvas<Surface<'static>>, color: &render::Color) -> Result<()> {
+    fn new_layer(&self, cvs: &mut Canvas<Surface<'static>>, color: &render::Color) -> Result<()> {
         cvs.set_draw_color(color.to_sdl());
         try_render!(cvs.fill_rect(Rect::new(0, 0, cvs.surface().width(), cvs.surface().height())));
         Ok(())
@@ -278,7 +262,7 @@ impl<'ttf> Renderer<'ttf> {
     pub fn render_instruction(&mut self, layer: &mut Canvas<Surface<'static>>, inst: &render::Instruction) -> Result<()> {
         match &inst.op {
             render::Op::DrawText(args) => self.draw_text(layer, args)?,
-            render::Op::New(color) => self.new(layer, color)?,
+            render::Op::New(color) => self.new_layer(layer, color)?,
             render::Op::FillRect(args) => self.fill_rect(layer, args)?,
         }
         Ok(())

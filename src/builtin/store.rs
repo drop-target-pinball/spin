@@ -69,11 +69,11 @@ impl Store {
         self.halt();
         s.vars = HashMap::new();
         for (name, v) in &s.conf.vars {
-            vars::define(&mut s.queue, &mut s.vars, &name, &v.kind);
+            vars::define(&mut s.queue, &mut s.vars, name, &v.kind);
         }
         s.settings = HashMap::new();
         for (name, v) in &s.conf.settings {
-            vars::define(&mut s.queue, &mut s.settings, &name, &v.kind);
+            vars::define(&mut s.queue, &mut s.settings, name, &v.kind);
         }
         s.players = Vec::new();
         let max_players = s.conf.max_players;
@@ -173,7 +173,7 @@ fn timers_for_group(conf: &AppConfig, kill_group: &str) -> Vec<String> {
     for (rg_name, def) in &conf.run_groups {
         if let Some(parent) = &def.parent {
             if parent == kill_group {
-                timer_names.extend(timers_for_group(conf, &rg_name));
+                timer_names.extend(timers_for_group(conf, rg_name));
             }
         }
     }

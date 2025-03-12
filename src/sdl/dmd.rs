@@ -10,7 +10,7 @@ use sdl2::rect::Rect;
 fn default_dot_size() -> u32 { 4 }
 fn default_padding() -> u32 { 1 }
 fn default_border_size() -> u32 { 20 }
-fn default_title() -> String { return "Dot Matrix Display".to_string() }
+fn default_title() -> String { "Dot Matrix Display".to_string() }
 fn default_panel_color() -> ColorDef { ColorDef::new(0x40, 0x40, 0x40, 0xff) }
 fn default_border_color() -> ColorDef { ColorDef::new(0x80, 0x80, 0x80, 0xff) }
 
@@ -107,7 +107,7 @@ impl Dmd {
                 let dx = border_size + self.conf.padding + (x * self.conf.padding) + (x * self.conf.dot_size);
                 let dy = border_size + self.conf.padding + (y * self.conf.padding) + (y * self.conf.dot_size);
                 let offset = ((y * self.video_def.width + x) * 4) as usize;
-                let dot = rgb_to_gray(data[offset+0] as u8, data[offset+1] as u8, data[offset+2] as u8) / 16;
+                let dot = rgb_to_gray(data[offset] as u8, data[offset+1] as u8, data[offset+2] as u8) / 16;
                 c.set_draw_color(palettes::ORANGE[dot as usize]);
                 try_present!(c.fill_rect(Rect::new(dx as i32, dy as i32, self.conf.dot_size, self.conf.dot_size)));
             }

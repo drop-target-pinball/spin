@@ -41,27 +41,33 @@ impl ColorDef {
     }
 }
 
-impl Into<Color> for ColorDef {
-    fn into(self) -> Color {
+impl From<ColorDef> for Color {
+    fn from(val: ColorDef) -> Self {
         Color{
-            r: self.r,
-            g: self.g,
-            b: self.b,
-            a: self.a,
+            r: val.r,
+            g: val.g,
+            b: val.b,
+            a: val.a,    
         }
     }
 }
 
 const HEADER_SIZE: usize = 16;
+const MAX_DIMENSION: u32 = 10240;
 
 pub fn decode_dmd(data: &[u8]) -> Result<Vec<Surface<'static>>> {
     if data.len() < HEADER_SIZE {
         return raise!(Error::InvalidFormat, "invalid DMD");
     }
-    // let header = u32::from_le_bytes(unwrap!(data[0..4].try_into()));
     let n_frames = u32::from_le_bytes(unwrap!(data[4..8].try_into()));
     let width = u32::from_le_bytes(unwrap!(data[8..12].try_into()));
     let height = u32::from_le_bytes(unwrap!(data[12..16].try_into()));
+
+    // Sanity check to make sure the dimensions are reasonable. If not, we
+    // are probably not reading a DMD file. 
+    if width > MAX_DIMENSION || height > MAX_DIMENSION {
+        return raise!(Error::InvalidFormat, "invalid DMD file");
+    }
 
     let total_size = HEADER_SIZE as u32 + (width * height * n_frames);
     if total_size as usize != data.len() {
@@ -79,7 +85,7 @@ pub fn decode_dmd(data: &[u8]) -> Result<Vec<Surface<'static>>> {
                 let dot = data[idx as usize];
                 // Values in file are going to be between 0x0 and 0xf. Copy
                 // the lower nibble to the higher nibble.
-                let dot = dot <<4 | dot;
+                let dot = (dot << 4) | dot;
                 canvas.set_draw_color(Color{r: dot, g: dot, b: dot, a: 0xff});
                 chain!(canvas.draw_point(Point::new(x as i32, y as i32)), Error::Render);
             }

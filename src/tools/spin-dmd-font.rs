@@ -36,7 +36,7 @@ pub fn display(name: &str, frame: &Surface<'static>, scale: u8) -> Result<(), St
 
     let tc = canvas.texture_creator();
     let tex = tc
-        .create_texture_from_surface(&frame)
+        .create_texture_from_surface(frame)
         .map_err(|e| e.to_string())?;
 
     canvas.copy(&tex, None, None).map_err(|e| e.to_string())?;

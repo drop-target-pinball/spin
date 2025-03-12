@@ -154,11 +154,11 @@ impl Monitor {
     pub fn process(&mut self, s: &mut State, msg: &Message) {
         let elapsed = s.elapsed;
         match msg {
-            Message::ScheduleDriver(m) => self.schedule_driver(elapsed, &m),
-            Message::StartDriver(m) => self.start_driver(&m),
-            Message::StopDriver(m) => self.stop_driver( &m),
-            Message::PulseDriver(m) => self.pulse_driver(elapsed, &m),
-            Message::PwmDriver(m) => self.pwm_driver(elapsed, &m),
+            Message::ScheduleDriver(m) => self.schedule_driver(elapsed, m),
+            Message::StartDriver(m) => self.start_driver(m),
+            Message::StopDriver(m) => self.stop_driver( m),
+            Message::PulseDriver(m) => self.pulse_driver(elapsed, m),
+            Message::PwmDriver(m) => self.pwm_driver(elapsed, m),
             Message::Reset => self.reset_lights(s),
             Message::ResetLights => self.reset_lights(s),
             _ => (),
@@ -272,7 +272,7 @@ fn draw_layout(cvs: &mut Canvas<Window>, layouts: &Vec<Layout>, alpha_pct: f64) 
     Ok(())
 }
 
-fn find_schedule_pos(cycle_pos: i64, sched: &Vec<(bool, f64)>) -> usize {
+fn find_schedule_pos(cycle_pos: i64, sched: &[(bool, f64)]) -> usize {
     let mut cycle_pos = cycle_pos;
     for (pos, s) in sched.iter().enumerate() {
         let time_ms = (s.1 * 1000.0) as i64;

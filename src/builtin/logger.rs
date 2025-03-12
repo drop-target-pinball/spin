@@ -51,7 +51,7 @@ where W: io::Write {
                 if s.runtime.is_develop() || s.runtime.is_auto_test() {
                     let text: String = msg.to_string();
                     if !text.is_empty() {
-                        self.log(s, &format!("{}", text));
+                        self.log(s, &text);
                     }
                 }
             }

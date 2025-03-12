@@ -29,7 +29,7 @@ pub struct Color {
 #[cfg(feature = "sdl")]
 impl Color {
     pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
-        Self { r: r, g: g, b: b, a: a }
+        Self { r, g, b, a }
     }
 
     pub fn to_sdl(&self) -> sdl2::pixels::Color {

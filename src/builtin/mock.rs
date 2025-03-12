@@ -86,7 +86,7 @@ impl Device {
             s.queue.post(Message::SwitchUpdated(su_msg));
         } else {
             // Otherwise, a ball has been locked
-            lock.count = lock.count + 1
+            lock.count += 1
         }
     }
 

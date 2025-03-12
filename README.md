@@ -34,6 +34,57 @@ Demos from the earlier version. Newer demos on the way!
 
 [![Super Pinball System: alpha-v6](https://img.youtube.com/vi/3ZsQgoLa-z0/0.jpg)](https://youtu.be/3ZsQgoLa-z0 "Super Pinball System: alpha-v6")
 
+## Development
+
+This project has been tested on Ubuntu and macOS. 
+
+### Ubuntu 
+
+First install rust:
+
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+Install system dependencies:
+
+    sudo apt-get install \
+        git-lfs \
+        build-essential \
+        pkg-config \
+        lua5.4 liblua5.4-dev \
+        libsdl2{,-image,-mixer,-ttf,-gfx}-dev
+
+
+### macOS 
+
+TBD 
+
+### Running Judge Dredd
+
+*NOTE*: This requires resources that cannot be publicly shared on GitHub. You 
+will need access to the private repository for this to work.
+
+Clone the Judge Dredd repository and place it in the parent directory:
+
+    git clone --recurse-submodules \
+        https://github.com/drop-target-pinball/judge-dredd.git \
+        ../judge-dredd
+    export SPIN_DIR=$(pwd)/../judge-dredd
+
+
+To start with no scripts running:
+
+    cargo run 
+
+At the spin prompt, start the main script:
+
+    run('main')
+
+To automatically start the init script, use:
+
+    cargo run -- init 
+
+
+
 ## License
 
 MIT

@@ -26,8 +26,8 @@ pub struct Context {
     pub video: VideoSubsystem,
 }
 
-impl Context {
-    pub fn new() -> Context {
+impl Default for Context {
+    fn default() -> Context {
         let sdl = expect!(sdl2::init(), "unable to initialize SDL");
         let audio = expect!(sdl.audio(), "unable to initialize SDL audio");
         let ttf = Box::new(expect!(sdl2::ttf::init(), "unable to initialize SDL truetype"));
@@ -49,26 +49,17 @@ pub struct Device {
 
 impl Device {
     pub fn new(app_conf: &AppConfig, runtime: &Runtime) -> Self {
-        let ctx = Context::new();
+        let ctx = Context::default();
         let device_conf = app_conf.sdl.as_ref().unwrap();
 
-        let audio = match &device_conf.audio {
-            Some(conf) => Some(Audio::new(&conf)),
-            None => None,
-        };
-
-        let image = match &device_conf.image {
-            Some(c) => Some(unwrap!(Image::new(&c))),
-            None => None
-        };
-        let dmd = match &device_conf.dmd {
-            Some(c) => Some(Dmd::new(&ctx, &app_conf.video, &c)),
-            None => None,
-        };
-        let monitor = match &device_conf.monitor {
-            Some(c) => Some(unwrap!(Monitor::new(&ctx, &c, runtime))),
-            None => None
-        };
+        let audio = device_conf.audio.as_ref()
+            .map(Audio::new);
+        let image = device_conf.image.as_ref()
+            .map(|conf| unwrap!(Image::new(conf)));
+        let dmd = device_conf.dmd.as_ref()
+            .map(|conf| Dmd::new(&ctx, &app_conf.video, conf));
+        let monitor = device_conf.monitor.as_ref()
+            .map(|conf| unwrap!(Monitor::new(&ctx, conf, runtime)));
         let input = Input::new(app_conf);
         let renderer = Renderer::default();
 
@@ -78,7 +69,7 @@ impl Device {
 
 }
 
-impl<'a> crate::Device for Device {
+impl crate::Device for Device {
     fn init(&mut self, s: &mut State, _: &mut render::State) {
         if let Some(audio) = &mut self.audio {
             audio.init(s);

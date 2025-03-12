@@ -21,14 +21,14 @@ pub struct Engine<'a> {
     pub shutdown: bool,
 }
 
-impl<'a> Engine<'a> {
+impl Engine<'_> {
     pub fn new(conf: AppConfig, runtime: Runtime) -> Self {
         let (tx, rx) = mpsc::channel();
         let queue = Queue::new(tx);
 
         let mut videos = HashMap::new();
         for (name, c) in &conf.video {
-            videos.insert(name.to_string(), Video::new(&c));
+            videos.insert(name.to_string(), Video::new(c));
         }
         let r_state = render::State{videos};
 
@@ -122,7 +122,7 @@ impl<'a> Engine<'a> {
     fn present(&mut self) {
         let mut s = unwrap!(self.state.lock());
         for d in &mut self.devices {
-            d.present(&mut s, &mut self.r_state);
+            d.present(&mut s, &self.r_state);
         }
     }
 
@@ -178,7 +178,7 @@ impl<'a> Engine<'a> {
     }
 
     fn process_queue_rust(&mut self) -> Vec<Message> {
-        let mut state = &mut unwrap!(self.state.lock());
+        let state = &mut unwrap!(self.state.lock());
         let mut messages: Vec<Message> = Vec::new();
         loop {
             if self.shutdown {
@@ -189,7 +189,7 @@ impl<'a> Engine<'a> {
                 Err(TryRecvError::Disconnected) => panic!("channel closed"),
                 Ok(msg) => {
                     for dev in &mut self.devices {
-                        dev.process(&mut state, &msg);
+                        dev.process(state, &msg);
                     }
                     match &msg {
                         Message::Note(n) => {

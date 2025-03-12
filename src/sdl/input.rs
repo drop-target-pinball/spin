@@ -53,17 +53,12 @@ impl Input {
             Event::KeyUp { timestamp: _, window_id: _, keycode, scancode: _, keymod, repeat } => {
                 self.key(s, keycode, keymod, *repeat, false);
             }
-            Event::Window { timestamp: _, window_id: _, win_event } => {
-                match win_event {
-                    WindowEvent::Close => {
-                        s.queue.post(Message::Shutdown);
-                        if s.runtime.is_auto_test() {
-                            std::process::exit(1);
-                        }
-                    },
-                    _ => (),
+            Event::Window { timestamp: _, window_id: _, win_event: WindowEvent::Close } => {
+                s.queue.post(Message::Shutdown);
+                if s.runtime.is_auto_test() {
+                    std::process::exit(1);
                 }
-            }
+            },
             Event::Quit { .. } => {
                 s.queue.post(Message::Shutdown);
                 if s.runtime.is_auto_test() {

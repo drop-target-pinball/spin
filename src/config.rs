@@ -348,7 +348,7 @@ impl Runtime {
     }
 
     pub fn is_shutdown_on_fault(&self) -> bool {
-        return self.mode == RunMode::Release || self.mode == RunMode::AutoTest
+        self.mode == RunMode::Release || self.mode == RunMode::AutoTest
     }
 }
 
