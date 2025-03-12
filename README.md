@@ -46,7 +46,7 @@ First install rust:
 
 Install system dependencies:
 
-    sudo apt-get install \
+    sudo apt install \
         git-lfs \
         build-essential \
         pkg-config \
