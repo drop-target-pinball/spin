@@ -24,21 +24,17 @@ game logic to use Lua? This branch is the result of that work.
 
 Click here for the [Judge Dredd](https://github.com/drop-target-pinball/judge-dredd) game implementation in progress.
 
-## Older Demos
+## Demos
 
-Demos from the earlier version. Newer demos on the way!
+### Alpha 1
 
-[![Super Pinball System: alpha-v8](https://img.youtube.com/vi/8MO_zlPVimo/0.jpg)](https://youtu.be/8MO_zlPVimo "Super Pinball System: alpha-v8")
-
-[![Super Pinball System: alpha-v7](https://img.youtube.com/vi/LSEnGz4i4sg/0.jpg)](https://youtu.be/LSEnGz4i4sg "Super Pinball System: alpha-v7")
-
-[![Super Pinball System: alpha-v6](https://img.youtube.com/vi/3ZsQgoLa-z0/0.jpg)](https://youtu.be/3ZsQgoLa-z0 "Super Pinball System: alpha-v6")
+[![Super Pinball System v2: alpha 1](https://img.youtube.com/vi/1C-hGZwhJbU/0.jpg)](https://youtu.be/1C-hGZwhJbU "Super Pinball System v2: alpha 1")
 
 ## Development
 
-This project has been tested on Ubuntu and macOS. 
+This project has been tested on Ubuntu and macOS.
 
-### Ubuntu 
+### Ubuntu
 
 First install rust:
 
@@ -54,13 +50,13 @@ Install system dependencies:
         libsdl2{,-image,-mixer,-ttf,-gfx}-dev
 
 
-### macOS 
+### macOS
 
-TBD 
+TBD
 
 ### Running Judge Dredd
 
-*NOTE*: This requires resources that cannot be publicly shared on GitHub. You 
+*NOTE*: This requires resources that cannot be publicly shared on GitHub. You
 will need access to the private repository for this to work.
 
 Clone the Judge Dredd repository and place it in the parent directory:
@@ -73,7 +69,7 @@ Clone the Judge Dredd repository and place it in the parent directory:
 
 To start with no scripts running:
 
-    cargo run 
+    cargo run
 
 At the spin prompt, start the main script:
 
@@ -81,7 +77,7 @@ At the spin prompt, start the main script:
 
 To automatically start the init script, use:
 
-    cargo run -- init 
+    cargo run -- init
 
 
 
