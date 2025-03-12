@@ -26,7 +26,7 @@ Click here for the [Judge Dredd](https://github.com/drop-target-pinball/judge-dr
 
 ## Demos
 
-### Alpha 1
+### v2 - alpha 1
 
 [![Super Pinball System v2: alpha 1](https://img.youtube.com/vi/1C-hGZwhJbU/0.jpg)](https://youtu.be/1C-hGZwhJbU "Super Pinball System v2: alpha 1")
 
