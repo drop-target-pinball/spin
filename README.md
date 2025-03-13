@@ -80,7 +80,6 @@ To automatically start the init script, use:
     cargo run -- init
 
 
-
 ## License
 
-MIT
+Apache Software License, Version 2.0
