@@ -50,6 +50,11 @@ Install system dependencies:
         libsdl2{,-image,-mixer,-ttf,-gfx}-dev
 
 
+For generating the P-ROC bindings, clang is needed:
+
+    sudo apt install libclang-dev
+
+
 ### macOS
 
 TBD
