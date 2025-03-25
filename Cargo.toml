@@ -33,7 +33,7 @@ path = "tests/test_lua.rs"
 harness = false
 
 [features]
-default = ["sdl"]
+default = ["sdl", "proc"]
 sdl = ["dep:sdl2"]
 proc = ["dep:bindgen"]
 debug_audio = []
