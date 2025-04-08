@@ -9,7 +9,7 @@ function pub.test_start_service_no_credits()
     settings.free_play = false
     spin.run(std.START_SERVICE)
     test.press(std.START_BUTTON)
-    test.wait(1, "rejected", spin.for_any(std.REJECTED))
+    test.wait(1, "rejected", spin.for_event(std.REJECTED))
 end
 
 function pub.test_start_service_player_4()
@@ -26,7 +26,7 @@ function pub.test_start_service_player_4()
     test.press(std.START_BUTTON)
     test.wait(1, "player_count=4", spin.for_eq(std.PLAYER_COUNT, 4))
     test.press(std.START_BUTTON)
-    test.wait(1, "rejected", spin.for_any(std.REJECTED))
+    test.wait(1, "rejected", spin.for_event(std.REJECTED))
 end
 
 

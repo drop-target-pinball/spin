@@ -94,6 +94,6 @@ pub struct DrawText {
 #[serde(rename_all = "snake_case")]
 pub enum Op {
     DrawText(DrawText),
+    Fill(Color),
     FillRect(FillRect),
-    New(Color),
 }

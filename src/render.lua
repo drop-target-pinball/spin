@@ -60,9 +60,9 @@ function pub.gfx(device, layer, priority)
         })
     end
 
-    function gfx.new(color)
+    function gfx.fill(color)
         local r, g, b, a = unpack_color(color)
-        insert_op('new', {
+        insert_op('fill', {
             r=r,
             g=g,
             b=b,

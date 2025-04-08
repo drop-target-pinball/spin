@@ -294,7 +294,7 @@ local function extract_var(msg)
     return msg.name, kind, value
 end
 
-function pub.player()
+function pub.player_up()
     return pub.players[pub.vars.player]
 end
 
@@ -324,7 +324,7 @@ function pub.wait(...)
     end)
 end
 
-function pub.for_any(name)
+function pub.for_event(name)
     check.nv("name", name)
     return function(kind)
         return kind == name, kind, msg

@@ -13,7 +13,7 @@ local function score_footer(gfx)
 end
 
 local function score_single_draw(gfx)
-    local score = spin.player().score
+    local score = spin.player_up().score
     local font = std.DMD_18X10
     if score < 10^9 then
         font = std.DMD_18X12
@@ -72,13 +72,13 @@ end
 function pub.score_draw()
     while true do
         local gfx = spin.gfx(std.DMD)
-        gfx.new(spin.OFF)
+        gfx.fill(spin.BLACK)
         if vars.player_count == 1 then
             score_single_draw(gfx)
         else
             score_multi_draw(gfx)
         end
-        spin.wait(spin.for_any(std.TICK))
+        spin.wait(spin.for_event(std.TICK))
     end
 end
 

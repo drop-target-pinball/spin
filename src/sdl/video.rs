@@ -247,7 +247,7 @@ impl<'ttf> Renderer<'ttf> {
         Ok(())
     }
 
-    fn new_layer(&self, cvs: &mut Canvas<Surface<'static>>, color: &render::Color) -> Result<()> {
+    fn fill(&self, cvs: &mut Canvas<Surface<'static>>, color: &render::Color) -> Result<()> {
         cvs.set_draw_color(color.to_sdl());
         try_render!(cvs.fill_rect(Rect::new(0, 0, cvs.surface().width(), cvs.surface().height())));
         Ok(())
@@ -262,7 +262,7 @@ impl<'ttf> Renderer<'ttf> {
     pub fn render_instruction(&mut self, layer: &mut Canvas<Surface<'static>>, inst: &render::Instruction) -> Result<()> {
         match &inst.op {
             render::Op::DrawText(args) => self.draw_text(layer, args)?,
-            render::Op::New(color) => self.new_layer(layer, color)?,
+            render::Op::Fill(color) => self.fill(layer, color)?,
             render::Op::FillRect(args) => self.fill_rect(layer, args)?,
         }
         Ok(())
