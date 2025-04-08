@@ -10,6 +10,7 @@ kill_group = spin.kill_group
 play_music = spin.play_music
 play_sound = spin.play_sound
 play_vocal = spin.play_vocal
+reset = spin.reset
 run = spin.run
 set_var = spin.set_var
 silence = spin.silence

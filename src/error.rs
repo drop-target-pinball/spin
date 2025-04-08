@@ -27,7 +27,7 @@ pub enum Error {
     #[error("presentation error: {0}")]
     Present(String),
 
-    #[error("script error: {0}")]
+    #[error("{0}")]
     Script(String),
 
     #[error("unexpected type: {0}")]
